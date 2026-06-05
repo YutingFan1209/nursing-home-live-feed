@@ -1,0 +1,54 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: nursing-home-alerts-pipeline
+  annotations:
+    run.googleapis.com/launch-stage: BETA
+spec:
+  template:
+    spec:
+      taskCount: 1
+      timeoutSeconds: 900
+      template:
+        spec:
+          containers:
+            - image: gcr.io/YOUR_PROJECT/nursing-home-alerts:latest
+              command: ["python", "main.py"]
+              resources:
+                limits:
+                  cpu: "2"
+                  memory: "2Gi"
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: pipeline-secrets
+                      key: DATABASE_URL
+                - name: ANTHROPIC_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: pipeline-secrets
+                      key: ANTHROPIC_API_KEY
+                - name: SENDGRID_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: pipeline-secrets
+                      key: SENDGRID_API_KEY
+                - name: ALERT_FROM_EMAIL
+                  value: "alerts@yourorg.org"
+                - name: ALERT_TO_EMAILS
+                  valueFrom:
+                    secretKeyRef:
+                      name: pipeline-secrets
+                      key: ALERT_TO_EMAILS
+                - name: ARCHIVE_BUCKET
+                  value: "your-gcs-bucket-name"
+          serviceAccountName: nursing-home-alerts-sa
+
+---
+# Cloud Scheduler — trigger the job daily at 6am UTC
+# Deploy with:
+#   gcloud scheduler jobs create http nursing-home-alerts-daily \
+#     --schedule="0 6 * * *" \
+#     --uri="https://run.googleapis.com/v2/projects/YOUR_PROJECT/locations/us-central1/jobs/nursing-home-alerts-pipeline:run" \
+#     --oauth-service-account-email=nursing-home-alerts-sa@YOUR_PROJECT.iam.gserviceaccount.com
