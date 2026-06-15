@@ -45,7 +45,7 @@ def _get_gmail_service():
     return build('gmail', 'v1', credentials=creds)
 
 
-def fetch_alert_articles(days_back: int = 5) -> list[dict]:
+def fetch_alert_articles(days_back: int = 2) -> list[dict]:
     """Fetch article URLs from recent Google Alert emails."""
     try:
         service = _get_gmail_service()
