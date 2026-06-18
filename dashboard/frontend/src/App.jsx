@@ -53,7 +53,7 @@ function DealCard({ deal, expanded, onToggle }) {
   const src = SOURCE[deal.source_type] || SOURCE.rss;
   const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
   const ccns = deal.ccns?.filter(Boolean) || [];
-  const fresh = isNew(deal.created_at);
+  const fresh = isNew(deal.acquisition_date);
 
   const headline = deal.acquiring_entity && deal.seller_entity
     ? <><strong>{deal.acquiring_entity}</strong><span style={{color:"#6b7280"}}> acquired from </span><strong>{deal.seller_entity}</strong></>
@@ -168,20 +168,20 @@ function DealCard({ deal, expanded, onToggle }) {
             </div>
           )}
 
-          <div>
-            <div style={dl}>Source</div>
-            {deal.source_type === 'chow'
-              ? <a href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
-                  target="_blank" rel="noreferrer" style={lnk}>
-                  CMS SNF Change of Ownership Dataset ↗
-                </a>
-              : deal.source_type === 'ucc'
-              ? <span style={dv}>{deal.source_title || 'State UCC-1 Filing'}</span>
-              : <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
-                  {deal.source_title || deal.source_url} ↗
-                </a>
-            }
-          </div>
+          {deal.source_type !== 'ucc' && (
+            <div>
+              <div style={dl}>Source</div>
+              {deal.source_type === 'chow'
+                ? <a href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
+                    target="_blank" rel="noreferrer" style={lnk}>
+                    CMS SNF Change of Ownership Dataset ↗
+                  </a>
+                : <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
+                    {deal.source_title || deal.source_url} ↗
+                  </a>
+              }
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -251,8 +251,8 @@ export default function App() {
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
         const deals = (data.deals || data || []).slice().sort((a, b) => {
-          const da = a.created_at || a.acquisition_date || "";
-          const db = b.created_at || b.acquisition_date || "";
+          const da = a.acquisition_date || a.created_at || "";
+          const db = b.acquisition_date || b.created_at || "";
           return db.localeCompare(da);
         });
         setAllDeals(deals);
