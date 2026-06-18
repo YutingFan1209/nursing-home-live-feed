@@ -25,12 +25,14 @@ from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id
 from scraper.gmail_alerts import fetch_alert_articles
+from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash
 from matcher.ownership import match_deal, determine_stage
 from matcher.carecompare import enrich_matches, flag_policy_risks
 from alerts.digest import send_daily_digest
 from pipeline.normalizer import normalize_deal
+from ucc.integrator import route_filing, ExistingDeal, RoutingDecision
 config = get_config()
 
 
@@ -307,6 +309,28 @@ def discover_articles(conn) -> list[dict]:
     except Exception as e:
         logger.warning(f"Gmail alerts skipped: {e}")
 
+    # UCC-1 financing statements — state-level early acquisition signal,
+    # runs as both confirmation of existing deals and a new source (see
+    # process_article's ucc_filing branch for the routing logic)
+    try:
+        ucc_source_id = _ensure_source(
+            type("S", (), {"name": "State UCC-1 Filings",
+                           "url": "ucc://multi-state",
+                           "source_type": "ucc"})(),
+            conn
+        )
+        ucc_articles = fetch_ucc_filings(
+            known_operator_names=_get_known_operator_names(conn),
+            ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
+        )
+        for art in ucc_articles:
+            if not _article_exists(art["url"], conn):
+                art["source_id"] = ucc_source_id
+                new_articles.append(art)
+        logger.info(f"UCC filings: {len(ucc_articles)} articles found")
+    except Exception as e:
+        logger.warning(f"UCC filing fetch skipped: {e}")
+
     return new_articles
 
 
@@ -314,6 +338,13 @@ def discover_articles(conn) -> list[dict]:
 
 def process_article(article: dict, conn) -> int:
     article_id = _store_article(article, conn)
+
+    # UCC-1 filings need routing (confirmation vs. new signal) instead of
+    # the generic pre_extracted path below — a UCC-1 doesn't state an
+    # acquirer/seller the way CHOW does, so it has to be matched against
+    # existing deals first.
+    if article.get("ucc_filing"):
+        return _process_ucc_filing(article, article_id, conn)
 
     # CHOW deals are pre-extracted — skip Claude entirely
     if article.get("pre_extracted"):
@@ -398,6 +429,123 @@ def _run_cms_matching(deal: dict, deal_id, conn):
         recheck_after = date.today() + timedelta(days=config.recheck_interval_days)
 
     _update_deal_stage(deal_id, stage, confidence, recheck_after, conn)
+
+
+# ── UCC filing routing ────────────────────────────────────────
+# Confirms an existing deal OR seeds a new one, per the RE/PE lender
+# scoping + "both confirmation and new source" decision from the 6/17
+# meeting. See ucc/integrator.py for the matching logic itself.
+
+def _get_known_operator_names(conn) -> list[str]:
+    """NJ's UCC search only works by debtor name, not secured party — this
+    feeds it a seed list pulled from operators already in the DB, rather
+    than guessing names to search for."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT DISTINCT unnest(operator_names) AS name FROM deals
+            WHERE operator_names IS NOT NULL
+        """)
+        return [row[0] for row in cur.fetchall() if row[0]]
+
+
+def _fetch_existing_deals_for_ucc_matching(conn) -> list[ExistingDeal]:
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT id, operator_names, facility_names, acquisition_date, lender
+            FROM deals
+        """)
+        return [
+            ExistingDeal(
+                id=row[0], operator_names=row[1] or [], facility_names=row[2] or [],
+                acquisition_date=row[3], lender=row[4],
+            )
+            for row in cur.fetchall()
+        ]
+
+
+def _process_ucc_filing(article: dict, article_id, conn) -> int:
+    filing = article["_ucc_filing_obj"]
+    classification = article["_ucc_classification"]
+
+    if not classification.is_acquisition_relevant:
+        logger.debug(
+            f"UCC filing excluded (not RE/PE relevant): "
+            f"{filing.secured_party_name} [{classification.category.value}]"
+        )
+        _mark_extraction_done(article_id, conn)
+        return 0
+
+    existing_deals = _fetch_existing_deals_for_ucc_matching(conn)
+    result = route_filing(filing, existing_deals)
+
+    if result.decision == RoutingDecision.CONFIRMATION:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE deals
+                SET ucc_confirmed = true,
+                    lender = COALESCE(lender, %s)
+                WHERE id = %s
+            """, (filing.secured_party_name, result.matched_deal_id))
+        logger.info(
+            f"UCC confirmation: filing {filing.filing_number} ({filing.state}) "
+            f"-> deal {result.matched_deal_id} (match score {result.match_score})"
+        )
+        _mark_extraction_done(article_id, conn)
+        return 0
+
+    if result.decision == RoutingDecision.NEW_SIGNAL:
+        deal = {
+            "acquiring_entity": None,
+            "seller_entity": None,
+            "operator_names": [filing.debtor_name],
+            "facility_names": (
+                [f.strip() for f in filing.collateral_description.split("|") if f.strip()]
+                if filing.collateral_description
+                else [filing.debtor_name]
+            ),
+            "states": [filing.state],
+            "facility_count": None,
+            "deal_value_m": None,
+            "acquisition_date": filing.filing_date.isoformat() if filing.filing_date else None,
+            "financing_amount_m": None,  # UCC-1s don't reliably disclose amount
+            "lender": filing.secured_party_name,
+            "extraction_model": "ucc_filing",
+        }
+        # Same pattern as the CHOW pre_extracted path — deduplicate_batch
+        # populates dedup_hash on the dict, _store_deal reads it from there
+        deals = deduplicate_batch([deal])
+        if not deals:
+            _mark_extraction_done(article_id, conn)
+            return 0
+        deal = deals[0]
+
+        hash_val = deal.get("dedup_hash") or make_dedup_hash(deal)
+        if is_duplicate(hash_val, conn):
+            logger.debug(f"UCC new-signal skipped as duplicate: {filing.debtor_name}")
+            _mark_extraction_done(article_id, conn)
+            return 0
+
+        try:
+            with conn.cursor() as sp:
+                sp.execute("SAVEPOINT before_ucc_deal")
+            deal_id = _store_deal(deal, article_id, conn)
+            with conn.cursor() as cur:
+                cur.execute("UPDATE deals SET ucc_confirmed = true WHERE id = %s", (deal_id,))
+            _run_cms_matching(deal, deal_id, conn)
+            _mark_extraction_done(article_id, conn)
+            return 1
+        except Exception as e:
+            if 'unique constraint' in str(e).lower() or 'uniqueviolation' in type(e).__name__:
+                logger.debug(f"UCC new-signal semantic duplicate skipped: {filing.debtor_name}")
+                with conn.cursor() as sp:
+                    sp.execute("ROLLBACK TO SAVEPOINT before_ucc_deal")
+                _mark_extraction_done(article_id, conn)
+                return 0
+            raise
+
+    # Shouldn't reach here (EXCLUDED already handled above), but fail safe
+    _mark_extraction_done(article_id, conn)
+    return 0
 
 
 def recheck_pending(conn) -> int:
