@@ -53,7 +53,7 @@ function DealCard({ deal, expanded, onToggle }) {
   const src = SOURCE[deal.source_type] || SOURCE.rss;
   const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
   const ccns = deal.ccns?.filter(Boolean) || [];
-  const fresh = isNew(deal.acquisition_date);
+  const fresh = deal.source_type !== 'ucc' && isNew(deal.created_at);
 
   const headline = deal.acquiring_entity && deal.seller_entity
     ? <><strong>{deal.acquiring_entity}</strong><span style={{color:"#6b7280"}}> acquired from </span><strong>{deal.seller_entity}</strong></>
