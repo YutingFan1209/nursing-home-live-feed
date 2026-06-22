@@ -263,3 +263,25 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_deals_semantic_dedup
 ON deals (acquiring_entity, states, acquisition_date, facility_count)
 WHERE acquiring_entity IS NOT NULL
 AND acquisition_date IS NOT NULL;
+
+-- UCC Filings table
+CREATE TABLE IF NOT EXISTS ucc_filings (
+    id SERIAL PRIMARY KEY,
+    state VARCHAR(2) NOT NULL,
+    filing_number VARCHAR(50),
+    debtor_name TEXT,
+    secured_party TEXT,
+    filing_date VARCHAR(50),
+    filing_type VARCHAR(50),
+    collateral_description TEXT,
+    status VARCHAR(20),
+    query_name TEXT,           -- the CMS owner name used to find this
+    sp_address TEXT,           -- secured party address
+    confidence VARCHAR(10),    -- HIGH / MEDIUM / LOW (lender classifier)
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(state, filing_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ucc_query_name ON ucc_filings(query_name);
+CREATE INDEX IF NOT EXISTS idx_ucc_secured_party ON ucc_filings(secured_party);
+CREATE INDEX IF NOT EXISTS idx_ucc_status ON ucc_filings(status);

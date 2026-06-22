@@ -107,3 +107,35 @@ if __name__ == "__main__":
     results = search_ny("BVRNC OPERATING LLC")
     for r in results:
         print(r.filing_number, "|", r.debtor_name, "|", r.secured_party, "|", r.status)
+
+
+def save_ucc_filings(filings: list, conn) -> int:
+    """Save UCCFiling objects to DB. Returns count of inserted rows."""
+    from psycopg2.extras import execute_values
+    if not filings:
+        return 0
+
+    rows = [(
+        f.state,
+        f.filing_number,
+        f.debtor_name,
+        f.secured_party,
+        f.filing_date,
+        f.filing_type,
+        f.collateral_description,
+        f.status,
+        f.query_name,
+        f.raw.get("sp_address", ""),
+    ) for f in filings]
+
+    with conn.cursor() as cur:
+        execute_values(cur, """
+            INSERT INTO ucc_filings
+                (state, filing_number, debtor_name, secured_party,
+                 filing_date, filing_type, collateral_description,
+                 status, query_name, sp_address)
+            VALUES %s
+            ON CONFLICT (state, filing_number) DO NOTHING
+        """, rows)
+    conn.commit()
+    return len(rows)
