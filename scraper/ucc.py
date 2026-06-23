@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 ENABLE_NJ_AUTOMATION = False
 ENABLE_MAINE_AUTOMATION = False
 ENABLE_NY_PLAYWRIGHT = True
-ENABLE_NJ_PLAYWRIGHT = True
+ENABLE_NJ_PLAYWRIGHT = False
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
