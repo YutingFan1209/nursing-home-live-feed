@@ -51,6 +51,9 @@ KNOWN_HEALTHCARE_REITS = {
     "ctw investment", "caretrust reit", "omega healthcare", "sabra health care",
     "ventas", "national health investors", "lt c properties", "medical properties trust",
     "healthpeak", "healthcare trust of america", "diversified healthcare trust",
+    "greystone", "midcap funding", "midcap financial",
+    "berkadia", "keybank", "regions bank healthcare",
+    "ares capital", "benefit street", "owl rock",
 }
 
 KNOWN_PE_SPONSORS = {
@@ -75,8 +78,12 @@ PE_SUFFIX_PATTERNS = [
 EXCLUDE_PATTERNS = [
     r"\bmedical equipment\b", r"\bpharmacy\b", r"\bleasing corp\b",
     r"\bfinancial services\b.*\bequipment\b", r"\bdialysis\b", r"\bhealthcare staffing\b",
-    r"\bde lage landen\b",  # common equipment-finance UCC filer in healthcare
+    r"\bde lage landen\b",
     r"\bgeneral electric capital\b", r"\bus bank equipment finance\b",
+    r"\bhewlett.?packard\b",       # equipment/tech vendor
+    r"\bct corporation system\b",  # registered agent, not a real lender
+    r"\bcorporation service company\b",  # registered agent
+    r"\bnational registered agents\b",   # registered agent
 ]
 
 
@@ -128,3 +135,17 @@ def classify_secured_party(name: str) -> LenderClassification:
     # NOTE: is_acquisition_relevant defaults True for UNKNOWN — better to
     # surface a maybe-relevant filing for human review than silently drop
     # a real acquisition signal because the lender name wasn't recognized.
+
+
+def to_confidence_label(classification: LenderClassification) -> str:
+    """Convert a LenderClassification to HIGH / MEDIUM / LOW string label.
+    Used for storing confidence in ucc_filings.confidence column."""
+    if classification.category == LenderCategory.EQUIPMENT_VENDOR:
+        return "LOW"
+    if not classification.is_acquisition_relevant:
+        return "LOW"
+    if classification.confidence >= 0.6:
+        return "HIGH"
+    if classification.confidence >= 0.3:
+        return "MEDIUM"
+    return "LOW"
