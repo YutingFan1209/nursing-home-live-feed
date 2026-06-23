@@ -150,22 +150,26 @@ def search_ny_batch(owner_names: list[str]) -> list[UCCFiling]:
 
 def save_ucc_filings(filings: list, conn) -> int:
     from psycopg2.extras import execute_values
+    from ucc.lender_classifier import classify_secured_party, to_confidence_label
     if not filings:
         return 0
     rows = [(
-        f.state, f.filing_number, f.debtor_name, f.secured_party_name,
+        f.state, f.filing_number, f.debtor_name, f.secured_party_name if f.secured_party_name else None,
         f.filing_date.isoformat() if f.filing_date else None,
         f.filing_type, f.collateral_description or "", f.status,
         f.raw.get("query_name", ""), f.raw.get("sp_address", ""),
+        to_confidence_label(classify_secured_party(f.secured_party_name)) if f.secured_party_name else None,
     ) for f in filings]
     with conn.cursor() as cur:
         execute_values(cur, """
             INSERT INTO ucc_filings
                 (state, filing_number, debtor_name, secured_party,
                  filing_date, filing_type, collateral_description,
-                 status, query_name, sp_address)
+                 status, query_name, sp_address, confidence)
             VALUES %s
-            ON CONFLICT (state, filing_number) DO NOTHING
+            ON CONFLICT (state, filing_number) DO UPDATE
+            SET confidence = EXCLUDED.confidence,
+                secured_party = EXCLUDED.secured_party
         """, rows)
     conn.commit()
     return len(rows)
