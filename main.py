@@ -437,15 +437,26 @@ def _run_cms_matching(deal: dict, deal_id, conn):
 # meeting. See ucc/integrator.py for the matching logic itself.
 
 def _get_known_operator_names(conn) -> list[str]:
-    """NJ's UCC search only works by debtor name, not secured party — this
-    feeds it a seed list pulled from operators already in the DB, rather
-    than guessing names to search for."""
+    """Pull entity names (LLC, Inc, Corp etc.) from deals DB for UCC search.
+    Skips personal names — Organization search won't find them anyway."""
+    import re
+    entity_pattern = re.compile(
+        r'\b(LLC|INC|CORP|LTD|LP|LLP|HOLDINGS|GROUP|CARE|HEALTH|MANAGEMENT|'
+        r'ASSOCIATES|SERVICES|CENTER|PARTNERS|TRUST|ACQUISITION|OPERATING)\b',
+        re.IGNORECASE
+    )
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT DISTINCT unnest(operator_names) AS name FROM deals
-            WHERE operator_names IS NOT NULL
+            SELECT DISTINCT name FROM (
+                SELECT unnest(operator_names) AS name FROM deals
+                WHERE operator_names IS NOT NULL
+                UNION
+                SELECT acquiring_entity AS name FROM deals
+                WHERE acquiring_entity IS NOT NULL
+            ) t
         """)
-        return [row[0] for row in cur.fetchall() if row[0]]
+        all_names = [row[0] for row in cur.fetchall() if row[0]]
+    return [n for n in all_names if entity_pattern.search(n)]
 
 
 def _fetch_existing_deals_for_ucc_matching(conn) -> list[ExistingDeal]:

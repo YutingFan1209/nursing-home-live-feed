@@ -135,16 +135,20 @@ def search_ny(owner_name: str) -> list[UCCFiling]:
     return results
 
 
-def search_ny_batch(owner_names: list[str]) -> list[UCCFiling]:
-    """Search multiple owner names reusing a single browser session — much faster."""
+def search_ny_batch(owner_names: list[str], max_workers: int = 4) -> list[UCCFiling]:
+    """Search multiple owner names in parallel using multiple browser instances."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     all_results = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=BROWSER_ARGS)
-        page = browser.new_page()
-        for name in owner_names:
-            logger.info("NY UCC searching: %s", name)
-            all_results.extend(_search_one(page, name))
-        browser.close()
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(search_ny, name): name for name in owner_names}
+        for future in as_completed(futures):
+            name = futures[future]
+            try:
+                filings = future.result()
+                logger.info("NY UCC %s → %d filings", name, len(filings))
+                all_results.extend(filings)
+            except Exception as e:
+                logger.warning("NY UCC failed for %r: %s", name, e)
     return all_results
 
 
