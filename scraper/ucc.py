@@ -7,7 +7,7 @@ import logging
 from ucc.ky import KentuckyUCCSource
 from ucc.nj import NewJerseyUCCSource
 from ucc.me import MaineUCCSource
-from ucc.ny_playwright import search_ny
+from ucc.ny_playwright import search_ny_batch
 from ucc.nj_playwright import search_nj
 from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 ENABLE_NJ_AUTOMATION = False
 ENABLE_MAINE_AUTOMATION = False
-ENABLE_NY_PLAYWRIGHT = True
+ENABLE_NY_PLAYWRIGHT = False
 ENABLE_NJ_PLAYWRIGHT = False
 
 
@@ -52,11 +52,10 @@ def fetch_ucc_filings(known_operator_names: list[str], ky_bulk_file_path: str = 
 
     # NY (Playwright)
     if ENABLE_NY_PLAYWRIGHT:
-        for operator_name in known_operator_names:
-            try:
-                filings.extend(search_ny(operator_name))
-            except Exception as e:
-                logger.warning(f"NY UCC Playwright search failed for {operator_name!r}: {e}")
+        try:
+            filings.extend(search_ny_batch(known_operator_names))
+        except Exception as e:
+            logger.warning(f"NY UCC batch search failed: {e}")
     
     # NJ (Playwright)
     if ENABLE_NJ_PLAYWRIGHT:
