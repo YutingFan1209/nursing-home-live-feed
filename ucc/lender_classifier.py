@@ -149,3 +149,18 @@ def to_confidence_label(classification: LenderClassification) -> str:
     if classification.confidence >= 0.3:
         return "MEDIUM"
     return "LOW"
+
+# Runtime patch: add IRS and government tax liens to exclusions
+EXCLUDE_PATTERNS.extend([
+    r"\binternal revenue service\b",
+    r"\birs\b",
+    r"\bdepartment of treasury\b",
+    r"\bnew york state tax\b",
+])
+
+# HUD loans are healthcare RE financing — acquisition relevant
+KNOWN_HEALTHCARE_REITS.update([
+    "secretary of housing and urban development",
+    "hud",
+    "federal housing administration",
+])
