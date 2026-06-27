@@ -9,6 +9,7 @@ from ucc.nj import NewJerseyUCCSource
 from ucc.me import MaineUCCSource
 from ucc.ny_playwright import search_ny_batch
 from ucc.nj_playwright import search_nj
+from ucc.oh_playwright import search_oh_batch
 from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
 
@@ -18,6 +19,7 @@ ENABLE_NJ_AUTOMATION = False
 ENABLE_MAINE_AUTOMATION = False
 ENABLE_NY_PLAYWRIGHT = True
 ENABLE_NJ_PLAYWRIGHT = False
+ENABLE_OH_PLAYWRIGHT = True
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -73,6 +75,13 @@ def fetch_ucc_filings(known_operator_names: list[str], ky_bulk_file_path: str = 
                 filings.extend(nj_source.search(operator_name))
             except Exception as e:
                 logger.warning(f"NJ UCC search failed for {operator_name!r}: {e}")
+
+    # OH (Playwright, hidden window)
+    if ENABLE_OH_PLAYWRIGHT:
+        try:
+            filings.extend(search_oh_batch(known_operator_names))
+        except Exception as e:
+            logger.warning(f"OH UCC batch search failed: {e}")
 
     # ME
     if ENABLE_MAINE_AUTOMATION:
