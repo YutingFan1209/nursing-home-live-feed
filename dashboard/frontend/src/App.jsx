@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 
-const API = import.meta.env.VITE_API_URL ?? "";
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL ?? "";
+const DATA_URL = import.meta.env.BASE_URL + "deals.json";
 
 const fmtDate = (v) => {
   if (!v) return null;
@@ -21,6 +21,7 @@ const SOURCE = {
   chow:  { label: "Federal Record", dot: "#16a34a", tip: "CMS Provider Enrollment — verified federal ownership data" },
   edgar: { label: "SEC Filing",     dot: "#2563eb", tip: "SEC EDGAR 8-K — publicly traded company filing" },
   rss:   { label: "News",           dot: "#d97706", tip: "Trade press or news article" },
+  ucc:   { label: "UCC Filing",     dot: "#7c3aed", tip: "State UCC-1 financing statement — early signal, not yet confirmed by CMS" },
 };
 
 const US_STATES = [
@@ -52,7 +53,7 @@ function DealCard({ deal, expanded, onToggle }) {
   const src = SOURCE[deal.source_type] || SOURCE.rss;
   const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
   const ccns = deal.ccns?.filter(Boolean) || [];
-  const fresh = isNew(deal.created_at);
+  const fresh = deal.source_type !== 'ucc' && isNew(deal.created_at);
 
   const headline = deal.acquiring_entity && deal.seller_entity
     ? <><strong>{deal.acquiring_entity}</strong><span style={{color:"#6b7280"}}> acquired from </span><strong>{deal.seller_entity}</strong></>
@@ -108,7 +109,12 @@ function DealCard({ deal, expanded, onToggle }) {
             </span>
           )}
           {deal.lender && (
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>Financed by {deal.lender}</span>
+            <span style={{ fontSize: 12, color: "#9ca3af" }}>
+              Financed by {deal.lender}
+              {deal.ucc_confirmed && (
+                <span style={{ color: "#7c3aed", fontWeight: 600 }} title="Confirmed via state UCC-1 filing"> · UCC confirmed</span>
+              )}
+            </span>
           )}
           {deal.also_reported_count > 0 && (
             <span style={{ fontSize: 11, color: "#9ca3af", background: "#f3f4f6",
@@ -162,28 +168,72 @@ function DealCard({ deal, expanded, onToggle }) {
             </div>
           )}
 
-          <div>
-            <div style={dl}>Source</div>
-            {deal.source_type === 'chow'
-              ? <a href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
-                  target="_blank" rel="noreferrer" style={lnk}>
-                  CMS SNF Change of Ownership Dataset ↗
-                </a>
-              : <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
-                  {deal.source_title || deal.source_url} ↗
-                </a>
-            }
-          </div>
+          {deal.source_type !== 'ucc' && (
+            <div>
+              <div style={dl}>Source</div>
+              {deal.source_type === 'chow'
+                ? <a href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
+                    target="_blank" rel="noreferrer" style={lnk}>
+                    CMS SNF Change of Ownership Dataset ↗
+                  </a>
+                : <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
+                    {deal.source_title || deal.source_url} ↗
+                  </a>
+              }
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
+function computeStats(allDeals) {
+  const now = new Date();
+  const cutoff90 = new Date(now - 90 * 24 * 60 * 60 * 1000);
+  const stateCounts = {};
+  let last90 = 0;
+  for (const d of allDeals) {
+    if (d.acquisition_date && new Date(d.acquisition_date) >= cutoff90) last90++;
+    for (const s of (d.states || [])) {
+      stateCounts[s] = (stateCounts[s] || 0) + 1;
+    }
+  }
+  const topStates = Object.entries(stateCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([state, count]) => ({ state, count }));
+  return {
+    total: allDeals.length,
+    last_90_days: last90,
+    states_covered: Object.keys(stateCounts).length,
+    top_states: topStates,
+  };
+}
+
+function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType }) {
+  return allDeals.filter(d => {
+    if (state && !(d.states || []).includes(state)) return false;
+    const effectiveDate = d.acquisition_date || d.created_at;
+    if (dateFrom && effectiveDate && effectiveDate < dateFrom) return false;
+    if (dateTo && effectiveDate && effectiveDate > dateTo + "T99") return false;
+    if (sourceType && d.source_type !== sourceType) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const haystack = [
+        d.acquiring_entity, d.seller_entity,
+        ...(d.operator_names || []),
+        ...(d.facility_names || []),
+      ].filter(Boolean).join(" ").toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
 export default function App() {
-  const [deals, setDeals]         = useState([]);
-  const [total, setTotal]         = useState(0);
-  const [stats, setStats]         = useState(null);
+  const [allDeals, setAllDeals]   = useState([]);
+  const [loadError, setLoadError] = useState(null);
   const [loading, setLoading]     = useState(true);
   const [expanded, setExpanded]   = useState(new Set());
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -195,32 +245,39 @@ export default function App() {
   const [offset, setOffset]       = useState(0);
   const LIMIT = 20;
 
-  const fetchStats = useCallback(async () => {
-    try { setStats(await (await fetch(`${API}/api/stats`)).json()); } catch {}
+  useEffect(() => {
+    setLoading(true);
+    fetch(DATA_URL + "?t=" + Date.now())
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(data => {
+        const deals = (data.deals || data || []).slice().sort((a, b) => {
+          const da = a.acquisition_date || a.created_at || "";
+          const db = b.acquisition_date || b.created_at || "";
+          return db.localeCompare(da);
+        });
+        setAllDeals(deals);
+        setLastUpdated(new Date());
+      })
+      .catch(e => setLoadError(e.message))
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchDeals = useCallback(async () => {
-    setLoading(true);
-    try {
-      const p = new URLSearchParams({ limit: LIMIT, offset });
-      if (state)      p.set("state", state);
-      if (dateFrom)   p.set("date_from", dateFrom);
-      if (dateTo)     p.set("date_to", dateTo);
-      if (search)     p.set("operator", search);
-      if (sourceType) p.set("deal_type", sourceType);
-      const data = await (await fetch(`${API}/api/feed?${p}`)).json();
-      setDeals(data.deals || []);
-      setTotal(data.total || 0);
-      setLastUpdated(new Date());
-    } finally { setLoading(false); }
-  }, [state, dateFrom, dateTo, search, sourceType, offset]);
+  const filtered = useMemo(
+    () => filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType }),
+    [allDeals, state, dateFrom, dateTo, search, sourceType]
+  );
 
-  useEffect(() => { fetchStats(); }, []);
-  useEffect(() => { fetchDeals(); }, [fetchDeals]);
-  useEffect(() => {
-    const t = setInterval(() => { fetchStats(); fetchDeals(); }, 5 * 60 * 1000);
-    return () => clearInterval(t);
-  }, [fetchStats, fetchDeals]);
+  const stats = useMemo(() => allDeals.length ? computeStats(allDeals) : null, [allDeals]);
+
+  const deals = filtered.slice(offset, offset + LIMIT);
+  const total = filtered.length;
+
+  function applyFilters() { setOffset(0); }
+
+  function clearAll() {
+    setState(""); setDateFrom(""); setDateTo("");
+    setSearch(""); setSourceType(""); setOffset(0);
+  }
 
   function toggleExpand(id) {
     setExpanded(prev => {
@@ -231,16 +288,7 @@ export default function App() {
     });
   }
 
-  function clearAll() {
-    setState(""); setDateFrom(""); setDateTo("");
-    setSearch(""); setSourceType(""); setOffset(0);
-  }
-
   const hasFilters = state || dateFrom || dateTo || search || sourceType;
-  const exportUrl = `${API}/api/feed/export/csv?${new URLSearchParams(
-    Object.fromEntries(Object.entries({state, date_from: dateFrom, date_to: dateTo}).filter(([,v])=>v))
-  )}`;
-
   const chowFreshness = "Last updated: Jan 2026 (quarterly)";
   const edgarFreshness = lastUpdated ? `EDGAR checked ${lastUpdated.toLocaleTimeString()}` : "";
 
@@ -263,9 +311,6 @@ export default function App() {
             </span>
           )}
         </div>
-        <a href={exportUrl} style={{ fontSize: 13, color: "#9ca3af",
-          border: "1px solid #2d3358", borderRadius: 6, padding: "6px 14px",
-          textDecoration: "none" }}>↓ Export CSV</a>
       </div>
 
       <div style={{ maxWidth: 740, margin: "0 auto", padding: "32px 20px" }}>
@@ -309,25 +354,26 @@ export default function App() {
           padding: "14px 16px", marginBottom: 12 }}>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
             <input value={search} onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && (setOffset(0), fetchDeals())}
+              onKeyDown={e => e.key === 'Enter' && applyFilters()}
               placeholder="Search operator or acquirer..."
               style={{ ...selStyle, flex: 1, minWidth: 200 }} />
-            <select value={sourceType} onChange={e => setSourceType(e.target.value)} style={selStyle}>
+            <select value={sourceType} onChange={e => { setSourceType(e.target.value); setOffset(0); }} style={selStyle}>
               <option value="">All sources</option>
               <option value="chow">Federal Record</option>
               <option value="edgar">SEC Filing</option>
               <option value="rss">News</option>
+              <option value="ucc">UCC Filing</option>
             </select>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <select value={state} onChange={e => setState(e.target.value)} style={selStyle}>
+            <select value={state} onChange={e => { setState(e.target.value); setOffset(0); }} style={selStyle}>
               <option value="">All states</option>
               {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={selStyle} />
             <span style={{ color: "#9ca3af", fontSize: 13 }}>to</span>
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={selStyle} />
-            <button onClick={() => { setOffset(0); fetchDeals(); }} style={btnPrimary}>Apply</button>
+            <button onClick={applyFilters} style={btnPrimary}>Apply</button>
             {hasFilters && <button onClick={clearAll} style={btnGhost}>Clear all</button>}
             <span style={{ fontSize: 12, color: "#9ca3af", marginLeft: "auto" }}>
               {total.toLocaleString()} record{total !== 1 ? "s" : ""}
@@ -356,6 +402,10 @@ export default function App() {
             <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb",
               borderRadius: 10, height: 88, marginBottom: 8, animation: "pulse 1.5s infinite" }} />
           ))
+        ) : loadError ? (
+          <div style={{ textAlign: "center", padding: "60px 0" }}>
+            <div style={{ fontSize: 14, color: "#ef4444" }}>Failed to load data: {loadError}</div>
+          </div>
         ) : deals.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>◎</div>
