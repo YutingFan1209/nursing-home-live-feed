@@ -52,6 +52,7 @@ KNOWN_HEALTHCARE_REITS = {
     "ventas", "national health investors", "lt c properties", "medical properties trust",
     "healthpeak", "healthcare trust of america", "diversified healthcare trust",
     "greystone", "midcap funding", "midcap financial",
+    "gmcc", "monticello",
     "berkadia", "keybank", "regions bank healthcare",
     "ares capital", "benefit street", "owl rock",
 }
@@ -152,6 +153,8 @@ def to_confidence_label(classification: LenderClassification) -> str:
 
 # Runtime patch: add IRS and government tax liens to exclusions
 EXCLUDE_PATTERNS.extend([
+    r"\bsiemens\b",
+    r"\bdiagnostic\b",
     r"\binternal revenue service\b",
     r"\birs\b",
     r"\bdepartment of treasury\b",
