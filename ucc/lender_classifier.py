@@ -53,6 +53,7 @@ KNOWN_HEALTHCARE_REITS = {
     "healthpeak", "healthcare trust of america", "diversified healthcare trust",
     "greystone", "midcap funding", "midcap financial",
     "gmcc", "monticello",
+    "welltower", "capital funding",
     "berkadia", "keybank", "regions bank healthcare",
     "ares capital", "benefit street", "owl rock",
 }
