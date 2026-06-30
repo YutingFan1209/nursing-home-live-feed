@@ -4,12 +4,13 @@ scraper/ucc.py
 from __future__ import annotations
 
 import logging
-from ucc.ky import KentuckyUCCSource
 from ucc.nj import NewJerseyUCCSource
 from ucc.me import MaineUCCSource
 from ucc.ny_playwright import search_ny_batch
 from ucc.nj_playwright import search_nj
 from ucc.oh_playwright import search_oh_batch
+from ucc.ky_playwright import search_ky_batch
+from ucc.pa_playwright import search_pa_batch
 from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
 
@@ -20,6 +21,8 @@ ENABLE_MAINE_AUTOMATION = False
 ENABLE_NY_PLAYWRIGHT = True
 ENABLE_NJ_PLAYWRIGHT = False
 ENABLE_OH_PLAYWRIGHT = True
+ENABLE_KY_PLAYWRIGHT = True
+ENABLE_PA_PLAYWRIGHT = False
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -38,19 +41,19 @@ def _filing_to_article(filing: UCCFiling) -> dict:
 def fetch_ucc_filings(known_operator_names: list[str], ky_bulk_file_path: str = None) -> list[dict]:
     filings: list[UCCFiling] = []
 
-    # KY
-    ky_source = KentuckyUCCSource()
-    if ky_bulk_file_path:
+    # KY (Playwright, no Cloudflare, headless=True)
+    if ENABLE_KY_PLAYWRIGHT:
         try:
-            filings.extend(ky_source.bulk_ingest(ky_bulk_file_path))
+            filings.extend(search_ky_batch(known_operator_names))
         except Exception as e:
-            logger.warning(f"KY UCC bulk ingest failed: {e}")
-    else:
-        for operator_name in known_operator_names:
-            try:
-                filings.extend(ky_source.search(operator_name))
-            except Exception as e:
-                logger.warning(f"KY UCC web search failed for {operator_name!r}: {e}")
+            logger.warning(f"KY UCC batch search failed: {e}")
+
+    # PA (Chrome CDP required - manual only, not in automated pipeline)
+    if ENABLE_PA_PLAYWRIGHT:
+        try:
+            filings.extend(search_pa_batch(known_operator_names))
+        except Exception as e:
+            logger.warning(f"PA UCC batch search failed: {e}")
 
     # NY (Playwright)
     if ENABLE_NY_PLAYWRIGHT:
