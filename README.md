@@ -1,125 +1,118 @@
-# Nursing Home Live Feed
+# Nursing Home Acquisition Tracker
 
-Automated pipeline that scrapes nursing home acquisition news, extracts deal entities via Claude AI, matches them against CMS ownership and Care Compare datasets, and surfaces confirmed ownership changes to a shared research team dashboard.
+Live feed of PE acquisitions of nursing homes, surfaced via CMS CHOW records, SEC EDGAR filings, Google Alerts/news, and state UCC-1 filings.
+
+**Live site:** https://yutingfan1209.github.io/nursing-home-live-feed/  
+**Current DB:** ~1,041 deals
+
+---
 
 ## Architecture
 
 ```
-DISCOVERY          PROCESSING              STORAGE          TEAM
-──────────         ──────────              ───────          ────
-RSS feeds    →                         →  Postgres    →  Dashboard
-SEC EDGAR    →  Claude extraction      →  S3 archive  →  Email digest
-Google News  →  CMS matcher            →  Match queue →  CSV export
-             →  Dedup + stage tracker  →
+DISCOVERY                 PROCESSING                STORAGE       FRONTEND
+─────────────────         ──────────────────        ───────       ────────
+CMS CHOW CSV        →                          →    Postgres  →   GitHub Pages
+SEC EDGAR 8-Ks      →   Claude extraction      →    deals.json    (static React)
+Google Alerts email →   CMS ownership matcher  →
+State UCC-1 filings →   Dedup + stage tracker  →
+RSS feeds           →   Lender classifier       →
 ```
 
-## Project structure
+Deal stages: `detected` → `pending_cms` → `confirmed` | `unresolved`
 
+---
+
+## Data sources
+
+### CMS CHOW (primary — confirmed ownership changes)
+- Quarterly CSV from CMS; last updated Jan 2026, next drop April 2026
+- Matched against DB deals to upgrade `stage` to `confirmed`
+
+### State UCC-1 filings (acquisition signals)
+Headless browser scrapers — one per state portal:
+
+| State | Filings | Search type | Deployment |
+|---|---|---|---|
+| NY | ~801 | Debtor name | headless=True, AWS-ready |
+| KY | ~434 | Debtor name (CHOW CSV seeds operator names) | headless=True, AWS-ready |
+| OH | ~103 | Secured party | headless=False + hidden window, local only (needs Xvfb for cloud) |
+| PA | ~380 | Secured party | requires live Chrome CDP session — **manual only** |
+
+UCC articles bypass the 50/run article cap. Lender classifier pre-filters equipment/vendor filings before they enter the queue.
+
+### Google Alerts (Gmail OAuth)
+- Google Alerts → dedicated Gmail inbox → OAuth via `gmail_token.json`
+- ~22 URLs extracted per run
+
+### SEC EDGAR
+- 8-K filings for major operators: Welltower, Sabra, CareTrust, Ensign, etc.
+
+### RSS feeds
+- Skilled Nursing News, McKnight's, Modern Healthcare, Senior Housing News
+
+---
+
+## Pipeline
+
+```bash
+# One-off run (no email digest)
+source .env && venv/bin/python3 main.py --no-alerts
+
+# Runs automatically at 8am via cron — logs to /tmp/nh-pipeline.log
 ```
-nursing-home-live-feed/
-├── db/
-│   ├── schema.sql          # Full Postgres schema
-│   └── migrations/         # Future schema changes
-├── cms/
-│   ├── fetch_cms.py        # Download CMS datasets
-│   └── loader.py           # Parse + upsert into Postgres
-├── scraper/
-│   ├── sources.py          # Registered source definitions
-│   ├── rss.py              # RSS feed scraper
-│   ├── edgar.py            # SEC EDGAR 8-K watcher
-│   └── googlenews.py       # Google News sweep
-├── pipeline/
-│   ├── extractor.py        # Claude-powered deal extraction
-│   ├── dedup.py            # Deal deduplication logic
-│   └── confidence.py       # Match confidence scoring
-├── matcher/
-│   ├── ownership.py        # CMS Ownership dataset matcher
-│   ├── carecompare.py      # Care Compare enrichment
-│   └── recheck.py          # Re-check pending deals
-├── alerts/
-│   └── digest.py           # Daily email digest (SendGrid)
-├── dashboard/
-│   ├── api/                # FastAPI backend
-│   └── frontend/           # React frontend
-├── infra/
-│   ├── eventbridge.tf      # AWS EventBridge cron (Terraform)
-│   └── cloudrun.yaml       # GCP Cloud Run alternative
-├── main.py                 # Pipeline orchestrator
-├── config.py               # Env-based config
-├── requirements.txt
-└── .env.example
+
+Key behaviors:
+- **Async extraction:** 8 concurrent Claude calls via `asyncio.gather`
+- **UCC cap exemption:** UCC articles not counted against 50/run limit
+- **Dedup hash:** `acquirer + states + date(YYYY-MM) + facility_count + deal_value` — operator names excluded (too variable across sources)
+- **Multi-facility merge:** Duplicate deals sharing the same sorted `facility_names` array + lender + date are collapsed; operators merged into array
+
+---
+
+## Deployment (gh-pages)
+
+```bash
+# Export DB → deals.json → push to gh-pages
+# Must be on gh-pages branch (run_and_deploy.sh has a branch guard)
+git checkout gh-pages
+# copy deals.json + rebuilt dist/ then commit + push
 ```
+
+**Branch rules:**
+- `main` — source code only, never deploy artifacts
+- `gh-pages` — `deals.json` + `index.html` + `assets/` only, never Python source
+
+Frontend is built with Vite/React in `dashboard/frontend/`. Rebuild:
+```bash
+cd dashboard/frontend && npm run build
+# copy dist/ files to repo root on gh-pages branch
+```
+
+---
 
 ## Setup
 
-### 1. Prerequisites
-- Python 3.11+
-- Postgres 15+ (RDS or Cloud SQL)
-- Anthropic API key
-- SendGrid API key (for alerts)
-
-### 2. Install dependencies
 ```bash
-python -m venv venv
-source venv/bin/activate
+# DB: Docker, Postgres 15, port 5432
+docker start nh-test-db
+# or: docker run --name nh-test-db -e POSTGRES_PASSWORD=testpass -p 5432:5432 -d postgres:15
+
+# Python env
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+
+# Credentials
+cp .env.example .env      # add ANTHROPIC_API_KEY
+# Gmail OAuth: run once interactively to generate gmail_token.json
 ```
 
-### 3. Configure environment
-```bash
-cp .env.example .env
-# Edit .env with your credentials
-```
+---
 
-### 4. Initialize database
-```bash
-psql $DATABASE_URL < db/schema.sql
-```
+## Known limitations / next steps
 
-### 5. Load initial CMS data
-```bash
-python -m cms.fetch_cms
-python -m cms.loader
-```
-
-### 6. Run pipeline manually
-```bash
-python main.py
-```
-
-### 7. Deploy scheduler
-```bash
-# AWS
-terraform apply infra/
-
-# GCP
-gcloud run jobs deploy nursing-home-live-feed --config infra/cloudrun.yaml
-```
-
-## Pipeline stages
-
-Each deal moves through these stages:
-
-| Stage | Meaning |
-|---|---|
-| `detected` | Article scraped, entities extracted, no CMS match yet |
-| `pending_cms` | Partial CMS match — ownership date not yet updated |
-| `confirmed` | Full CMS match with ownership record |
-| `unresolved` | No match found after 90-day re-check window |
-
-## CMS datasets used
-
-| Dataset | Socrata ID | Refresh cadence |
-|---|---|---|
-| Nursing Home Ownership | `qhpq-qrm6` | Monthly |
-| Care Compare (providers) | `4pq5-n9py` | Weekly |
-
-## Development
-
-```bash
-# Run tests
-pytest tests/
-
-# Run a single article through the pipeline
-python -c "from pipeline.extractor import extract_deals; print(extract_deals('YOUR ARTICLE TEXT'))"
-```
+- **PA UCC** requires a live Chrome CDP session — cannot be automated without a persistent browser process. Currently manual.
+- **OH UCC** uses `headless=False` with a hidden window trick — works locally, needs Xvfb wrapper for cloud deployment.
+- **AWS deployment** (Lambda + RDS + EventBridge) designed but not yet deployed.
+- **Person-to-entity mapping** for NY UCC operators not built — individual debtor names (e.g. Teddy Lichtschein, Eliezer Scheiner) are not yet linked to their operator network (e.g. SentosaCare).
+- **CHOW data lag** — CMS CSV is quarterly; deals confirmed only after the next drop.
