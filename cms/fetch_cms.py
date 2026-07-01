@@ -6,7 +6,10 @@ and upserts into the local Postgres database.
 Run on a schedule (weekly) to keep CMS data fresh.
 """
 
+import csv
+import io
 import logging
+import re
 import time
 import requests
 import psycopg2
@@ -19,30 +22,42 @@ from config import get_config
 logger = logging.getLogger(__name__)
 config = get_config()
 
-# New CMS Provider Data Catalog API (replaces deprecated SODA API)
-# SNF All Owners — updated monthly (2026-04-01 release)
-CMS_ALL_OWNERS_API = (
-    "https://data.cms.gov/data-api/v1/dataset"
-    "/128fb95f-427c-4df9-bce4-8db0ee8ec6ad/data"
+# The raw CMS "All Owners" enrollment-system API (data-api UUID
+# 128fb95f-...) is keyed by PECOS Enrollment ID, NOT a CMS Certification
+# Number — it can't be joined to cms_facilities.ccn at all. We instead use
+# the Provider Data Catalog "Ownership" export (NH_Ownership_*.csv), same
+# family as the Provider Info file Care Compare uses, which carries a real
+# CCN, the correct facility state, and human-readable Owner Type.
+OWNERSHIP_METASTORE_URL = (
+    "https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items/y2hd-n93e"
 )
 
-# Column mapping: new API name -> our schema field
-# Discovered by inspecting the live API response May 2026
-OWNER_COL_MAP = {
-    "ENROLLMENT ID":              "ccn",
-    "ORGANIZATION NAME":          "provider_name",
-    "ORGANIZATION NAME - OWNER":  "owner_name",       # org owners
-    "FIRST NAME - OWNER":         "_first",            # individual owners
-    "LAST NAME - OWNER":          "_last",
-    "TYPE - OWNER":               "owner_type",
-    "ROLE TEXT - OWNER":          "owner_role",
-    "STATE - OWNER":              "provider_state",
-    "ASSOCIATION DATE - OWNER":   "ownership_start_date",
-    "PERCENTAGE OWNERSHIP":       "ownership_percentage",
-    "PRIVATE EQUITY COMPANY - OWNER": "_is_pe",
-    "REIT - OWNER":               "_is_reit",
-    "HOLDING COMPANY - OWNER":    "_is_holding",
-}
+# Fallback if the metastore lookup fails — last known-good URL.
+OWNERSHIP_CSV_FALLBACK_URL = (
+    "https://data.cms.gov/provider-data/sites/default/files/resources/"
+    "211fec82817d05edbce24f590f73fa9e_1781194537/NH_Ownership_Jun2026.csv"
+)
+
+
+def _discover_ownership_csv_url() -> str | None:
+    try:
+        resp = requests.get(OWNERSHIP_METASTORE_URL, timeout=30)
+        resp.raise_for_status()
+        dist = resp.json().get("distribution", [])
+        if dist and dist[0].get("downloadURL"):
+            return dist[0]["downloadURL"]
+    except Exception as e:
+        logger.warning(f"Metastore lookup failed for Ownership dataset: {e}")
+    return None
+
+
+def _parse_association_date(val: str):
+    """'since 01/25/2012' -> '2012-01-25'"""
+    m = re.search(r"(\d{2})/(\d{2})/(\d{4})", val or "")
+    if not m:
+        return None
+    mm, dd, yyyy = m.groups()
+    return f"{yyyy}-{mm}-{dd}"
 
 
 def fetch_and_load_all():
@@ -67,30 +82,15 @@ def fetch_and_load_all():
 
 
 def load_ownership(conn):
-    """Fetch all ownership records and upsert into cms_ownership_records."""
+    """Download the latest Ownership CSV and upsert into cms_ownership_records."""
+    url = _discover_ownership_csv_url() or OWNERSHIP_CSV_FALLBACK_URL
+    resp = requests.get(url, timeout=120)
+    resp.raise_for_status()
+    rows = list(csv.DictReader(io.StringIO(resp.text)))
+    logger.info(f"Downloaded {len(rows)} Ownership records from {url}")
+
     now = datetime.now(timezone.utc)
-    offset = _get_checkpoint(conn, "ownership")
-    total = 0
-
-    logger.info(f"Ownership load starting at offset {offset}")
-
-    while True:
-        rows = _fetch_page(CMS_ALL_OWNERS_API, limit=config.cms_page_size, offset=offset)
-        if not rows:
-            break
-
-        _upsert_ownership(conn, rows, now)
-        total += len(rows)
-        offset += len(rows)
-        _save_checkpoint(conn, "ownership", offset)
-        conn.commit()
-        logger.info(f"Ownership: loaded {total} records (offset {offset})")
-
-        if len(rows) < config.cms_page_size:
-            break
-        time.sleep(0.5)
-
-    _clear_checkpoint(conn, "ownership")
+    total = _upsert_ownership(conn, rows, now)
     conn.commit()
     logger.info(f"Ownership load done: {total} total records")
 
@@ -176,7 +176,7 @@ def _clear_checkpoint(conn, key: str):
 def _fetch_page(url: str, limit: int = None, offset: int = None) -> list[dict]:
     params = {}
     if limit is not None:
-        params["limit"] = limit
+        params["size"] = limit
     if offset is not None:
         params["offset"] = offset
     try:
@@ -196,36 +196,32 @@ def _fetch_page(url: str, limit: int = None, offset: int = None) -> list[dict]:
         return []
 
 
-def _upsert_ownership(conn, rows: list[dict], now):
-    """Map new CMS API column names to our schema and upsert."""
+def _upsert_ownership(conn, rows: list[dict], now) -> int:
+    """Map NH_Ownership CSV columns to our schema and upsert."""
     records = []
     for r in rows:
-        if not r.get("ENROLLMENT ID"):
+        ccn = r.get("CMS Certification Number (CCN)", "").strip()
+        owner_name = r.get("Owner Name", "").strip()
+        if not ccn or not owner_name:
             continue
-        # Owner name: prefer org name, fall back to individual name
-        owner_name = (
-            r.get("ORGANIZATION NAME - OWNER")
-            or f"{r.get('FIRST NAME - OWNER', '')} {r.get('LAST NAME - OWNER', '')}".strip()
-        )
-        if not owner_name:
+        start_date = _parse_association_date(r.get("Association Date", ""))
+        if not start_date:
             continue
-        assoc_date = r.get("ASSOCIATION DATE - OWNER", "")
-        if not assoc_date:
-            continue
+        pct_raw = r.get("Ownership Percentage", "").strip().rstrip("%")
         records.append((
-            r["ENROLLMENT ID"],
-            r.get("ORGANIZATION NAME", ""),
+            ccn,
+            r.get("Provider Name", "").strip(),
             owner_name,
-            r.get("TYPE - OWNER", ""),
-            r.get("ROLE TEXT - OWNER", ""),
-            _safe_float(r.get("PERCENTAGE OWNERSHIP")),
-            r.get("STATE - OWNER", ""),
-            assoc_date.split("T")[0],
+            r.get("Owner Type", "").strip(),
+            r.get("Role played by Owner or Manager in Facility", "").strip(),
+            _safe_float(pct_raw),
+            r.get("State", "").strip(),
+            start_date,
             now,
         ))
 
     if not records:
-        return
+        return 0
 
     with conn.cursor() as cur:
         psycopg2.extras.execute_values(cur, """
@@ -233,14 +229,15 @@ def _upsert_ownership(conn, rows: list[dict], now):
                 (ccn, provider_name, owner_name, owner_type, owner_role,
                  ownership_percentage, provider_state, ownership_start_date, cms_refreshed_at)
             VALUES %s
-            ON CONFLICT (ccn, owner_name, ownership_start_date)
+            ON CONFLICT (ccn, owner_name, ownership_start_date, owner_role)
             DO UPDATE SET
                 provider_name        = EXCLUDED.provider_name,
                 owner_type           = EXCLUDED.owner_type,
-                owner_role           = EXCLUDED.owner_role,
                 ownership_percentage = EXCLUDED.ownership_percentage,
+                provider_state       = EXCLUDED.provider_state,
                 cms_refreshed_at     = EXCLUDED.cms_refreshed_at
         """, records)
+    return len(records)
 
 
 def _upsert_care_compare(conn, rows: list[dict], now):
