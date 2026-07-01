@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import asyncio
 import json
 import logging
 import logging.config
@@ -23,7 +24,7 @@ from config import get_config
 from scraper.sources import get_active_sources
 from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
-from scraper.chow import fetch_chow_deals, get_chow_source_id
+from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
@@ -128,34 +129,58 @@ def run(dry_run=False, max_articles=None, no_alerts=False):
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
-        # Apply max articles cap
+        # UCC filings are fast (no Claude) — exempt from per-run cap so they drain
+        # in a single run. The cap only limits Claude-extraction articles.
+        ucc_articles    = [a for a in articles if a.get("ucc_filing")]
+        non_ucc_articles = [a for a in articles if not a.get("ucc_filing")]
+
         cap = max_articles or config.max_articles_per_run
-        if len(articles) > cap:
+        if len(non_ucc_articles) > cap:
             logger.warning(
-                f"Article count ({len(articles)}) exceeds cap ({cap}) — "
+                f"Non-UCC article count ({len(non_ucc_articles)}) exceeds cap ({cap}) — "
                 f"processing first {cap} only. "
                 f"Estimated Claude cost for full batch: {estimate_cost(total_found)}"
             )
-            articles = articles[:cap]
-        
+            non_ucc_articles = non_ucc_articles[:cap]
+
+        pre_extracted = [a for a in non_ucc_articles if a.get("pre_extracted")]
+        text_articles = [a for a in non_ucc_articles if not a.get("pre_extracted")]
+
         logger.info(
-            f"Processing {len(articles)} articles — "
-            f"estimated Claude cost: {estimate_cost(len(articles))}"
+            f"Processing {len(ucc_articles)} UCC (cap-exempt) + "
+            f"{len(pre_extracted)} CHOW + "
+            f"{len(text_articles)} text articles (async) — "
+            f"estimated Claude cost: {estimate_cost(len(text_articles))}"
         )
 
         if dry_run:
             logger.info("[DRY RUN] Would process the following articles:")
-            for a in articles:
+            for a in ucc_articles + pre_extracted + text_articles:
                 logger.info(f"  {a.get('title', a['url'])}")
             logger.info("[DRY RUN] No data written to database")
             return
 
-        # Step 2 — Extract deals from each article
         new_deals = 0
-        for i, article in enumerate(articles, 1):
-            logger.info(f"Processing article {i}/{len(articles)}: {article.get('title', article['url'])[:80]}")
+
+        # Step 2a — UCC filings (fast path, serial, no Claude)
+        for i, article in enumerate(ucc_articles, 1):
+            logger.info(f"UCC {i}/{len(ucc_articles)}: {article.get('title', article['url'])[:80]}")
             new_deals += process_article(article, conn)
             conn.commit()
+
+        # Step 2b — CHOW pre-extracted (fast path, serial, no Claude)
+        for article in pre_extracted:
+            new_deals += process_article(article, conn)
+            conn.commit()
+
+        # Step 2c — Text articles: async parallel fetch+Claude, serial DB writes
+        if text_articles:
+            logger.info(f"Starting async extraction for {len(text_articles)} text articles...")
+            results = asyncio.run(_batch_fetch_extract(text_articles, concurrency=8))
+            for article, raw_text, deals in results:
+                logger.info(f"Storing: {article.get('title', article['url'])[:80]}")
+                new_deals += _store_article_result(article, raw_text, deals, conn)
+                conn.commit()
 
         logger.info(f"Extracted and stored {new_deals} new deals")
 
@@ -319,9 +344,11 @@ def discover_articles(conn) -> list[dict]:
                            "source_type": "ucc"})(),
             conn
         )
+        ky_names = get_chow_operator_names("KY")
         ucc_articles = fetch_ucc_filings(
             known_operator_names=_get_known_operator_names(conn),
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
+            ky_search_names=ky_names or None,
         )
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
@@ -335,6 +362,72 @@ def discover_articles(conn) -> list[dict]:
 
 
 # ── Article processing ────────────────────────────────────────
+
+def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
+    """Fetch article text and call Claude. No DB operations — safe to run in a thread."""
+    raw_text = article.get("raw_text")
+    if not raw_text:
+        raw_text = fetch_article_text(article["url"])
+    if not raw_text:
+        return article, None, []
+    try:
+        deals = extract_deals(raw_text, article["url"])
+    except Exception as e:
+        logger.error(f"Extraction failed for {article['url']}: {e}")
+        return article, raw_text, []
+    return article, raw_text, deals
+
+
+async def _batch_fetch_extract(
+    articles: list[dict],
+    concurrency: int = 8,
+) -> list[tuple[dict, str | None, list[dict]]]:
+    """Fetch+extract multiple articles concurrently using a thread-pool semaphore.
+    asyncio.to_thread keeps psycopg2 (not async-safe) out of threads; DB writes
+    happen serially in the caller after this returns."""
+    sem = asyncio.Semaphore(concurrency)
+
+    async def _one(article: dict):
+        async with sem:
+            return await asyncio.to_thread(_fetch_and_extract, article)
+
+    return await asyncio.gather(*[_one(a) for a in articles])
+
+
+def _store_article_result(article: dict, raw_text: str | None, deals: list[dict], conn) -> int:
+    """DB-write half of the text-article path — called after async extraction."""
+    article_id = _store_article(article, conn)
+    if not raw_text:
+        _mark_extraction_error(article_id, "No article text available", conn)
+        return 0
+    _update_article_text(article_id, raw_text, conn)
+    if not deals:
+        _mark_extraction_done(article_id, conn)
+        return 0
+    deals = deduplicate_batch(deals)
+    stored = 0
+    for deal in deals:
+        deal = normalize_deal(deal)
+        hash_val = deal.get("dedup_hash") or make_dedup_hash(deal)
+        if is_duplicate(hash_val, conn):
+            logger.debug(f"Skipping duplicate: {deal.get('acquiring_entity')}")
+            continue
+        try:
+            with conn.cursor() as sp:
+                sp.execute("SAVEPOINT before_deal")
+            deal_id = _store_deal(deal, article_id, conn)
+            _run_cms_matching(deal, deal_id, conn)
+            stored += 1
+        except Exception as e:
+            if 'unique constraint' in str(e).lower() or 'uniqueviolation' in type(e).__name__:
+                logger.debug(f"Semantic duplicate skipped: {deal.get('acquiring_entity')} {deal.get('states')}")
+                with conn.cursor() as sp:
+                    sp.execute("ROLLBACK TO SAVEPOINT before_deal")
+            else:
+                raise
+    _mark_extraction_done(article_id, conn)
+    return stored
+
 
 def process_article(article: dict, conn) -> int:
     article_id = _store_article(article, conn)
@@ -540,8 +633,6 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
             with conn.cursor() as sp:
                 sp.execute("SAVEPOINT before_ucc_deal")
             deal_id = _store_deal(deal, article_id, conn)
-            with conn.cursor() as cur:
-                cur.execute("UPDATE deals SET ucc_confirmed = true WHERE id = %s", (deal_id,))
             _run_cms_matching(deal, deal_id, conn)
             _mark_extraction_done(article_id, conn)
             return 1

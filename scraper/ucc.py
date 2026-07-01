@@ -38,13 +38,21 @@ def _filing_to_article(filing: UCCFiling) -> dict:
     }
 
 
-def fetch_ucc_filings(known_operator_names: list[str], ky_bulk_file_path: str = None) -> list[dict]:
+def fetch_ucc_filings(
+    known_operator_names: list[str],
+    ky_bulk_file_path: str = None,
+    ky_search_names: list[str] = None,
+) -> list[dict]:
     filings: list[UCCFiling] = []
 
     # KY (Playwright, no Cloudflare, headless=True)
+    # Use ky_search_names (CHOW facility-level LLCs) when available — the KY portal
+    # only supports debtor search and these LLCs are the actual UCC debtors.
+    # Falls back to known_operator_names if ky_search_names is not provided.
     if ENABLE_KY_PLAYWRIGHT:
+        ky_terms = ky_search_names if ky_search_names else known_operator_names
         try:
-            filings.extend(search_ky_batch(known_operator_names))
+            filings.extend(search_ky_batch(ky_terms))
         except Exception as e:
             logger.warning(f"KY UCC batch search failed: {e}")
 
@@ -96,4 +104,14 @@ def fetch_ucc_filings(known_operator_names: list[str], ky_bulk_file_path: str = 
                 logger.warning(f"ME UCC search failed for {operator_name!r}: {e}")
 
     logger.info(f"UCC: fetched {len(filings)} raw filings across enabled states")
-    return [_filing_to_article(f) for f in filings]
+    articles = []
+    excluded = 0
+    for f in filings:
+        art = _filing_to_article(f)
+        if art["_ucc_classification"].is_acquisition_relevant:
+            articles.append(art)
+        else:
+            excluded += 1
+    if excluded:
+        logger.info(f"UCC: pre-filtered {excluded} filings as non-RE/PE (equipment/vendor) before article queue")
+    return articles

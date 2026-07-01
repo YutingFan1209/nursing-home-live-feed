@@ -86,6 +86,28 @@ EXCLUDE_PATTERNS = [
     r"\bct corporation system\b",  # registered agent, not a real lender
     r"\bcorporation service company\b",  # registered agent
     r"\bnational registered agents\b",   # registered agent
+    # Equipment leasing companies — any name containing "leasing" is near-certainly
+    # an equipment/vehicle lessor, not a nursing home acquisition financier
+    r"\bleasing\b",
+    # Explicit equipment finance patterns not caught by the above
+    r"\bequipment finance\b",      # "Old National Equipment Finance", "Popular Equipment Finance"
+    # Known medical device / imaging vendors that file UCC-1s for equipment
+    r"\bstryker\b",                # Stryker Sales Corp, Flex Financial/Stryker
+    r"\bagfa\b",                   # AGFA Finance Corporation (imaging)
+    r"\bkarl storz\b",             # Karl Storz Capital (endoscopy)
+    r"\bolympus america\b",        # Olympus America Inc. (endoscopy equipment)
+    r"\bzimmer\b",                 # Zimmer US / Zimmer Biomet (orthopedic devices)
+    r"\bglobus medical\b",         # Globus Medical (spine surgical equipment)
+    r"\bb\.? braun\b",             # B. Braun Medical (medical devices)
+    r"\bortho.?clinical\b",        # Ortho-Clinical Diagnostics
+    r"\bquidelortho\b",            # QuidelOrtho Sales
+    r"\bmed one capital\b",        # Med One Capital Funding (healthcare equipment finance)
+    r"\basd specialty healthcare\b",  # ASD Specialty Healthcare (specialty pharma)
+    r"\bameriseourcebergen\b",     # AmerisourceBergen (drug distributor)
+    r"\bmaster trustee\b",         # Bond trustee role — hospital bond, not RE acquisition
+    r"\bheidel.?berg materials\b", # Construction aggregate (clearly wrong sector)
+    r"\bintegrated commercialization\b",  # Specialty pharma distribution
+    r"\bbanyan capital solutions\b",      # Healthcare equipment leasing agent
 ]
 
 
@@ -160,6 +182,29 @@ EXCLUDE_PATTERNS.extend([
     r"\birs\b",
     r"\bdepartment of treasury\b",
     r"\bnew york state tax\b",
+    # Office/IT equipment vendors — file UCC-1s for copiers, printers, software
+    r"\bduplicator\b",              # Duplicator Sales and Service (copier company)
+    r"\binnoserv\b",                # Innoserv Solutions LLC (IT/software vendor)
+    r"\bcanon financial\b",         # Canon Financial Services (copier/printer leasing)
+    r"\bricoh\b",                   # Ricoh USA (office equipment)
+    r"\bxerox\b",                   # Xerox Financial Services (copier leasing)
+    r"\bkonica minolta\b",          # Konica Minolta Business Solutions
+    r"\bpitney bowes\b",            # Pitney Bowes (postage/mailing equipment)
+    r"\bdell financial\b",          # Dell Financial Services (IT equipment)
+    r"\bhp financial\b",            # HP Financial Services (IT equipment)
+    r"\bcisco systems\b",           # Cisco Systems Capital (networking)
+    r"\bcrown credit\b",            # Crown Credit Company (forklift/industrial)
+    r"\bmatco tools\b",             # Matco Tools Corp (hand tools, seen in ROBERT BUTLER deals)
+    r"\bsnap.?on credit\b",         # Snap-on Credit LLC (tools)
+    r"\bnew holland credit\b",      # New Holland Credit (farm/construction equipment)
+    r"\bgreenpoint credit\b",       # GreenPoint Credit (consumer auto/personal)
+    r"\bvanderbilt mortgage\b",     # Vanderbilt Mortgage & Finance (manufactured housing)
+    r"\bmortgage electronic registration\b",  # MERS — residential mortgage registry
+    r"\busaa federal savings\b",    # USAA (military personal banking, not healthcare RE)
+    r"\bautomotive finance\b",      # Automotive Finance Corporation (dealer floor plan)
+    # Registered agent abbreviations — file as secured party on behalf of real lender
+    r"^csc[,\s]",                   # CSC (Corporation Service Company abbreviation)
+    r"\bcsc as representative\b",
 ])
 
 # HUD loans are healthcare RE financing — acquisition relevant

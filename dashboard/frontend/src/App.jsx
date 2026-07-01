@@ -111,11 +111,27 @@ function DealCard({ deal, expanded, onToggle }) {
           {deal.lender && (
             <span style={{ fontSize: 12, color: "#9ca3af" }}>
               Financed by {deal.lender}
-              {deal.ucc_confirmed && (
-                <span style={{ color: "#7c3aed", fontWeight: 600 }} title="Confirmed via state UCC-1 filing"> · UCC confirmed</span>
-              )}
             </span>
           )}
+          {deal.source_type === 'ucc' ? (
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed",
+              background: "#f5f3ff", padding: "2px 7px", borderRadius: 20 }}
+              title="Early signal from state UCC-1 filing, not yet confirmed by CMS">
+              UCC Signal
+            </span>
+          ) : deal.ucc_confirmed ? (
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed",
+              background: "#f5f3ff", padding: "2px 7px", borderRadius: 20 }}
+              title="Corroborated by a state UCC-1 financing statement">
+              UCC confirmed
+            </span>
+          ) : deal.stage === 'confirmed' ? (
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#15803d",
+              background: "#f0fdf4", padding: "2px 7px", borderRadius: 20 }}
+              title="Verified against CMS ownership records">
+              CMS Confirmed
+            </span>
+          ) : null}
           {deal.also_reported_count > 0 && (
             <span style={{ fontSize: 11, color: "#9ca3af", background: "#f3f4f6",
               padding: "2px 8px", borderRadius: 20 }}>

@@ -150,7 +150,7 @@ def _date_window(acq_date: Optional[str]) -> tuple[date, date]:
     if acq_date:
         try:
             from datetime import date as date_type
-            d = date_type.fromisoformat(acq_date)
+            d = date_type.fromisoformat(str(acq_date)[:10])
             return d - timedelta(days=180), d + timedelta(days=180)
         except ValueError:
             pass
