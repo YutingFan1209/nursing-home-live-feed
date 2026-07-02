@@ -17,6 +17,18 @@ const fmtDate = (v) => {
 const fmtM = (v) => v != null ? `$${Number(v).toFixed(1)}M` : null;
 const isNew = (c) => c && (Date.now() - new Date(c).getTime()) < 48 * 60 * 60 * 1000;
 
+// UCC deals seeded from an individual owner's name (not yet resolved to a
+// real facility via CMS ownership lookup) get facility_names set to the
+// same value as operator_names — see main.py's NEW_SIGNAL deal builder.
+// That's a structural signal, not a guess: don't display the person's name
+// as if it were a facility.
+const hasUnresolvedFacilities = (deal) => {
+  const facilities = deal.facility_names || [];
+  const operators = deal.operator_names || [];
+  if (facilities.length === 0 || facilities.length !== operators.length) return false;
+  return facilities.every((name, i) => name === operators[i]);
+};
+
 const SOURCE = {
   chow:  { label: "Federal Record", dot: "#16a34a", tip: "CMS Provider Enrollment — verified federal ownership data" },
   edgar: { label: "SEC Filing",     dot: "#2563eb", tip: "SEC EDGAR 8-K — publicly traded company filing" },
@@ -61,7 +73,7 @@ function DealCard({ deal, expanded, onToggle }) {
     ? <><strong>{deal.acquiring_entity}</strong><span style={{color:"#6b7280"}}> — new ownership</span></>
     : deal.seller_entity
     ? <><strong>{deal.seller_entity}</strong><span style={{color:"#6b7280"}}> changes ownership</span></>
-    : deal.facility_names?.length > 0
+    : deal.facility_names?.length > 0 && !hasUnresolvedFacilities(deal)
     ? <><strong>{deal.facility_names[0]}</strong><span style={{color:"#6b7280"}}> — ownership change</span></>
     : <span style={{color:"#6b7280"}}>Ownership change recorded</span>;
 
@@ -151,7 +163,7 @@ function DealCard({ deal, expanded, onToggle }) {
               <div><div style={dl}>Operator(s)</div><div style={dv}>{deal.operator_names.join(", ")}</div></div>
             )}
             {deal.facility_names?.length > 0 && (
-              <div><div style={dl}>Facilities</div><div style={dv}>{deal.facility_names.join(", ")}</div></div>
+              <div><div style={dl}>Facilities</div><div style={dv}>{hasUnresolvedFacilities(deal) ? "—" : deal.facility_names.join(", ")}</div></div>
             )}
             {deal.acquisition_date && (
               <div><div style={dl}>Effective Date</div><div style={dv}>{deal.acquisition_date}</div></div>
