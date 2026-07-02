@@ -111,12 +111,18 @@ def parse_args():
         action="store_true",
         help="Skip sending the email digest this run",
     )
+    parser.add_argument(
+        "--skip-ucc",
+        action="store_true",
+        help="Skip UCC-1 filing scraping (RSS/EDGAR/CHOW/Gmail alerts still run) — "
+             "use when UCC has already run today and you just want news/alert ingestion",
+    )
     return parser.parse_args()
 
 
 # ── Main run ──────────────────────────────────────────────────
 
-def run(dry_run=False, max_articles=None, no_alerts=False):
+def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
 
@@ -125,7 +131,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False):
 
     try:
         # Step 1 — Discover new articles
-        articles = discover_articles(conn)
+        articles = discover_articles(conn, skip_ucc=skip_ucc)
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
@@ -281,7 +287,7 @@ def run_test_article(url: str):
 
 # ── Discovery ─────────────────────────────────────────────────
 
-def discover_articles(conn) -> list[dict]:
+def discover_articles(conn, skip_ucc: bool = False) -> list[dict]:
     new_articles = []
 
     # RSS sources
@@ -337,6 +343,9 @@ def discover_articles(conn) -> list[dict]:
     # UCC-1 financing statements — state-level early acquisition signal,
     # runs as both confirmation of existing deals and a new source (see
     # process_article's ucc_filing branch for the routing logic)
+    if skip_ucc:
+        logger.info("UCC filing fetch skipped (--skip-ucc)")
+        return new_articles
     try:
         ucc_source_id = _ensure_source(
             type("S", (), {"name": "State UCC-1 Filings",
@@ -858,4 +867,5 @@ if __name__ == "__main__":
             dry_run=args.dry_run,
             max_articles=args.max_articles,
             no_alerts=args.no_alerts,
+            skip_ucc=args.skip_ucc,
         )
