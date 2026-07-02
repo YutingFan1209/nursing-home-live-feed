@@ -28,7 +28,7 @@ from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
-from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash
+from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
 from matcher.ownership import match_deal, determine_stage
 from matcher.carecompare import enrich_matches, flag_policy_risks
 from alerts.digest import send_daily_digest
@@ -816,7 +816,8 @@ def _store_deal(deal: dict, article_id, conn) -> str:
             deal.get("dedup_hash"),
             deal.get("extraction_model"),
         ))
-        return cur.fetchone()[0]
+        deal_id = cur.fetchone()[0]
+    return find_and_resolve_fuzzy_duplicate(deal_id, conn)
 
 
 def _store_cms_matches(deal_id, matches: list[dict], conn):

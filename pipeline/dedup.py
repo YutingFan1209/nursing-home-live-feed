@@ -6,6 +6,7 @@ reported by multiple sources is stored only once.
 
 import hashlib
 import logging
+from rapidfuzz import fuzz
 logger = logging.getLogger(__name__)
 
 
@@ -79,3 +80,135 @@ def deduplicate_batch(deals: list[dict]) -> list[dict]:
         else:
             logger.debug(f"Duplicate deal within batch, skipping: {deal.get('acquiring_entity')}")
     return unique
+
+
+# ── Fuzzy (semantic) dedup ───────────────────────────────────────
+# make_dedup_hash() requires an exact match on every field, so the same
+# deal reported by two articles with different state subsets, facility
+# counts, or acquirer name variants ("Ensign Group" vs "The Ensign Group")
+# hashes differently and both get stored. This pass runs after insertion
+# and looks for near-matches on a looser set of signals instead.
+
+_ACQUIRER_SUFFIXES = [" LLC", " INC", " CORP", " LTD", " LP", " L.P.", " L.L.C.", " PLLC", " REIT"]
+
+
+def normalize_acquirer(name: str) -> str:
+    name = (name or "").upper().strip()
+    if name.startswith("THE "):
+        name = name[4:]
+    for suffix in _ACQUIRER_SUFFIXES:
+        name = name.replace(suffix, "")
+    return name.strip()
+
+
+def _states_overlap_ok(a: list, b: list) -> bool:
+    """No states on either side is 'no info', not a mismatch — pass.
+    Otherwise require >=50% overlap of the smaller set."""
+    set_a, set_b = set(a or []), set(b or [])
+    if not set_a or not set_b:
+        return True
+    return len(set_a & set_b) / min(len(set_a), len(set_b)) >= 0.5
+
+
+def _date_close_ok(a, b) -> bool:
+    """Missing date on either side is 'no info' — pass. Otherwise within 30 days."""
+    if not a or not b:
+        return True
+    return abs((a - b).days) <= 30
+
+
+def _facility_count_close_ok(a, b) -> bool:
+    """Missing count on either side is 'no info' — pass (this is the fix
+    for the 22-vs-35 case that a strict 'both null' rule would have missed).
+    Otherwise within 20% of the larger value."""
+    if a is None or b is None:
+        return True
+    if a == 0 or b == 0:
+        return a == b
+    return abs(a - b) / max(a, b) <= 0.20
+
+
+def _completeness_score(row: dict) -> int:
+    """Higher = more complete. Presence of a known scalar field counts more
+    than array length, since a longer states/name array is only meaningful
+    once we know the deal is real (has a date, value, or facility count)."""
+    score = len(row.get("states") or [])
+    score += 10 if row.get("facility_count") is not None else 0
+    score += 10 if row.get("deal_value_m") is not None else 0
+    score += 10 if row.get("acquisition_date") is not None else 0
+    score += len(row.get("operator_names") or [])
+    score += len(row.get("facility_names") or [])
+    return score
+
+
+_DEAL_FIELDS = """
+    id, acquiring_entity, states, facility_count, deal_value_m,
+    acquisition_date, operator_names, facility_names
+"""
+
+
+def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
+    """
+    Post-insertion semantic dedup pass for a single just-stored deal.
+    Compares it against other deals sharing a fuzzy-matched acquiring_entity
+    (token_sort_ratio >= 85, normalizing "The X" vs "X" and corp suffixes),
+    overlapping states, a nearby acquisition date, and a similar facility
+    count. If a likely duplicate is found, keeps the more complete row,
+    merges the states arrays into it, and deletes the other.
+
+    Does not commit — participates in the caller's transaction.
+
+    Returns the id that should be used for downstream processing (CMS
+    matching, stage updates): deal_id unchanged if no merge happened, or
+    the id of the surviving row if the just-inserted row was the one
+    dropped.
+    """
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT {_DEAL_FIELDS} FROM deals WHERE id = %s", (deal_id,))
+        row = cur.fetchone()
+        if not row:
+            return deal_id
+        cols = [d[0] for d in cur.description]
+        new_deal = dict(zip(cols, row))
+
+    acquirer = (new_deal.get("acquiring_entity") or "").strip()
+    if not acquirer:
+        return deal_id
+    normalized_new = normalize_acquirer(acquirer)
+
+    with conn.cursor() as cur:
+        cur.execute(f"""
+            SELECT {_DEAL_FIELDS} FROM deals
+            WHERE id != %s AND acquiring_entity IS NOT NULL AND acquiring_entity != ''
+        """, (deal_id,))
+        cols = [d[0] for d in cur.description]
+        others = [dict(zip(cols, r)) for r in cur.fetchall()]
+
+    for other in others:
+        if fuzz.token_sort_ratio(normalized_new, normalize_acquirer(other["acquiring_entity"])) < 85:
+            continue
+        if not _states_overlap_ok(new_deal["states"], other["states"]):
+            continue
+        if not _date_close_ok(new_deal["acquisition_date"], other["acquisition_date"]):
+            continue
+        if not _facility_count_close_ok(new_deal["facility_count"], other["facility_count"]):
+            continue
+
+        keep, drop = (
+            (new_deal, other)
+            if _completeness_score(new_deal) >= _completeness_score(other)
+            else (other, new_deal)
+        )
+        merged_states = sorted(set(keep["states"] or []) | set(drop["states"] or []))
+
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM deals WHERE id = %s", (drop["id"],))
+            cur.execute("UPDATE deals SET states = %s WHERE id = %s", (merged_states, keep["id"]))
+
+        logger.info(
+            f"Fuzzy dedup: merged {drop['acquiring_entity']!r} ({drop['id']}) "
+            f"into {keep['acquiring_entity']!r} ({keep['id']}) — states -> {merged_states}"
+        )
+        return keep["id"]
+
+    return deal_id
