@@ -42,6 +42,7 @@ def fetch_ucc_filings(
     known_operator_names: list[str],
     ky_bulk_file_path: str = None,
     ky_search_names: list[str] = None,
+    ny_individual_names: list[str] = None,
 ) -> list[dict]:
     filings: list[UCCFiling] = []
 
@@ -64,9 +65,17 @@ def fetch_ucc_filings(
             logger.warning(f"PA UCC batch search failed: {e}")
 
     # NY (Playwright)
+    # known_operator_names always run through Organization search.
+    # ny_individual_names (CMS individual owner names, per Tyler's
+    # methodology) run through the portal's separate Individual debtor
+    # search — see ucc/ny_playwright.py:_search_one for why these can't
+    # share a search mode.
     if ENABLE_NY_PLAYWRIGHT:
         try:
-            filings.extend(search_ny_batch(known_operator_names))
+            filings.extend(search_ny_batch(
+                org_names=known_operator_names,
+                individual_names=ny_individual_names,
+            ))
         except Exception as e:
             logger.warning(f"NY UCC batch search failed: {e}")
     

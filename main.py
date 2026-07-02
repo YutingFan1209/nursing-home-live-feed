@@ -345,10 +345,13 @@ def discover_articles(conn) -> list[dict]:
             conn
         )
         ky_names = get_chow_operator_names("KY")
+        known_operator_names = _get_known_operator_names(conn)
+        ny_individual_names = _get_cms_individual_owner_names(conn, "NY")
         ucc_articles = fetch_ucc_filings(
-            known_operator_names=_get_known_operator_names(conn),
+            known_operator_names=known_operator_names,
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
             ky_search_names=ky_names or None,
+            ny_individual_names=ny_individual_names or None,
         )
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
@@ -550,6 +553,40 @@ def _get_known_operator_names(conn) -> list[str]:
         """)
         all_names = [row[0] for row in cur.fetchall() if row[0]]
     return [n for n in all_names if entity_pattern.search(n)]
+
+
+# Ownership/control roles only — excludes weaker-signal roles (ADP of the
+# SNF, W-2 managing employee, corporate director/officer, trustee) that are
+# mostly long-tenured administrators rather than beneficial owners. Each
+# name here becomes one full NY UCC portal search (~6-10s, own browser
+# session per ucc/ny_playwright.py), so narrow this further if runtime
+# becomes a problem — e.g. drop OPERATIONAL/MANAGERIAL CONTROL and
+# MANAGING CONTROL - GOVERNING BODY to keep only equity-ownership roles.
+_CMS_OWNERSHIP_RELEVANT_ROLES = (
+    '5% OR GREATER DIRECT OWNERSHIP INTEREST',
+    '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
+    'DIRECT OWNERSHIP INTEREST',
+    'INDIRECT OWNERSHIP INTEREST',
+    'GENERAL PARTNERSHIP INTEREST',
+    'LIMITED PARTNERSHIP INTEREST',
+    'OPERATIONAL/MANAGERIAL CONTROL',
+    'MANAGING CONTROL - GOVERNING BODY',
+)
+
+
+def _get_cms_individual_owner_names(conn, state: str) -> list[str]:
+    """Pull individual (non-org) CMS owner names for a state, restricted to
+    ownership/control roles — Tyler's methodology: match CMS owner names
+    (including individuals, which CHOW/deals-derived names never capture)
+    against the UCC filing index."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT DISTINCT owner_name FROM cms_ownership_records
+            WHERE provider_state = %s
+              AND owner_type = 'Individual'
+              AND owner_role = ANY(%s)
+        """, (state, list(_CMS_OWNERSHIP_RELEVANT_ROLES)))
+        return [row[0] for row in cur.fetchall() if row[0]]
 
 
 def _fetch_existing_deals_for_ucc_matching(conn) -> list[ExistingDeal]:
