@@ -108,6 +108,11 @@ EXCLUDE_PATTERNS = [
     r"\bheidel.?berg materials\b", # Construction aggregate (clearly wrong sector)
     r"\bintegrated commercialization\b",  # Specialty pharma distribution
     r"\bbanyan capital solutions\b",      # Healthcare equipment leasing agent
+    r"\bsolar mosaic\b",            # Residential solar financing — personal, not acquisition
+    r"\bcredit union\b",            # Personal/consumer banking, not healthcare acquisition financing
+    r"\bfcu\b",                     # Abbreviated credit union names ("XYZ FCU")
+    r"\bdll finance\b",             # DLL Finance LLC — equipment financing
+    r"\bsmall business administration\b",  # SBA — generic small-business, not healthcare-RE-specific
 ]
 
 
@@ -115,6 +120,9 @@ def classify_secured_party(name: str) -> LenderClassification:
     """Classify a UCC secured-party name as RE / PE / general bank /
     equipment-vendor / unknown, with a confidence score and the signal
     that drove the decision (for debugging false positives later)."""
+
+    if not name:
+        return LenderClassification(LenderCategory.UNKNOWN, 0.0, "no secured party name", False)
 
     normalized = " ".join(name.lower().strip().split())
 

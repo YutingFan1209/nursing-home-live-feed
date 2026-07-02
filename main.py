@@ -635,6 +635,14 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
         return 0
 
     if result.decision == RoutingDecision.NEW_SIGNAL:
+        if not filing.secured_party_name:
+            logger.debug(
+                f"UCC new-signal skipped: no secured party "
+                f"(filing {filing.filing_number}, {filing.state})"
+            )
+            _mark_extraction_done(article_id, conn)
+            return 0
+
         deal = {
             "acquiring_entity": None,
             "seller_entity": None,
