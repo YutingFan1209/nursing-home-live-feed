@@ -113,6 +113,12 @@ EXCLUDE_PATTERNS = [
     r"\bfcu\b",                     # Abbreviated credit union names ("XYZ FCU")
     r"\bdll finance\b",             # DLL Finance LLC — equipment financing
     r"\bsmall business administration\b",  # SBA — generic small-business, not healthcare-RE-specific
+    r"\bkubota credit\b",           # Kubota Credit Corporation — farm/tractor equipment
+    r"\bagco finance\b",            # AGCO Finance LLC — farm equipment
+    r"\bwells fargo vendor financial\b",  # Wells Fargo Vendor Financial Services — vendor equipment
+    r"\bconseco finance\b",         # Conseco Finance Servicing Corp — subprime consumer lending
+    r"\bgreen tree credit\b",       # Green Tree Credit Corp (now Conseco) — subprime consumer lending
+    r"\bc t corporation system\b",  # registered agent, space variant of "ct corporation system"
 ]
 
 
