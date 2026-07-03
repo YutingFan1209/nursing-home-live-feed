@@ -3,14 +3,26 @@ import { useState, useEffect, useMemo } from "react";
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL ?? "";
 const DATA_URL = import.meta.env.BASE_URL + "deals.json";
 
+// Calendar-date comparison, not elapsed hours — a deal from yesterday
+// afternoon shouldn't still read "Today" this morning just because it's
+// under 24h old.
+const localDateStr = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
 const fmtDate = (v) => {
   if (!v) return null;
   const d = new Date(v);
   const now = new Date();
-  const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Yesterday";
-  if (diff < 7) return `${diff} days ago`;
+  const dStr = localDateStr(d);
+  const todayStr = localDateStr(now);
+  if (dStr === todayStr) return "Today";
+
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (dStr === localDateStr(yesterday)) return "Yesterday";
+
+  const diffDays = Math.round((new Date(todayStr) - new Date(dStr)) / (1000 * 60 * 60 * 24));
+  if (diffDays < 7) return `${diffDays} days ago`;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
