@@ -170,9 +170,11 @@ def _difflib_score(a: str, b: str) -> int:
     """
     if not a or not b:
         return 0
-    # Word-level intersection score (weighted 70%)
-    a_words = {w for w in a.upper().split() if len(w) > 2}
-    b_words = {w for w in b.upper().split() if len(w) > 2}
+    # Word-level intersection score (weighted 70%). Strip trailing commas so
+    # CMS's "LAST, FIRST" owner_name format tokenizes the same as "FIRST LAST"
+    # — otherwise "STEINBERG," never matches "STEINBERG".
+    a_words = {w.rstrip(",") for w in a.upper().split() if len(w) > 2}
+    b_words = {w.rstrip(",") for w in b.upper().split() if len(w) > 2}
     if not a_words:
         return 0
     intersection = a_words & b_words
