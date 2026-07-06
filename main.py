@@ -354,13 +354,17 @@ def discover_articles(conn, skip_ucc: bool = False) -> list[dict]:
             conn
         )
         ky_names = get_chow_operator_names("KY")
+        oh_names = get_chow_operator_names("OH")
         known_operator_names = _get_known_operator_names(conn)
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY")
+        oh_individual_names = _get_cms_individual_owner_names(conn, "OH")
         ucc_articles = fetch_ucc_filings(
             known_operator_names=known_operator_names,
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
             ky_search_names=ky_names or None,
             ny_individual_names=ny_individual_names or None,
+            oh_search_names=oh_names or None,
+            oh_individual_names=oh_individual_names or None,
         )
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):

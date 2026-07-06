@@ -43,6 +43,8 @@ def fetch_ucc_filings(
     ky_bulk_file_path: str = None,
     ky_search_names: list[str] = None,
     ny_individual_names: list[str] = None,
+    oh_search_names: list[str] = None,
+    oh_individual_names: list[str] = None,
 ) -> list[dict]:
     filings: list[UCCFiling] = []
 
@@ -97,9 +99,19 @@ def fetch_ucc_filings(
                 logger.warning(f"NJ UCC search failed for {operator_name!r}: {e}")
 
     # OH (Playwright, hidden window)
+    # Use oh_search_names (CHOW facility-level LLCs) when available — the OH
+    # portal is a debtor search and known_operator_names is PE/lender firm
+    # names, not the facility-level LLC debtors that actually appear as
+    # debtors on OH filings (same bug ky_search_names fixed for KY).
+    # oh_individual_names routes through the portal's separate Individual
+    # debtor mode (personInd1) — see ucc/oh_playwright.py:_search_one.
     if ENABLE_OH_PLAYWRIGHT:
+        oh_org_terms = oh_search_names if oh_search_names else known_operator_names
         try:
-            filings.extend(search_oh_batch(known_operator_names))
+            filings.extend(search_oh_batch(
+                org_names=oh_org_terms,
+                individual_names=oh_individual_names,
+            ))
         except Exception as e:
             logger.warning(f"OH UCC batch search failed: {e}")
 
