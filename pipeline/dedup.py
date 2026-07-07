@@ -128,6 +128,20 @@ def _facility_count_close_ok(a, b) -> bool:
     return abs(a - b) / max(a, b) <= 0.20
 
 
+def _facility_names_overlap_ok(a: list, b: list) -> bool:
+    """Both sides empty is 'no info' - pass. Otherwise require at least one
+    shared facility name (case/whitespace-insensitive). A fuzzy-matched
+    acquirer + overlapping states + nearby date can still be two distinct
+    transactions (e.g. the same buyer closing separate deals in the same
+    state the same month) - zero shared facilities is a strong signal of
+    that, so don't merge on acquirer/date/state proximity alone."""
+    set_a = {n.strip().upper() for n in (a or []) if n and n.strip()}
+    set_b = {n.strip().upper() for n in (b or []) if n and n.strip()}
+    if not set_a and not set_b:
+        return True
+    return bool(set_a & set_b)
+
+
 def _completeness_score(row: dict) -> int:
     """Higher = more complete. Presence of a known scalar field counts more
     than array length, since a longer states/name array is only meaningful
@@ -152,9 +166,10 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
     Post-insertion semantic dedup pass for a single just-stored deal.
     Compares it against other deals sharing a fuzzy-matched acquiring_entity
     (token_sort_ratio >= 85, normalizing "The X" vs "X" and corp suffixes),
-    overlapping states, a nearby acquisition date, and a similar facility
-    count. If a likely duplicate is found, keeps the more complete row,
-    merges the states arrays into it, and deletes the other.
+    overlapping states, a nearby acquisition date, a similar facility count,
+    and at least one shared facility name (unless both sides list none).
+    If a likely duplicate is found, keeps the more complete row, merges the
+    states arrays into it, and deletes the other.
 
     Does not commit — participates in the caller's transaction.
 
@@ -192,6 +207,8 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
         if not _date_close_ok(new_deal["acquisition_date"], other["acquisition_date"]):
             continue
         if not _facility_count_close_ok(new_deal["facility_count"], other["facility_count"]):
+            continue
+        if not _facility_names_overlap_ok(new_deal["facility_names"], other["facility_names"]):
             continue
 
         keep, drop = (
