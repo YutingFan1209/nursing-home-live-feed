@@ -142,6 +142,23 @@ def _facility_names_overlap_ok(a: list, b: list) -> bool:
     return bool(set_a & set_b)
 
 
+def _merge_array_union(a: list, b: list) -> list:
+    return sorted(set(a or []) | set(b or []))
+
+
+def _merge_higher_count(a, b):
+    """Take the larger facility_count; missing on either side is 'no info'."""
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return max(a, b)
+
+
+def _merge_first_non_null(a, b):
+    return a if a is not None else b
+
+
 def _completeness_score(row: dict) -> int:
     """Higher = more complete. Presence of a known scalar field counts more
     than array length, since a longer states/name array is only meaningful
@@ -168,8 +185,13 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
     (token_sort_ratio >= 85, normalizing "The X" vs "X" and corp suffixes),
     overlapping states, a nearby acquisition date, a similar facility count,
     and at least one shared facility name (unless both sides list none).
-    If a likely duplicate is found, keeps the more complete row, merges the
-    states arrays into it, and deletes the other.
+    If a likely duplicate is found, the more complete row (by
+    _completeness_score) survives and absorbs the best fields from both:
+    states/operator_names/facility_names are unioned, facility_count takes
+    the higher value, and deal_value_m takes whichever side is non-null.
+    article_id is left as-is on the surviving row — since that row was
+    already chosen for being the more complete one, its article_id already
+    points at the more complete source. The other row is deleted.
 
     Does not commit — participates in the caller's transaction.
 
@@ -216,15 +238,29 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
             if _completeness_score(new_deal) >= _completeness_score(other)
             else (other, new_deal)
         )
-        merged_states = sorted(set(keep["states"] or []) | set(drop["states"] or []))
+        merged_states = _merge_array_union(keep["states"], drop["states"])
+        merged_facility_count = _merge_higher_count(keep["facility_count"], drop["facility_count"])
+        merged_deal_value = _merge_first_non_null(keep["deal_value_m"], drop["deal_value_m"])
+        merged_operator_names = _merge_array_union(keep["operator_names"], drop["operator_names"])
+        merged_facility_names = _merge_array_union(keep["facility_names"], drop["facility_names"])
 
         with conn.cursor() as cur:
             cur.execute("DELETE FROM deals WHERE id = %s", (drop["id"],))
-            cur.execute("UPDATE deals SET states = %s WHERE id = %s", (merged_states, keep["id"]))
+            cur.execute("""
+                UPDATE deals SET
+                    states = %s, facility_count = %s, deal_value_m = %s,
+                    operator_names = %s, facility_names = %s
+                WHERE id = %s
+            """, (
+                merged_states, merged_facility_count, merged_deal_value,
+                merged_operator_names, merged_facility_names, keep["id"],
+            ))
 
         logger.info(
             f"Fuzzy dedup: merged {drop['acquiring_entity']!r} ({drop['id']}) "
-            f"into {keep['acquiring_entity']!r} ({keep['id']}) — states -> {merged_states}"
+            f"into {keep['acquiring_entity']!r} ({keep['id']}) — "
+            f"states -> {merged_states}, facility_count -> {merged_facility_count}, "
+            f"deal_value_m -> {merged_deal_value}"
         )
         return keep["id"]
 
