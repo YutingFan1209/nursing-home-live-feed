@@ -28,6 +28,7 @@ from scraper.gmail_alerts import fetch_alert_articles
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash
+from pipeline.excluded_urls import EXCLUDED_URLS
 from matcher.ownership import match_deal, determine_stage
 from matcher.carecompare import enrich_matches, flag_policy_risks
 from alerts.digest import send_daily_digest
@@ -598,6 +599,8 @@ def _ensure_source(source, conn) -> str:
 
 
 def _article_exists(url: str, conn) -> bool:
+    if url in EXCLUDED_URLS:
+        return True
     with conn.cursor() as cur:
         cur.execute("SELECT 1 FROM articles WHERE url = %s", (url,))
         return cur.fetchone() is not None
