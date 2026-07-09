@@ -22,6 +22,12 @@ const fmtDate = (v) => {
   if (dStr === localDateStr(yesterday)) return "Yesterday";
 
   const diffDays = Math.round((new Date(todayStr) - new Date(dStr)) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) {
+    const inDays = -diffDays;
+    if (inDays === 1) return "Tomorrow";
+    if (inDays < 7) return `In ${inDays} days`;
+    return `Expected ${d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+  }
   if (diffDays < 7) return `${diffDays} days ago`;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
