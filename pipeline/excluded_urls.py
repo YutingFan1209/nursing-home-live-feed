@@ -9,4 +9,5 @@ main.py's discover_articles, so it's skipped before extraction ever runs.
 
 EXCLUDED_URLS = {
     "https://skillednursingnews.com/2026/06/top-five-skilled-nursing-providers-to-watch-in-2026/",
+    "https://markets.businessinsider.com/news/stocks/yorkville-university-to-acquire-beal-university-canada-strengthening-the-future-of-nursing-education-in-new-brunswick-1036306561",
 }

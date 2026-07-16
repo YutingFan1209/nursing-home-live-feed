@@ -27,6 +27,7 @@ pattern already lives.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import date, timedelta
 from enum import Enum
@@ -34,6 +35,8 @@ from typing import Optional
 
 from .base import UCCFiling
 from .lender_classifier import classify_secured_party, LenderClassification
+
+logger = logging.getLogger(__name__)
 
 try:
     from rapidfuzz import fuzz
