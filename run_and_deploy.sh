@@ -2,6 +2,9 @@
 set -e
 cd "$(dirname "$0")"
 
+echo "=== Syncing pipeline code from main ==="
+git checkout main -- main.py config.py scraper pipeline matcher alerts ucc db requirements.txt
+
 echo "=== Running pipeline ==="
 venv/bin/python3 main.py --no-alerts
 
