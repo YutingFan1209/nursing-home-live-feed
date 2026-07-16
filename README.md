@@ -137,11 +137,6 @@ docker start nh-test-db
 # or: docker run --name nh-test-db -e POSTGRES_PASSWORD=testpass -p 5432:5432 -d postgres:15
 
 # Initialize the schema, then apply migrations — in this exact order.
-# Only 3 of the 5 files in db/ are needed for a fresh database; the other
-# two (migration_add_ucc_support.sql, migration_widen_ownership_unique.sql)
-# were written against an older/different schema shape and error out on a
-# fresh install (schema.sql already has their end state baked in). Verified
-# against a scratch DB before writing this.
 psql "$DATABASE_URL" -f db/schema.sql
 psql "$DATABASE_URL" -f db/migration_add_ucc_confirmed.sql
 psql "$DATABASE_URL" -f db/migration_ownership_associate_id.sql
