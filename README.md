@@ -3,7 +3,7 @@
 Live feed of PE acquisitions of nursing homes, surfaced via CMS CHOW records, SEC EDGAR filings, Google Alerts/news, and state UCC-1 filings.
 
 **Live site:** https://yutingfan1209.github.io/nursing-home-live-feed/  
-**Current DB:** ~1,088 deals (as of 2026-07-02)
+**Current DB:** ~1,252 deals (as of 2026-07-16)
 
 ---
 
@@ -136,13 +136,34 @@ cd dashboard/frontend && npm run build
 docker start nh-test-db
 # or: docker run --name nh-test-db -e POSTGRES_PASSWORD=testpass -p 5432:5432 -d postgres:15
 
+# Initialize the schema, then apply migrations — in this exact order.
+# Only 3 of the 5 files in db/ are needed for a fresh database; the other
+# two (migration_add_ucc_support.sql, migration_widen_ownership_unique.sql)
+# were written against an older/different schema shape and error out on a
+# fresh install (schema.sql already has their end state baked in). Verified
+# against a scratch DB before writing this.
+psql "$DATABASE_URL" -f db/schema.sql
+psql "$DATABASE_URL" -f db/migration_add_ucc_confirmed.sql
+psql "$DATABASE_URL" -f db/migration_ownership_associate_id.sql
+psql "$DATABASE_URL" -f db/migration_ownership_switch_source.sql
+
 # Python env
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+playwright install          # downloads browser binaries for the UCC scrapers (NY/KY/OH/PA)
 
 # Credentials
 cp .env.example .env      # add ANTHROPIC_API_KEY
-# Gmail OAuth: run once interactively to generate gmail_token.json
+
+# Gmail OAuth (Google Alerts source):
+#   1. In Google Cloud Console, create a project (or use an existing one),
+#      enable the Gmail API, and create an OAuth 2.0 Client ID
+#      (Application type: Desktop app).
+#   2. Download the client secret JSON and save it as gmail_credentials.json
+#      in the repo root (path is configurable via GMAIL_CREDENTIALS_FILE).
+#   3. Run any command that touches Gmail alerts once interactively
+#      (e.g. `python3 main.py --no-alerts`) — it opens a browser for you to
+#      authorize, then saves gmail_token.json for all future runs.
 ```
 
 ---
