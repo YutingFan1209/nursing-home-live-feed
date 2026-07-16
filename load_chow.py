@@ -1,7 +1,10 @@
 import requests, csv, io, psycopg2, psycopg2.extras
 from datetime import datetime, timezone, date, timedelta
 
-conn = psycopg2.connect('postgresql://postgres:testpass@localhost:5432/nh_alerts_test')
+from config import get_config
+
+config = get_config()
+conn = psycopg2.connect(config.database_url)
 psycopg2.extras.register_uuid()
 
 with conn.cursor() as cur:
