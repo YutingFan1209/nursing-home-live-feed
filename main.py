@@ -118,12 +118,21 @@ def parse_args():
         help="Skip UCC-1 filing scraping (RSS/EDGAR/CHOW/Gmail alerts still run) — "
              "use when UCC has already run today and you just want news/alert ingestion",
     )
+    parser.add_argument(
+        "--gmail-days-back",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Override the Gmail alert lookback window (days). Normally auto-scaled "
+             "from sources.last_fetched_at; use this to manually backfill after a "
+             "longer gap (e.g. the tracked timestamp was reset by an intermediate run).",
+    )
     return parser.parse_args()
 
 
 # ── Main run ──────────────────────────────────────────────────
 
-def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False):
+def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
 
@@ -132,7 +141,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False):
 
     try:
         # Step 1 — Discover new articles
-        articles = discover_articles(conn, skip_ucc=skip_ucc)
+        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back)
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
@@ -288,7 +297,7 @@ def run_test_article(url: str):
 
 # ── Discovery ─────────────────────────────────────────────────
 
-def discover_articles(conn, skip_ucc: bool = False) -> list[dict]:
+def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None) -> list[dict]:
     new_articles = []
 
     # RSS sources
@@ -326,13 +335,31 @@ def discover_articles(conn, skip_ucc: bool = False) -> list[dict]:
 
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
+        gmail_source_url = "gmail://googlealerts-noreply@google.com"
+        with conn.cursor() as cur:
+            cur.execute("SELECT last_fetched_at FROM sources WHERE url = %s", (gmail_source_url,))
+            row = cur.fetchone()
+        # Widen the lookback to cover any gap since the last run (e.g. cron
+        # missed a day) — capped so a long-dead pipeline doesn't pull an
+        # unbounded backlog in one shot. Explicit --gmail-days-back always wins
+        # (e.g. for manual backfill when the tracked timestamp itself is stale).
+        if gmail_days_back is not None:
+            effective_days_back = gmail_days_back
+        else:
+            effective_days_back = 2
+            if row and row[0]:
+                days_since_last_fetch = (datetime.now(timezone.utc) - row[0]).days + 1
+                effective_days_back = max(2, min(days_since_last_fetch, 30))
+        if effective_days_back > 2:
+            logger.info(f"Gmail alerts: widening lookback to {effective_days_back} days")
+
         gmail_source_id = _ensure_source(
             type("S", (), {"name": "Google Alerts (Gmail)",
-                           "url": "gmail://googlealerts-noreply@google.com",
+                           "url": gmail_source_url,
                            "source_type": "rss"})(),
             conn
         )
-        alert_articles = fetch_alert_articles(days_back=2)
+        alert_articles = fetch_alert_articles(days_back=effective_days_back)
         for art in alert_articles:
             if not _article_exists(art["url"], conn):
                 art["source_id"] = gmail_source_id
@@ -876,4 +903,5 @@ if __name__ == "__main__":
             max_articles=args.max_articles,
             no_alerts=args.no_alerts,
             skip_ucc=args.skip_ucc,
+            gmail_days_back=args.gmail_days_back,
         )
