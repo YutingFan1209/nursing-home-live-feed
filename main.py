@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import asyncio
 import json
 import logging
 import logging.config
@@ -23,11 +24,11 @@ from config import get_config
 from scraper.sources import get_active_sources
 from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
-from scraper.chow import fetch_chow_deals, get_chow_source_id
+from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
-from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash
+from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
 from pipeline.excluded_urls import EXCLUDED_URLS
 from matcher.ownership import match_deal, determine_stage
 from matcher.carecompare import enrich_matches, flag_policy_risks
@@ -111,12 +112,27 @@ def parse_args():
         action="store_true",
         help="Skip sending the email digest this run",
     )
+    parser.add_argument(
+        "--skip-ucc",
+        action="store_true",
+        help="Skip UCC-1 filing scraping (RSS/EDGAR/CHOW/Gmail alerts still run) — "
+             "use when UCC has already run today and you just want news/alert ingestion",
+    )
+    parser.add_argument(
+        "--gmail-days-back",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Override the Gmail alert lookback window (days). Normally auto-scaled "
+             "from sources.last_fetched_at; use this to manually backfill after a "
+             "longer gap (e.g. the tracked timestamp was reset by an intermediate run).",
+    )
     return parser.parse_args()
 
 
 # ── Main run ──────────────────────────────────────────────────
 
-def run(dry_run=False, max_articles=None, no_alerts=False):
+def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
 
@@ -125,38 +141,62 @@ def run(dry_run=False, max_articles=None, no_alerts=False):
 
     try:
         # Step 1 — Discover new articles
-        articles = discover_articles(conn)
+        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back)
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
-        # Apply max articles cap
+        # UCC filings are fast (no Claude) — exempt from per-run cap so they drain
+        # in a single run. The cap only limits Claude-extraction articles.
+        ucc_articles    = [a for a in articles if a.get("ucc_filing")]
+        non_ucc_articles = [a for a in articles if not a.get("ucc_filing")]
+
         cap = max_articles or config.max_articles_per_run
-        if len(articles) > cap:
+        if len(non_ucc_articles) > cap:
             logger.warning(
-                f"Article count ({len(articles)}) exceeds cap ({cap}) — "
+                f"Non-UCC article count ({len(non_ucc_articles)}) exceeds cap ({cap}) — "
                 f"processing first {cap} only. "
                 f"Estimated Claude cost for full batch: {estimate_cost(total_found)}"
             )
-            articles = articles[:cap]
-        
+            non_ucc_articles = non_ucc_articles[:cap]
+
+        pre_extracted = [a for a in non_ucc_articles if a.get("pre_extracted")]
+        text_articles = [a for a in non_ucc_articles if not a.get("pre_extracted")]
+
         logger.info(
-            f"Processing {len(articles)} articles — "
-            f"estimated Claude cost: {estimate_cost(len(articles))}"
+            f"Processing {len(ucc_articles)} UCC (cap-exempt) + "
+            f"{len(pre_extracted)} CHOW + "
+            f"{len(text_articles)} text articles (async) — "
+            f"estimated Claude cost: {estimate_cost(len(text_articles))}"
         )
 
         if dry_run:
             logger.info("[DRY RUN] Would process the following articles:")
-            for a in articles:
+            for a in ucc_articles + pre_extracted + text_articles:
                 logger.info(f"  {a.get('title', a['url'])}")
             logger.info("[DRY RUN] No data written to database")
             return
 
-        # Step 2 — Extract deals from each article
         new_deals = 0
-        for i, article in enumerate(articles, 1):
-            logger.info(f"Processing article {i}/{len(articles)}: {article.get('title', article['url'])[:80]}")
+
+        # Step 2a — UCC filings (fast path, serial, no Claude)
+        for i, article in enumerate(ucc_articles, 1):
+            logger.info(f"UCC {i}/{len(ucc_articles)}: {article.get('title', article['url'])[:80]}")
             new_deals += process_article(article, conn)
             conn.commit()
+
+        # Step 2b — CHOW pre-extracted (fast path, serial, no Claude)
+        for article in pre_extracted:
+            new_deals += process_article(article, conn)
+            conn.commit()
+
+        # Step 2c — Text articles: async parallel fetch+Claude, serial DB writes
+        if text_articles:
+            logger.info(f"Starting async extraction for {len(text_articles)} text articles...")
+            results = asyncio.run(_batch_fetch_extract(text_articles, concurrency=8))
+            for article, raw_text, deals in results:
+                logger.info(f"Storing: {article.get('title', article['url'])[:80]}")
+                new_deals += _store_article_result(article, raw_text, deals, conn)
+                conn.commit()
 
         logger.info(f"Extracted and stored {new_deals} new deals")
 
@@ -257,7 +297,7 @@ def run_test_article(url: str):
 
 # ── Discovery ─────────────────────────────────────────────────
 
-def discover_articles(conn) -> list[dict]:
+def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None) -> list[dict]:
     new_articles = []
 
     # RSS sources
@@ -295,13 +335,31 @@ def discover_articles(conn) -> list[dict]:
 
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
+        gmail_source_url = "gmail://googlealerts-noreply@google.com"
+        with conn.cursor() as cur:
+            cur.execute("SELECT last_fetched_at FROM sources WHERE url = %s", (gmail_source_url,))
+            row = cur.fetchone()
+        # Widen the lookback to cover any gap since the last run (e.g. cron
+        # missed a day) — capped so a long-dead pipeline doesn't pull an
+        # unbounded backlog in one shot. Explicit --gmail-days-back always wins
+        # (e.g. for manual backfill when the tracked timestamp itself is stale).
+        if gmail_days_back is not None:
+            effective_days_back = gmail_days_back
+        else:
+            effective_days_back = 2
+            if row and row[0]:
+                days_since_last_fetch = (datetime.now(timezone.utc) - row[0]).days + 1
+                effective_days_back = max(2, min(days_since_last_fetch, 30))
+        if effective_days_back > 2:
+            logger.info(f"Gmail alerts: widening lookback to {effective_days_back} days")
+
         gmail_source_id = _ensure_source(
             type("S", (), {"name": "Google Alerts (Gmail)",
-                           "url": "gmail://googlealerts-noreply@google.com",
+                           "url": gmail_source_url,
                            "source_type": "rss"})(),
             conn
         )
-        alert_articles = fetch_alert_articles(days_back=2)
+        alert_articles = fetch_alert_articles(days_back=effective_days_back)
         for art in alert_articles:
             if not _article_exists(art["url"], conn):
                 art["source_id"] = gmail_source_id
@@ -313,6 +371,9 @@ def discover_articles(conn) -> list[dict]:
     # UCC-1 financing statements — state-level early acquisition signal,
     # runs as both confirmation of existing deals and a new source (see
     # process_article's ucc_filing branch for the routing logic)
+    if skip_ucc:
+        logger.info("UCC filing fetch skipped (--skip-ucc)")
+        return new_articles
     try:
         ucc_source_id = _ensure_source(
             type("S", (), {"name": "State UCC-1 Filings",
@@ -320,9 +381,18 @@ def discover_articles(conn) -> list[dict]:
                            "source_type": "ucc"})(),
             conn
         )
+        ky_names = get_chow_operator_names("KY")
+        oh_names = get_chow_operator_names("OH")
+        known_operator_names = _get_known_operator_names(conn)
+        ny_individual_names = _get_cms_individual_owner_names(conn, "NY")
+        oh_individual_names = _get_cms_individual_owner_names(conn, "OH")
         ucc_articles = fetch_ucc_filings(
-            known_operator_names=_get_known_operator_names(conn),
+            known_operator_names=known_operator_names,
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
+            ky_search_names=ky_names or None,
+            ny_individual_names=ny_individual_names or None,
+            oh_search_names=oh_names or None,
+            oh_individual_names=oh_individual_names or None,
         )
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
@@ -336,6 +406,72 @@ def discover_articles(conn) -> list[dict]:
 
 
 # ── Article processing ────────────────────────────────────────
+
+def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
+    """Fetch article text and call Claude. No DB operations — safe to run in a thread."""
+    raw_text = article.get("raw_text")
+    if not raw_text:
+        raw_text = fetch_article_text(article["url"])
+    if not raw_text:
+        return article, None, []
+    try:
+        deals = extract_deals(raw_text, article["url"])
+    except Exception as e:
+        logger.error(f"Extraction failed for {article['url']}: {e}")
+        return article, raw_text, []
+    return article, raw_text, deals
+
+
+async def _batch_fetch_extract(
+    articles: list[dict],
+    concurrency: int = 8,
+) -> list[tuple[dict, str | None, list[dict]]]:
+    """Fetch+extract multiple articles concurrently using a thread-pool semaphore.
+    asyncio.to_thread keeps psycopg2 (not async-safe) out of threads; DB writes
+    happen serially in the caller after this returns."""
+    sem = asyncio.Semaphore(concurrency)
+
+    async def _one(article: dict):
+        async with sem:
+            return await asyncio.to_thread(_fetch_and_extract, article)
+
+    return await asyncio.gather(*[_one(a) for a in articles])
+
+
+def _store_article_result(article: dict, raw_text: str | None, deals: list[dict], conn) -> int:
+    """DB-write half of the text-article path — called after async extraction."""
+    article_id = _store_article(article, conn)
+    if not raw_text:
+        _mark_extraction_error(article_id, "No article text available", conn)
+        return 0
+    _update_article_text(article_id, raw_text, conn)
+    if not deals:
+        _mark_extraction_done(article_id, conn)
+        return 0
+    deals = deduplicate_batch(deals)
+    stored = 0
+    for deal in deals:
+        deal = normalize_deal(deal)
+        hash_val = deal.get("dedup_hash") or make_dedup_hash(deal)
+        if is_duplicate(hash_val, conn):
+            logger.debug(f"Skipping duplicate: {deal.get('acquiring_entity')}")
+            continue
+        try:
+            with conn.cursor() as sp:
+                sp.execute("SAVEPOINT before_deal")
+            deal_id = _store_deal(deal, article_id, conn)
+            _run_cms_matching(deal, deal_id, conn)
+            stored += 1
+        except Exception as e:
+            if 'unique constraint' in str(e).lower() or 'uniqueviolation' in type(e).__name__:
+                logger.debug(f"Semantic duplicate skipped: {deal.get('acquiring_entity')} {deal.get('states')}")
+                with conn.cursor() as sp:
+                    sp.execute("ROLLBACK TO SAVEPOINT before_deal")
+            else:
+                raise
+    _mark_extraction_done(article_id, conn)
+    return stored
+
 
 def process_article(article: dict, conn) -> int:
     article_id = _store_article(article, conn)
@@ -460,6 +596,40 @@ def _get_known_operator_names(conn) -> list[str]:
     return [n for n in all_names if entity_pattern.search(n)]
 
 
+# Ownership/control roles only — excludes weaker-signal roles (ADP of the
+# SNF, W-2 managing employee, corporate director/officer, trustee) that are
+# mostly long-tenured administrators rather than beneficial owners. Each
+# name here becomes one full NY UCC portal search (~6-10s, own browser
+# session per ucc/ny_playwright.py), so narrow this further if runtime
+# becomes a problem — e.g. drop OPERATIONAL/MANAGERIAL CONTROL and
+# MANAGING CONTROL - GOVERNING BODY to keep only equity-ownership roles.
+_CMS_OWNERSHIP_RELEVANT_ROLES = (
+    '5% OR GREATER DIRECT OWNERSHIP INTEREST',
+    '5% OR GREATER INDIRECT OWNERSHIP INTEREST',
+    'DIRECT OWNERSHIP INTEREST',
+    'INDIRECT OWNERSHIP INTEREST',
+    'GENERAL PARTNERSHIP INTEREST',
+    'LIMITED PARTNERSHIP INTEREST',
+    'OPERATIONAL/MANAGERIAL CONTROL',
+    'MANAGING CONTROL - GOVERNING BODY',
+)
+
+
+def _get_cms_individual_owner_names(conn, state: str) -> list[str]:
+    """Pull individual (non-org) CMS owner names for a state, restricted to
+    ownership/control roles — Tyler's methodology: match CMS owner names
+    (including individuals, which CHOW/deals-derived names never capture)
+    against the UCC filing index."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT DISTINCT owner_name FROM cms_ownership_records
+            WHERE provider_state = %s
+              AND owner_type = 'Individual'
+              AND owner_role = ANY(%s)
+        """, (state, list(_CMS_OWNERSHIP_RELEVANT_ROLES)))
+        return [row[0] for row in cur.fetchall() if row[0]]
+
+
 def _fetch_existing_deals_for_ucc_matching(conn) -> list[ExistingDeal]:
     with conn.cursor() as cur:
         cur.execute("""
@@ -506,6 +676,14 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
         return 0
 
     if result.decision == RoutingDecision.NEW_SIGNAL:
+        if not filing.secured_party_name:
+            logger.debug(
+                f"UCC new-signal skipped: no secured party "
+                f"(filing {filing.filing_number}, {filing.state})"
+            )
+            _mark_extraction_done(article_id, conn)
+            return 0
+
         deal = {
             "acquiring_entity": None,
             "seller_entity": None,
@@ -541,8 +719,6 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
             with conn.cursor() as sp:
                 sp.execute("SAVEPOINT before_ucc_deal")
             deal_id = _store_deal(deal, article_id, conn)
-            with conn.cursor() as cur:
-                cur.execute("UPDATE deals SET ucc_confirmed = true WHERE id = %s", (deal_id,))
             _run_cms_matching(deal, deal_id, conn)
             _mark_extraction_done(article_id, conn)
             return 1
@@ -674,7 +850,8 @@ def _store_deal(deal: dict, article_id, conn) -> str:
             deal.get("dedup_hash"),
             deal.get("extraction_model"),
         ))
-        return cur.fetchone()[0]
+        deal_id = cur.fetchone()[0]
+    return find_and_resolve_fuzzy_duplicate(deal_id, conn)
 
 
 def _store_cms_matches(deal_id, matches: list[dict], conn):
@@ -725,4 +902,6 @@ if __name__ == "__main__":
             dry_run=args.dry_run,
             max_articles=args.max_articles,
             no_alerts=args.no_alerts,
+            skip_ucc=args.skip_ucc,
+            gmail_days_back=args.gmail_days_back,
         )

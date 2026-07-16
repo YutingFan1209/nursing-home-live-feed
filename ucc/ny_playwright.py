@@ -52,28 +52,43 @@ def _get_secured_party(page, internal_id: str) -> dict:
         logger.warning("Secured party fetch failed for ID %s: %s", internal_id, e)
     return {}
 
-def _return_to_results(page, owner_name: str):
-    page.goto(SEARCH_URL)
-    page.wait_for_timeout(1500)
-    page.click("input[value='DebtorName']")
-    page.wait_for_timeout(300)
-    page.click("#rdbOrg")
-    page.wait_for_timeout(500)
-    page.locator("input[name*='OrgName']").first.fill(owner_name)
-    page.click("#UCCSearch_UCCSearch_btnSearch")
-    page.wait_for_timeout(4000)
+def _parse_individual_name(name: str):
+    """CMS individual owner names come as 'LAST, FIRST' — split for the
+    portal's separate Last/First Name fields. Returns None if the name
+    doesn't have that shape (caller should fall back to org search)."""
+    if "," not in name:
+        return None
+    last, _, first = name.partition(",")
+    last, first = last.strip(), first.strip()
+    if not last or not first:
+        return None
+    return last, first
 
-def _search_one(page, owner_name: str) -> list[UCCFiling]:
-    """Search for one owner name using an existing page object."""
+def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCCFiling]:
+    """Search for one owner name using an existing page object.
+    is_individual routes to the portal's Individual debtor search (separate
+    Last/First Name fields) instead of Organization Name — the two modes
+    query different indexes on this portal, so using the wrong one for a
+    person's name returns near-zero real matches."""
     results = []
     try:
         page.goto(SEARCH_URL)
         page.wait_for_timeout(1500)
         page.click("input[value='DebtorName']")
         page.wait_for_timeout(300)
-        page.click("#rdbOrg")
-        page.wait_for_timeout(500)
-        page.locator("input[name*='OrgName']").first.fill(owner_name)
+
+        parsed = _parse_individual_name(search_term) if is_individual else None
+        if parsed:
+            last, first = parsed
+            page.click("#rdbIndividual")
+            page.wait_for_timeout(500)
+            page.locator("input[id*='LastName']").first.fill(last)
+            page.locator("input[id*='FirstName']").first.fill(first)
+        else:
+            page.click("#rdbOrg")
+            page.wait_for_timeout(500)
+            page.locator("input[name*='OrgName']").first.fill(search_term)
+
         page.click("#UCCSearch_UCCSearch_btnSearch")
         page.wait_for_timeout(4000)
 
@@ -115,37 +130,44 @@ def _search_one(page, owner_name: str) -> list[UCCFiling]:
                 raw={
                     "address": cells[4],
                     "sp_address": sp.get("address", ""),
-                    "query_name": owner_name,
+                    "query_name": search_term,
                     "internal_id": internal_id,
                 },
             ))
         time.sleep(0.5)
     except Exception as e:
-        logger.error("NY search failed for %r: %s", owner_name, e)
+        logger.error("NY search failed for %r: %s", search_term, e)
     return results
 
 
-def search_ny(owner_name: str) -> list[UCCFiling]:
-    """Search a single owner name. Opens/closes its own browser."""
+def search_ny(search_term: str, is_individual: bool = False) -> list[UCCFiling]:
+    """Search a single name. Opens/closes its own browser."""
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=BROWSER_ARGS)
         page = browser.new_page()
-        results = _search_one(page, owner_name)
+        results = _search_one(page, search_term, is_individual=is_individual)
         browser.close()
     return results
 
 
-def search_ny_batch(owner_names: list[str], max_workers: int = 4) -> list[UCCFiling]:
-    """Search multiple owner names in parallel using multiple browser instances."""
+def search_ny_batch(
+    org_names: list[str] = None,
+    individual_names: list[str] = None,
+    max_workers: int = 4,
+) -> list[UCCFiling]:
+    """Search organization and individual names in parallel using multiple
+    browser instances. Individual names are routed to the portal's
+    Individual debtor search — see _search_one."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
+    terms = [(n, False) for n in (org_names or [])] + [(n, True) for n in (individual_names or [])]
     all_results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(search_ny, name): name for name in owner_names}
+        futures = {executor.submit(search_ny, name, is_individual): (name, is_individual) for name, is_individual in terms}
         for future in as_completed(futures):
-            name = futures[future]
+            name, is_individual = futures[future]
             try:
                 filings = future.result()
-                logger.info("NY UCC %s → %d filings", name, len(filings))
+                logger.info("NY UCC %s (%s) → %d filings", name, "individual" if is_individual else "org", len(filings))
                 all_results.extend(filings)
             except Exception as e:
                 logger.warning("NY UCC failed for %r: %s", name, e)
@@ -181,6 +203,6 @@ def save_ucc_filings(filings: list, conn) -> int:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    results = search_ny_batch(["BVRNC OPERATING LLC", "CORTLAND ACQUISITION LLC"])
+    results = search_ny_batch(org_names=["BVRNC OPERATING LLC", "CORTLAND ACQUISITION LLC"])
     for r in results:
         print(r.filing_number, "|", r.debtor_name, "|", r.secured_party_name, "|", r.status)

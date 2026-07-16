@@ -1,26 +1,27 @@
 """
 CMS Care Compare enrichment.
 Fetches Provider Info CSV (NH_ProviderInfo_MonYYYY.csv) which contains
-5-star ratings, staffing ratings, SFF flags, and bed counts.
+5-star ratings, staffing ratings, special focus status, and bed counts.
 
-CMS has deprecated their SODA and provider-data APIs (both return 403).
-Direct CSV downloads still work. The URL changes monthly following
-the pattern: data.cms.gov/provider-data/sites/default/files/.../NH_ProviderInfo_MonYYYY.csv
+The CSV URL embeds a content hash that rotates every release, so it can't
+be hardcoded reliably. URL discovery: the "Provider Information" metastore
+entry (data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items/4pq5-n9py)
+always resolves to the current distribution's downloadURL — see
+_discover_provider_info_url(). PROVIDER_INFO_URLS is only a last-resort
+fallback if that lookup fails.
 
-URL discovery: We maintain a list of recent known URLs and try each in order.
-When a new month's file is released, add its URL to PROVIDER_INFO_URLS.
-
-Column reference (from NH Data Dictionary, Feb 2026):
-  Federal Provider Number  -> ccn
-  Provider Name            -> provider_name
-  Provider State           -> provider_state
-  Overall Rating           -> five_star_rating
-  Staffing Rating          -> staffing_rating
-  Health Inspection Rating -> health_insp_rating
-  In SFF                   -> sff_flag (Y/N)
-  In SFF Candidate         -> sff_candidate_flag (Y/N)
-  Number of Certified Beds -> bed_count
-  Ownership Type           -> ownership_type
+Column reference (verified against the June 2026 release):
+  CMS Certification Number (CCN) -> ccn
+  Provider Name                  -> provider_name
+  State                          -> provider_state
+  City/Town                      -> provider_city
+  ZIP Code                       -> provider_zip
+  Overall Rating                 -> five_star_rating
+  Staffing Rating                -> staffing_rating
+  Health Inspection Rating       -> health_insp_rating
+  Special Focus Status           -> sff_flag ("SFF") / sff_candidate_flag ("SFF Candidate")
+  Number of Certified Beds       -> bed_count
+  Ownership Type                 -> ownership_type
 """
 
 import csv
@@ -33,14 +34,30 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
-# Known Provider Info CSV URLs — most recent first
-# Add new URL here each month when CMS releases updated data
-# Check: https://data.cms.gov/provider-data/topics/nursing-homes
+# "Provider Information" dataset metastore entry — resolves to the current
+# month's CSV downloadURL. The direct CSV URLs embed a content hash that
+# rotates every release, so they can't be hardcoded reliably; this metastore
+# endpoint is the stable, discoverable pointer to whatever is current.
+PROVIDER_INFO_METASTORE_URL = (
+    "https://data.cms.gov/provider-data/api/1/metastore/schemas/dataset/items/4pq5-n9py"
+)
+
+# Fallback if the metastore lookup fails — last known-good URLs, most recent first.
 PROVIDER_INFO_URLS = [
-    "https://data.cms.gov/provider-data/sites/default/files/resources/d47f87c5e9c8a51e51e9e83e2e0b7fca_1746230908/NH_ProviderInfo_Apr2025.csv",
-    "https://data.cms.gov/provider-data/sites/default/files/resources/77b5ef7cfe32b13c9e1cef6e47ee3be1_1741651212/NH_ProviderInfo_Jan2025.csv",
-    "https://data.cms.gov/provider-data/sites/default/files/resources/8d6f74d4c890d13ed6e31a7e71f28c2d_1736888760/NH_ProviderInfo_Oct2024.csv",
+    "https://data.cms.gov/provider-data/sites/default/files/resources/bc7015f6a981fa7e209809e021f8f0cc_1781194538/NH_ProviderInfo_Jun2026.csv",
 ]
+
+
+def _discover_provider_info_url() -> str | None:
+    try:
+        resp = requests.get(PROVIDER_INFO_METASTORE_URL, timeout=30)
+        resp.raise_for_status()
+        dist = resp.json().get("distribution", [])
+        if dist and dist[0].get("downloadURL"):
+            return dist[0]["downloadURL"]
+    except Exception as e:
+        logger.warning(f"Metastore lookup failed for Provider Information dataset: {e}")
+    return None
 
 
 @retry(
@@ -58,10 +75,13 @@ def _download_provider_csv(url: str) -> list[dict]:
 def load_care_compare(conn):
     """
     Download the latest Provider Info CSV and upsert into cms_facilities.
-    Tries each known URL until one works.
+    Tries the metastore-discovered current URL first, then falls back to
+    the last known-good URLs.
     """
     rows = None
-    for url in PROVIDER_INFO_URLS:
+    discovered = _discover_provider_info_url()
+    urls = ([discovered] if discovered else []) + PROVIDER_INFO_URLS
+    for url in urls:
         try:
             rows = _download_provider_csv(url)
             logger.info(f"Downloaded {len(rows)} Care Compare records from {url}")
@@ -81,23 +101,24 @@ def load_care_compare(conn):
     now = datetime.now(timezone.utc)
     records = []
     for r in rows:
-        ccn = r.get("Federal Provider Number", "").strip()
+        ccn = r.get("CMS Certification Number (CCN)", "").strip()
         if not ccn:
             continue
+        special_focus = r.get("Special Focus Status", "").strip()
         records.append((
             ccn,
             r.get("Provider Name", "").strip(),
-            r.get("Provider State", "").strip(),
-            r.get("Provider City", "").strip(),
-            r.get("Provider Zip Code", "").strip(),
+            r.get("State", "").strip(),
+            r.get("City/Town", "").strip(),
+            r.get("ZIP Code", "").strip(),
             r.get("Ownership Type", "").strip(),
             r.get("Provider Type", "").strip(),
             _safe_int(r.get("Number of Certified Beds")),
             _safe_int(r.get("Overall Rating")),
             _safe_int(r.get("Staffing Rating")),
             _safe_int(r.get("Health Inspection Rating")),
-            r.get("In SFF", "").strip().upper() == "Y",
-            r.get("In SFF Candidate", "").strip().upper() == "Y",
+            special_focus == "SFF",
+            special_focus == "SFF Candidate",
             now,
         ))
 

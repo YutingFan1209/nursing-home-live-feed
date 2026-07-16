@@ -136,6 +136,7 @@ CREATE TABLE cms_ownership_records (
     ccn                 TEXT NOT NULL,
     provider_name       TEXT,
     owner_name          TEXT,
+    owner_associate_id  TEXT,
     owner_type          TEXT,
     owner_role          TEXT,
     ownership_percentage NUMERIC(5,2),
@@ -143,7 +144,7 @@ CREATE TABLE cms_ownership_records (
     ownership_start_date DATE,
     cms_refreshed_at    TIMESTAMPTZ,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(ccn, owner_name, ownership_start_date)
+    UNIQUE(ccn, owner_name, ownership_start_date, owner_role)
 );
 
 CREATE INDEX idx_cms_ownership_ccn ON cms_ownership_records(ccn);

@@ -174,6 +174,33 @@ def _build_synthetic_text(buyer, seller, ccn, state, date_str, chow_type) -> str
     )
 
 
+def get_chow_operator_names(state: str) -> list[str]:
+    """Return all unique buyer names from CHOW for a given state, with no date filter.
+    Used to seed UCC debtor searches for states where the CHOW data predates the
+    pipeline's cutoff window (so the names aren't in the DB yet).
+    """
+    rows = None
+    for url in CHOW_URLS:
+        try:
+            rows = _download_chow_csv(url)
+            break
+        except Exception as e:
+            logger.warning(f"Failed to download CHOW for operator names: {e}")
+            continue
+
+    if not rows:
+        return []
+
+    names = sorted(set(
+        r.get("ORGANIZATION NAME - BUYER", "").strip()
+        for r in rows
+        if r.get("ENROLLMENT STATE - BUYER", "").strip() == state
+        and r.get("ORGANIZATION NAME - BUYER", "").strip()
+    ))
+    logger.info(f"CHOW: {len(names)} unique {state} buyer names for UCC search seeding")
+    return names
+
+
 def get_chow_source_id(conn) -> str:
     """Ensure the CHOW source exists in the sources table and return its ID."""
     with conn.cursor() as cur:
