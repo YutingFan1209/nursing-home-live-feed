@@ -1,0 +1,11 @@
+.env
+gmail_credentials.json
+gmail_token.json
+client_secret*.json
+*.json.bak
+__pycache__/
+*.pyc
+venv/
+node_modules/
+.DS_Store
+CLAUDE.md
