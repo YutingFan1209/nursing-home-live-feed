@@ -42,8 +42,25 @@ for r in rows:
         if not row2: continue
         article_id = row2[0]
         dedup = f"chow-{ccn}-{date_str.replace('/','')}"
-        cur.execute("INSERT INTO deals (article_id, acquiring_entity, seller_entity, operator_names, states, facility_count, acquisition_date, stage, dedup_hash) VALUES (%s,%s,%s,%s,%s,1,%s,'confirmed',%s) ON CONFLICT (dedup_hash) DO NOTHING", (article_id, buyer, seller, [buyer], [state], eff_date.isoformat(), dedup))
+        cur.execute("INSERT INTO deals (article_id, acquiring_entity, seller_entity, operator_names, states, facility_count, acquisition_date, stage, confidence, dedup_hash) VALUES (%s,%s,%s,%s,%s,1,%s,'confirmed','high',%s) ON CONFLICT (dedup_hash) DO NOTHING RETURNING id", (article_id, buyer, seller, [buyer], [state], eff_date.isoformat(), dedup))
+        deal_row = cur.fetchone()
+        if not deal_row: continue
+        deal_id = deal_row[0]
         inserted += 1
+
+        # CCN is already known from the CHOW filing itself (CCN - BUYER
+        # column) — store it directly as an exact match rather than
+        # leaving it to be (re)discovered by fuzzy name matching later.
+        cur.execute("SELECT provider_name FROM cms_facilities WHERE ccn = %s", (ccn,))
+        pn_row = cur.fetchone()
+        provider_name = pn_row[0] if pn_row else None
+        cur.execute(
+            "INSERT INTO cms_matches (deal_id, ccn, provider_name, owner_name, owner_type, "
+            "provider_state, ownership_start_date, match_score, match_method, matched_on_field) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            (deal_id, ccn, provider_name, buyer, None, state or None,
+             eff_date.isoformat(), 100, 'chow_ccn_direct', 'ccn')
+        )
 
 conn.commit()
 conn.close()

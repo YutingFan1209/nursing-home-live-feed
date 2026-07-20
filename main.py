@@ -489,6 +489,7 @@ def process_article(article: dict, conn) -> int:
             "acquiring_entity", "seller_entity", "operator_names",
             "facility_names", "states", "facility_count", "deal_value_m",
             "acquisition_date", "financing_amount_m", "lender", "rationale",
+            "ccn",
         ] if k in article}
         deal["extraction_model"] = "chow_direct"
         deals = [deal]
@@ -551,8 +552,36 @@ def process_article(article: dict, conn) -> int:
     return stored
 
 
+def _build_known_ccn_match(deal: dict, conn) -> list[dict]:
+    """CHOW deals arrive with a CMS-verified CCN already known from the
+    filing itself (CCN - BUYER column) — fuzzy-matching against
+    cms_ownership_records would be an approximation of something we
+    already have exactly, so build the match record directly instead."""
+    ccn = deal["ccn"]
+    provider_name = None
+    with conn.cursor() as cur:
+        cur.execute("SELECT provider_name FROM cms_facilities WHERE ccn = %s", (ccn,))
+        row = cur.fetchone()
+        if row:
+            provider_name = row[0]
+    return [{
+        "ccn":                  ccn,
+        "provider_name":        provider_name,
+        "owner_name":           deal.get("acquiring_entity"),
+        "owner_type":           None,
+        "provider_state":       (deal.get("states") or [None])[0],
+        "ownership_start_date": deal.get("acquisition_date"),
+        "match_score":          100,
+        "match_method":         "chow_ccn_direct",
+        "matched_on_field":     "ccn",
+    }]
+
+
 def _run_cms_matching(deal: dict, deal_id, conn):
-    matches = match_deal(deal, conn)
+    if deal.get("ccn"):
+        matches = _build_known_ccn_match(deal, conn)
+    else:
+        matches = match_deal(deal, conn)
     matches = enrich_matches(matches, deal.get("states") or [], conn)
     matches = flag_policy_risks(matches)
     stage, confidence = determine_stage(matches)
