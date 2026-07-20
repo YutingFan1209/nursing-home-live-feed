@@ -28,7 +28,12 @@ SELECT json_build_object(
       'source_type', s.source_type,
       'source_name', s.name,
       'source_url', a.url,
-      'source_title', a.title
+      'source_title', a.title,
+      'ccns', (
+        SELECT array_agg(DISTINCT cm.ccn)
+        FROM cms_matches cm
+        WHERE cm.deal_id = d.id AND cm.ccn IS NOT NULL AND cm.ccn <> ''
+      )
     ) ORDER BY d.created_at DESC
   ),
   'total', COUNT(*)
