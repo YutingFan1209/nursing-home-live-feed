@@ -119,6 +119,12 @@ def parse_args():
              "use when UCC has already run today and you just want news/alert ingestion",
     )
     parser.add_argument(
+        "--gmail-only",
+        action="store_true",
+        help="Only check Gmail alerts — skips RSS/EDGAR/CHOW/UCC entirely. "
+             "Fastest way to check for new deals since the last run.",
+    )
+    parser.add_argument(
         "--gmail-days-back",
         type=int,
         default=None,
@@ -132,7 +138,7 @@ def parse_args():
 
 # ── Main run ──────────────────────────────────────────────────
 
-def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None):
+def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None, gmail_only=False):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
 
@@ -141,7 +147,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
     try:
         # Step 1 — Discover new articles
-        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back)
+        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back, gmail_only=gmail_only)
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
@@ -297,41 +303,42 @@ def run_test_article(url: str):
 
 # ── Discovery ─────────────────────────────────────────────────
 
-def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None) -> list[dict]:
+def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None, gmail_only: bool = False) -> list[dict]:
     new_articles = []
 
-    # RSS sources
-    for source in get_active_sources("rss"):
-        source_id = _ensure_source(source, conn)
-        for art in fetch_feed(source.url):
-            if not _article_exists(art["url"], conn):
-                art["source_id"] = source_id
-                new_articles.append(art)
+    if not gmail_only:
+        # RSS sources
+        for source in get_active_sources("rss"):
+            source_id = _ensure_source(source, conn)
+            for art in fetch_feed(source.url):
+                if not _article_exists(art["url"], conn):
+                    art["source_id"] = source_id
+                    new_articles.append(art)
 
-    # EDGAR — new full-text search approach
-    source_edgar = next(
-        (s for s in get_active_sources("edgar")), None
-    )
-    if source_edgar:
-        # Use one shared source record for all EDGAR filings
-        edgar_source_id = _ensure_source(
-            type("S", (), {"name": "SEC EDGAR Full-Text Search",
-                           "url": "https://efts.sec.gov/LATEST/search-index",
-                           "source_type": "edgar"})(),
-            conn
+        # EDGAR — new full-text search approach
+        source_edgar = next(
+            (s for s in get_active_sources("edgar")), None
         )
-        for filing in fetch_edgar_filings():
-            if not _article_exists(filing["url"], conn):
-                filing["source_id"] = edgar_source_id
-                new_articles.append(filing)
+        if source_edgar:
+            # Use one shared source record for all EDGAR filings
+            edgar_source_id = _ensure_source(
+                type("S", (), {"name": "SEC EDGAR Full-Text Search",
+                               "url": "https://efts.sec.gov/LATEST/search-index",
+                               "source_type": "edgar"})(),
+                conn
+            )
+            for filing in fetch_edgar_filings():
+                if not _article_exists(filing["url"], conn):
+                    filing["source_id"] = edgar_source_id
+                    new_articles.append(filing)
 
-    # CHOW — quarterly CMS ownership change feed
-    chow_source_id = get_chow_source_id(conn)
-    chow_deals = fetch_chow_deals()
-    for deal in chow_deals:
-        if not _article_exists(deal["url"], conn):
-            deal["source_id"] = chow_source_id
-            new_articles.append(deal)
+        # CHOW — quarterly CMS ownership change feed
+        chow_source_id = get_chow_source_id(conn)
+        chow_deals = fetch_chow_deals()
+        for deal in chow_deals:
+            if not _article_exists(deal["url"], conn):
+                deal["source_id"] = chow_source_id
+                new_articles.append(deal)
 
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
@@ -367,6 +374,10 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None)
         logger.info(f"Gmail alerts: {len(alert_articles)} articles found")
     except Exception as e:
         logger.warning(f"Gmail alerts skipped: {e}")
+
+    if gmail_only:
+        logger.info("RSS/EDGAR/CHOW/UCC skipped (--gmail-only)")
+        return new_articles
 
     # UCC-1 financing statements — state-level early acquisition signal,
     # runs as both confirmation of existing deals and a new source (see
@@ -933,4 +944,5 @@ if __name__ == "__main__":
             no_alerts=args.no_alerts,
             skip_ucc=args.skip_ucc,
             gmail_days_back=args.gmail_days_back,
+            gmail_only=args.gmail_only,
         )
