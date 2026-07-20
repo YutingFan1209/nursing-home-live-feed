@@ -770,7 +770,7 @@ def recheck_pending(conn) -> int:
         cur.execute("""
             SELECT id, acquiring_entity, seller_entity, operator_names,
                    facility_names, states, facility_count, deal_value_m,
-                   acquisition_date, recheck_count
+                   acquisition_date, recheck_count, extraction_model
             FROM deals
             WHERE stage IN ('detected', 'pending_cms')
               AND (recheck_after IS NULL OR recheck_after <= CURRENT_DATE)

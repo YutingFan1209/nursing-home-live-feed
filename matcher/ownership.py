@@ -53,17 +53,48 @@ def _fetch_candidates(deal: dict, conn) -> list[dict]:
     """
     Pull candidate CMS ownership records from Postgres
     using state + date window filters to limit the search space.
+
+    UCC-1 filing dates have no fixed relationship to CMS's recorded
+    ownership_start_date — a filing gets renewed/continued independently
+    of when CMS actually records a change, so a long-tenured individual
+    owner's record can be decades older than the filing date. The date
+    window assumption only holds for sources reporting a deal that just
+    happened (CHOW, RSS, EDGAR), so UCC deals skip it and match on state
+    alone.
     """
     states = deal.get("states") or []
-    acq_date = deal.get("acquisition_date")
-
-    date_from, date_to = _date_window(acq_date)
-
-    # Large states have more records — use a higher limit for known high-volume states
-    HIGH_VOLUME_STATES = {"CA", "TX", "FL", "NY", "PA", "OH", "IL"}
-    limit = 5000 if any(s in HIGH_VOLUME_STATES for s in states) else 2000
+    is_ucc = deal.get("extraction_model") == "ucc_filing"
 
     with conn.cursor() as cur:
+        if is_ucc:
+            # No date filter, and deliberately no LIMIT/ORDER BY either —
+            # capping+ordering by date here would just reintroduce the
+            # same bias by dropping the oldest records in high-volume
+            # states (e.g. NY has 8,445 records, well past any limit
+            # that would fit that pattern).
+            if states:
+                cur.execute("""
+                    SELECT ccn, provider_name, owner_name, owner_type,
+                           provider_state, ownership_start_date
+                    FROM cms_ownership_records
+                    WHERE provider_state = ANY(%s)
+                """, (states,))
+            else:
+                cur.execute("""
+                    SELECT ccn, provider_name, owner_name, owner_type,
+                           provider_state, ownership_start_date
+                    FROM cms_ownership_records
+                """)
+            cols = [desc[0] for desc in cur.description]
+            return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+        acq_date = deal.get("acquisition_date")
+        date_from, date_to = _date_window(acq_date)
+
+        # Large states have more records — use a higher limit for known high-volume states
+        HIGH_VOLUME_STATES = {"CA", "TX", "FL", "NY", "PA", "OH", "IL"}
+        limit = 5000 if any(s in HIGH_VOLUME_STATES for s in states) else 2000
+
         if states:
             cur.execute("""
                 SELECT ccn, provider_name, owner_name, owner_type,
