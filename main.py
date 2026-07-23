@@ -31,6 +31,7 @@ from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
 from pipeline.excluded_urls import EXCLUDED_URLS, EXCLUDED_DOMAINS, EXCLUDED_PATTERNS
+from pipeline.al_mc_scope import is_out_of_scope
 from matcher.ownership import match_deal, determine_stage
 from matcher.carecompare import enrich_matches, flag_policy_risks
 from alerts.digest import send_daily_digest
@@ -472,7 +473,16 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
             with conn.cursor() as sp:
                 sp.execute("SAVEPOINT before_deal")
             deal_id = _store_deal(deal, article_id, conn)
-            _run_cms_matching(deal, deal_id, conn)
+            if is_out_of_scope(deal):
+                logger.info(
+                    f"Auto-dismissing out-of-scope AL/MC deal: "
+                    f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
+                    f"/ {deal.get('facility_names')}"
+                )
+                with conn.cursor() as sc:
+                    sc.execute("UPDATE deals SET stage = 'dismissed' WHERE id = %s", (deal_id,))
+            else:
+                _run_cms_matching(deal, deal_id, conn)
             stored += 1
         except Exception as e:
             if 'unique constraint' in str(e).lower() or 'uniqueviolation' in type(e).__name__:
@@ -550,7 +560,16 @@ def process_article(article: dict, conn) -> int:
             with conn.cursor() as sp:
                 sp.execute("SAVEPOINT before_deal")
             deal_id = _store_deal(deal, article_id, conn)
-            _run_cms_matching(deal, deal_id, conn)
+            if is_out_of_scope(deal):
+                logger.info(
+                    f"Auto-dismissing out-of-scope AL/MC deal: "
+                    f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
+                    f"/ {deal.get('facility_names')}"
+                )
+                with conn.cursor() as sc:
+                    sc.execute("UPDATE deals SET stage = 'dismissed' WHERE id = %s", (deal_id,))
+            else:
+                _run_cms_matching(deal, deal_id, conn)
             stored += 1
         except Exception as e:
             if 'unique constraint' in str(e).lower() or 'uniqueviolation' in type(e).__name__:
