@@ -30,7 +30,7 @@ from scraper.gmail_alerts import fetch_alert_articles
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
-from pipeline.excluded_urls import EXCLUDED_URLS, EXCLUDED_DOMAINS
+from pipeline.excluded_urls import EXCLUDED_URLS, EXCLUDED_DOMAINS, EXCLUDED_PATTERNS
 from matcher.ownership import match_deal, determine_stage
 from matcher.carecompare import enrich_matches, flag_policy_risks
 from alerts.digest import send_daily_digest
@@ -820,6 +820,8 @@ def _article_exists(url: str, conn) -> bool:
         return True
     domain = urlparse(url).netloc.lower().removeprefix("www.")
     if domain in EXCLUDED_DOMAINS:
+        return True
+    if any(pattern in url for pattern in EXCLUDED_PATTERNS):
         return True
     with conn.cursor() as cur:
         cur.execute("SELECT 1 FROM articles WHERE url = %s", (url,))
