@@ -23,4 +23,6 @@ EXCLUDED_DOMAINS = {
     "homehealthcarenews.com",   # home health, not skilled nursing
     "multibagg.ai",             # Indian market-news aggregator, not US SNF
     "hklaw.com",                # law firm deal-announcement press releases
+    "seniorshousingbusiness.com",  # assisted living / senior housing trade pub, not SNF
+    "mcknightsseniorliving.com",   # AL/IL-focused sister pub of mcknights.com (LTC feed stays active)
 }
