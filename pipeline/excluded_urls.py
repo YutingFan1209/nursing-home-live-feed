@@ -17,6 +17,7 @@ EXCLUDED_URLS = {
     "https://markets.businessinsider.com/news/stocks/yorkville-university-to-acquire-beal-university-canada-strengthening-the-future-of-nursing-education-in-new-brunswick-1036306561",
     "https://www.citybiz.co/article/864543/cfg-finances-more-than-145-million-across-seven-transactions/",
     "https://www.citybiz.co/article/867398/cfg-closes-318-8-million-in-financing-for-skilled-nursing-operator/",
+    "https://seniorhousingnews.com/2026/06/08/senior-living-dealbook-trustwell-assumes-management-of-new-community-12-oaks-jv-makes-kansas-acquisition/",
 }
 
 EXCLUDED_DOMAINS = {
