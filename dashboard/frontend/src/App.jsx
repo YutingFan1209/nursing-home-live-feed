@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL || "https://www.medicare.gov/care-compare/details/nursing-home";
+console.log('VITE_FACILITY_BASE_URL:', import.meta.env.VITE_FACILITY_BASE_URL)
 const DATA_URL = import.meta.env.BASE_URL + "deals.json";
 
 // Calendar-date comparison, not elapsed hours — a deal from yesterday
