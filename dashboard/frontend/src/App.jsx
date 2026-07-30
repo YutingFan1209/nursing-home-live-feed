@@ -258,13 +258,16 @@ function computeStats(allDeals) {
   };
 }
 
-function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType }) {
+function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus }) {
   return allDeals.filter(d => {
     if (state && !(d.states || []).includes(state)) return false;
     const effectiveDate = d.acquisition_date || d.created_at;
     if (dateFrom && effectiveDate && effectiveDate < dateFrom) return false;
     if (dateTo && effectiveDate && effectiveDate > dateTo + "T99") return false;
     if (sourceType && d.source_type !== sourceType) return false;
+    const hasCcn = (d.ccns || []).filter(Boolean).length > 0;
+    if (ccnStatus === "matched" && !hasCcn) return false;
+    if (ccnStatus === "unmatched" && hasCcn) return false;
     if (search) {
       const q = search.toLowerCase();
       const haystack = [
@@ -289,6 +292,7 @@ export default function App() {
   const [dateTo, setDateTo]       = useState("");
   const [search, setSearch]       = useState("");
   const [sourceType, setSourceType] = useState("");
+  const [ccnStatus, setCcnStatus] = useState("");
   const [offset, setOffset]       = useState(0);
   const LIMIT = 20;
 
@@ -310,8 +314,8 @@ export default function App() {
   }, []);
 
   const filtered = useMemo(
-    () => filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType }),
-    [allDeals, state, dateFrom, dateTo, search, sourceType]
+    () => filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus }),
+    [allDeals, state, dateFrom, dateTo, search, sourceType, ccnStatus]
   );
 
   const stats = useMemo(() => allDeals.length ? computeStats(allDeals) : null, [allDeals]);
@@ -323,7 +327,7 @@ export default function App() {
 
   function clearAll() {
     setState(""); setDateFrom(""); setDateTo("");
-    setSearch(""); setSourceType(""); setOffset(0);
+    setSearch(""); setSourceType(""); setCcnStatus(""); setOffset(0);
   }
 
   function toggleExpand(id) {
@@ -335,7 +339,7 @@ export default function App() {
     });
   }
 
-  const hasFilters = state || dateFrom || dateTo || search || sourceType;
+  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus;
   const chowFreshness = "Last updated: Jan 2026 (quarterly)";
   const edgarFreshness = lastUpdated ? `EDGAR checked ${lastUpdated.toLocaleTimeString()}` : "";
 
@@ -410,6 +414,11 @@ export default function App() {
               <option value="edgar">SEC Filing</option>
               <option value="rss">News</option>
               <option value="ucc">UCC Filing</option>
+            </select>
+            <select value={ccnStatus} onChange={e => { setCcnStatus(e.target.value); setOffset(0); }} style={selStyle}>
+              <option value="">All CCN status</option>
+              <option value="matched">Matched to CCN</option>
+              <option value="unmatched">Not yet matched</option>
             </select>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
