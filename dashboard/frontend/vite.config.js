@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/nursing-home-live-feed/',
+  envDir: '../..',
   server: {
     port: 3000,
     proxy: {
