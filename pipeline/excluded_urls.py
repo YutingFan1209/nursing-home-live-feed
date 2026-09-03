@@ -23,6 +23,8 @@ EXCLUDED_URLS = {
     "https://www.citybiz.co/article/864543/cfg-finances-more-than-145-million-across-seven-transactions/",
     "https://www.citybiz.co/article/867398/cfg-closes-318-8-million-in-financing-for-skilled-nursing-operator/",
     "https://seniorhousingnews.com/2026/06/08/senior-living-dealbook-trustwell-assumes-management-of-new-community-12-oaks-jv-makes-kansas-acquisition/",
+    "https://www.citybiz.co/article/879685/cfg-originates-more-than-1-8b-in-loans-during-first-half-of-2026/",
+    "https://i95business.com/releases/8065",
 }
 
 EXCLUDED_DOMAINS = {
@@ -37,4 +39,5 @@ EXCLUDED_DOMAINS = {
 EXCLUDED_PATTERNS = {
     "cfg-closes",     # CFG HUD-refinance/financing press releases, recurring across domains
     "cfg-finances",
+    "cfg-originates",
 }
