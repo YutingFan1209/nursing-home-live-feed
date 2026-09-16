@@ -37,6 +37,7 @@ from matcher.carecompare import enrich_matches, flag_policy_risks
 from alerts.digest import send_daily_digest
 from pipeline.normalizer import normalize_deal
 from ucc.integrator import route_filing, ExistingDeal, RoutingDecision
+from ucc.audit_log import save_ucc_filings
 config = get_config()
 
 
@@ -135,12 +136,28 @@ def parse_args():
              "from sources.last_fetched_at; use this to manually backfill after a "
              "longer gap (e.g. the tracked timestamp was reset by an intermediate run).",
     )
+    parser.add_argument(
+        "--ucc-states",
+        type=str,
+        default=None,
+        metavar="NY,KY,OH",
+        help="Restrict UCC-1 scraping to these comma-separated states (case-insensitive) "
+             "instead of every ENABLE_*_PLAYWRIGHT-flagged state. Only scopes the UCC step "
+             "-- RSS/EDGAR/CHOW/Gmail are unaffected, and this has no effect if --skip-ucc "
+             "or --gmail-only is set (both skip UCC entirely, before this is even checked). "
+             "Run states separately (e.g. one cron/launchd job per state) rather than "
+             "bundled: each state's automation has different failure modes and runtimes "
+             "(KY's same-day rate limit, NY's multi-hour individual-name list, OH's 429s), "
+             "and nothing commits to the DB until the whole UCC fetch call returns -- so one "
+             "state hanging or getting blocked loses every other state's already-good work "
+             "for that run too.",
+    )
     return parser.parse_args()
 
 
 # ── Main run ──────────────────────────────────────────────────
 
-def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None, gmail_only=False):
+def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None, gmail_only=False, ucc_states=None):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
 
@@ -149,7 +166,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
     try:
         # Step 1 — Discover new articles
-        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back, gmail_only=gmail_only)
+        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back, gmail_only=gmail_only, ucc_states=ucc_states)
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
@@ -191,6 +208,19 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
             logger.info(f"UCC {i}/{len(ucc_articles)}: {article.get('title', article['url'])[:80]}")
             new_deals += process_article(article, conn)
             conn.commit()
+
+        # Step 2a.5 — CMS/UCC relink: check every unconfirmed deal against
+        # the ucc_filings audit table (entirely DB-side, no portal hits).
+        # A standard step after any UCC-touching run, scoped to just the
+        # state(s) this run covered (see scripts/relink_cms_ucc.py).
+        if not skip_ucc and not gmail_only:
+            try:
+                from scripts.relink_cms_ucc import relink_cms_ucc
+                relinked = relink_cms_ucc(conn, states=ucc_states, verbose=False)
+                if relinked:
+                    logger.info(f"CMS/UCC relink: {relinked} previously-unconfirmed deals now corroborated")
+            except Exception as e:
+                logger.warning(f"CMS/UCC relink failed: {e}")
 
         # Step 2b — CHOW pre-extracted (fast path, serial, no Claude)
         for article in pre_extracted:
@@ -305,7 +335,7 @@ def run_test_article(url: str):
 
 # ── Discovery ─────────────────────────────────────────────────
 
-def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None, gmail_only: bool = False) -> list[dict]:
+def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None, gmail_only: bool = False, ucc_states: list[str] = None) -> list[dict]:
     new_articles = []
 
     if not gmail_only:
@@ -394,18 +424,22 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
                            "source_type": "ucc"})(),
             conn
         )
-        ky_names = get_chow_operator_names("KY")
-        oh_names = get_chow_operator_names("OH")
+        wanted = {s.upper() for s in ucc_states} if ucc_states else None
         known_operator_names = _get_known_operator_names(conn)
-        ny_individual_names = _get_cms_individual_owner_names(conn, "NY")
-        oh_individual_names = _get_cms_individual_owner_names(conn, "OH")
+        ky_names = get_chow_operator_names("KY") if wanted is None or "KY" in wanted else None
+        oh_names = get_chow_operator_names("OH") if wanted is None or "OH" in wanted else None
+        ny_names = get_chow_operator_names("NY") if wanted is None or "NY" in wanted else None
+        ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
+        oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
         ucc_articles = fetch_ucc_filings(
             known_operator_names=known_operator_names,
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
             ky_search_names=ky_names or None,
+            ny_search_names=ny_names or None,
             ny_individual_names=ny_individual_names or None,
             oh_search_names=oh_names or None,
             oh_individual_names=oh_individual_names or None,
+            states=ucc_states,
         )
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
@@ -690,16 +724,28 @@ def _get_cms_individual_owner_names(conn, state: str) -> list[str]:
         return [row[0] for row in cur.fetchall() if row[0]]
 
 
-def _fetch_existing_deals_for_ucc_matching(conn) -> list[ExistingDeal]:
+def _fetch_existing_deals_for_ucc_matching(conn, states: list[str] = None) -> list[ExistingDeal]:
+    """states scopes the query to just deals overlapping those states --
+    important beyond correctness: this runs once per filing (called from
+    _process_ucc_filing), so an unscoped --ucc-states NY run was
+    re-fetching and reconstructing every deal in the entire table
+    (1300+, all states) for every single NY filing processed."""
     with conn.cursor() as cur:
-        cur.execute("""
-            SELECT id, operator_names, facility_names, acquisition_date, lender
-            FROM deals
-        """)
+        if states:
+            cur.execute("""
+                SELECT id, operator_names, facility_names, acquisition_date, lender, states
+                FROM deals
+                WHERE states && %s
+            """, ([s.upper() for s in states],))
+        else:
+            cur.execute("""
+                SELECT id, operator_names, facility_names, acquisition_date, lender, states
+                FROM deals
+            """)
         return [
             ExistingDeal(
                 id=row[0], operator_names=row[1] or [], facility_names=row[2] or [],
-                acquisition_date=row[3], lender=row[4],
+                acquisition_date=row[3], lender=row[4], states=row[5] or [],
             )
             for row in cur.fetchall()
         ]
@@ -709,6 +755,15 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
     filing = article["_ucc_filing_obj"]
     classification = article["_ucc_classification"]
 
+    # Audit log of every filing seen, regardless of relevance/routing outcome
+    # below -- also the only place detail_url (real per-filing deep links,
+    # currently NY only) gets persisted. save_ucc_filings previously existed
+    # but was never actually called anywhere in the live pipeline.
+    try:
+        save_ucc_filings([filing], conn)
+    except Exception as e:
+        logger.warning(f"save_ucc_filings failed for {filing.state}/{filing.filing_number}: {e}")
+
     if not classification.is_acquisition_relevant:
         logger.debug(
             f"UCC filing excluded (not RE/PE relevant): "
@@ -717,7 +772,7 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
         _mark_extraction_done(article_id, conn)
         return 0
 
-    existing_deals = _fetch_existing_deals_for_ucc_matching(conn)
+    existing_deals = _fetch_existing_deals_for_ucc_matching(conn, states=[filing.state])
     result = route_filing(filing, existing_deals)
 
     if result.decision == RoutingDecision.CONFIRMATION:
@@ -970,4 +1025,5 @@ if __name__ == "__main__":
             skip_ucc=args.skip_ucc,
             gmail_days_back=args.gmail_days_back,
             gmail_only=args.gmail_only,
+            ucc_states=[s.strip() for s in args.ucc_states.split(",") if s.strip()] if args.ucc_states else None,
         )
