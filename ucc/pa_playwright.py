@@ -103,7 +103,12 @@ def search_pa_batch(owner_names: list[str], search_type: str = "DEBTOR", cdp_url
     Runs max_workers tabs in parallel within that one real Chrome, each
     working through its own slice of owner_names (same pattern as
     NY/KY/OH). Default 4 -- untested against PA at higher concurrency,
-    but PA's Incapsula gate hasn't shown any of NY/OH's fragility so far.
+    CONFIRMED FRAGILE 2026-09-16: a 237-name/4-worker batch got Incapsula-
+    challenged partway through (17 successes then mass failures, JSON
+    fetch() responses replaced by an HTML challenge page) -- same pattern
+    as OH's volume-based blocking. A single-name probe succeeding does
+    NOT mean a full batch will get through; probe right before AND
+    reduce workers/volume if this keeps happening, same caution as OH.
     """
     if not owner_names:
         return []
