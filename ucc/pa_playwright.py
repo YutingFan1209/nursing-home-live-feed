@@ -76,25 +76,45 @@ def _search_one(page, owner_name: str, search_type: str = "DEBTOR") -> list[UCCF
         logger.error("PA search failed for %r: %s", owner_name, e)
     return results
 
-def search_pa_batch(owner_names: list[str], search_type: str = "DEBTOR", cdp_url: str = CDP_URL) -> list[UCCFiling]:
-    """
-    Search PA UCC via Chrome CDP. Auto-launches a real Chrome (shared with
-    NY/OH's) if one isn't already running, and navigates to the search
-    page itself -- no manual browser setup needed, see module docstring.
-    """
-    ensure_chrome_cdp(cdp_url)
-    all_results = []
+def _search_chunk(cdp_url: str, names: list[str], search_type: str) -> list[UCCFiling]:
+    """One worker's share of names, run serially against a page it opens
+    once and reuses -- each worker still needs its own real page load of
+    SEARCH_URL first (to get Incapsula's session cookie), but the actual
+    per-name searches are just fetch() calls against the already-loaded
+    page, no navigation between them."""
+    results = []
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(cdp_url)
         context = browser.contexts[0] if browser.contexts else browser.new_context()
         page = context.new_page()
         page.goto(SEARCH_URL, timeout=30000)
         page.wait_for_timeout(3000)
-        logger.info("PA search page loaded: %s", page.url)
-
-        for name in owner_names:
-            all_results.extend(_search_one(page, name, search_type))
+        for name in names:
+            results.extend(_search_one(page, name, search_type))
         page.close()
+    return results
+
+
+def search_pa_batch(owner_names: list[str], search_type: str = "DEBTOR", cdp_url: str = CDP_URL, max_workers: int = 4) -> list[UCCFiling]:
+    """
+    Search PA UCC via Chrome CDP. Auto-launches a real Chrome (shared with
+    NY/OH/KY's) if one isn't already running, and navigates to the search
+    page itself -- no manual browser setup needed, see module docstring.
+    Runs max_workers tabs in parallel within that one real Chrome, each
+    working through its own slice of owner_names (same pattern as
+    NY/KY/OH). Default 4 -- untested against PA at higher concurrency,
+    but PA's Incapsula gate hasn't shown any of NY/OH's fragility so far.
+    """
+    if not owner_names:
+        return []
+    ensure_chrome_cdp(cdp_url)
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    chunks = [c for c in (owner_names[i::max_workers] for i in range(max_workers)) if c]
+    all_results = []
+    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+        futures = [executor.submit(_search_chunk, cdp_url, chunk, search_type) for chunk in chunks]
+        for future in as_completed(futures):
+            all_results.extend(future.result())
     return all_results
 
 def search_pa(owner_name: str) -> list[UCCFiling]:
