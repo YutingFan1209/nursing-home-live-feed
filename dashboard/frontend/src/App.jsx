@@ -215,7 +215,7 @@ function DealCard({ deal, expanded, onToggle }) {
             </div>
           )}
 
-          {deal.source_type !== 'ucc' && (
+          {deal.source_url && (
             <div>
               <div style={dl}>Source</div>
               {deal.source_type === 'chow'
