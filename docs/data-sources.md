@@ -52,10 +52,12 @@ and reliability characteristics.
 
 | State | Search type | Automation | Notes |
 |---|---|---|---|
-| NY | Debtor name — both Organization mode (known operator LLCs) and Individual mode (CMS owner names) | Fully automated, headless, AWS-ready | Separate form flows for org vs. individual debtors, routed by `ucc/ny_playwright.py`; individual search seeded from CMS ownership records, roughly doubles NY runtime (~40-75 min) |
-| KY | Debtor name (seeded from CHOW CSV operator names) | Fully automated, headless, AWS-ready | `ucc/ky_playwright.py` |
-| OH | Secured party | Automated locally, `headless=False` + hidden-window trick | `ucc/oh_playwright.py` — needs an Xvfb wrapper to run headless in the cloud |
+| NY | Debtor name — both Organization mode (org search seeded from CHOW-derived NY facility LLCs, `ny_search_names`) and Individual mode (CMS owner names) | Automated, but **not headless / not AWS-ready** | As of ~2026-09 the portal added a Cloudflare Turnstile challenge that headless Chrome never passes (confirmed 2026-09-15). `ucc/ny_playwright.py:search_ny_batch_cdp` works around it by driving a real, non-headless Chrome over CDP (`_ensure_chrome_cdp` auto-launches one with a persistent profile if needed) — same technique as PA/CA below, so it needs a real machine, not a plain Lambda/headless container. Runs org + individual terms across parallel tabs sharing that Chrome's Cloudflare clearance cookie (`max_workers`, default 4; 8 tested clean). Individual-name list alone can be 1,000+ names — full runtime still multi-hour even parallelized. Also confirmed 2026-09-15: relying on the generic national operator list instead of a NY-specific facility list silently missed nearly all real hits — fixed via `ny_search_names`. |
+| KY | Debtor name (seeded from CHOW CSV operator names) | Fully automated, headless | `ucc/ky_playwright.py`. Confirmed same-day rate limit: a second full-volume run within a few hours of the first gets TLS-reset-blocked — don't run KY twice in one day. |
+| OH | Debtor + secured party | Automated locally, `headless=False` + hidden-window trick | `ucc/oh_playwright.py` — needs an Xvfb wrapper to run headless in the cloud. Fragile under sustained volume: hit a full IP ban in 2026-09 (later lifted) and a server-side 429 rate limit on 2026-09-15 after repeated same-day batches — re-verify with a single-name probe before trusting a big batch, and don't stack multiple large OH runs in one day. |
 | PA | Secured party | **Manual only** | `ucc/pa_playwright.py` requires a live Chrome CDP session — cannot run unattended without a persistent browser process |
+
+**Running UCC states:** `main.py --ucc-states NY,KY,OH` (or any subset) restricts the UCC step to just those states. Prefer running states separately (one cron/launchd job per state) rather than bundled — nothing commits to the DB until the whole UCC fetch call returns, so one state hanging or getting blocked loses every other state's already-good work for that run too. This bit hours off a run on 2026-09-15 when NY's multi-hour individual-name phase was still going when OH hit its 429.
 
 **Not yet integrated:** NJ was explored (`test_nj_ucc.py`, a root-level scratch script) but has no `ucc/nj_*.py` module and isn't wired into `main.py`.
 
@@ -128,9 +130,9 @@ Gmail Alerts and UCC-1 filings aren't registered via `scraper/sources.py` at all
 | EDGAR full-text search | ✅ Working | |
 | Gmail Alerts (OAuth) | ✅ Working | Auto-scaling lookback window |
 | News RSS (5 feeds) | ✅ Working | SNN, McKnight's, Modern Healthcare, Provider Magazine, Senior Housing News |
-| UCC-1 — NY | ✅ Working, automated | Org + individual debtor search |
-| UCC-1 — KY | ✅ Working, automated | |
-| UCC-1 — OH | ✅ Working, local only | Needs Xvfb wrapper for cloud |
+| UCC-1 — NY | ✅ Working, automated, but Chrome-CDP-only | Not headless/AWS-ready — needs a real Chrome (2026-09-15 Cloudflare fix); org + individual debtor search, parallel tabs |
+| UCC-1 — KY | ✅ Working, automated, headless | Don't run twice same-day (rate limit) |
+| UCC-1 — OH | ⚠️ Working, local only, fragile under volume | Needs Xvfb wrapper for cloud; hit 429s under repeated same-day volume (2026-09-15) |
 | UCC-1 — PA | ⚠️ Manual only | Requires live CDP session |
 | UCC-1 — NJ | ❌ Not integrated | Scratch script only, no `ucc/` module |
 | CMS Ownership | ✅ Working | Provider Data Catalog, metastore-discovered URL |

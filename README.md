@@ -141,6 +141,7 @@ psql "$DATABASE_URL" -f db/schema.sql
 psql "$DATABASE_URL" -f db/migration_add_ucc_confirmed.sql
 psql "$DATABASE_URL" -f db/migration_ownership_associate_id.sql
 psql "$DATABASE_URL" -f db/migration_ownership_switch_source.sql
+psql "$DATABASE_URL" -f db/migration_add_ucc_detail_url.sql
 
 # Python env
 python3 -m venv venv && source venv/bin/activate
