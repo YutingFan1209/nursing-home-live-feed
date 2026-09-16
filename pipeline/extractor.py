@@ -6,6 +6,7 @@ One article can contain multiple deals (e.g. Dealbook roundups).
 
 import json
 import logging
+import re
 from typing import Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import anthropic
@@ -22,9 +23,12 @@ MIN_TEXT_CHARS = 150        # hard minimum
 
 EXTRACTION_PROMPT = """You are a health policy research assistant extracting nursing home acquisition deals from news articles.
 
+This article was published on: {published_date}
+
 Extract ALL distinct deals mentioned in the article. A single article may describe multiple separate transactions.
 
-For each deal, return a JSON object. Return an array even if there is only one deal.
+For each deal, return a JSON object. Return an array even if there is only one deal. If there are no
+qualifying deals (see Scope and Staleness rules below), return an empty array [].
 
 Each deal object must have these fields (use null if not mentioned):
 {{
@@ -41,6 +45,50 @@ Each deal object must have these fields (use null if not mentioned):
   "rationale": "1-2 sentence summary of this specific deal"
 }}
 
+Scope — only extract deals where the acquired asset is one of: a nursing home, skilled nursing
+facility (SNF), assisted living facility, memory care community, continuing care retirement
+community (CCRC), or a senior/post-acute housing portfolio containing such facilities.
+Do NOT extract a deal whose acquired asset is:
+- healthcare technology/software (EHR, practice management, care-coordination platforms)
+- a hospital, physician practice, or medical group with no SNF/AL/memory-care component
+- a hospice-only or home-health-only provider with no SNF/AL/memory-care facilities involved
+- anything outside healthcare entirely (real estate, retail, fitness, etc. mentioned only in
+  passing or by a shared address/developer)
+If unsure whether the asset qualifies, exclude it rather than guess.
+
+Staleness — only extract a deal if the article is reporting it as current news (an announcement,
+a closing, a filing). Do NOT extract a deal that the article mentions only as past background — e.g.
+an executive recounting "we acquired X earlier this year / last year / in [past month]" during an
+interview, retrospective, or profile piece that isn't primarily about that transaction.
+
+This exclusion is UNCONDITIONAL and applies even when the deal is described in specific, enthusiastic,
+or detailed terms — an executive fondly recapping a months-old deal in a podcast/interview is still
+NOT news, no matter how much color they give. Concretely: subtract the deal's stated or implied date
+from the published date above. If the gap is more than ~60 days, you MUST exclude the deal — do not
+extract it "just in case," do not include it with a low confidence, leave it out of the array entirely.
+Example: an August 2026 podcast interview where the COO says "we completed a large acquisition in
+December 2025, adding 14 campuses" — this is old news being recapped, not new news. Exclude it, even
+though the acquirer, target, and facility count are all clearly stated.
+Two exceptions where past-tense phrasing does NOT mean stale:
+1. An article explicitly structured as a news roundup/dealbook of recent transactions
+   (e.g. "Skilled Nursing Dealbook: ...") reporting deals from the last ~1-2 weeks — those are
+   current news even without an exact date, and should be extracted normally.
+2. A company's own routine financial disclosure — an earnings release, earnings call transcript,
+   10-Q, or 8-K exhibit — reporting investment activity it completed "during the quarter" or
+   "subsequent to quarter end." That is the normal, current way REITs and operators report deals;
+   don't treat "closed on," "completed," or "acquired" language in this context as backstory just
+   because it's phrased in the past tense. The staleness rule targets a DIFFERENT pattern: a deal
+   invoked as background color in an interview/profile/feature article about some other current
+   topic, months or years after the fact (the December-2025-Kingston-deal-recapped-in-an-August-
+   2026-podcast example above). A same-quarter or "subsequent to quarter end" earnings disclosure
+   is not that pattern — extract it normally.
+
+Outside those two exceptions, don't let a missing exact date become an excuse to include a stale
+deal: phrases like "earlier this year," "last year," "previously acquired," "since acquiring,"
+"following its acquisition of," or a deal named only as backstory for why a company is now doing
+something else, are ALL signals of staleness on their own, with or without a resolvable date —
+exclude those deals too.
+
 Rules:
 - Split broker/lender announcements from acquisition deals (they are separate deals)
 - If the acquirer is described as "unnamed" or "undisclosed", use null for acquiring_entity
@@ -53,11 +101,16 @@ Article:
 {article_text}"""
 
 
-def extract_deals(article_text: str, article_url: str = "") -> list[dict]:
+def extract_deals(article_text: str, article_url: str = "", published_at=None) -> list[dict]:
     """
     Extract structured deal data from article text using Claude.
     Returns list of deal dicts. Returns empty list if text is too short
     (likely paywalled) or if extraction fails after retries.
+
+    published_at (datetime/date/str, optional): the article's publish date,
+    passed to Claude so it can tell fresh news apart from a stale deal
+    mentioned as past background (see EXTRACTION_PROMPT's Staleness rule).
+    Falls back to "unknown" when not available.
     """
     if not article_text:
         logger.warning(f"Empty article text: {article_url}")
@@ -82,9 +135,10 @@ def extract_deals(article_text: str, article_url: str = "") -> list[dict]:
         truncated = False
 
     truncated_text = article_text[:8000]
+    published_date_str = str(published_at)[:10] if published_at else "unknown"
 
     try:
-        deals = _call_claude_with_retry(truncated_text, article_url)
+        deals = _call_claude_with_retry(truncated_text, article_url, published_date_str)
     except json.JSONDecodeError as e:
         logger.error(f"Claude returned invalid JSON for {article_url}: {e}")
         return []
@@ -95,10 +149,17 @@ def extract_deals(article_text: str, article_url: str = "") -> list[dict]:
     normalized = []
     for deal in deals:
         n = _normalize_deal(deal)
-        if n:
-            if truncated:
-                n["confidence"] = "low"   # downgrade confidence on truncated text
-            normalized.append(n)
+        if not n:
+            continue
+        if _looks_stale(n.get("rationale")):
+            logger.info(
+                f"Dropping stale-sounding deal ({n.get('acquiring_entity')!r}) from {article_url}: "
+                f"rationale flagged by staleness backstop — {n.get('rationale')!r}"
+            )
+            continue
+        if truncated:
+            n["confidence"] = "low"   # downgrade confidence on truncated text
+        normalized.append(n)
 
     logger.info(
         f"Extracted {len(normalized)} deal(s) from {article_url}"
@@ -113,14 +174,14 @@ def extract_deals(article_text: str, article_url: str = "") -> list[dict]:
     retry=retry_if_exception_type((anthropic.RateLimitError, anthropic.APIStatusError)),
     reraise=True,
 )
-def _call_claude_with_retry(article_text: str, article_url: str) -> list[dict]:
+def _call_claude_with_retry(article_text: str, article_url: str, published_date_str: str = "unknown") -> list[dict]:
     """Call Claude API with exponential backoff retry on rate limits."""
     response = client.messages.create(
         model=config.claude_model,
         max_tokens=config.claude_max_tokens,
         messages=[{
             "role": "user",
-            "content": EXTRACTION_PROMPT.format(article_text=article_text)
+            "content": EXTRACTION_PROMPT.format(article_text=article_text, published_date=published_date_str)
         }]
     )
 
@@ -163,6 +224,33 @@ def _normalize_deal(raw: dict) -> Optional[dict]:
     }
 
 
+# Regex backstop for staleness: the prompt asks Claude to exclude deals it
+# recognizes as past background (see EXTRACTION_PROMPT), but that instruction
+# isn't followed 100% reliably — Claude sometimes writes a rationale that
+# plainly says the deal is old ("earlier this year", "earlier in 2026") yet
+# still returns it. Catch those phrasings here as a deterministic second pass
+# rather than trusting prompt compliance alone.
+_STALE_PHRASE_RE = re.compile(
+    r"\b("
+    r"earlier (this|that) year"
+    r"|earlier in \d{4}"
+    r"|last year"
+    r"|previously acquired"
+    r"|since (its|their|the) acquisition of"
+    r"|since acquiring"
+    r"|following (its|their) acquisition of"
+    r"|completed (the |its |their )?acquisition (of|in) .{0,40}\b(19|20)\d{2}\b"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _looks_stale(rationale: Optional[str]) -> bool:
+    if not rationale:
+        return False
+    return bool(_STALE_PHRASE_RE.search(rationale))
+
+
 def _clean_str(val) -> Optional[str]:
     if val is None:
         return None
@@ -203,7 +291,6 @@ def _clean_date(val) -> Optional[str]:
         return None
     s = str(val).strip()
     # Basic YYYY-MM-DD validation
-    import re
     if re.match(r"^\d{4}-\d{2}-\d{2}$", s):
         return s
     return None

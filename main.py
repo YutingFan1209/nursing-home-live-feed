@@ -462,7 +462,7 @@ def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
     if not raw_text:
         return article, None, []
     try:
-        deals = extract_deals(raw_text, article["url"])
+        deals = extract_deals(raw_text, article["url"], article.get("published_at"))
     except Exception as e:
         logger.error(f"Extraction failed for {article['url']}: {e}")
         return article, raw_text, []
@@ -572,7 +572,7 @@ def process_article(article: dict, conn) -> int:
         return 0
 
     try:
-        deals = extract_deals(raw_text, article["url"])
+        deals = extract_deals(raw_text, article["url"], article.get("published_at"))
     except Exception as e:
         _mark_extraction_error(article_id, str(e), conn)
         return 0
