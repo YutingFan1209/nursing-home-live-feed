@@ -60,7 +60,7 @@ def main():
                 d.id, d.acquiring_entity, d.seller_entity, d.states,
                 d.facility_count, d.deal_value_m, d.acquisition_date,
                 d.operator_names, d.facility_names, d.created_at,
-                d.lender, d.ucc_confirmed,
+                d.lender, d.ucc_confirmed, d.stage,
                 s.source_type, s.name AS source_name,
                 a.url AS source_url, a.title AS source_title,
                 uf.detail_url AS ucc_detail_url,
