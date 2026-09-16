@@ -1,9 +1,15 @@
 """
 ucc/pa_playwright.py
 Pennsylvania UCC search via JSON API.
-Uses Chrome CDP (connect_over_cdp) to bypass Cloudflare.
-Requires Chrome running with --remote-debugging-port=9222.
-Start Chrome: /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
+Uses Chrome CDP (connect_over_cdp) to bypass Incapsula.
+
+CONFIRMED 2026-09-16: this no longer needs an actual human to manually
+launch Chrome and navigate first -- the same auto-launch + self-navigate
+approach that fixed NY's Cloudflare block works here too. Incapsula (like
+Cloudflare) just needs a real, non-Playwright-launched Chrome to render
+the page; it doesn't care whether a human or our own code drove the
+navigation. search_pa_batch now calls ensure_chrome_cdp() and navigates
+itself before searching, so this runs unattended like NY/KY/OH do.
 """
 from __future__ import annotations
 import logging
@@ -11,11 +17,12 @@ import json
 from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
+from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
 
 logger = logging.getLogger(__name__)
 BASE_URL = "https://file.dos.pa.gov"
+SEARCH_URL = BASE_URL + "/search/ucc"
 SEARCH_API = "/api/Records/uccsearch"
-CDP_URL = "http://localhost:9222"
 
 def _parse_date(s: str):
     if not s:
@@ -69,21 +76,25 @@ def _search_one(page, owner_name: str, search_type: str = "DEBTOR") -> list[UCCF
         logger.error("PA search failed for %r: %s", owner_name, e)
     return results
 
-def search_pa_batch(owner_names: list[str], search_type: str = "DEBTOR") -> list[UCCFiling]:
+def search_pa_batch(owner_names: list[str], search_type: str = "DEBTOR", cdp_url: str = CDP_URL) -> list[UCCFiling]:
     """
-    Search PA UCC via Chrome CDP.
-    Requires Chrome running: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
-    Then navigate Chrome to file.dos.pa.gov/search/ucc before calling this.
+    Search PA UCC via Chrome CDP. Auto-launches a real Chrome (shared with
+    NY/OH's) if one isn't already running, and navigates to the search
+    page itself -- no manual browser setup needed, see module docstring.
     """
+    ensure_chrome_cdp(cdp_url)
     all_results = []
     with sync_playwright() as p:
-        browser = p.chromium.connect_over_cdp(CDP_URL)
-        context = browser.contexts[0]
-        page = context.pages[0]
-        logger.info("Connected to Chrome CDP, URL: %s", page.url)
-        
+        browser = p.chromium.connect_over_cdp(cdp_url)
+        context = browser.contexts[0] if browser.contexts else browser.new_context()
+        page = context.new_page()
+        page.goto(SEARCH_URL, timeout=30000)
+        page.wait_for_timeout(3000)
+        logger.info("PA search page loaded: %s", page.url)
+
         for name in owner_names:
             all_results.extend(_search_one(page, name, search_type))
+        page.close()
     return all_results
 
 def search_pa(owner_name: str) -> list[UCCFiling]:

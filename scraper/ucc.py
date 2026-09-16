@@ -23,7 +23,7 @@ ENABLE_NY_PLAYWRIGHT = True
 ENABLE_NJ_PLAYWRIGHT = False
 ENABLE_OH_PLAYWRIGHT = True
 ENABLE_KY_PLAYWRIGHT = True
-ENABLE_PA_PLAYWRIGHT = False
+ENABLE_PA_PLAYWRIGHT = True  # confirmed 2026-09-16: auto-launch works, no longer manual-only
 ENABLE_CA_PLAYWRIGHT = False  # Incapsula-protected, needs Chrome CDP -- manual trigger only, same as PA
 
 
@@ -82,7 +82,11 @@ def fetch_ucc_filings(
         except Exception as e:
             logger.warning(f"KY UCC batch search failed: {e}")
 
-    # PA (Chrome CDP required - manual only, not in automated pipeline)
+    # PA (Chrome CDP, auto-launched -- confirmed 2026-09-16 this no longer
+    # needs a manual browser session, same fix as NY. Still using the
+    # generic national operator list rather than a PA-specific facility
+    # name list (no ky_search_names/ny_search_names-style fix done for PA
+    # yet) -- may under-hit the same way NY did before that fix.
     if _enabled(ENABLE_PA_PLAYWRIGHT, "PA"):
         try:
             filings.extend(search_pa_batch(known_operator_names))
