@@ -11,6 +11,20 @@ beyond what the search itself already required):
   NY: OnlineLienInformation?lienId=...   (2026-09-15)
   KY: search.aspx?filing=...              (2026-09-16)
   OH, PA, CA: none known yet -- falls back to the portal's search page.
+
+Auto-relink safety net (2026-09-16): main.py's live pipeline already runs
+scripts/relink_cms_ucc.py once per run after all filings are processed
+(see main.py:run, Step 2a.5). But a standalone backfill script calling
+save_ucc_filings directly -- bypassing main.py entirely -- has no such
+step, and it's easy to forget to run relink manually afterward (this
+happened in practice: a NY backfill script left 44 confirmable deals
+sitting unconfirmed until relink was run by hand). Fix: save_ucc_filings
+itself triggers relink automatically, scoped to the states in the batch
+just saved, whenever called with more than one filing at once -- the
+live pipeline always calls this one filing at a time (relink already
+covered at the run level for that path), so the >1 heuristic reliably
+identifies "this came from a standalone script" without needing a
+separate flag every caller has to remember to pass.
 """
 from __future__ import annotations
 from ucc.base import UCCFiling
@@ -61,4 +75,20 @@ def save_ucc_filings(filings: list[UCCFiling], conn) -> int:
                 detail_url = COALESCE(EXCLUDED.detail_url, ucc_filings.detail_url)
         """, rows)
     conn.commit()
+
+    if len(filings) > 1:
+        try:
+            from scripts.relink_cms_ucc import relink_cms_ucc
+            states = sorted({f.state for f in filings})
+            relinked = relink_cms_ucc(conn, states=states, verbose=False)
+            if relinked:
+                import logging
+                logging.getLogger(__name__).info(
+                    f"save_ucc_filings auto-relink: {relinked} previously-unconfirmed "
+                    f"deals now corroborated (states={states})"
+                )
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"save_ucc_filings auto-relink failed: {e}")
+
     return len(rows)
