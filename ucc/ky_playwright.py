@@ -51,6 +51,14 @@ def _search_one(page, owner_name: str) -> list[UCCFiling]:
             filing_date = _parse_date(file_date_str)
             status = "active" if lapse_date and lapse_date > today else "lapsed"
 
+            # Each result row links to search.aspx?filing={id} -- a real,
+            # no-auth-needed per-filing detail page (confirmed 2026-09-16).
+            # Capture it the same way ny_playwright.py captures NY's lienId.
+            link = row.find("a", href=True)
+            internal_id = None
+            if link and "filing=" in link["href"]:
+                internal_id = link["href"].split("filing=", 1)[1].split("&", 1)[0]
+
             results.append(UCCFiling(
                 state="KY",
                 debtor_name=debtor_name,
@@ -61,21 +69,45 @@ def _search_one(page, owner_name: str) -> list[UCCFiling]:
                 filing_type="UCC1",
                 status=status,
                 source_url=BASE_URL,
-                raw={"query_name": owner_name},
+                raw={"query_name": owner_name, "internal_id": internal_id},
             ))
         logger.info("KY UCC %s → %d filings", owner_name, len(results))
     except Exception as e:
         logger.error("KY search failed for %r: %s", owner_name, e)
     return results
 
-def search_ky_batch(owner_names: list[str]) -> list[UCCFiling]:
-    all_results = []
+def _search_chunk(names: list[str]) -> list[UCCFiling]:
+    """One worker's share of names, run serially against its own headless
+    browser instance (KY has no Cloudflare/fingerprint requirement, so
+    unlike NY there's no need to share a single real browser -- each
+    thread just gets its own headless Chromium)."""
+    results = []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        for name in owner_names:
-            all_results.extend(_search_one(page, name))
+        for name in names:
+            results.extend(_search_one(page, name))
         browser.close()
+    return results
+
+
+def search_ky_batch(owner_names: list[str], max_workers: int = 4) -> list[UCCFiling]:
+    """Runs max_workers headless browser instances in parallel, each
+    working through its own slice of owner_names. Kept conservative
+    (default 4) -- KY has a confirmed same-day rate limit under sustained
+    volume (a second large burst within a few hours of a first got
+    TLS-reset-blocked), and concurrency effectively increases request
+    rate the same way a bigger burst would, so don't push this much
+    higher without testing on a day when re-blocking is low-stakes."""
+    if not owner_names:
+        return []
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    chunks = [c for c in (owner_names[i::max_workers] for i in range(max_workers)) if c]
+    all_results = []
+    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+        futures = [executor.submit(_search_chunk, chunk) for chunk in chunks]
+        for future in as_completed(futures):
+            all_results.extend(future.result())
     return all_results
 
 def search_ky(owner_name: str) -> list[UCCFiling]:
