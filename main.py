@@ -815,6 +815,7 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
             "financing_amount_m": None,  # UCC-1s don't reliably disclose amount
             "lender": filing.secured_party_name,
             "extraction_model": "ucc_filing",
+            "_ucc_filing_number": filing.filing_number,
         }
         # Same pattern as the CHOW pre_extracted path — deduplicate_batch
         # populates dedup_hash on the dict, _store_deal reads it from there
