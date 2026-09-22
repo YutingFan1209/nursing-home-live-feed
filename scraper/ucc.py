@@ -17,6 +17,25 @@ from ucc.base import UCCFiling
 
 logger = logging.getLogger(__name__)
 
+
+def _union_names(chow_names: list[str] | None, known_names: list[str]) -> list[str]:
+    """Union a state's CHOW facility-name list with the live known_operator_names
+    list (deals discovered since the CHOW CSV snapshot, e.g. via RSS/Gmail/EDGAR),
+    deduped case-insensitively, CHOW names first. Confirmed 2026-09-21 that
+    known_operator_names being used only as a fallback (never merged) left a
+    real blind spot: 34 of 129 KY deal entity names had never been searched,
+    and 4 real filings were found only once they were. See memory
+    ucc_chow_name_blind_spot / docs/data-sources.md Known Issues."""
+    chow_names = chow_names or []
+    seen = {n.strip().upper() for n in chow_names}
+    merged = list(chow_names)
+    for n in known_names:
+        key = n.strip().upper()
+        if key not in seen:
+            seen.add(key)
+            merged.append(n)
+    return merged
+
 ENABLE_NJ_AUTOMATION = False
 ENABLE_MAINE_AUTOMATION = False
 ENABLE_NY_PLAYWRIGHT = True
@@ -72,11 +91,14 @@ def fetch_ucc_filings(
     filings: list[UCCFiling] = []
 
     # KY (Playwright, no Cloudflare, headless=True)
-    # Use ky_search_names (CHOW facility-level LLCs) when available — the KY portal
-    # only supports debtor search and these LLCs are the actual UCC debtors.
-    # Falls back to known_operator_names if ky_search_names is not provided.
+    # Use ky_search_names (CHOW facility-level LLCs) — the KY portal only
+    # supports debtor search and these LLCs are the actual UCC debtors —
+    # unioned with known_operator_names (live deals discovered since the
+    # CHOW CSV snapshot) so post-CHOW entities aren't silently skipped.
+    # Previously ky_search_names took exclusive precedence when non-empty,
+    # which left 34/129 KY deal names never searched (fixed 2026-09-22).
     if _enabled(ENABLE_KY_PLAYWRIGHT, "KY"):
-        ky_terms = ky_search_names if ky_search_names else known_operator_names
+        ky_terms = _union_names(ky_search_names, known_operator_names)
         try:
             filings.extend(search_ky_batch(ky_terms))
         except Exception as e:
@@ -110,17 +132,21 @@ def fetch_ucc_filings(
     # auto-launches a real Chrome with a debug port if one isn't already
     # running, so this still runs unattended from cron.
     # Use ny_search_names (CHOW facility-level LLCs, same pattern as KY/OH)
-    # when available -- known_operator_names is the generic national
-    # parent-operator list and almost none of those are NY-registered
-    # entities, so relying on it alone silently misses nearly all real NY
-    # hits (confirmed 2026-09-15: 0 of the ~150 query names that
-    # historically found real NY filings were even in that list).
+    # unioned with known_operator_names -- known_operator_names alone is the
+    # generic national parent-operator list and almost none of those are
+    # NY-registered entities, so relying on it alone silently misses nearly
+    # all real NY hits (confirmed 2026-09-15: 0 of the ~150 query names that
+    # historically found real NY filings were even in that list). But
+    # ny_search_names taking exclusive precedence over known_operator_names
+    # has the opposite blind spot -- deals discovered after the CHOW CSV
+    # snapshot never get searched either (confirmed for KY 2026-09-21,
+    # same code path; fixed 2026-09-22).
     # ny_individual_names (CMS individual owner names, per Tyler's
     # methodology) run through the portal's separate Individual debtor
     # search — see ucc/ny_playwright.py:_search_one for why these can't
     # share a search mode.
     if _enabled(ENABLE_NY_PLAYWRIGHT, "NY"):
-        ny_terms = ny_search_names if ny_search_names else known_operator_names
+        ny_terms = _union_names(ny_search_names, known_operator_names)
         try:
             filings.extend(search_ny_batch_cdp(
                 org_names=ny_terms,
@@ -147,14 +173,18 @@ def fetch_ucc_filings(
                 logger.warning(f"NJ UCC search failed for {operator_name!r}: {e}")
 
     # OH (Playwright, hidden window)
-    # Use oh_search_names (CHOW facility-level LLCs) when available — the OH
-    # portal is a debtor search and known_operator_names is PE/lender firm
-    # names, not the facility-level LLC debtors that actually appear as
-    # debtors on OH filings (same bug ky_search_names fixed for KY).
+    # Use oh_search_names (CHOW facility-level LLCs) unioned with
+    # known_operator_names — the OH portal is a debtor search and
+    # known_operator_names alone is PE/lender firm names, not the
+    # facility-level LLC debtors that actually appear as debtors on OH
+    # filings (same bug ky_search_names fixed for KY), but oh_search_names
+    # taking exclusive precedence has the opposite blind spot: deals
+    # discovered after the CHOW CSV snapshot never get searched (fixed
+    # 2026-09-22, same fix as KY/NY).
     # oh_individual_names routes through the portal's separate Individual
     # debtor mode (personInd1) — see ucc/oh_playwright.py:_search_one.
     if _enabled(ENABLE_OH_PLAYWRIGHT, "OH"):
-        oh_org_terms = oh_search_names if oh_search_names else known_operator_names
+        oh_org_terms = _union_names(oh_search_names, known_operator_names)
         try:
             filings.extend(search_oh_batch(
                 org_names=oh_org_terms,
