@@ -429,6 +429,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         ky_names = get_chow_operator_names("KY") if wanted is None or "KY" in wanted else None
         oh_names = get_chow_operator_names("OH") if wanted is None or "OH" in wanted else None
         ny_names = get_chow_operator_names("NY") if wanted is None or "NY" in wanted else None
+        nj_names = get_chow_operator_names("NJ") if wanted is None or "NJ" in wanted else None
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
         oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
         ucc_articles = fetch_ucc_filings(
@@ -439,6 +440,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             ny_individual_names=ny_individual_names or None,
             oh_search_names=oh_names or None,
             oh_individual_names=oh_individual_names or None,
+            nj_search_names=nj_names or None,
             states=ucc_states,
         )
         for art in ucc_articles:

@@ -39,7 +39,12 @@ def _union_names(chow_names: list[str] | None, known_names: list[str]) -> list[s
 ENABLE_NJ_AUTOMATION = False
 ENABLE_MAINE_AUTOMATION = False
 ENABLE_NY_PLAYWRIGHT = True
-ENABLE_NJ_PLAYWRIGHT = False
+ENABLE_NJ_PLAYWRIGHT = True  # re-enabled 2026-09-22 -- disabled 2026-06-23 because the
+# free non-certified search doesn't return secured-party/lender name without paying
+# per filing; user decided debtor-name/date-only is still worth having as a
+# confirmation/discovery signal. See ucc/nj_playwright.py -- one fresh headless
+# Chromium launch per name, no parallelism (unlike NY/KY/OH/PA), so a full run
+# against known_operator_names (446 names as of 2026-09-22) would take hours.
 ENABLE_OH_PLAYWRIGHT = True
 ENABLE_KY_PLAYWRIGHT = True
 ENABLE_PA_PLAYWRIGHT = True  # confirmed 2026-09-16: auto-launch works, no longer manual-only
@@ -67,6 +72,7 @@ def fetch_ucc_filings(
     ny_individual_names: list[str] = None,
     oh_search_names: list[str] = None,
     oh_individual_names: list[str] = None,
+    nj_search_names: list[str] = None,
     ca_search_names: list[str] = None,
     ca_individual_names: list[str] = None,
     states: list[str] = None,
@@ -155,13 +161,24 @@ def fetch_ucc_filings(
         except Exception as e:
             logger.warning(f"NY UCC batch search failed: {e}")
     
-    # NJ (Playwright)
+    # NJ (Playwright, sequential -- one fresh headless Chromium launch per
+    # name, no batching/parallelism unlike NY/KY/OH/PA, so keep this list
+    # small: nj_search_names (CHOW NJ buyer names, ~141 as of 2026-09-22)
+    # unioned with known_operator_names would be the full national list
+    # (446 as of 2026-09-22, hours to run sequentially) -- use nj_search_names
+    # alone when available instead of unioning, to keep runtime bounded.
     if _enabled(ENABLE_NJ_PLAYWRIGHT, "NJ"):
-        for operator_name in known_operator_names:
+        nj_terms = nj_search_names if nj_search_names else known_operator_names
+        logger.info(f"NJ UCC: starting sequential search of {len(nj_terms)} names (no parallelism)")
+        nj_found_total = 0
+        for i, operator_name in enumerate(nj_terms, start=1):
             try:
-                filings.extend(search_nj(operator_name))
+                nj_results = search_nj(operator_name)
+                nj_found_total += len(nj_results)
+                filings.extend(nj_results)
+                logger.info(f"NJ UCC [{i}/{len(nj_terms)}] {operator_name!r} -> {len(nj_results)} filings (running total: {nj_found_total})")
             except Exception as e:
-                logger.warning(f"NJ UCC Playwright search failed for {operator_name!r}: {e}")
+                logger.warning(f"NJ UCC [{i}/{len(nj_terms)}] Playwright search failed for {operator_name!r}: {e}")
 
     # NJ (legacy - disabled)
     if _enabled(ENABLE_NJ_AUTOMATION, "NJ"):
