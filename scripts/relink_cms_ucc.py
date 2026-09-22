@@ -68,7 +68,7 @@ def relink_cms_ucc(conn, states: list[str] = None, verbose: bool = True) -> int:
     filings = []
     excluded = 0
     for state, filing_number, debtor_name, secured_party, filing_date_str, status in filing_rows:
-        classification = classify_secured_party(secured_party or "")
+        classification = classify_secured_party(secured_party or "", state=state)
         if not classification.is_acquisition_relevant:
             excluded += 1
             continue
