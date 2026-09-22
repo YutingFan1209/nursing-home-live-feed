@@ -29,22 +29,31 @@ from config import get_config
 logger = logging.getLogger(__name__)
 config = get_config()
 
-# Latest quarterly CHOW files — update URL each quarter
+# Stable dataset-id discovery API (CMS's newer data.cms.gov/provider-characteristics
+# platform, separate from the older provider-data/metastore API carecompare.py and
+# cms/fetch_cms.py use) -- resolves to whatever CHOW CSV is currently published,
+# no manual updates needed. Found 2026-09-22 after CHOW_URLS below was discovered
+# stale (see its comment): confirmed via a live Chrome network-tab capture of
+# https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/
+# skilled-nursing-facility-change-of-ownership/data -- the dataset UUID itself
+# should be stable even as CMS's frontend/URL structure evolves further.
+CHOW_DATASET_ID = "1e1afa09-5699-46a5-ae9e-47017397c55c"
+CHOW_RESOURCES_API = f"https://data.cms.gov/data-api/v1/dataset/{CHOW_DATASET_ID}/resources"
+
+# Fallback if the discovery API fails — last known-good URLs, most recent first.
 # Format: SNF_CHOW_YYYY.MM.DD.csv
-# Check: https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership
 CHOW_URLS = [
-    # Most recent first — loader tries each until one works. This list is
-    # hardcoded/manually maintained (catalog.data.gov doesn't offer a
-    # stable "latest" URL) and had gone stale: as of 2026-09-22 CMS had
-    # already published a 2026-07-17 file (covering the same 2016-2024
-    # effective-date window -- CHOW effective dates lag real filing time
-    # significantly, so a newer release date does NOT mean newer
-    # effective dates, just more/corrected historical records) that this
-    # list didn't have. Confirmed 402 genuinely new records nationwide in
-    # that file vs. the one below (by CCN+buyer+effective-date), including
-    # NJ+1/NY+1/KY+7/OH+21/PA+21 for the states this pipeline tracks --
-    # check catalog.data.gov each quarter (Jan/Apr/Jul/Oct) rather than
-    # assuming this list is current.
+    # This list is hardcoded/manually maintained and had gone stale before
+    # CHOW_RESOURCES_API above was found: as of 2026-09-22 CMS had already
+    # published a 2026-07-17 file (covering the same 2016-2024 effective-date
+    # window -- CHOW effective dates lag real filing time significantly, so a
+    # newer release date does NOT mean newer effective dates, just
+    # more/corrected historical records) that this list didn't have.
+    # Confirmed 402 genuinely new records nationwide in that file vs. the one
+    # below (by CCN+buyer+effective-date), including NJ+1/NY+1/KY+7/OH+21/PA+21
+    # for the states this pipeline tracks. Now only reached if
+    # CHOW_RESOURCES_API itself fails -- update this manually if that happens
+    # and stays down, checking https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership.
     "https://data.cms.gov/sites/default/files/2026-07/cf019cb8-b8ce-45fc-a912-d1ee9a83ca1c/SNF_CHOW_2026.07.17.csv",
     "https://data.cms.gov/sites/default/files/2026-01/900cec56-f1c8-40cb-9f8a-bf54cae53b90/SNF_CHOW_2026.01.02.csv",
     "https://data.cms.gov/sites/default/files/2025-10/92b32732-ba6e-4dee-9bd5-f422b45758ba/SNF_CHOW_2025.10.01.csv",
@@ -52,6 +61,18 @@ CHOW_URLS = [
 
 CHOW_SOURCE_NAME = "CMS SNF Change of Ownership"
 CHOW_SOURCE_URL  = "https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
+
+
+def _discover_chow_csv_url() -> str | None:
+    try:
+        resp = requests.get(CHOW_RESOURCES_API, timeout=30)
+        resp.raise_for_status()
+        for resource in resp.json().get("data", []):
+            if resource.get("type") == "Primary" and resource.get("file_url"):
+                return resource["file_url"]
+    except Exception as e:
+        logger.warning(f"Discovery API lookup failed for CHOW dataset: {e}")
+    return None
 
 
 @retry(
@@ -81,7 +102,9 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         List of deal dicts ready for extraction pipeline.
     """
     rows = None
-    for url in CHOW_URLS:
+    discovered = _discover_chow_csv_url()
+    urls = ([discovered] if discovered else []) + CHOW_URLS
+    for url in urls:
         try:
             rows = _download_chow_csv(url)
             logger.info(f"Downloaded {len(rows)} CHOW records from {url}")
@@ -192,7 +215,9 @@ def get_chow_operator_names(state: str) -> list[str]:
     pipeline's cutoff window (so the names aren't in the DB yet).
     """
     rows = None
-    for url in CHOW_URLS:
+    discovered = _discover_chow_csv_url()
+    urls = ([discovered] if discovered else []) + CHOW_URLS
+    for url in urls:
         try:
             rows = _download_chow_csv(url)
             break
