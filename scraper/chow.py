@@ -33,7 +33,19 @@ config = get_config()
 # Format: SNF_CHOW_YYYY.MM.DD.csv
 # Check: https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership
 CHOW_URLS = [
-    # Most recent first — loader tries each until one works
+    # Most recent first — loader tries each until one works. This list is
+    # hardcoded/manually maintained (catalog.data.gov doesn't offer a
+    # stable "latest" URL) and had gone stale: as of 2026-09-22 CMS had
+    # already published a 2026-07-17 file (covering the same 2016-2024
+    # effective-date window -- CHOW effective dates lag real filing time
+    # significantly, so a newer release date does NOT mean newer
+    # effective dates, just more/corrected historical records) that this
+    # list didn't have. Confirmed 402 genuinely new records nationwide in
+    # that file vs. the one below (by CCN+buyer+effective-date), including
+    # NJ+1/NY+1/KY+7/OH+21/PA+21 for the states this pipeline tracks --
+    # check catalog.data.gov each quarter (Jan/Apr/Jul/Oct) rather than
+    # assuming this list is current.
+    "https://data.cms.gov/sites/default/files/2026-07/cf019cb8-b8ce-45fc-a912-d1ee9a83ca1c/SNF_CHOW_2026.07.17.csv",
     "https://data.cms.gov/sites/default/files/2026-01/900cec56-f1c8-40cb-9f8a-bf54cae53b90/SNF_CHOW_2026.01.02.csv",
     "https://data.cms.gov/sites/default/files/2025-10/92b32732-ba6e-4dee-9bd5-f422b45758ba/SNF_CHOW_2025.10.01.csv",
 ]
