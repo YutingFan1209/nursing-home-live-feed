@@ -31,6 +31,7 @@ UCC_PORTAL_URLS = {
     "KY": "https://web.sos.ky.gov/ftucc/search.aspx",
     "OH": "https://ucc.ohiosos.gov/search",
     "PA": "https://file.dos.pa.gov/search/ucc",
+    "NJ": "https://www.njportal.com/ucc/search/noncertifiedsearch.aspx",  # was missing entirely -- confirmed 2026-09-22 that every NJ deal (337) was falling through to the raw ucc://NJ/{filing_number} scheme URL untouched, which isn't navigable at all (no browser handles the ucc:// protocol), worse than every other state's fallback
     "CA": "https://bizfileonline.sos.ca.gov/search/ucc",
 }
 
