@@ -21,7 +21,7 @@ import csv
 import io
 import logging
 import requests
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import get_config
@@ -62,6 +62,13 @@ CHOW_URLS = [
 CHOW_SOURCE_NAME = "CMS SNF Change of Ownership"
 CHOW_SOURCE_URL  = "https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
 
+# How far back a never-before-seen row's EFFECTIVE DATE can be and still
+# become a deal candidate. Set 2026-09-22 during the seen-records backfill:
+# of 5227 total rows, 609 fell within 2 years, 66 within 1 -- 2 years was
+# picked as wide enough to not miss genuinely-recent-but-lagged filings
+# without dragging in a decade of stale historical M&A on first activation.
+CHOW_RECENCY_DAYS = 730
+
 
 def _discover_chow_csv_url() -> str | None:
     try:
@@ -89,17 +96,44 @@ def _download_chow_csv(url: str) -> list[dict]:
     return list(reader)
 
 
-def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
+def _load_seen_chow_keys(conn) -> set[tuple[str, str, str]]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT ccn, buyer_name, effective_date FROM chow_seen_records")
+        return set(cur.fetchall())
+
+
+def _mark_chow_keys_seen(conn, keys: list[tuple[str, str, str]]) -> None:
+    if not keys:
+        return
+    with conn.cursor() as cur:
+        cur.executemany(
+            "INSERT INTO chow_seen_records (ccn, buyer_name, effective_date) "
+            "VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+            keys,
+        )
+    conn.commit()
+
+
+def fetch_chow_deals(conn) -> list[dict]:
     """
-    Download latest CHOW CSV and return new ownership changes as deal dicts.
+    Download latest CHOW CSV and return ownership-change rows never seen
+    before, as deal dicts ready for the extraction pipeline.
 
-    Args:
-        last_seen_date: ISO date string (YYYY-MM-DD). Only return records
-                        with effective date after this date. If None, returns
-                        all records from the last 90 days.
-
-    Returns:
-        List of deal dicts ready for extraction pipeline.
+    "New" used to mean "effective date after a rolling 90-day cutoff", but
+    CHOW's EFFECTIVE DATE lags real filing/publication time significantly
+    (confirmed 2026-09-22: a July-2026-published file's newest effective
+    date was still only 2026-02-01), so a 90-day window could never match
+    anything once "today" drifted far enough past that -- CHOW-sourced
+    deal discovery had been silently producing zero results for a long
+    time as a result. "New" is now tracked via the chow_seen_records
+    table instead: every (ccn, buyer_name, effective_date) key this CSV
+    has ever contained gets recorded here regardless of its effective
+    date, and only genuinely new keys are considered at all on subsequent
+    runs. Of those, only ones with a reasonably recent effective date
+    (CHOW_RECENCY_DAYS) actually become deal dicts -- the full historical
+    file goes back to 2016, and most of that is too old to be a "live
+    feed" signal even the first time it's seen; this just keeps the
+    dataset's older tail from ever being revisited, same as any other row.
     """
     rows = None
     discovered = _discover_chow_csv_url()
@@ -117,15 +151,10 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         logger.error("Could not download any CHOW CSV file")
         return []
 
-    # Filter to new records only
-    from datetime import date, timedelta
-    if last_seen_date:
-        cutoff = date.fromisoformat(last_seen_date)
-    else:
-        cutoff = date.today() - timedelta(days=90)
-
+    already_seen = _load_seen_chow_keys(conn)
+    newly_seen_keys = []
     deals = []
-    seen_ccns = set()
+    seen_this_run = set()
 
     for row in rows:
         if not isinstance(row, dict):
@@ -140,9 +169,6 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         except ValueError:
             continue
 
-        if effective_date <= cutoff:
-            continue
-
         buyer   = row.get("ORGANIZATION NAME - BUYER", "").strip()
         seller  = row.get("ORGANIZATION NAME - SELLER", "").strip()
         ccn     = row.get("CCN - BUYER", "").strip()
@@ -152,11 +178,16 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         if not buyer or not ccn:
             continue
 
-        # Deduplicate within this batch by CCN + date
-        key = f"{ccn}_{effective_date_str}"
-        if key in seen_ccns:
+        key = (ccn, buyer, effective_date_str)
+        if key in already_seen or key in seen_this_run:
             continue
-        seen_ccns.add(key)
+        seen_this_run.add(key)
+        newly_seen_keys.append(key)
+
+        # Mark-as-seen applies to every never-before-seen row regardless of
+        # age (above); only recent ones actually become deal candidates.
+        if effective_date < date.today() - timedelta(days=CHOW_RECENCY_DAYS):
+            continue
 
         # Build a synthetic article-like dict for the pipeline
         title = f"[CHOW] {buyer} acquires {seller or 'facility'} (CCN: {ccn})"
@@ -187,7 +218,8 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         }
         deals.append(deal)
 
-    logger.info(f"Found {len(deals)} new CHOW records after {cutoff}")
+    _mark_chow_keys_seen(conn, newly_seen_keys)
+    logger.info(f"Found {len(deals)} new CHOW records ({len(already_seen)} previously seen)")
     return deals
 
 

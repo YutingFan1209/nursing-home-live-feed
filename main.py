@@ -170,22 +170,27 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
-        # UCC filings are fast (no Claude) — exempt from per-run cap so they drain
-        # in a single run. The cap only limits Claude-extraction articles.
+        # UCC filings and CHOW records are both fast (no Claude call, "pre_extracted"
+        # or cap-exempt UCC) — exempt from the per-run cap so they drain in a single
+        # run regardless of count. The cap only limits Claude-extraction articles,
+        # since it exists to bound Claude cost per run, not article volume. (Found
+        # 2026-09-22: pre_extracted CHOW articles used to get sliced by this cap
+        # alongside real text articles even though they don't call Claude either --
+        # combined with chow_seen_records marking every found row as seen regardless
+        # of whether it actually got processed, this silently and permanently
+        # dropped whatever CHOW records fell past the cap on a given run.)
         ucc_articles    = [a for a in articles if a.get("ucc_filing")]
-        non_ucc_articles = [a for a in articles if not a.get("ucc_filing")]
+        pre_extracted   = [a for a in articles if not a.get("ucc_filing") and a.get("pre_extracted")]
+        text_articles   = [a for a in articles if not a.get("ucc_filing") and not a.get("pre_extracted")]
 
         cap = max_articles or config.max_articles_per_run
-        if len(non_ucc_articles) > cap:
+        if len(text_articles) > cap:
             logger.warning(
-                f"Non-UCC article count ({len(non_ucc_articles)}) exceeds cap ({cap}) — "
+                f"Text article count ({len(text_articles)}) exceeds cap ({cap}) — "
                 f"processing first {cap} only. "
-                f"Estimated Claude cost for full batch: {estimate_cost(total_found)}"
+                f"Estimated Claude cost for full batch: {estimate_cost(len(text_articles))}"
             )
-            non_ucc_articles = non_ucc_articles[:cap]
-
-        pre_extracted = [a for a in non_ucc_articles if a.get("pre_extracted")]
-        text_articles = [a for a in non_ucc_articles if not a.get("pre_extracted")]
+            text_articles = text_articles[:cap]
 
         logger.info(
             f"Processing {len(ucc_articles)} UCC (cap-exempt) + "
@@ -366,7 +371,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
 
         # CHOW — quarterly CMS ownership change feed
         chow_source_id = get_chow_source_id(conn)
-        chow_deals = fetch_chow_deals()
+        chow_deals = fetch_chow_deals(conn)
         for deal in chow_deals:
             if not _article_exists(deal["url"], conn):
                 deal["source_id"] = chow_source_id
