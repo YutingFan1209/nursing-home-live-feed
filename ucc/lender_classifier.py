@@ -122,12 +122,25 @@ EXCLUDE_PATTERNS = [
 ]
 
 
-def classify_secured_party(name: str) -> LenderClassification:
+def classify_secured_party(name: str, state: str = None) -> LenderClassification:
     """Classify a UCC secured-party name as RE / PE / general bank /
     equipment-vendor / unknown, with a confidence score and the signal
-    that drove the decision (for debugging false positives later)."""
+    that drove the decision (for debugging false positives later).
+
+    `state` only matters when `name` is empty: NJ's non-certified search
+    structurally never returns a secured-party name (a paid per-filing
+    lookup would be needed to get it -- see ucc/nj_playwright.py), which
+    is a known, permanent source gap, not ambiguity about the filing
+    itself. Every other state's "no name" case really does mean unknown/
+    possibly-a-scraper-bug, so only NJ gets the maybe-relevant override."""
 
     if not name:
+        if state == "NJ":
+            return LenderClassification(
+                LenderCategory.UNKNOWN, 0.0,
+                "NJ: no secured-party name available from source (paid lookup required) -- treated as maybe-relevant, not excluded",
+                True,
+            )
         return LenderClassification(LenderCategory.UNKNOWN, 0.0, "no secured party name", False)
 
     normalized = " ".join(name.lower().strip().split())

@@ -12,7 +12,7 @@ from ucc.oh_playwright import search_oh_batch
 from ucc.ky_playwright import search_ky_batch
 from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
-from ucc.lender_classifier import classify_secured_party, LenderClassification
+from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
 
 logger = logging.getLogger(__name__)
@@ -52,23 +52,7 @@ ENABLE_CA_PLAYWRIGHT = False  # Incapsula-protected, needs Chrome CDP -- manual 
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
-    classification = classify_secured_party(filing.secured_party_name)
-    # NJ's non-certified search structurally never returns a secured-party
-    # name (see ucc/nj_playwright.py -- would need a paid per-filing lookup
-    # to get it), which classify_secured_party's generic "no name" case
-    # treats as not acquisition-relevant. That default is right for a
-    # scraper bug elsewhere, but wrong here -- it's a known, permanent gap
-    # for this one source, not ambiguity about the filing itself. Override
-    # to maybe-relevant (same "surface for review, don't silently drop"
-    # policy already used for UNKNOWN-but-present names) so NJ filings
-    # actually reach the article queue instead of being a no-op end to end.
-    if filing.state == "NJ" and not filing.secured_party_name and not classification.is_acquisition_relevant:
-        classification = LenderClassification(
-            category=classification.category,
-            confidence=classification.confidence,
-            matched_signal="NJ: no secured-party name available from source (paid lookup required) -- treated as maybe-relevant, not excluded",
-            is_acquisition_relevant=True,
-        )
+    classification = classify_secured_party(filing.secured_party_name, state=filing.state)
     return {
         "url": f"ucc://{filing.state}/{filing.filing_number}",
         "title": f"UCC-1 filing: {filing.debtor_name} / {filing.secured_party_name} ({filing.state})",

@@ -85,7 +85,7 @@ def route_filing(
 ) -> RoutingResult:
     """Single entry point — call this for every UCC filing you ingest."""
 
-    classification = classify_secured_party(filing.secured_party_name)
+    classification = classify_secured_party(filing.secured_party_name, state=filing.state)
 
     if not classification.is_acquisition_relevant:
         return RoutingResult(filing, classification, RoutingDecision.EXCLUDED)
