@@ -20,12 +20,13 @@ and reliability characteristics.
 **Limitation:** Private operators (family-owned, small regional chains) never file with SEC
 
 ### SNF CHOW Dataset (free)
-**URL:** `https://data.cms.gov/sites/default/files/...SNF_CHOW_YYYY.MM.DD.csv`
+**URL discovery:** `scraper/chow.py::_discover_chow_csv_url()` — self-discovering via `data.cms.gov/data-api/v1/dataset/{CHOW_DATASET_ID}/resources`, same pattern `matcher/carecompare.py` and `cms/fetch_cms.py` already used for the other two CMS datasets. `CHOW_URLS` is now only a last-resort fallback (was the sole hardcoded source until 2026-09-22, and had gone stale).
 **Coverage:** ALL Medicare-certified SNFs — public and private
 **Speed:** Quarterly updates (Jan, Apr, Jul, Oct)
-**Reliability:** Highest — federally required, CMS-verified completed transactions
+**Reliability:** Highest in principle (federally required, CMS-verified) — see the freshness-tracking history below, since that principle didn't hold in practice for a long time
 **Best for:** Private operator deals, comprehensive confirmed ownership record
-**Limitation:** Quarterly cadence means up to 3 month lag on new deals
+**Limitation:** `EFFECTIVE DATE` lags real filing/publication time significantly — a file published 2026-07-17 still had a newest effective date of only 2026-02-01. Don't use it as a proxy for "how recent is this data."
+**Freshness-tracking history (2026-09-22):** `fetch_chow_deals()` used to treat a record as "new" if its `EFFECTIVE DATE` was after a rolling 90-day cutoff — because of the lag above, that filter could never match anything once "today" drifted far enough past CHOW's laggy dates, so **CHOW-sourced deal discovery had produced zero deals (`extraction_model='chow_direct'`) for the entire life of this pipeline** until fixed the same day. Now tracked via a `chow_seen_records` table (every `(ccn, buyer_name, effective_date)` key ever seen, independent of date) plus a `CHOW_RECENCY_DAYS` (730) filter on which never-before-seen rows actually become deal candidates, so first activation doesn't flood the tracker with a decade of historical M&A. Also found and fixed along the way: `main.py`'s per-run Claude-cost cap used to apply to `pre_extracted` CHOW articles too, even though — like UCC filings — they never call Claude; combined with the seen-records change marking every found row as seen regardless of whether it got processed, this nearly caused real data loss on the first real run (609 found, cap silently kept 50, the other 559 would never have resurfaced) — recovered by hand that same session. CHOW is now cap-exempt like UCC. See memory `chow_freshness_tracking_broken_2026_09_22` for the full incident writeup.
 
 ### Google Alerts (Gmail OAuth) — working
 **Mechanism:** Google Alerts emails → dedicated Gmail inbox → read via Gmail API (OAuth), parsed in `scraper/gmail_alerts.py`
@@ -125,7 +126,7 @@ Gmail Alerts and UCC-1 filings aren't registered via `scraper/sources.py` at all
 
 | Source | Status | Notes |
 |---|---|---|
-| SNF CHOW dataset | ✅ Working | Quarterly CSV, direct download |
+| SNF CHOW dataset | ✅ Working (fixed 2026-09-22, was silently producing 0 deals since launch) | Self-discovering URL + seen-records freshness tracking, see the detailed section above |
 | EDGAR full-text search | ✅ Working | |
 | Gmail Alerts (OAuth) | ✅ Working | Auto-scaling lookback window |
 | News RSS (5 feeds) | ✅ Working | SNN, McKnight's, Modern Healthcare, Provider Magazine, Senior Housing News |
