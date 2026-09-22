@@ -793,7 +793,16 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
         return 0
 
     if result.decision == RoutingDecision.NEW_SIGNAL:
-        if not filing.secured_party_name:
+        # NJ's non-certified search never returns a secured-party name (a
+        # paid per-filing lookup would be needed) -- that's a known,
+        # permanent source gap, not a sign the filing itself is
+        # untrustworthy, so it's let through here unlike every other state
+        # (where an empty secured-party name usually means a scraper
+        # glitch worth staying cautious about). Its lender field below
+        # gets an explicit placeholder instead of staying blank so a
+        # viewer can tell at a glance that lender verification wasn't
+        # possible for this deal, not just silently omitted.
+        if not filing.secured_party_name and filing.state != "NJ":
             logger.debug(
                 f"UCC new-signal skipped: no secured party "
                 f"(filing {filing.filing_number}, {filing.state})"
@@ -815,7 +824,10 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
             "deal_value_m": None,
             "acquisition_date": filing.filing_date.isoformat() if filing.filing_date else None,
             "financing_amount_m": None,  # UCC-1s don't reliably disclose amount
-            "lender": filing.secured_party_name,
+            "lender": filing.secured_party_name or (
+                "Not available — NJ UCC search doesn't return lender names"
+                if filing.state == "NJ" else None
+            ),
             "extraction_model": "ucc_filing",
             "_ucc_filing_number": filing.filing_number,
         }
