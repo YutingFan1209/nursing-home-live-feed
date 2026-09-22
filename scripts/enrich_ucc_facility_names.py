@@ -45,14 +45,18 @@ import requests
 
 sys.path.insert(0, ".")
 from config import get_config
+from scraper.chow import _discover_chow_csv_url
 
 warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-CHOW_URL = (
-    "https://data.cms.gov/sites/default/files/2026-01/"
-    "900cec56-f1c8-40cb-9f8a-bf54cae53b90/SNF_CHOW_2026.01.02.csv"
+# Fallback only -- had its own hardcoded (and stale, as of 2026-09-22) CHOW
+# URL duplicating scraper/chow.py's; now prefers that module's self-discovery
+# API and only falls back to this if the discovery lookup itself fails.
+CHOW_URL_FALLBACK = (
+    "https://data.cms.gov/sites/default/files/2026-07/"
+    "cf019cb8-b8ce-45fc-a912-d1ee9a83ca1c/SNF_CHOW_2026.07.17.csv"
 )
 
 FACILITY_KEYWORDS = re.compile(
@@ -79,8 +83,9 @@ def _normalize(s: str) -> str:
 
 def _build_chow_map() -> dict[str, str]:
     """Download CHOW CSV and build normalized-buyer → DBA map."""
-    logger.info("Downloading CHOW CSV...")
-    resp = requests.get(CHOW_URL, timeout=60, verify=False)
+    url = _discover_chow_csv_url() or CHOW_URL_FALLBACK
+    logger.info(f"Downloading CHOW CSV from {url}...")
+    resp = requests.get(url, timeout=60, verify=False)
     resp.raise_for_status()
     reader = csv.DictReader(io.StringIO(resp.text))
     chow = {}
