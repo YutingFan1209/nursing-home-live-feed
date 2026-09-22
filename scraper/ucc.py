@@ -7,7 +7,7 @@ import logging
 from ucc.nj import NewJerseyUCCSource
 from ucc.me import MaineUCCSource
 from ucc.ny_playwright import search_ny_batch_cdp
-from ucc.nj_playwright import search_nj
+from ucc.nj_playwright import search_nj_batch
 from ucc.oh_playwright import search_oh_batch
 from ucc.ky_playwright import search_ky_batch
 from ucc.pa_playwright import search_pa_batch
@@ -42,9 +42,9 @@ ENABLE_NY_PLAYWRIGHT = True
 ENABLE_NJ_PLAYWRIGHT = True  # re-enabled 2026-09-22 -- disabled 2026-06-23 because the
 # free non-certified search doesn't return secured-party/lender name without paying
 # per filing; user decided debtor-name/date-only is still worth having as a
-# confirmation/discovery signal. See ucc/nj_playwright.py -- one fresh headless
-# Chromium launch per name, no parallelism (unlike NY/KY/OH/PA), so a full run
-# against known_operator_names (446 names as of 2026-09-22) would take hours.
+# confirmation/discovery signal. See ucc/nj_playwright.py -- parallel worker pool
+# added 2026-09-22 (same pattern as KY), ~141 CHOW names now run in minutes
+# instead of the original ~25 min sequential.
 ENABLE_OH_PLAYWRIGHT = True
 ENABLE_KY_PLAYWRIGHT = True
 ENABLE_PA_PLAYWRIGHT = True  # confirmed 2026-09-16: auto-launch works, no longer manual-only
@@ -161,24 +161,23 @@ def fetch_ucc_filings(
         except Exception as e:
             logger.warning(f"NY UCC batch search failed: {e}")
     
-    # NJ (Playwright, sequential -- one fresh headless Chromium launch per
-    # name, no batching/parallelism unlike NY/KY/OH/PA, so keep this list
-    # small: nj_search_names (CHOW NJ buyer names, ~141 as of 2026-09-22)
-    # unioned with known_operator_names would be the full national list
-    # (446 as of 2026-09-22, hours to run sequentially) -- use nj_search_names
-    # alone when available instead of unioning, to keep runtime bounded.
+    # NJ (Playwright, parallel workers -- see ucc/nj_playwright.py module
+    # docstring: no Cloudflare/Incapsula-style bot detection observed as of
+    # 2026-09-22, so this doesn't need NY/PA/CA's shared-CDP-Chrome
+    # workaround, just a worker pool of plain headless Chromiums (same
+    # pattern as KY). nj_search_names (CHOW NJ buyer names, ~141 as of
+    # 2026-09-22) used alone rather than unioned with known_operator_names
+    # (446, national) -- keeping the list NJ-specific rather than widening
+    # it is a separate decision from adding parallelism.
     if _enabled(ENABLE_NJ_PLAYWRIGHT, "NJ"):
         nj_terms = nj_search_names if nj_search_names else known_operator_names
-        logger.info(f"NJ UCC: starting sequential search of {len(nj_terms)} names (no parallelism)")
-        nj_found_total = 0
-        for i, operator_name in enumerate(nj_terms, start=1):
-            try:
-                nj_results = search_nj(operator_name)
-                nj_found_total += len(nj_results)
-                filings.extend(nj_results)
-                logger.info(f"NJ UCC [{i}/{len(nj_terms)}] {operator_name!r} -> {len(nj_results)} filings (running total: {nj_found_total})")
-            except Exception as e:
-                logger.warning(f"NJ UCC [{i}/{len(nj_terms)}] Playwright search failed for {operator_name!r}: {e}")
+        logger.info(f"NJ UCC: starting parallel search of {len(nj_terms)} names")
+        try:
+            nj_results = search_nj_batch(nj_terms)
+            filings.extend(nj_results)
+            logger.info(f"NJ UCC: {len(nj_results)} filings found across {len(nj_terms)} names")
+        except Exception as e:
+            logger.warning(f"NJ UCC batch search failed: {e}")
 
     # NJ (legacy - disabled)
     if _enabled(ENABLE_NJ_AUTOMATION, "NJ"):
