@@ -38,6 +38,18 @@ def _parse_date(s: str):
     except Exception:
         return None
 
+def _parse_iso_date(s: str):
+    """Dates from the /api/ohiosearch JSON response come as ISO datetimes
+    (e.g. "2022-05-04T16:11:50.61") with a variable-length fractional-second
+    component that datetime.fromisoformat() can reject pre-3.11 -- just
+    take the date part, we don't need time-of-day precision."""
+    if not s:
+        return None
+    try:
+        return datetime.strptime(s.split("T")[0], "%Y-%m-%d").date()
+    except Exception:
+        return None
+
 def _parse_individual_name(name: str):
     """CMS individual owner names come as 'LAST, FIRST' -- split for the
     portal's separate First/Last Name fields (personInd1 mode). Returns
@@ -88,35 +100,38 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
             """)
         page.wait_for_timeout(300)
 
-        # Click Search
-        page.click("button.rs-submit")
-
-        # Wait for results
+        # Click Search and capture the underlying JSON API response
+        # directly (POST /api/ohiosearch) instead of scraping rendered
+        # mat-row/mat-cell text -- more reliable (structured, typed data
+        # straight from the API instead of parsing rendered HTML), and
+        # it's the only way to get entityId, which is never rendered into
+        # the DOM anywhere (confirmed 2026-09-22 via a live network-tab
+        # capture) but is exactly what the portal's own "View Profile"
+        # button navigates to (company-profile/search/{entityId}) -- see
+        # ucc/audit_log.py:_detail_url for where this becomes a real
+        # per-filing deep link, same as NY/KY already have.
         try:
-            page.wait_for_selector("mat-row", timeout=8000)
+            with page.expect_response(
+                lambda r: "ohiosearch" in r.url and r.request.method == "POST",
+                timeout=10000,
+            ) as resp_info:
+                page.click("button.rs-submit")
+            payload = resp_info.value.json()
         except Exception:
             logger.info("OH UCC %s → 0 filings", owner_name)
             return []
 
-        page.wait_for_timeout(500)
-
-        # Extract via JS
-        rows = page.evaluate("""
-            Array.from(document.querySelectorAll('mat-row')).map(row =>
-                Array.from(row.querySelectorAll('mat-cell')).map(cell => cell.innerText.trim())
-            )
-        """)
-
+        rows = payload.get("data") or []
         today = date.today()
-        for cells in rows:
-            if len(cells) < 6:
+        for row in rows:
+            filing_number = row.get("finacialStatementNumber")
+            if not filing_number:
                 continue
-            filing_number = cells[0]
-            debtor_name = cells[1].replace("\n\n", ", ")
-            secured_party = cells[2]
-            filing_type = cells[3]
-            filing_date = _parse_date(cells[4])
-            lapse_date = _parse_date(cells[5])
+            debtor_name = ", ".join(row.get("debtorList") or [])
+            secured_party = ", ".join(row.get("securePartyList") or [])
+            filing_type = row.get("transactionCode") or "Original"
+            filing_date = _parse_iso_date(row.get("finacialStatementDate"))
+            lapse_date = _parse_iso_date(row.get("lapseDate"))
             status = "active" if lapse_date and lapse_date > today else "lapsed"
 
             results.append(UCCFiling(
@@ -129,7 +144,11 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
                 filing_type=filing_type,
                 status=status,
                 source_url=BASE_URL + "/search",
-                raw={"query_name": owner_name, "search_mode": "individual" if parsed else "organization"},
+                raw={
+                    "query_name": owner_name,
+                    "search_mode": "individual" if parsed else "organization",
+                    "internal_id": row.get("entityId"),
+                },
             ))
         logger.info("OH UCC %s (%s) → %d filings", owner_name, "individual" if parsed else "org", len(results))
     except Exception as e:

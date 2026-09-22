@@ -10,7 +10,18 @@ Per-state deep link support (confirmed working, no auth/challenge needed
 beyond what the search itself already required):
   NY: OnlineLienInformation?lienId=...   (2026-09-15)
   KY: search.aspx?filing=...              (2026-09-16)
-  OH, PA, CA: none known yet -- falls back to the portal's search page.
+  OH: company-profile/search/{entityId}   (2026-09-22, see below)
+  PA, CA: none known yet -- falls back to the portal's search page.
+
+OH's deep link was the whole reason the original "source link doesn't
+resolve to a functional page" report (2026-09-21) existed -- the static
+portal-homepage fallback used for OH (no per-filing URL existed then)
+turned out to hang indefinitely for viewers (portal-side issue, root-
+caused 2026-09-22, see memory oh_ucc_ip_blocked). entityId comes from
+the portal's own /api/ohiosearch JSON response (never rendered into the
+DOM -- ucc/oh_playwright.py intercepts the response directly rather than
+scraping mat-row text) and matches exactly what the portal's own "View
+Profile" button navigates to, confirmed by capturing that click live.
 
 Auto-relink safety net (2026-09-16): main.py's live pipeline already runs
 scripts/relink_cms_ucc.py once per run after all filings are processed
@@ -41,6 +52,8 @@ def _detail_url(filing: UCCFiling) -> str | None:
         return f"https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId={internal_id}"
     if filing.state == "KY":
         return f"https://web.sos.ky.gov/ftucc/search.aspx?filing={internal_id}"
+    if filing.state == "OH":
+        return f"https://ucc.ohiosos.gov/company-profile/search/{internal_id}"
     return None
 
 

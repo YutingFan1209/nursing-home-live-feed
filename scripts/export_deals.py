@@ -14,7 +14,8 @@ only, not a navigable page (confirmed 2026-09-15: the frontend was
 silently hiding the whole Source section for these rather than render a
 broken ucc:// link). This rewrites source_url/source_title for UCC deals
 to point at ucc_filings.detail_url when one exists (a real, one-click
-per-filing deep link -- NY only for now, via lienId) or else the state's
+per-filing deep link -- NY via lienId, KY via filing param, OH via
+entityId as of 2026-09-22, see ucc/audit_log.py:_detail_url) or else the state's
 search portal homepage, with the filing number in the title so a viewer
 can search for it themselves.
 """
