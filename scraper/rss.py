@@ -26,10 +26,20 @@ HEADERS = {
 
 def fetch_feed(url: str) -> list[dict]:
     logger.info(f"Fetching RSS feed: {url}")
+    # Fetch with requests, not feedparser's own urllib fetch: urllib uses the
+    # interpreter's CA store, which this Python install doesn't have, so every
+    # direct feed failed CERTIFICATE_VERIFY_FAILED and feedparser swallowed it
+    # as an empty feed (found 2026-09-23 -- no direct-feed article had ever
+    # been stored; all news was arriving via Gmail alerts). requests uses certifi.
     try:
-        feed = feedparser.parse(url, request_headers=HEADERS)
+        resp = requests.get(url, headers=HEADERS, timeout=30)
+        resp.raise_for_status()
+        feed = feedparser.parse(resp.content)
     except Exception as e:
-        logger.error(f"Failed to parse feed {url}: {e}")
+        logger.error(f"Failed to fetch feed {url}: {e}")
+        return []
+    if feed.bozo and not feed.entries:
+        logger.error(f"Feed {url} returned no entries: {feed.get('bozo_exception')}")
         return []
 
     articles = []
@@ -82,8 +92,10 @@ def fetch_article_text(url: str) -> Optional[str]:
             text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
             if text and len(text.split()) >= 50:
                 return text.strip()
-    except ImportError:
-        pass  # trafilatura not installed, fall through to BS4
+    except ImportError as e:
+        # was a silent `pass` -- trafilatura was broken this way for months
+        # (missing lxml_html_clean) without anyone noticing
+        logger.warning(f"trafilatura unavailable ({e}), using BS4 fallback")
     except Exception as e:
         logger.warning(f"trafilatura failed for {url}: {e}")
 
@@ -98,7 +110,7 @@ def fetch_article_text(url: str) -> Optional[str]:
         for tag in soup(["nav", "footer", "script", "style", "aside"]):
             tag.decompose()
         text = soup.get_text(separator="\n", strip=True)
-        return text[:10000] if text else None
+        return text[:config.article_max_chars] if text else None
     except Exception as e:
         logger.warning(f"Fallback fetch failed for {url}: {e}")
         return None

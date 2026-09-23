@@ -2,10 +2,22 @@
 ucc/ny_playwright.py
 NY UCC search via Playwright (Cenuity Online portal).
 Optimizations: reuse browser session, only fetch secured party for Active filings.
+
+As of ~2026-09, the portal added a Cloudflare Turnstile challenge that
+headless Playwright never gets past (page never renders the real form --
+see search_ny_batch's docstring). CONFIRMED FIX (2026-09-15): a real,
+non-headless Chrome reached via CDP (connect_over_cdp) passes the
+Turnstile challenge fine, same technique as pa_playwright.py/
+ca_playwright.py. The remaining wrinkle specific to NY: a plain
+page.click() on the Search button silently does nothing (something about
+the Turnstile widget/overlay swallows the synthetic click) -- calling the
+page's own `uccSearchVM.SearchButtonClick()` handler via page.evaluate()
+works reliably instead. See search_ny_batch_cdp().
 """
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from ucc.base import UCCFiling
+from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
 from datetime import datetime
 import logging
 import time
@@ -13,6 +25,10 @@ import time
 logger = logging.getLogger(__name__)
 
 SEARCH_URL = "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch"
+
+
+def _ensure_chrome_cdp(cdp_url: str = CDP_URL) -> None:
+    ensure_chrome_cdp(cdp_url)
 
 BROWSER_ARGS = [
     "--no-sandbox",
@@ -89,7 +105,13 @@ def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCC
             page.wait_for_timeout(500)
             page.locator("input[name*='OrgName']").first.fill(search_term)
 
-        page.click("#UCCSearch_UCCSearch_btnSearch")
+        # Give the Cloudflare Turnstile widget time to auto-validate (only
+        # relevant on a real/CDP-connected browser -- headless never gets
+        # this far, it times out above). A plain page.click() on the Search
+        # button silently no-ops here; calling the page's own click handler
+        # directly is what actually submits the form. See module docstring.
+        page.wait_for_timeout(2000)
+        page.evaluate("() => uccSearchVM.SearchButtonClick()")
         page.wait_for_timeout(4000)
 
         html = page.content()
@@ -141,13 +163,90 @@ def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCC
 
 
 def search_ny(search_term: str, is_individual: bool = False) -> list[UCCFiling]:
-    """Search a single name. Opens/closes its own browser."""
+    """Search a single name. Opens/closes its own browser.
+    NOTE: as of 2026-09, this headless path always returns 0 filings --
+    the Cloudflare Turnstile challenge blocks headless Chrome entirely.
+    Use search_ny_batch_cdp() (requires a real Chrome running with
+    --remote-debugging-port=9222) until the block is resolved another way.
+    """
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=BROWSER_ARGS)
         page = browser.new_page()
         results = _search_one(page, search_term, is_individual=is_individual)
         browser.close()
     return results
+
+
+def _search_chunk_cdp(cdp_url: str, terms: list[tuple[str, bool]]) -> list[UCCFiling]:
+    """Run one worker's share of (name, is_individual) terms serially
+    against a single page (tab) it opens once and reuses -- called from a
+    ThreadPoolExecutor worker thread. Each thread gets its own
+    sync_playwright()/connect_over_cdp() connection and page (Playwright's
+    sync API requires objects stay within the thread that created them),
+    but all threads attach to the SAME running Chrome and share its first
+    browser context -- meaning they all share the already-solved
+    Cloudflare Turnstile clearance cookie, so only the very first page
+    load across all threads needs to actually pass the challenge."""
+    results = []
+    with sync_playwright() as p:
+        browser = p.chromium.connect_over_cdp(cdp_url)
+        context = browser.contexts[0] if browser.contexts else browser.new_context()
+        page = context.new_page()
+        for name, is_individual in terms:
+            filings = _search_one(page, name, is_individual=is_individual)
+            logger.info("NY UCC %s (%s, cdp) → %d filings", name, "individual" if is_individual else "org", len(filings))
+            results.extend(filings)
+        page.close()
+    return results
+
+
+def search_ny_batch_cdp(
+    org_names: list[str] = None,
+    individual_names: list[str] = None,
+    cdp_url: str = CDP_URL,
+    max_workers: int = 8,
+) -> list[UCCFiling]:
+    """Search via a real, already-running Chrome reached over CDP --
+    confirmed 2026-09-15 to pass the Cloudflare Turnstile challenge that
+    blocks the headless path (search_ny/search_ny_batch) entirely.
+
+    Launches its own Chrome (with a debug port) automatically if one isn't
+    already running -- see _ensure_chrome_cdp() -- so this can run
+    unattended from cron/run_pipeline.sh with no manual browser step.
+    Same underlying pattern as pa_playwright.py/ca_playwright.py. Unlike
+    PA (which hits a JSON API directly via fetch()), NY has no such API --
+    this drives the real search form and reuses _search_one's existing
+    HTML parsing, which already expects exactly the table shape the
+    portal returns (9 columns, debtor name at index 3).
+
+    Runs max_workers tabs in parallel within the ONE real Chrome window
+    (see _search_chunk_cdp) rather than one search at a time -- NY's
+    individual-name list alone can run into the thousands, and at ~10s/
+    query serially that's multiple hours. Confirmed 2026-09-15 that
+    concurrent tabs in the same context work fine since the Cloudflare
+    clearance cookie is shared, not per-tab -- 8 workers tested clean
+    (147 names, zero errors) and is the current default. Still haven't
+    tested beyond 8 or verified whether NY's infra treats a burst of
+    concurrent requests differently from the same volume spread serially,
+    so ramp further increases incrementally rather than jumping far past
+    8 untested.
+    """
+    _ensure_chrome_cdp(cdp_url)
+    terms = [(n, False) for n in (org_names or [])] + [(n, True) for n in (individual_names or [])]
+    if not terms:
+        return []
+
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    chunks = [terms[i::max_workers] for i in range(max_workers)]
+    chunks = [c for c in chunks if c]
+    logger.info("NY UCC: %d terms split across %d workers", len(terms), len(chunks))
+
+    all_results = []
+    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+        futures = [executor.submit(_search_chunk_cdp, cdp_url, chunk) for chunk in chunks]
+        for future in as_completed(futures):
+            all_results.extend(future.result())
+    return all_results
 
 
 def search_ny_batch(
@@ -174,31 +273,8 @@ def search_ny_batch(
     return all_results
 
 
-def save_ucc_filings(filings: list, conn) -> int:
-    from psycopg2.extras import execute_values
-    from ucc.lender_classifier import classify_secured_party, to_confidence_label
-    if not filings:
-        return 0
-    rows = [(
-        f.state, f.filing_number, f.debtor_name, f.secured_party_name if f.secured_party_name else None,
-        f.filing_date.isoformat() if f.filing_date else None,
-        f.filing_type, f.collateral_description or "", f.status,
-        f.raw.get("query_name", ""), f.raw.get("sp_address", ""),
-        to_confidence_label(classify_secured_party(f.secured_party_name)) if f.secured_party_name else None,
-    ) for f in filings]
-    with conn.cursor() as cur:
-        execute_values(cur, """
-            INSERT INTO ucc_filings
-                (state, filing_number, debtor_name, secured_party,
-                 filing_date, filing_type, collateral_description,
-                 status, query_name, sp_address, confidence)
-            VALUES %s
-            ON CONFLICT (state, filing_number) DO UPDATE
-            SET confidence = EXCLUDED.confidence,
-                secured_party = EXCLUDED.secured_party
-        """, rows)
-    conn.commit()
-    return len(rows)
+# save_ucc_filings and its detail_url computation live in ucc/audit_log.py
+# (used across states, not NY-specific).
 
 
 if __name__ == "__main__":

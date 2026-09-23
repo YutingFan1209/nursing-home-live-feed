@@ -28,7 +28,7 @@ pattern already lives.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 from enum import Enum
 from typing import Optional
@@ -61,6 +61,7 @@ class ExistingDeal:
     facility_names: list[str]
     acquisition_date: Optional[date]
     lender: Optional[str] = None
+    states: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -84,7 +85,7 @@ def route_filing(
 ) -> RoutingResult:
     """Single entry point — call this for every UCC filing you ingest."""
 
-    classification = classify_secured_party(filing.secured_party_name)
+    classification = classify_secured_party(filing.secured_party_name, state=filing.state)
 
     if not classification.is_acquisition_relevant:
         return RoutingResult(filing, classification, RoutingDecision.EXCLUDED)
@@ -124,6 +125,18 @@ def match_against_existing_deals(
     filing_name = filing.normalized_debtor()
 
     for deal in existing_deals:
+        # A UCC-1 is filed in the state where the debtor is organized/
+        # located -- a deal with no overlapping state can't plausibly be
+        # the same one, regardless of how well names/dates line up.
+        # Confirmed 2026-09-16: this wasn't being checked at all before,
+        # meaning the live pipeline and any DB-side relink pass could
+        # cross-match a filing against a deal in a completely different
+        # state if names happened to be similar. Deals with no states on
+        # file at all (empty list) are left unconstrained rather than
+        # excluded, since that's missing data, not a real mismatch.
+        if deal.states and filing.state not in deal.states:
+            continue
+
         if filing.filing_date and deal.acquisition_date:
             delta = abs((filing.filing_date - deal.acquisition_date).days)
             if delta > DATE_WINDOW_DAYS:

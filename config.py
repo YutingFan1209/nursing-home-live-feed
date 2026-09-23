@@ -18,7 +18,10 @@ class Config:
         default_factory=lambda: os.environ.get("ANTHROPIC_API_KEY", "")
     )
     claude_model: str = "claude-sonnet-4-5"
-    claude_max_tokens: int = 2000
+    claude_max_tokens: int = 4000         # roundup articles can return 10+ deals
+    # Article text kept for extraction. Was 10,000 at fetch and 8,000 at
+    # extraction -- long dealbook roundups lost their later deals entirely.
+    article_max_chars: int = 30000
 
     # SendGrid (alerts)
     sendgrid_api_key: Optional[str] = field(
@@ -49,6 +52,10 @@ class Config:
 
     # Pipeline tuning
     fuzzy_match_threshold: int = 70
+    # UCC deals match on the debtor name alone, where sub-90 fuzzy scores
+    # were mostly noise (2026-09-23: "PARK NURSING HOME" matched 28
+    # unrelated facilities, "Circleville Post Acute" matched King David)
+    ucc_min_match_score: int = 90
     recheck_interval_days: int = 7
     recheck_max_attempts: int = 12
     dedup_window_days: int = 30

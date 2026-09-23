@@ -21,7 +21,7 @@ import csv
 import io
 import logging
 import requests
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import get_config
@@ -29,17 +29,57 @@ from config import get_config
 logger = logging.getLogger(__name__)
 config = get_config()
 
-# Latest quarterly CHOW files — update URL each quarter
+# Stable dataset-id discovery API (CMS's newer data.cms.gov/provider-characteristics
+# platform, separate from the older provider-data/metastore API carecompare.py and
+# cms/fetch_cms.py use) -- resolves to whatever CHOW CSV is currently published,
+# no manual updates needed. Found 2026-09-22 after CHOW_URLS below was discovered
+# stale (see its comment): confirmed via a live Chrome network-tab capture of
+# https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/
+# skilled-nursing-facility-change-of-ownership/data -- the dataset UUID itself
+# should be stable even as CMS's frontend/URL structure evolves further.
+CHOW_DATASET_ID = "1e1afa09-5699-46a5-ae9e-47017397c55c"
+CHOW_RESOURCES_API = f"https://data.cms.gov/data-api/v1/dataset/{CHOW_DATASET_ID}/resources"
+
+# Fallback if the discovery API fails — last known-good URLs, most recent first.
 # Format: SNF_CHOW_YYYY.MM.DD.csv
-# Check: https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership
 CHOW_URLS = [
-    # Most recent first — loader tries each until one works
+    # This list is hardcoded/manually maintained and had gone stale before
+    # CHOW_RESOURCES_API above was found: as of 2026-09-22 CMS had already
+    # published a 2026-07-17 file (covering the same 2016-2024 effective-date
+    # window -- CHOW effective dates lag real filing time significantly, so a
+    # newer release date does NOT mean newer effective dates, just
+    # more/corrected historical records) that this list didn't have.
+    # Confirmed 402 genuinely new records nationwide in that file vs. the one
+    # below (by CCN+buyer+effective-date), including NJ+1/NY+1/KY+7/OH+21/PA+21
+    # for the states this pipeline tracks. Now only reached if
+    # CHOW_RESOURCES_API itself fails -- update this manually if that happens
+    # and stays down, checking https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership.
+    "https://data.cms.gov/sites/default/files/2026-07/cf019cb8-b8ce-45fc-a912-d1ee9a83ca1c/SNF_CHOW_2026.07.17.csv",
     "https://data.cms.gov/sites/default/files/2026-01/900cec56-f1c8-40cb-9f8a-bf54cae53b90/SNF_CHOW_2026.01.02.csv",
     "https://data.cms.gov/sites/default/files/2025-10/92b32732-ba6e-4dee-9bd5-f422b45758ba/SNF_CHOW_2025.10.01.csv",
 ]
 
 CHOW_SOURCE_NAME = "CMS SNF Change of Ownership"
 CHOW_SOURCE_URL  = "https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
+
+# How far back a never-before-seen row's EFFECTIVE DATE can be and still
+# become a deal candidate. Set 2026-09-22 during the seen-records backfill:
+# of 5227 total rows, 609 fell within 2 years, 66 within 1 -- 2 years was
+# picked as wide enough to not miss genuinely-recent-but-lagged filings
+# without dragging in a decade of stale historical M&A on first activation.
+CHOW_RECENCY_DAYS = 730
+
+
+def _discover_chow_csv_url() -> str | None:
+    try:
+        resp = requests.get(CHOW_RESOURCES_API, timeout=30)
+        resp.raise_for_status()
+        for resource in resp.json().get("data", []):
+            if resource.get("type") == "Primary" and resource.get("file_url"):
+                return resource["file_url"]
+    except Exception as e:
+        logger.warning(f"Discovery API lookup failed for CHOW dataset: {e}")
+    return None
 
 
 @retry(
@@ -56,20 +96,49 @@ def _download_chow_csv(url: str) -> list[dict]:
     return list(reader)
 
 
-def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
+def _load_seen_chow_keys(conn) -> set[tuple[str, str, str]]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT ccn, buyer_name, effective_date FROM chow_seen_records")
+        return set(cur.fetchall())
+
+
+def _mark_chow_keys_seen(conn, keys: list[tuple[str, str, str]]) -> None:
+    if not keys:
+        return
+    with conn.cursor() as cur:
+        cur.executemany(
+            "INSERT INTO chow_seen_records (ccn, buyer_name, effective_date) "
+            "VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+            keys,
+        )
+    conn.commit()
+
+
+def fetch_chow_deals(conn) -> list[dict]:
     """
-    Download latest CHOW CSV and return new ownership changes as deal dicts.
+    Download latest CHOW CSV and return ownership-change rows never seen
+    before, as deal dicts ready for the extraction pipeline.
 
-    Args:
-        last_seen_date: ISO date string (YYYY-MM-DD). Only return records
-                        with effective date after this date. If None, returns
-                        all records from the last 90 days.
-
-    Returns:
-        List of deal dicts ready for extraction pipeline.
+    "New" used to mean "effective date after a rolling 90-day cutoff", but
+    CHOW's EFFECTIVE DATE lags real filing/publication time significantly
+    (confirmed 2026-09-22: a July-2026-published file's newest effective
+    date was still only 2026-02-01), so a 90-day window could never match
+    anything once "today" drifted far enough past that -- CHOW-sourced
+    deal discovery had been silently producing zero results for a long
+    time as a result. "New" is now tracked via the chow_seen_records
+    table instead: every (ccn, buyer_name, effective_date) key this CSV
+    has ever contained gets recorded here regardless of its effective
+    date, and only genuinely new keys are considered at all on subsequent
+    runs. Of those, only ones with a reasonably recent effective date
+    (CHOW_RECENCY_DAYS) actually become deal dicts -- the full historical
+    file goes back to 2016, and most of that is too old to be a "live
+    feed" signal even the first time it's seen; this just keeps the
+    dataset's older tail from ever being revisited, same as any other row.
     """
     rows = None
-    for url in CHOW_URLS:
+    discovered = _discover_chow_csv_url()
+    urls = ([discovered] if discovered else []) + CHOW_URLS
+    for url in urls:
         try:
             rows = _download_chow_csv(url)
             logger.info(f"Downloaded {len(rows)} CHOW records from {url}")
@@ -82,15 +151,10 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         logger.error("Could not download any CHOW CSV file")
         return []
 
-    # Filter to new records only
-    from datetime import date, timedelta
-    if last_seen_date:
-        cutoff = date.fromisoformat(last_seen_date)
-    else:
-        cutoff = date.today() - timedelta(days=90)
-
+    already_seen = _load_seen_chow_keys(conn)
+    newly_seen_keys = []
     deals = []
-    seen_ccns = set()
+    seen_this_run = set()
 
     for row in rows:
         if not isinstance(row, dict):
@@ -105,9 +169,6 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         except ValueError:
             continue
 
-        if effective_date <= cutoff:
-            continue
-
         buyer   = row.get("ORGANIZATION NAME - BUYER", "").strip()
         seller  = row.get("ORGANIZATION NAME - SELLER", "").strip()
         ccn     = row.get("CCN - BUYER", "").strip()
@@ -117,11 +178,16 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         if not buyer or not ccn:
             continue
 
-        # Deduplicate within this batch by CCN + date
-        key = f"{ccn}_{effective_date_str}"
-        if key in seen_ccns:
+        key = (ccn, buyer, effective_date_str)
+        if key in already_seen or key in seen_this_run:
             continue
-        seen_ccns.add(key)
+        seen_this_run.add(key)
+        newly_seen_keys.append(key)
+
+        # Mark-as-seen applies to every never-before-seen row regardless of
+        # age (above); only recent ones actually become deal candidates.
+        if effective_date < date.today() - timedelta(days=CHOW_RECENCY_DAYS):
+            continue
 
         # Build a synthetic article-like dict for the pipeline
         title = f"[CHOW] {buyer} acquires {seller or 'facility'} (CCN: {ccn})"
@@ -152,7 +218,8 @@ def fetch_chow_deals(last_seen_date: str = None) -> list[dict]:
         }
         deals.append(deal)
 
-    logger.info(f"Found {len(deals)} new CHOW records after {cutoff}")
+    _mark_chow_keys_seen(conn, newly_seen_keys)
+    logger.info(f"Found {len(deals)} new CHOW records ({len(already_seen)} previously seen)")
     return deals
 
 
@@ -180,7 +247,9 @@ def get_chow_operator_names(state: str) -> list[str]:
     pipeline's cutoff window (so the names aren't in the DB yet).
     """
     rows = None
-    for url in CHOW_URLS:
+    discovered = _discover_chow_csv_url()
+    urls = ([discovered] if discovered else []) + CHOW_URLS
+    for url in urls:
         try:
             rows = _download_chow_csv(url)
             break

@@ -10,6 +10,11 @@ EXCLUDED_DOMAINS blocks a whole domain rather than one URL — for sources
 that are structurally never going to carry SNF acquisition news (a law
 firm's press-release feed, a home health trade outlet, etc.), so Google
 Alerts can keep surfacing new URLs from them without re-litigating each one.
+
+EXCLUDED_PATTERNS blocks any URL containing a substring, regardless of
+domain — for recurring press-release boilerplate (e.g. a financing broker's
+routine "CFG closes/finances $X" announcements) that shows up across
+multiple sites, so blocking one domain wouldn't catch the rest.
 """
 
 EXCLUDED_URLS = {
@@ -17,10 +22,22 @@ EXCLUDED_URLS = {
     "https://markets.businessinsider.com/news/stocks/yorkville-university-to-acquire-beal-university-canada-strengthening-the-future-of-nursing-education-in-new-brunswick-1036306561",
     "https://www.citybiz.co/article/864543/cfg-finances-more-than-145-million-across-seven-transactions/",
     "https://www.citybiz.co/article/867398/cfg-closes-318-8-million-in-financing-for-skilled-nursing-operator/",
+    "https://seniorhousingnews.com/2026/06/08/senior-living-dealbook-trustwell-assumes-management-of-new-community-12-oaks-jv-makes-kansas-acquisition/",
+    "https://www.citybiz.co/article/879685/cfg-originates-more-than-1-8b-in-loans-during-first-half-of-2026/",
+    "https://i95business.com/releases/8065",
 }
 
 EXCLUDED_DOMAINS = {
     "homehealthcarenews.com",   # home health, not skilled nursing
     "multibagg.ai",             # Indian market-news aggregator, not US SNF
     "hklaw.com",                # law firm deal-announcement press releases
+    "seniorshousingbusiness.com",  # assisted living / senior housing trade pub, not SNF
+    "mcknightsseniorliving.com",   # AL/IL-focused sister pub of mcknights.com (LTC feed stays active)
+    "mcknightshomecare.com",       # home care vertical, not skilled nursing
+}
+
+EXCLUDED_PATTERNS = {
+    "cfg-closes",     # CFG HUD-refinance/financing press releases, recurring across domains
+    "cfg-finances",
+    "cfg-originates",
 }

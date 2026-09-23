@@ -199,7 +199,7 @@ def fetch_filing_text(url: str) -> Optional[str]:
         # Remove boilerplate
         for tag in soup(["script", "style", "nav", "footer"]):
             tag.decompose()
-        return soup.get_text(separator="\n", strip=True)[:10000]
+        return soup.get_text(separator="\n", strip=True)[:config.article_max_chars]
     except Exception as e:
         logger.warning(f"Failed to fetch filing text from {url}: {e}")
         return None
