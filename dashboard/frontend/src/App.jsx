@@ -247,9 +247,16 @@ function DealCard({ deal, expanded, onToggle, searchForms }) {
             </span>
           )}
           {deal.lender && (
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>
-              Financed by {deal.lender}
-            </span>
+            // main.py stores an explanatory placeholder for NJ, whose free
+            // UCC search never returns the secured party
+            deal.lender.startsWith("Not available")
+              ? <span style={{ fontSize: 12, color: "#9ca3af" }}
+                  title="New Jersey's free UCC search doesn't return the secured party (lender)">
+                  Lender not disclosed (NJ)
+                </span>
+              : <span style={{ fontSize: 12, color: "#9ca3af" }}>
+                  Financed by {deal.lender}
+                </span>
           )}
           {deal.source_type === 'ucc' ? (
             <span style={{ fontSize: 11, fontWeight: 600, color: "#7c3aed",
