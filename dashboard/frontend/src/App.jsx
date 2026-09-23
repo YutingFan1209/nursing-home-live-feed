@@ -48,6 +48,56 @@ const hasUnresolvedFacilities = (deal) => {
   return facilities.every((name, i) => name === operators[i]);
 };
 
+// Names arrive in whatever case the source used -- CMS and most UCC portals
+// shout in ALL CAPS, news/CHOW use proper case. Recase only single-case
+// strings, so deliberate mixed case ("HarborChase", "McKnight's") is kept.
+const KEEP_UPPER = new Set([
+  "LLC", "LLP", "LLLP", "LP", "PLLC", "PC", "USA", "US", "NA", "N.A.", "II", "III", "IV", "VI", "VII",
+  "CIBC", "HUD", "FHA", "REIT", "SNF", "SNFS", "ALF", "HCC", "CCRC", "PACE", "LTC", "HHS", "CMS", "UCC",
+  "KKR", "MSN", "BMO", "PNC", "TD", "RBC", "CIT", "GE", "HCP", "CNL", "NHI", "LTCI", "MPT",
+  "NY", "NJ", "PA", "OH", "KY", "CA", "TX", "FL", "IL", "MA", "MD", "VA", "NC", "SC", "GA", "TN", "MI", "WI",
+  "MN", "MO", "IA", "KS", "AZ", "NM", "NV", "UT", "WA", "WV", "CT", "RI", "NH", "VT", "DC", "AR", "ND", "SD",
+  "MT", "WY",
+  // omitted on purpose: LA, CO (Co. = Company), DE, AL, MS, ID, OK, IN, ME, OR, HI, NE -- also ordinary words
+]);
+const BRAND_CASE = { JPMORGAN: "JPMorgan", MIDCAP: "MidCap", HARBORCHASE: "HarborChase", LENDINGTREE: "LendingTree" };
+const KEEP_LOWER = new Set(["of", "and", "at", "the", "for", "in", "on", "by", "to", "as", "a", "an", "de", "du"]);
+
+function smartCase(text) {
+  if (!text || typeof text !== "string") return text;
+  const letters = text.replace(/[^A-Za-z]/g, "");
+  if (!letters || (/[a-z]/.test(letters) && /[A-Z]/.test(letters))) return text;  // already mixed case
+  let first = true;
+  return text.split(/(\s+|\/|-)/).map(tok => {
+    if (!/[A-Za-z]/.test(tok)) return tok;
+    const upper = tok.toUpperCase();
+    const bare = upper.replace(/[^A-Z.]/g, "");
+    const isFirst = first; first = false;
+    if (BRAND_CASE[bare]) return tok.replace(/[A-Za-z]+/, BRAND_CASE[bare]);
+    if (KEEP_UPPER.has(bare) || KEEP_UPPER.has(bare.replace(/\./g, ""))) return upper;
+    // consonant-only tokens (JMB, HCR) are initialisms, not words
+    if (/^[B-DF-HJ-NP-TV-Z]{2,4}$/.test(bare)) return upper;
+    const lower = tok.toLowerCase();
+    if (!isFirst && KEEP_LOWER.has(lower)) return lower;
+    return lower
+      .replace(/(^|[^a-z'])([a-z])/g, (m, pre, c) => pre + c.toUpperCase())    // O'Neil, St.Mary
+      .replace(/^(\W*)Mc([a-z])/, (m, pre, c) => pre + "Mc" + c.toUpperCase())  // McKinley
+      .replace(/'S\b/g, "'s")                                                   // Mary's
+      .replace(/^(\W*)O'([a-z])/, (m, pre, c) => pre + "O'" + c.toUpperCase());  // O'Connor
+  }).join("");
+}
+
+function withDisplayCase(deal) {
+  return {
+    ...deal,
+    acquiring_entity: smartCase(deal.acquiring_entity),
+    seller_entity:    smartCase(deal.seller_entity),
+    lender:           smartCase(deal.lender),
+    operator_names:   deal.operator_names?.map(smartCase),
+    facility_names:   deal.facility_names?.map(smartCase),
+  };
+}
+
 const SOURCE = {
   chow:  { label: "Federal Record", dot: "#16a34a", tip: "CMS Provider Enrollment — verified federal ownership data" },
   edgar: { label: "SEC Filing",     dot: "#2563eb", tip: "SEC EDGAR 8-K — publicly traded company filing" },
@@ -361,7 +411,7 @@ export default function App() {
     fetch(DATA_URL + "?t=" + Date.now())
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
-        const deals = (data.deals || data || []).slice().sort((a, b) => {
+        const deals = (data.deals || data || []).map(withDisplayCase).sort((a, b) => {
           const da = a.acquisition_date || a.created_at || "";
           const db = b.acquisition_date || b.created_at || "";
           return db.localeCompare(da);
