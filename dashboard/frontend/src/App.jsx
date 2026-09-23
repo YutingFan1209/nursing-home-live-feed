@@ -126,7 +126,16 @@ function DealCard({ deal, expanded, onToggle, searchForms }) {
   const ccns = deal.ccns?.filter(Boolean) || [];
   const fresh = deal.source_type !== 'ucc' && isNew(deal.created_at);
 
-  const headline = deal.acquiring_entity && deal.seller_entity
+  // A UCC-1 records a financing, not an ownership change -- lead with the
+  // facility when enrichment has named it, else the borrower (debtor).
+  const uccSubject = deal.source_type === 'ucc'
+    ? ((deal.facility_names?.length > 0 && !hasUnresolvedFacilities(deal))
+        ? deal.facility_names[0] : deal.operator_names?.[0])
+    : null;
+
+  const headline = uccSubject
+    ? <><strong>{uccSubject}</strong><span style={{color:"#6b7280"}}> — UCC-1 financing</span></>
+    : deal.acquiring_entity && deal.seller_entity
     ? <><strong>{deal.acquiring_entity}</strong><span style={{color:"#6b7280"}}> acquired from </span><strong>{deal.seller_entity}</strong></>
     : deal.acquiring_entity
     ? <><strong>{deal.acquiring_entity}</strong><span style={{color:"#6b7280"}}> — new ownership</span></>
@@ -134,6 +143,14 @@ function DealCard({ deal, expanded, onToggle, searchForms }) {
     ? <><strong>{deal.seller_entity}</strong><span style={{color:"#6b7280"}}> changes ownership</span></>
     : deal.facility_names?.length > 0 && !hasUnresolvedFacilities(deal)
     ? <><strong>{deal.facility_names[0]}</strong><span style={{color:"#6b7280"}}> — ownership change</span></>
+    : deal.facility_count || deal.states?.length
+    // anonymized trade-press items ("a Pennsylvania-based regional
+    // operator") -- say what is known rather than nothing
+    ? <><strong>{[
+          deal.facility_count && `${deal.facility_count} ${deal.facility_count === 1 ? "facility" : "facilities"}`,
+          deal.states?.length && `${deal.facility_count ? "in " : ""}${deal.states.join(", ")}`,
+        ].filter(Boolean).join(" ")}</strong>
+        <span style={{color:"#6b7280"}}>{deal.lender ? " — financing" : " — ownership change"}</span></>
     : <span style={{color:"#6b7280"}}>Ownership change recorded</span>;
 
   return (

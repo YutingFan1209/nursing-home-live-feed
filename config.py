@@ -49,6 +49,10 @@ class Config:
 
     # Pipeline tuning
     fuzzy_match_threshold: int = 70
+    # UCC deals match on the debtor name alone, where sub-90 fuzzy scores
+    # were mostly noise (2026-09-23: "PARK NURSING HOME" matched 28
+    # unrelated facilities, "Circleville Post Acute" matched King David)
+    ucc_min_match_score: int = 90
     recheck_interval_days: int = 7
     recheck_max_attempts: int = 12
     dedup_window_days: int = 30

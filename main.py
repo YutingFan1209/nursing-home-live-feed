@@ -227,6 +227,17 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
             except Exception as e:
                 logger.warning(f"CMS/UCC relink failed: {e}")
 
+            # Step 2a.6 — name the facility behind each new UCC debtor
+            # (CMS exact match, then CHOW buyer -> facility). Without this a
+            # UCC deal's facility_names is just the debtor copied over.
+            try:
+                from scripts.enrich_ucc_facility_names import run as enrich_ucc_facility_names
+                enriched = enrich_ucc_facility_names(conn=conn)
+                if enriched:
+                    logger.info(f"UCC facility-name enrichment: {enriched} deals named")
+            except Exception as e:
+                logger.warning(f"UCC facility-name enrichment failed: {e}")
+
         # Step 2b — CHOW pre-extracted (fast path, serial, no Claude)
         for article in pre_extracted:
             new_deals += process_article(article, conn)
@@ -649,6 +660,8 @@ def _run_cms_matching(deal: dict, deal_id, conn):
         matches = _build_known_ccn_match(deal, conn)
     else:
         matches = match_deal(deal, conn)
+        if deal.get("extraction_model") == "ucc_filing":
+            matches = [m for m in matches if m["match_score"] >= config.ucc_min_match_score]
     matches = enrich_matches(matches, deal.get("states") or [], conn)
     matches = flag_policy_risks(matches)
     stage, confidence = determine_stage(matches)
@@ -1004,7 +1017,12 @@ def _store_deal(deal: dict, article_id, conn) -> str:
 
 def _store_cms_matches(deal_id, matches: list[dict], conn):
     with conn.cursor() as cur:
-        cur.execute("DELETE FROM cms_matches WHERE deal_id = %s", (deal_id,))
+        # keep scripts/enrich_ucc_facility_names.py's rows: a recheck
+        # doesn't reproduce them, and enrichment won't redo a deal whose
+        # facility name it already set
+        cur.execute("""
+            DELETE FROM cms_matches WHERE deal_id = %s AND match_method NOT LIKE 'ucc_debtor%%'
+        """, (deal_id,))
         psycopg2.extras.execute_values(cur, """
             INSERT INTO cms_matches
                 (deal_id, ccn, provider_name, owner_name, owner_type,
