@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL || "https://www.medicare.gov/care-compare/details/nursing-home";
-console.log('VITE_FACILITY_BASE_URL:', import.meta.env.VITE_FACILITY_BASE_URL)
 const DATA_URL = import.meta.env.BASE_URL + "deals.json";
 
 // Calendar-date comparison, not elapsed hours — a deal from yesterday
@@ -180,6 +179,50 @@ function downloadCsv(deals, name) {
   const a = Object.assign(document.createElement("a"), { href: url, download: `${name || "nursing-home-deals"}.csv` });
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// Easter egg: the Konami code sends a flock of little houses up the page.
+const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+
+function useKonami(onUnlock) {
+  useEffect(() => {
+    let progress = 0;
+    const onKey = (e) => {
+      if (e.target.closest?.("input, select, textarea")) return;
+      const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      progress = key === KONAMI[progress] ? progress + 1 : (key === KONAMI[0] ? 1 : 0);
+      if (progress === KONAMI.length) { progress = 0; onUnlock(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onUnlock]);
+}
+
+function HouseParade({ onDone }) {
+  const houses = useMemo(() => Array.from({ length: 28 }, (_, i) => ({
+    left: Math.random() * 100,
+    delay: Math.random() * 1.6,
+    duration: 3 + Math.random() * 2.5,
+    size: 18 + Math.random() * 22,
+    glyph: i % 7 === 0 ? "🏡" : "🏠",
+  })), []);
+  useEffect(() => { const t = setTimeout(onDone, 6500); return () => clearTimeout(t); }, [onDone]);
+  return (
+    <div onClick={onDone} style={{ position: "fixed", inset: 0, zIndex: 1000, pointerEvents: "auto", overflow: "hidden" }}>
+      {houses.map((h, i) => (
+        <span key={i} className="nh-house" style={{ position: "absolute", bottom: -60, left: `${h.left}%`,
+          fontSize: h.size, animation: `nh-float ${h.duration}s ease-in ${h.delay}s forwards` }}>{h.glyph}</span>
+      ))}
+      <div style={{ position: "absolute", left: "50%", top: "38%", transform: "translate(-50%, -50%)",
+        background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "18px 24px",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.15)", textAlign: "center", maxWidth: "calc(100vw - 32px)",
+        animation: "nh-pop 0.35s ease-out" }}>
+        <div style={{ fontSize: 28, marginBottom: 6 }}>🏠</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#111827" }}>You found the secret room.</div>
+        <div style={{ fontSize: 13, color: "#6b7280", marginTop: 4 }}>Now go call your grandparents 💛</div>
+      </div>
+    </div>
+  );
 }
 
 function Tooltip({ text, children }) {
@@ -600,7 +643,16 @@ export default function App() {
   const [entity, setEntity]       = useState(initial.entity);
   const [savedViews, setSavedViews] = useState(loadSavedViews);
   const [offset, setOffset]       = useState(0);
+  const [parade, setParade]       = useState(false);
   const LIMIT = 20;
+
+  useKonami(useCallback(() => setParade(true), []));
+  const endParade = useCallback(() => setParade(false), []);
+
+  useEffect(() => {
+    console.log("%c🏠 Hi, curious person.", "font-size:16px;font-weight:700");
+    console.log("This feed is stitched together from CMS ownership data, state UCC-1 filings, SEC 8-Ks and trade press. There's also a secret: ↑ ↑ ↓ ↓ ← → ← → B A");
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -916,11 +968,16 @@ export default function App() {
         </div>
       </div>
 
+      {parade && <HouseParade onDone={endParade} />}
+
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { color: #111827; }
         select option { background: #fff; color: #111827; }
         @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        @keyframes nh-float { 0%{transform:translateY(0) rotate(0)} 100%{transform:translateY(-115vh) rotate(20deg)} }
+        @keyframes nh-pop { 0%{transform:translate(-50%,-50%) scale(0.85)} 100%{transform:translate(-50%,-50%) scale(1)} }
+        @media (prefers-reduced-motion: reduce) { .nh-house { display: none; } }
         input::placeholder { color: #9ca3af; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #f9fafb; }
