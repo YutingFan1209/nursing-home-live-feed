@@ -23,6 +23,7 @@ import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import get_config
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 config = get_config()
@@ -98,6 +99,7 @@ def fetch_edgar_filings() -> list[dict]:
 
     # Strategy 1 — search by known entity names
     for entity in KNOWN_ENTITIES:
+        health.attempted("EDGAR search")
         try:
             results = _search_efts({
                 "q": f'"acquisition" "skilled nursing"',
@@ -116,9 +118,11 @@ def fetch_edgar_filings() -> list[dict]:
                     filings.append(filing)
         except Exception as e:
             logger.warning(f"EDGAR entity search failed for '{entity}': {e}")
+            health.failed("EDGAR search", f"{entity}: {e}")
             continue
 
     # Strategy 2 — broad keyword search for any company
+    health.attempted("EDGAR search")
     try:
         results = _search_efts({
             "q": '"nursing home acquisition" OR "skilled nursing facility acquisition" OR "SNF portfolio"',
@@ -136,6 +140,7 @@ def fetch_edgar_filings() -> list[dict]:
                 filings.append(filing)
     except Exception as e:
         logger.warning(f"EDGAR broad search failed: {e}")
+        health.failed("EDGAR search", f"broad search: {e}")
 
     logger.info(f"EDGAR: found {len(filings)} unique relevant filings")
     return filings

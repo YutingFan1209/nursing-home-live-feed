@@ -8,6 +8,7 @@ from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from ucc.base import UCCFiling
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 BASE_URL = "https://web.sos.ky.gov/ftucc/search.aspx"
@@ -74,6 +75,7 @@ def _search_one(page, owner_name: str) -> list[UCCFiling]:
         logger.info("KY UCC %s → %d filings", owner_name, len(results))
     except Exception as e:
         logger.error("KY search failed for %r: %s", owner_name, e)
+        health.failed("UCC KY searches", f"{owner_name}: {e}")
     return results
 
 def _search_chunk(names: list[str]) -> list[UCCFiling]:

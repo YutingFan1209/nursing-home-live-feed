@@ -21,6 +21,7 @@ from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
 from datetime import datetime
 import logging
 import time
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +160,7 @@ def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCC
         time.sleep(0.5)
     except Exception as e:
         logger.error("NY search failed for %r: %s", search_term, e)
+        health.failed("UCC NY searches", f"{search_term}: {e}")
     return results
 
 
@@ -270,6 +272,7 @@ def search_ny_batch(
                 all_results.extend(filings)
             except Exception as e:
                 logger.warning("NY UCC failed for %r: %s", name, e)
+                health.failed("UCC NY searches", f"{name}: {e}")
     return all_results
 
 

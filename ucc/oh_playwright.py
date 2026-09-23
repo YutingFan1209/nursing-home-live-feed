@@ -23,6 +23,7 @@ from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
 from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 BASE_URL = "https://ucc.ohiosos.gov"
@@ -117,8 +118,11 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
             ) as resp_info:
                 page.click("button.rs-submit")
             payload = resp_info.value.json()
-        except Exception:
-            logger.info("OH UCC %s → 0 filings", owner_name)
+        except Exception as e:
+            # was logged as "→ 0 filings" at INFO, so a timeout or an
+            # Incapsula/IP block looked exactly like a clean empty result
+            logger.warning("OH UCC %s: no search response (%s) -- blocked or timed out, not a real 0", owner_name, e)
+            health.failed("UCC OH searches", f"{owner_name}: no search response ({e})")
             return []
 
         rows = payload.get("data") or []
@@ -153,6 +157,7 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
         logger.info("OH UCC %s (%s) → %d filings", owner_name, "individual" if parsed else "org", len(results))
     except Exception as e:
         logger.error("OH search failed for %r: %s", owner_name, e)
+        health.failed("UCC OH searches", f"{owner_name}: {e}")
     return results
 
 

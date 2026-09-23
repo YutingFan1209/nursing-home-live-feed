@@ -14,6 +14,7 @@ from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
 from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -105,10 +106,12 @@ def fetch_ucc_filings(
     # which left 34/129 KY deal names never searched (fixed 2026-09-22).
     if _enabled(ENABLE_KY_PLAYWRIGHT, "KY"):
         ky_terms = _union_names(ky_search_names, known_operator_names)
+        health.attempted("UCC KY searches", len(ky_terms))
         try:
             filings.extend(search_ky_batch(ky_terms))
         except Exception as e:
             logger.warning(f"KY UCC batch search failed: {e}")
+            health.source_failed("UCC KY", e)
 
     # PA (Chrome CDP, auto-launched -- confirmed 2026-09-16 this no longer
     # needs a manual browser session, same fix as NY. Still using the
@@ -116,10 +119,12 @@ def fetch_ucc_filings(
     # name list (no ky_search_names/ny_search_names-style fix done for PA
     # yet) -- may under-hit the same way NY did before that fix.
     if _enabled(ENABLE_PA_PLAYWRIGHT, "PA"):
+        health.attempted("UCC PA searches", len(known_operator_names))
         try:
             filings.extend(search_pa_batch(known_operator_names))
         except Exception as e:
             logger.warning(f"PA UCC batch search failed: {e}")
+            health.source_failed("UCC PA", e)
 
     # CA (Chrome CDP required - Incapsula, manual only, not in automated pipeline)
     # CA's search API is a single unified index over debtor + secured-party
@@ -127,10 +132,12 @@ def fetch_ucc_filings(
     # so search and individual terms are just merged into one term list.
     if _enabled(ENABLE_CA_PLAYWRIGHT, "CA"):
         ca_terms = (ca_search_names or known_operator_names) + (ca_individual_names or [])
+        health.attempted("UCC CA searches", len(ca_terms))
         try:
             filings.extend(search_ca_batch(ca_terms))
         except Exception as e:
             logger.warning(f"CA UCC batch search failed: {e}")
+            health.source_failed("UCC CA", e)
 
     # NY (Playwright over Chrome CDP — see ucc/ny_playwright.py module
     # docstring: the portal's Cloudflare Turnstile challenge blocks plain
@@ -153,6 +160,7 @@ def fetch_ucc_filings(
     # share a search mode.
     if _enabled(ENABLE_NY_PLAYWRIGHT, "NY"):
         ny_terms = _union_names(ny_search_names, known_operator_names)
+        health.attempted("UCC NY searches", len(ny_terms) + len(ny_individual_names or []))
         try:
             filings.extend(search_ny_batch_cdp(
                 org_names=ny_terms,
@@ -160,6 +168,7 @@ def fetch_ucc_filings(
             ))
         except Exception as e:
             logger.warning(f"NY UCC batch search failed: {e}")
+            health.source_failed("UCC NY", e)
     
     # NJ (Playwright, parallel workers -- see ucc/nj_playwright.py module
     # docstring: no Cloudflare/Incapsula-style bot detection observed as of
@@ -172,12 +181,14 @@ def fetch_ucc_filings(
     if _enabled(ENABLE_NJ_PLAYWRIGHT, "NJ"):
         nj_terms = nj_search_names if nj_search_names else known_operator_names
         logger.info(f"NJ UCC: starting parallel search of {len(nj_terms)} names")
+        health.attempted("UCC NJ searches", len(nj_terms))
         try:
             nj_results = search_nj_batch(nj_terms)
             filings.extend(nj_results)
             logger.info(f"NJ UCC: {len(nj_results)} filings found across {len(nj_terms)} names")
         except Exception as e:
             logger.warning(f"NJ UCC batch search failed: {e}")
+            health.source_failed("UCC NJ", e)
 
     # NJ (legacy - disabled)
     if _enabled(ENABLE_NJ_AUTOMATION, "NJ"):
@@ -201,6 +212,7 @@ def fetch_ucc_filings(
     # debtor mode (personInd1) — see ucc/oh_playwright.py:_search_one.
     if _enabled(ENABLE_OH_PLAYWRIGHT, "OH"):
         oh_org_terms = _union_names(oh_search_names, known_operator_names)
+        health.attempted("UCC OH searches", len(oh_org_terms) + len(oh_individual_names or []))
         try:
             filings.extend(search_oh_batch(
                 org_names=oh_org_terms,
@@ -208,6 +220,7 @@ def fetch_ucc_filings(
             ))
         except Exception as e:
             logger.warning(f"OH UCC batch search failed: {e}")
+            health.source_failed("UCC OH", e)
 
     # ME
     if _enabled(ENABLE_MAINE_AUTOMATION, "ME"):

@@ -18,6 +18,7 @@ from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
 from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 BASE_URL = "https://file.dos.pa.gov"
@@ -74,6 +75,7 @@ def _search_one(page, owner_name: str, search_type: str = "DEBTOR") -> list[UCCF
         logger.info("PA UCC %s (%s) → %d filings", owner_name, search_type, len(results))
     except Exception as e:
         logger.error("PA search failed for %r: %s", owner_name, e)
+        health.failed("UCC PA searches", f"{owner_name}: {e}")
     return results
 
 def _search_chunk(cdp_url: str, names: list[str], search_type: str) -> list[UCCFiling]:

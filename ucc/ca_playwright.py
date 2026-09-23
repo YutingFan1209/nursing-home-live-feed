@@ -24,6 +24,7 @@ import logging
 from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 BASE_URL = "https://bizfileonline.sos.ca.gov"
@@ -93,6 +94,7 @@ def _search_one(page, search_term: str) -> list[UCCFiling]:
         logger.info("CA UCC %s → %d filings", search_term, len(results))
     except Exception as e:
         logger.error("CA search failed for %r: %s", search_term, e)
+        health.failed("UCC CA searches", f"{search_term}: {e}")
     return results
 
 

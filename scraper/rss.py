@@ -13,6 +13,7 @@ import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import get_config
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 config = get_config()
@@ -38,9 +39,11 @@ def fetch_feed(url: str) -> list[dict]:
         feed = feedparser.parse(resp.content)
     except Exception as e:
         logger.error(f"Failed to fetch feed {url}: {e}")
+        health.source_failed(f"RSS feed {url}", e)
         return []
     if feed.bozo and not feed.entries:
         logger.error(f"Feed {url} returned no entries: {feed.get('bozo_exception')}")
+        health.source_failed(f"RSS feed {url}", feed.get("bozo_exception"))
         return []
 
     articles = []

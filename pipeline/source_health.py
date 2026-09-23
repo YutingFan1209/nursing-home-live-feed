@@ -17,6 +17,7 @@ import logging
 from datetime import datetime, timezone
 
 from scraper.sources import get_active_sources
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,12 @@ def log_source_health(conn) -> None:
         return
     for w in warnings:
         logger.warning(f"SOURCE HEALTH: {w}")
+        # A source that has never stored anything may just never match the
+        # acquisition keywords (McKnight's); one that stopped is broken.
+        if "has never stored" in w:
+            health.note(w)
+        else:
+            health.source_failed("Source went quiet", w)
     if not warnings:
         logger.info("Source health: all checked sources producing articles")
 
