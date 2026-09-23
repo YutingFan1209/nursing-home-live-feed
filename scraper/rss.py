@@ -5,6 +5,7 @@ Fetches and parses RSS feeds, returns new articles not yet in DB.
 
 import time
 import logging
+import threading
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 import feedparser
@@ -73,6 +74,14 @@ def fetch_feed(url: str) -> list[dict]:
     return articles
 
 
+# main.py fetches articles from 8 threads at once. trafilatura shares one
+# lxml HTML parser across calls, and parsing from several threads at once
+# corrupts memory: the process dies with SIGABRT in lxml's _fixHtmlDictNames
+# (crash 2026-09-23, the first run with enough articles to overlap). Downloads
+# stay parallel; only the lxml parsing is serialized.
+_LXML_LOCK = threading.Lock()
+
+
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=20),
@@ -89,7 +98,8 @@ def fetch_article_text(url: str) -> Optional[str]:
         time.sleep(config.request_delay)
         downloaded = trafilatura.fetch_url(url)
         if downloaded:
-            text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
+            with _LXML_LOCK:
+                text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
             if text and len(text.split()) >= 50:
                 return text.strip()
     except ImportError as e:
@@ -105,11 +115,12 @@ def fetch_article_text(url: str) -> Optional[str]:
         resp = requests.get(url, headers=HEADERS, timeout=config.request_timeout)
         resp.raise_for_status()
         from bs4 import BeautifulSoup
-        soup = BeautifulSoup(resp.text, "lxml")
-        # Remove nav, footer, scripts
-        for tag in soup(["nav", "footer", "script", "style", "aside"]):
-            tag.decompose()
-        text = soup.get_text(separator="\n", strip=True)
+        with _LXML_LOCK:
+            soup = BeautifulSoup(resp.text, "lxml")
+            # Remove nav, footer, scripts
+            for tag in soup(["nav", "footer", "script", "style", "aside"]):
+                tag.decompose()
+            text = soup.get_text(separator="\n", strip=True)
         return text[:config.article_max_chars] if text else None
     except Exception as e:
         logger.warning(f"Fallback fetch failed for {url}: {e}")
