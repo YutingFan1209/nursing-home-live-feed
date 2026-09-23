@@ -4,7 +4,21 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-09-23T18:24:25.236900+00:00</updated>
+  <updated>2026-09-23T18:44:01.742131+00:00</updated>
+  <entry>
+    <id>urn:uuid:42bf87b6-c5f9-4ede-921c-57f54a5e44a9</id>
+    <title>Ownership change: Priority Life Care (PA)</title>
+    <link href="https://seniorhousingnews.com/2026/09/22/senior-living-dealbook-priority-life-care-acquires-seven-communities-janus-living-increases-credit-to-1-25b/"/>
+    <updated>2026-09-23T18:38:34.805671+00:00</updated>
+    <summary>Source: Senior Housing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3a399c52-2a4b-4f60-bc45-8f389b4c8dee</id>
+    <title>Financing: Skilled Nursing Dealbook: $180M in Financing for a 7-Facility Portfolio in North Carolina and Virginia (NC, VA)</title>
+    <link href="https://skillednursingnews.com/2026/09/skilled-nursing-dealbook-180m-in-financing-for-a-7-facility-portfolio-in-north-carolina-and-virginia/"/>
+    <updated>2026-09-23T18:37:59.520882+00:00</updated>
+    <summary>$180.00M financing; Source: Skilled Nursing News</summary>
+  </entry>
   <entry>
     <id>urn:uuid:d6b6c6a1-8bc5-4529-941d-8771b8f9c7ec</id>
     <title>UCC financing: MONTCLAIR CARE CENTER, INC. — MANUFACTURERS AND TRADERS TRUST COMPANY (NY)</title>
@@ -340,19 +354,5 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3174280"/>
     <updated>2026-09-22T16:25:07.803600+00:00</updated>
     <summary>Effective 2022-08-05; Facilities: Mayfair Care Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b21fefbe-c2b5-4a95-89ef-66ccc8ec2fa8</id>
-    <title>UCC financing: GRAND MANOR NURSING &amp; REHABILITATION CENTER — JPMORGAN CHASE BANK, N.A. (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1112268"/>
-    <updated>2026-09-22T16:25:07.346881+00:00</updated>
-    <summary>Effective 2011-08-15; Facilities: Grand Manor Nursing &amp; Rehabilitation Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c474d3df-1933-4266-926e-2da363cecf0a</id>
-    <title>UCC financing: BELAIR CARE CENTER, INC. — M&amp;T BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3744119"/>
-    <updated>2026-09-22T16:25:06.736259+00:00</updated>
-    <summary>Effective 2024-07-22; Facilities: Belair Care Center Inc; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
