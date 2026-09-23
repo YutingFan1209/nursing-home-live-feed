@@ -29,15 +29,18 @@ as a cross-site form POST in a new tab. Tokens are re-fetched every export
 in case the portal's machine key rotates, and if fetching fails the key is
 just omitted and the frontend falls back to the plain portal link.
 """
+import os
 import re
 import sys
 import json
+from xml.sax.saxutils import escape
 from datetime import datetime, timezone
 
 sys.path.insert(0, "/Users/kitty/Projects/nursing-home-live-feed")
 import psycopg2
 import requests
 from config import get_config
+from ucc.lender_classifier import LenderCategory, classify_secured_party
 
 UCC_PORTAL_URLS = {
     "NY": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
@@ -130,6 +133,106 @@ def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | No
     return portal, title
 
 
+LENDER_CATEGORY_LABELS = {
+    LenderCategory.REAL_ESTATE: "Healthcare RE / HUD lender",
+    LenderCategory.PRIVATE_EQUITY: "Private credit fund",
+    LenderCategory.BANK_GENERAL: "Bank",
+    LenderCategory.EQUIPMENT_VENDOR: "Equipment / non-deal lien",
+}
+
+UCC_TITLE_RE = re.compile(r"^UCC-1 filing: (.+?) / .* \([A-Z]{2}\)$", re.S)
+
+
+def _ucc_fields(deal: dict, debtor: str | None, filing_type: str | None) -> dict:
+    """What a UCC filing says in plain terms: who borrowed, what kind of
+    lender, and whether it's an original financing statement or a UCC-3
+    amendment. About half of NY's deals (the individual-owner track) never
+    got a ucc_filings row, so the debtor falls back to the article title
+    main.py wrote ("UCC-1 filing: DEBTOR / LENDER (ST)")."""
+    if not debtor:
+        m = UCC_TITLE_RE.match(deal.get("source_title") or "")
+        debtor = m.group(1) if m else None
+    lender = deal.get("lender") or ""
+    category = (None if lender.startswith("Not available")
+                else classify_secured_party(lender, deal.get("ucc_state")).category)
+    is_amendment = (filing_type or "").upper().replace("-", "") == "UCC3"
+    if is_amendment:
+        deal_type = "amendment"
+    elif category == LenderCategory.EQUIPMENT_VENDOR:
+        deal_type = "non_deal_lien"
+    else:
+        deal_type = "financing"
+    return {
+        "ucc_debtor": debtor,
+        "ucc_filing_type": "UCC-3 amendment" if is_amendment else "UCC-1",
+        "lender_category": LENDER_CATEGORY_LABELS.get(category),
+        "deal_type": deal_type,
+    }
+
+
+def _news_deal_type(deal: dict) -> str:
+    """News extraction pulls parties and amounts but no deal type, and
+    stored article titles are often a snippet rather than the headline, so
+    keyword-matching them misfires. Only call it financing when the
+    extracted fields say so: a loan amount with no buyer and no price."""
+    if deal.get("financing_amount_m") and not deal.get("deal_value_m") and not deal.get("acquiring_entity"):
+        return "financing"
+    return "ownership_change"
+
+
+SITE_URL = "https://yutingfan1209.github.io/nursing-home-live-feed/"
+FEED_SIZE = 50
+
+
+def _feed_title(d: dict) -> str:
+    states = f" ({', '.join(d['states'])})" if d.get("states") else ""
+    if d["source_type"] == "ucc":
+        subject = d.get("ucc_debtor") or (d.get("facility_names") or ["?"])[0]
+        lender = d.get("lender") or ""
+        via = "" if not lender or lender.startswith("Not available") else f" — {lender}"
+        return f"UCC financing: {subject}{via}{states}"
+    parties = " acquires from ".join(p for p in (d.get("acquiring_entity"), d.get("seller_entity")) if p)
+    kind = "Financing" if d.get("deal_type") == "financing" else "Ownership change"
+    return f"{kind}: {parties or d.get('source_title') or 'deal reported'}{states}"
+
+
+def write_atom_feed(deals: list[dict], path: str, updated: str) -> None:
+    """Newest-first Atom feed of what the pipeline found, so people can
+    follow the site in a feed reader. Static hosting can't send per-view
+    email alerts; this is the closest thing. Ordered by when a deal was
+    found (created_at), not its effective date, and skips non-deal liens."""
+    recent = sorted((d for d in deals if d.get("deal_type") != "non_deal_lien"),
+                    key=lambda d: d.get("created_at") or "", reverse=True)[:FEED_SIZE]
+    entries = []
+    for d in recent:
+        link = d["source_url"] if (d.get("source_url") or "").startswith("http") else SITE_URL
+        summary = "; ".join(filter(None, [
+            d.get("acquisition_date") and f"Effective {d['acquisition_date']}",
+            d.get("facility_names") and f"Facilities: {', '.join(d['facility_names'][:5])}",
+            d.get("deal_value_m") and f"${d['deal_value_m']}M",
+            d.get("financing_amount_m") and f"${d['financing_amount_m']}M financing",
+            d.get("source_name") and f"Source: {d['source_name']}",
+        ]))
+        entries.append(f"""  <entry>
+    <id>urn:uuid:{d['id']}</id>
+    <title>{escape(_feed_title(d))}</title>
+    <link href="{escape(link, {'"': '&quot;'})}"/>
+    <updated>{d.get('created_at') or updated}</updated>
+    <summary>{escape(summary)}</summary>
+  </entry>""")
+    with open(path, "w") as f:
+        f.write(f"""<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Nursing Home Ownership Feed</title>
+  <link href="{SITE_URL}"/>
+  <link rel="self" href="{SITE_URL}feed.xml"/>
+  <id>{SITE_URL}</id>
+  <updated>{updated}</updated>
+{chr(10).join(entries)}
+</feed>
+""")
+
+
 def main():
     config = get_config()
     conn = psycopg2.connect(config.database_url)
@@ -144,6 +247,7 @@ def main():
                 s.source_type, s.name AS source_name,
                 a.url AS source_url, a.title AS source_title,
                 uf.detail_url AS ucc_detail_url,
+                uf.debtor_name AS ucc_debtor, uf.filing_type AS ucc_filing_type,
                 ARRAY_AGG(DISTINCT m.ccn) FILTER (WHERE m.ccn IS NOT NULL) AS ccns
             FROM deals d
             JOIN articles a ON a.id = d.article_id
@@ -154,7 +258,7 @@ def main():
                 AND uf.filing_number = split_part(a.url, '/', 4)
                 AND s.source_type = 'ucc'
             WHERE d.stage NOT IN ('dismissed')
-            GROUP BY d.id, a.url, a.title, s.source_type, s.name, uf.detail_url
+            GROUP BY d.id, a.url, a.title, s.source_type, s.name, uf.detail_url, uf.debtor_name, uf.filing_type
             ORDER BY COALESCE(d.acquisition_date, d.created_at::date) DESC, d.created_at DESC
         """)
         cols = [c[0] for c in cur.description]
@@ -167,11 +271,14 @@ def main():
             if deal["source_type"] == "ucc" and deal["source_url"]:
                 ucc_state, _, deal["ucc_filing_number"] = deal["source_url"].removeprefix("ucc://").partition("/")
                 deal["ucc_state"] = ucc_state.upper()
+                deal.update(_ucc_fields(deal, deal.pop("ucc_debtor"), deal.pop("ucc_filing_type")))
                 deal["source_url"], deal["source_title"] = _ucc_display_fields(
                     deal["source_url"], deal["source_title"], deal.pop("ucc_detail_url")
                 )
             else:
-                deal.pop("ucc_detail_url", None)
+                for k in ("ucc_detail_url", "ucc_debtor", "ucc_filing_type"):
+                    deal.pop(k, None)
+                deal["deal_type"] = "ownership_change" if deal["source_type"] == "chow" else _news_deal_type(deal)
             deals.append(deal)
 
         cur.execute("SELECT MAX(last_fetched_at) FROM sources")
@@ -194,7 +301,10 @@ def main():
     with open(out_path, "w") as f:
         json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms, "freshness": freshness}, f, default=str)
 
-    print(f"Exported {len(deals)} deals to {out_path} (UCC search forms: {', '.join(ucc_search_forms) or 'none'})")
+    feed_path = os.path.join(os.path.dirname(os.path.abspath(out_path)), "feed.xml")
+    write_atom_feed(deals, feed_path, freshness["exported_at"])
+
+    print(f"Exported {len(deals)} deals to {out_path} and {feed_path} (UCC search forms: {', '.join(ucc_search_forms) or 'none'})")
 
 
 if __name__ == "__main__":

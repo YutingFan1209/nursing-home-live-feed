@@ -37,8 +37,8 @@ and reliability characteristics.
 **Setup:** Requires a Google Cloud OAuth client (`gmail_credentials.json`) and a one-time interactive auth to generate `gmail_token.json` — see README setup section.
 **Note:** `scraper/sources.py` also registers the Google Alerts *RSS* feed export URL directly as an `rss`-type source — this is a second, redundant path to the same alerts and may be stale/unreliable since Google's public RSS export for Alerts is not the supported integration point. The Gmail OAuth path is the primary, actively-maintained mechanism.
 
-### News RSS / Trade Press — working
-**Sources:** Skilled Nursing News, McKnight's Long-Term Care News, Modern Healthcare (Post-Acute), Provider Magazine, Senior Housing News — registered in `scraper/sources.py`
+### News RSS / Trade Press — working again as of 2026-09-23
+**Sources:** Skilled Nursing News, McKnight's Long-Term Care News, Senior Housing News — registered in `scraper/sources.py`. Modern Healthcare (403 to every client) and Provider Magazine (feed removed, 404) are registered but `active=False`.
 **Coverage:** Public and private deals, announced deals (may not close)
 **Speed:** Same day as announcement
 **Reliability:** Medium — announced deals sometimes fall through
@@ -129,7 +129,7 @@ Gmail Alerts and UCC-1 filings aren't registered via `scraper/sources.py` at all
 | SNF CHOW dataset | ✅ Working (fixed 2026-09-22, was silently producing 0 deals since launch) | Self-discovering URL + seen-records freshness tracking, see the detailed section above |
 | EDGAR full-text search | ✅ Working | |
 | Gmail Alerts (OAuth) | ✅ Working | Auto-scaling lookback window |
-| News RSS (5 feeds) | ✅ Working | SNN, McKnight's, Modern Healthcare, Provider Magazine, Senior Housing News |
+| News RSS (3 feeds) | ✅ Working since 2026-09-23 | SNN, McKnight's, Senior Housing News. Modern Healthcare and Provider Magazine inactive (dead feeds) |
 | UCC-1 — NY | ✅ Working, automated, but Chrome-CDP-only | Not headless/AWS-ready — needs a real Chrome (2026-09-15 Cloudflare fix); org + individual debtor search, parallel tabs |
 | UCC-1 — KY | ✅ Working, automated, headless | Don't run twice same-day (rate limit) |
 | UCC-1 — OH | ⚠️ Working, local only, fragile under volume | Needs Xvfb wrapper for cloud; hit 429s under repeated same-day volume (2026-09-15) |
@@ -146,6 +146,7 @@ Gmail Alerts and UCC-1 filings aren't registered via `scraper/sources.py` at all
 ## Known Issues / Backlog
 
 - **UCC search-name blind spot (KY, NY, OH) — FIXED 2026-09-22, historical backlog cleared for KY/PA same day.** `main.py`'s `ky_names`/`ny_names`/`oh_names` come from `scraper.chow.get_chow_operator_names(state)` — a static snapshot of CMS's CHOW CSV (last meaningfully updated ~Jan 2026). Inside `scraper/ucc.py`, `known_operator_names` (pulled live from the `deals` table — includes entities discovered later via RSS/Gmail/EDGAR) previously was only used as a fallback when the CHOW list was empty, which it never was — so every automated UCC run for these three states only ever searched the same fixed ~Jan-2026 name list. Confirmed for KY on 2026-09-21: 34 of 129 distinct KY deal entity names had never been searched by any automated run; searching them directly turned up 4 real filings never seen before. **Fixed:** `scraper/ucc.py` now has a `_union_names()` helper and all three call sites (`ky_terms`/`ny_terms`/`oh_org_terms`) union the CHOW list with live `known_operator_names` instead of one taking exclusive precedence — this only prevents the gap from growing further, though, so the historical backlog still needed clearing by hand. Added `scripts/ucc_gap_check.py` (reusable CHOW-vs-deals fuzzy-match gap finder) and ran it for KY (39 gap names, 22 filings found, all confirming already-known deals), PA (34 gap names — PA's first-ever gap check, since it never had a state-specific search list at all — 5 new/updated deals + 4 newly-corroborated), and NY (needed fuzzy-matching against NY's separate CMS individual-owner list too, not just CHOW, or the naive check badly overcounts — 379 real gap names, 673 filings found, 48 new/updated + 47 newly-corroborated). See memory `ucc_chow_name_blind_spot`.
+- **Direct RSS feeds never worked — FIXED 2026-09-23.** feedparser fetched through urllib, which uses the interpreter's CA store; this Python has none, so every feed failed `CERTIFICATE_VERIFY_FAILED`, and feedparser reports that as an empty feed. No direct-feed article had ever been stored (SNN's last was 2026-05-21, likely before a Python reinstall); all news came through Gmail alerts. `scraper/rss.py` now fetches with `requests` (certifi) and logs failures. `pipeline/source_health.py` now warns at the end of every run when an RSS/EDGAR/Gmail source goes quiet.
 - **Article text was crude and truncated — FIXED 2026-09-23.** trafilatura had been failing to import, because lxml 5.2+ split `lxml.html.clean` into the separate `lxml_html_clean` package. `scraper/rss.py` swallowed the ImportError, so every article went through the BS4 fallback: navigation junk included and a 10,000-char cap, then only the first 8,000 chars reached extraction. Long dealbook roundups lost their later deals.
   - Fixed: `lxml_html_clean` is added to requirements, the ImportError is now logged, and both caps use `config.article_max_chars` (30,000). `claude_max_tokens` went from 2,000 to 4,000 for many-deal roundups.
   - `scripts/backfill_deal_amounts.py` re-fetches and re-extracts past articles, and only fills NULL amounts on clearly matching deals.

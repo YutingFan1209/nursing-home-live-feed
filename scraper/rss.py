@@ -26,10 +26,20 @@ HEADERS = {
 
 def fetch_feed(url: str) -> list[dict]:
     logger.info(f"Fetching RSS feed: {url}")
+    # Fetch with requests, not feedparser's own urllib fetch: urllib uses the
+    # interpreter's CA store, which this Python install doesn't have, so every
+    # direct feed failed CERTIFICATE_VERIFY_FAILED and feedparser swallowed it
+    # as an empty feed (found 2026-09-23 -- no direct-feed article had ever
+    # been stored; all news was arriving via Gmail alerts). requests uses certifi.
     try:
-        feed = feedparser.parse(url, request_headers=HEADERS)
+        resp = requests.get(url, headers=HEADERS, timeout=30)
+        resp.raise_for_status()
+        feed = feedparser.parse(resp.content)
     except Exception as e:
-        logger.error(f"Failed to parse feed {url}: {e}")
+        logger.error(f"Failed to fetch feed {url}: {e}")
+        return []
+    if feed.bozo and not feed.entries:
+        logger.error(f"Feed {url} returned no entries: {feed.get('bozo_exception')}")
         return []
 
     articles = []

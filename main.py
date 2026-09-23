@@ -27,6 +27,7 @@ from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
 from scraper.gmail_alerts import fetch_alert_articles
+from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
@@ -266,6 +267,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
         else:
             logger.info("Skipping email digest (--no-alerts)")
 
+        log_source_health(conn)
         logger.info("=== Pipeline complete ===")
 
     except Exception as e:

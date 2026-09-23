@@ -101,7 +101,7 @@ Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh
 # 1. On main: export deals.json from the DB (this also rewrites UCC source
 #    links and fetches fresh NJ portal search tokens -- a raw psql export
 #    would skip both)
-venv/bin/python3 scripts/export_deals.py /tmp/deals.json
+venv/bin/python3 scripts/export_deals.py /tmp/deals.json   # also writes /tmp/feed.xml
 
 # 2. Stash any unrelated pre-existing changes blocking the branch switch,
 #    switch to gh-pages (git will show a diverged main.py etc. — expected, ignore it)
@@ -109,8 +109,8 @@ git stash
 git checkout gh-pages
 
 # 3. Copy in the fresh deals.json, commit, push
-cp /tmp/deals.json deals.json
-git add deals.json && git commit -m "Data refresh $(date '+%Y-%m-%d %H:%M')" && git push origin gh-pages
+cp /tmp/deals.json /tmp/feed.xml .
+git add deals.json feed.xml && git commit -m "Data refresh $(date '+%Y-%m-%d %H:%M')" && git push origin gh-pages
 
 # 4. Return to main and restore
 git checkout main

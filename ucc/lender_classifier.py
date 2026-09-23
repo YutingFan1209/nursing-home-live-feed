@@ -229,6 +229,14 @@ EXCLUDE_PATTERNS.extend([
     r"\bmortgage electronic registration\b",  # MERS — residential mortgage registry
     r"\busaa federal savings\b",    # USAA (military personal banking, not healthcare RE)
     r"\bautomotive finance\b",      # Automotive Finance Corporation (dealer floor plan)
+    # Suppliers securing trade credit, and equipment lessors -- all seen as
+    # secured parties on SNF debtors (2026-09-23), none deal financing
+    r"\bgordon food service\b", r"\bus foods\b", r"\bperformance food group\b", r"\bsysco\b",
+    r"\bmckesson\b", r"\bcardinal health\b", r"\bmedline\b",
+    r"\balliance laundry\b",
+    r"\bmacquarie equipment\b", r"\bmitsubishi hc capital\b", r"\bcaterpillar financial\b",
+    r"\bindemnity\b",               # surety bonds, e.g. American Contractors Indemnity
+    r"\bsotheby'?s financial\b", r"\bfishing corp", r"\bextra space storage\b",
     # Registered agent abbreviations — file as secured party on behalf of real lender
     r"^csc[,\s]",                   # CSC (Corporation Service Company abbreviation)
     r"\bcsc as representative\b",

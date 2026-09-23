@@ -1,3 +1,4 @@
+"""One-off CHOW CSV loader. Run from the repo root: venv/bin/python3 -m scripts.load_chow"""
 import requests, csv, io, psycopg2, psycopg2.extras
 from datetime import datetime, timezone, date, timedelta
 
