@@ -122,12 +122,25 @@ EXCLUDE_PATTERNS = [
 ]
 
 
-def classify_secured_party(name: str) -> LenderClassification:
+def classify_secured_party(name: str, state: str = None) -> LenderClassification:
     """Classify a UCC secured-party name as RE / PE / general bank /
     equipment-vendor / unknown, with a confidence score and the signal
-    that drove the decision (for debugging false positives later)."""
+    that drove the decision (for debugging false positives later).
+
+    `state` only matters when `name` is empty: NJ's non-certified search
+    structurally never returns a secured-party name (a paid per-filing
+    lookup would be needed to get it -- see ucc/nj_playwright.py), which
+    is a known, permanent source gap, not ambiguity about the filing
+    itself. Every other state's "no name" case really does mean unknown/
+    possibly-a-scraper-bug, so only NJ gets the maybe-relevant override."""
 
     if not name:
+        if state == "NJ":
+            return LenderClassification(
+                LenderCategory.UNKNOWN, 0.0,
+                "NJ: no secured-party name available from source (paid lookup required) -- treated as maybe-relevant, not excluded",
+                True,
+            )
         return LenderClassification(LenderCategory.UNKNOWN, 0.0, "no secured party name", False)
 
     normalized = " ".join(name.lower().strip().split())
@@ -216,6 +229,14 @@ EXCLUDE_PATTERNS.extend([
     r"\bmortgage electronic registration\b",  # MERS — residential mortgage registry
     r"\busaa federal savings\b",    # USAA (military personal banking, not healthcare RE)
     r"\bautomotive finance\b",      # Automotive Finance Corporation (dealer floor plan)
+    # Suppliers securing trade credit, and equipment lessors -- all seen as
+    # secured parties on SNF debtors (2026-09-23), none deal financing
+    r"\bgordon food service\b", r"\bus foods\b", r"\bperformance food group\b", r"\bsysco\b",
+    r"\bmckesson\b", r"\bcardinal health\b", r"\bmedline\b",
+    r"\balliance laundry\b",
+    r"\bmacquarie equipment\b", r"\bmitsubishi hc capital\b", r"\bcaterpillar financial\b",
+    r"\bindemnity\b",               # surety bonds, e.g. American Contractors Indemnity
+    r"\bsotheby'?s financial\b", r"\bfishing corp", r"\bextra space storage\b",
     # Registered agent abbreviations — file as secured party on behalf of real lender
     r"^csc[,\s]",                   # CSC (Corporation Service Company abbreviation)
     r"\bcsc as representative\b",

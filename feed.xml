@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Nursing Home Ownership Feed</title>
+  <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+  <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
+  <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
+  <updated>2026-09-23T18:24:25.236900+00:00</updated>
+  <entry>
+    <id>urn:uuid:d6b6c6a1-8bc5-4529-941d-8771b8f9c7ec</id>
+    <title>UCC financing: MONTCLAIR CARE CENTER, INC. — MANUFACTURERS AND TRADERS TRUST COMPANY (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1811327"/>
+    <updated>2026-09-22T19:36:39.104727+00:00</updated>
+    <summary>Effective 2012-06-18; Facilities: MONTCLAIR CARE CENTER, INC.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d8e4fcd4-0370-4c39-9d11-6fe8455ccd76</id>
+    <title>UCC financing: THE GARDENS AT WAYNE POST ACUTE AND NURSING CENTER LLC — METROPOLITAN COMMERCIAL BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3781880"/>
+    <updated>2026-09-22T19:36:37.134697+00:00</updated>
+    <summary>Effective 2025-07-18; Facilities: GRANDE CENTER FOR POST ACUTE AND NURSING CARE LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:63444e16-56d8-4a8a-85ed-bbe221af642e</id>
+    <title>UCC financing: PROVIDENCE PLACE GROUP LIMITED PARTNERSHIP — BANK OF AMERICA NATIONAL ASSOCIATION, AS TRUSTEE (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1015472"/>
+    <updated>2026-09-22T19:36:34.542659+00:00</updated>
+    <summary>Effective 2005-10-26; Facilities: PROVIDENCE PLACE GROUP LIMITED PARTNERSHIP; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f4ad67e1-dceb-49bd-954c-7dc9427c16b3</id>
+    <title>UCC financing: B'EMET REALTY CORP. — FIRST NATIONAL BANK OF LONG ISLAND (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1836367"/>
+    <updated>2026-09-22T19:36:33.758487+00:00</updated>
+    <summary>Effective 2013-03-12; Facilities: B'EMET REALTY CORP.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8dc4255a-b0da-4fc6-8ed8-18d28ed551bb</id>
+    <title>UCC financing: SHADY KNOLL ACQUISITION OPERATOR LLC — VNB NEW YORK, LLC, AS LENDER (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3579626"/>
+    <updated>2026-09-22T19:36:32.632656+00:00</updated>
+    <summary>Effective 2024-10-15; Facilities: SHADY KNOLL ACQUISITION OPERATOR LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b048281c-87b8-49e9-91da-5a849746b58c</id>
+    <title>UCC financing: THE GARDENS AT WAYNE POST ACUTE AND NURSING CENTER LLC — METROPOLITAN COMMERCIAL BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3781879"/>
+    <updated>2026-09-22T19:36:31.596347+00:00</updated>
+    <summary>Effective 2025-07-18; Facilities: THE GARDENS AT WAYNE POST ACUTE AND NURSING CENTER LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:94a9ac3c-5084-4c32-94c9-5df0f11e5869</id>
+    <title>UCC financing: HERITAGE PHARMACY INC. — TD BANK, N.A. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2931789"/>
+    <updated>2026-09-22T19:36:30.784912+00:00</updated>
+    <summary>Effective 2019-11-18; Facilities: HERITAGE PHARMACY INC.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6eb2bb42-f5d2-4739-8e6c-72c218fc9f45</id>
+    <title>UCC financing: HERITAGE PHARMACY &amp; SURGICAL SUPPLIES CORP. — KINRAY,  INC. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1996803"/>
+    <updated>2026-09-22T19:36:26.690042+00:00</updated>
+    <summary>Effective 2013-08-02; Facilities: HERITAGE PHARMACY &amp; SURGICAL SUPPLIES CORP.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:922c2f6f-ef82-4a32-8c08-7e2ee97cb0f7</id>
+    <title>UCC financing: HEISMAN PROPERTIES LLC — BANK OF HOPE (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3070960"/>
+    <updated>2026-09-22T19:36:25.823372+00:00</updated>
+    <summary>Effective 2020-09-25; Facilities: HEISMAN PROPERTIES LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:67618c5e-4a3a-4c8e-8e96-fe0994c1ed08</id>
+    <title>UCC financing: FULTON COMMONS CARE CENTER, INC. — BERKADIA COMMERCIAL MORTGAGE LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1633760"/>
+    <updated>2026-09-22T16:25:37.914804+00:00</updated>
+    <summary>Effective 2014-04-15; Facilities: Fulton Commons Care Center Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b5f4cced-9b6d-4593-914a-253e5eb36aaf</id>
+    <title>UCC financing: BRIDGE VIEW NURSING HOME, INC. — Verdant Commercial Capital, LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4138744"/>
+    <updated>2026-09-22T16:25:37.168511+00:00</updated>
+    <summary>Effective 2026-03-26; Facilities: Bridge View Nursing Home; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f9bcbdb3-1e4d-4b1f-b816-1cee7f8f4c6a</id>
+    <title>UCC financing: COBBLE HILL HEALTH CENTER, INC. — FLEET NATIONAL BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1120389"/>
+    <updated>2026-09-22T16:25:36.450545+00:00</updated>
+    <summary>Effective 2008-10-03; Facilities: Cobble Hill Health Center Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9030158a-9b1f-4515-a11f-8a4290a7d037</id>
+    <title>UCC financing: SANDS POINT CENTER FOR HEALTH &amp; REHABILITATION — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2509766"/>
+    <updated>2026-09-22T16:25:35.726240+00:00</updated>
+    <summary>Effective 2017-11-28; Facilities: Sands Point Center for Health and Rehabilitation; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fbe93e7e-4d60-432e-b6fc-ed78fbcea8b0</id>
+    <title>UCC financing: PARK NURSING HOME — FLEET BANK N.A. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=602477"/>
+    <updated>2026-09-22T16:25:35.299913+00:00</updated>
+    <summary>Effective 2006-06-03; Facilities: Park Nursing Home; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d1202f13-7d1a-431e-a9c0-3d9854736729</id>
+    <title>UCC financing: SAPPHIRE HC REALTY LLC — ISRAEL DISCOUNT BANK OF NEW YORK, AS AGENT (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4168662"/>
+    <updated>2026-09-22T16:25:34.502403+00:00</updated>
+    <summary>Effective 2026-06-10; Facilities: SAPPHIRE HC REALTY LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b7b05f09-27dc-428b-9836-b516aedeec06</id>
+    <title>UCC financing: SAPPHIRE HC REALTY LLC — DMT SPE I LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3652695"/>
+    <updated>2026-09-22T16:25:33.731528+00:00</updated>
+    <summary>Effective 2025-02-20; Facilities: SAPPHIRE HC REALTY LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e05867ad-6e73-4aae-a03f-2c0fd2da6a9f</id>
+    <title>UCC financing: HIGHBRIDGE-WOODYCREST CENTER, INC. — THE BANK OF NEW YORK, AS TRUSTEE (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1649424"/>
+    <updated>2026-09-22T16:25:32.785693+00:00</updated>
+    <summary>Effective 2005-06-29; Facilities: Highbridge Woodycrest Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:868e8885-7893-4145-8fea-acd606da33a7</id>
+    <title>UCC financing: BEACH TERRACE CARE CENTER, INC. — LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3584104"/>
+    <updated>2026-09-22T16:25:31.983899+00:00</updated>
+    <summary>Effective 2023-07-24; Facilities: Beach Terrace Care Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:15d56e11-4ea0-46b3-acda-6618a2da2ff5</id>
+    <title>UCC financing: PARK TERRACE CARE CENTER, INC. — METROPOLITAN COMMERCIAL BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4138316"/>
+    <updated>2026-09-22T16:25:31.222651+00:00</updated>
+    <summary>Effective 2026-03-17; Facilities: Park Terrace Care Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b43e0259-a4a1-43b8-ae1e-ead996c78472</id>
+    <title>UCC financing: SUNNYSIDE CARE CENTER, LLC — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1854760"/>
+    <updated>2026-09-22T16:25:30.537809+00:00</updated>
+    <summary>Effective 2014-07-21; Facilities: SUNNYSIDE CARE CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:215ed5f7-c2ba-45f6-9c85-544c812b581b</id>
+    <title>UCC financing: WOODSIDE MANOR NURSING HOME, INC. — HSBC BANK USA, NATIONAL ASSOCIATION (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1732309"/>
+    <updated>2026-09-22T16:25:29.914683+00:00</updated>
+    <summary>Effective 2011-11-09; Facilities: Woodside Manor Nursing Home Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:09bd544c-2cf9-4dc6-8ca8-ea8eb9e83652</id>
+    <title>UCC financing: WOODSIDE MANOR NURSING HOME, INC. — HSBC BANK USA, NATIONAL ASSOCIATION (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=635432"/>
+    <updated>2026-09-22T16:25:29.296015+00:00</updated>
+    <summary>Effective 2007-07-03; Facilities: Woodside Manor Nursing Home Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c0f1d2e3-4fcf-44f4-a3fb-334069f474aa</id>
+    <title>UCC financing: BLOSSOM HEALTH CARE CENTER, INC. — MARCY ACQUISITIONS LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3750703"/>
+    <updated>2026-09-22T16:25:28.664366+00:00</updated>
+    <summary>Effective 2025-12-18; Facilities: Blossom Health Care Center Inc.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5ab5123f-a076-43eb-84e4-d6ca428b4210</id>
+    <title>UCC financing: CONESUS LAKE NURSING HOME, LLC — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2604425"/>
+    <updated>2026-09-22T16:25:27.311151+00:00</updated>
+    <summary>Effective 2017-11-03; Facilities: Conesus Lake Nursing Home, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a5845a48-1562-46ee-9c1f-fb375f4f53e6</id>
+    <title>UCC financing: CONESUS LAKE NURSING HOME, LLC — HSBC BANK USA, NATIONAL ASSOCIATION (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=870125"/>
+    <updated>2026-09-22T16:25:26.596228+00:00</updated>
+    <summary>Effective 2011-03-21; Facilities: Conesus Lake Nursing Home, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:159e74fb-9b61-48eb-9b70-165fb4b9c331</id>
+    <title>UCC financing: BLOSSOM NORTH, LLC — ASSISTANT SECRETARY FOR HOUSING - FEDERAL HOUSING COMMISSIONER (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=131468"/>
+    <updated>2026-09-22T16:25:25.627779+00:00</updated>
+    <summary>Effective 2010-02-01; Facilities: BLOSSOM NORTH REALTY, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:33a9393c-ddc9-42c7-859c-5e6179078b1d</id>
+    <title>UCC financing: THE BRIGHTONIAN, INC. — FIVE STAR BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3889836"/>
+    <updated>2026-09-22T16:25:24.937969+00:00</updated>
+    <summary>Effective 2025-09-15; Facilities: The Brightonian, Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1b6eb3ac-b66e-446a-a77b-e759e0f5db3d</id>
+    <title>UCC financing: THE BRIGHTONIAN, INC. — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2564384"/>
+    <updated>2026-09-22T16:25:24.247181+00:00</updated>
+    <summary>Effective 2017-11-03; Facilities: The Brightonian, Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3665e7b1-9adb-42e5-a006-c6976eb48433</id>
+    <title>UCC financing: CREST MANOR LIVING AND REHABILITATION CENTER INC. — CUSTOMERS BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3457823"/>
+    <updated>2026-09-22T16:25:23.635668+00:00</updated>
+    <summary>Effective 2023-02-15; Facilities: Crest Manor Living and Rehabilitation Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d4616234-ce39-4e8a-8ab5-074984e18dff</id>
+    <title>UCC financing: CREST MANOR LIVING AND REHABILITATION CENTER INC. — EASTSIDE JM PROPCO LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3406664"/>
+    <updated>2026-09-22T16:25:23.044512+00:00</updated>
+    <summary>Effective 2021-11-17; Facilities: Crest Manor Living and Rehabilitation Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6eef211c-c3f6-40cf-badd-b7b9e748d769</id>
+    <title>UCC financing: THE PHOENIX REHABILITATION AND NURSING CENTER C/O DAVID ROLL — : DONGO-WORKMAN TRUST TAHIRAH ALANI (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3646015"/>
+    <updated>2026-09-22T16:25:22.148863+00:00</updated>
+    <summary>Effective 2023-02-27; Facilities: THE PHOENIX REHABILITATION AND NURSING CENTER C/O DAVID ROLL; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3633ea9e-55ae-44bd-b6b0-ebdb43b43206</id>
+    <title>UCC financing: ABSOLUT CENTER FOR NURSING AND REHABILITATION AT THREE RIVERS, LLC — 101 CREEKSIDE DRIVE, LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=335812"/>
+    <updated>2026-09-22T16:25:21.122975+00:00</updated>
+    <summary>Effective 2009-05-19; Facilities: ABSOLUT CENTER FOR NURSING AND REHABILITATION AT THREE RIVERS, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b89cc4b9-6a0a-4e5e-a5c1-14636c408b41</id>
+    <title>UCC financing: NORWEGIAN CHRISTIAN HOME AND HEALTH CENTER INC — FIRST-CITIZENS BANK &amp; TRUST COMPANY (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3546853"/>
+    <updated>2026-09-22T16:25:19.532114+00:00</updated>
+    <summary>Effective 2023-03-22; Facilities: Norwegian Christian Home And Health Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:37936201-94cd-4118-8dae-900b55521e42</id>
+    <title>UCC financing: NORWEGIAN CHRISTIAN HOME AND HEALTH CENTER — PRUDENTIAL HUNTOON PAIGE ASSOCIATES, LTD. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1086063"/>
+    <updated>2026-09-22T16:25:18.722975+00:00</updated>
+    <summary>Effective 2011-06-17; Facilities: Norwegian Christian Home And Health Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ec529b12-d6ee-4d44-a141-5dc754ebd990</id>
+    <title>UCC financing: STEVEN RUBIN — JPMORGAN CHASE BANK, N.A. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4197590"/>
+    <updated>2026-09-22T16:25:18.099479+00:00</updated>
+    <summary>Effective 2026-08-20; Facilities: STEVEN RUBIN; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f4b0d809-3e29-456e-bfdd-69b3f3904cc4</id>
+    <title>UCC financing: STEVEN RUBINSTEIN — ACE FUNDING SOURCE LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3706799"/>
+    <updated>2026-09-22T16:25:17.378492+00:00</updated>
+    <summary>Effective 2024-09-09; Facilities: STEVEN RUBINSTEIN; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:21e33a12-b2d4-4c42-8774-5c9e0a4574dc</id>
+    <title>UCC financing: ROCKAWAY CARE CENTER BUILDING COMPANY — HUDSON VALLEY BANK, N.A. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=638794"/>
+    <updated>2026-09-22T16:25:16.463544+00:00</updated>
+    <summary>Effective 2008-07-25; Facilities: ROCKAWAY CARE CENTER BUILDING COMPANY; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fedfb9ec-fca6-4bc8-89a9-60369195df28</id>
+    <title>UCC financing: ROCKAWAY CARE CENTER — FLEET BANK N.A. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=581180"/>
+    <updated>2026-09-22T16:25:15.965459+00:00</updated>
+    <summary>Effective 2006-06-03; Facilities: Rockaway Care Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f38a1cbe-c9b4-47c0-9c5d-242039d60eb0</id>
+    <title>UCC financing: WATER VIEW NURSING CARE CENTER, INC. — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3270371"/>
+    <updated>2026-09-22T16:25:14.720989+00:00</updated>
+    <summary>Effective 2023-03-20; Facilities: WATER VIEW NURSING CARE CENTER, INC.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:720e53f7-1814-4b7f-9e02-db4391dafa35</id>
+    <title>UCC financing: HAYM SOLOMON HOME FOR THE AGED, LLC — HEARTLAND BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1605094"/>
+    <updated>2026-09-22T16:25:13.792937+00:00</updated>
+    <summary>Effective 2011-11-18; Facilities: Haym Solomon Home for the Aged; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:320f57e8-3d9c-4b76-acce-3bc58c1575ee</id>
+    <title>UCC financing: CROWN HEIGHTS CENTER FOR NURSING AND REHABILITATION — SIGNATURE BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2494189"/>
+    <updated>2026-09-22T16:25:13.025772+00:00</updated>
+    <summary>Effective 2017-08-08; Facilities: Crown Heights Center for Nursing and Rehabilitatio; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6a3858da-d364-4ea0-a787-6f900f84db60</id>
+    <title>UCC financing: NEWARK MANOR NURSING HOME, INC. — FIVE STAR BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3774522"/>
+    <updated>2026-09-22T16:25:12.414171+00:00</updated>
+    <summary>Effective 2025-09-12; Facilities: Newark Manor Nursing Home Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2d4e50e8-e110-4a12-b86f-f0ae8c92fd14</id>
+    <title>UCC financing: OCEANSIDE CARE CENTER, INC. — LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3637814"/>
+    <updated>2026-09-22T16:25:11.747636+00:00</updated>
+    <summary>Effective 2024-09-16; Facilities: Oceanside Care Center Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c1511934-5dae-4162-89c9-6608210ebb3a</id>
+    <title>UCC financing: HAMILTON MANOR NURSING HOME REALTY, LLC — THE CANANDAIGUA NATIONAL BANK AND TRUST COMPANY (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2223111"/>
+    <updated>2026-09-22T16:25:10.927657+00:00</updated>
+    <summary>Effective 2016-02-02; Facilities: Hamilton Manor Nursing Home; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6b1a0095-af2a-4c27-a76f-0013f3ed95de</id>
+    <title>UCC financing: ST. MARY'S CENTER, INC. — DORMITORY AUTHORITY OF THE STATE OF NEW YORK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1153056"/>
+    <updated>2026-09-22T16:25:10.257469+00:00</updated>
+    <summary>Effective 2003-01-31; Facilities: St Mary's Center Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bdadc154-cc8a-4fdc-a738-8e2166cc264d</id>
+    <title>UCC financing: ALPINE REHABILITATION AND NURSING CENTER — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2464359"/>
+    <updated>2026-09-22T16:25:09.783157+00:00</updated>
+    <summary>Effective 2017-06-12; Facilities: ALPINE REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:88142945-60f7-4cf8-b07c-ff3c88ab3bea</id>
+    <title>UCC financing: FAIRVIEW NURSING CARE CENTER, INC. — HOUSING &amp; HEALTHCARE FINANCE, LLC (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2883261"/>
+    <updated>2026-09-22T16:25:08.445143+00:00</updated>
+    <summary>Effective 2020-02-04; Facilities: Fairview Nursing Care Center Inc.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f363ef5c-be61-4f22-9524-d0151e9e1ed7</id>
+    <title>UCC financing: MAYFAIR CARE CENTER, INC. — LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3174280"/>
+    <updated>2026-09-22T16:25:07.803600+00:00</updated>
+    <summary>Effective 2022-08-05; Facilities: Mayfair Care Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b21fefbe-c2b5-4a95-89ef-66ccc8ec2fa8</id>
+    <title>UCC financing: GRAND MANOR NURSING &amp; REHABILITATION CENTER — JPMORGAN CHASE BANK, N.A. (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1112268"/>
+    <updated>2026-09-22T16:25:07.346881+00:00</updated>
+    <summary>Effective 2011-08-15; Facilities: Grand Manor Nursing &amp; Rehabilitation Center; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c474d3df-1933-4266-926e-2da363cecf0a</id>
+    <title>UCC financing: BELAIR CARE CENTER, INC. — M&amp;T BANK (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3744119"/>
+    <updated>2026-09-22T16:25:06.736259+00:00</updated>
+    <summary>Effective 2024-07-22; Facilities: Belair Care Center Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+</feed>

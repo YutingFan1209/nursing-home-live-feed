@@ -15,6 +15,26 @@ from config import get_config
 logger = logging.getLogger(__name__)
 config = get_config()
 
+# Generic facility-type words that inflate token-intersection scores between
+# otherwise-unrelated names (e.g. "Colonial Heights Rehabilitation and Nursing
+# Center" vs "Chase City Health and Rehab Center" scored 69/100 on shared
+# boilerplate alone). Stripped from both sides before scoring in _difflib_score.
+FACILITY_STOPWORDS = {
+    "nursing", "home", "rehabilitation", "rehab", "center",
+    "centre", "senior", "living", "health", "care", "facility",
+    "services", "and", "of", "the", "at", "manor", "house",
+    "residence", "community", "communities", "skilled",
+}
+
+
+#  Minimum facility_name_fuzzy score required, against the same CMS record,
+# before an owner-name-only match is trusted. An owner name (e.g. "Selectis
+# Health") scores identically against every facility that owner runs, so
+# without this, matching purely on owner name means the CCN we return is
+# effectively whichever same-owner record the DB happened to return first —
+# see the "Selectis" false positives from the 45-deal audit.
+OWNER_ONLY_MATCH_FACILITY_FLOOR = 40
+
 
 def match_deal(deal: dict, conn) -> list[dict]:
     """
@@ -29,7 +49,14 @@ def match_deal(deal: dict, conn) -> list[dict]:
     search_names = _get_search_names(deal)
 
     for record in candidate_records:
-        best_score, matched_on, matched_field = _score_record(record, search_names)
+        best_score, matched_on, matched_field, facility_score = _score_record(record, search_names)
+
+        # Owner-name-only evidence isn't enough on its own to pin a specific
+        # CCN when the owner runs multiple facilities — require some minimum
+        # facility-name corroboration against this same record, or skip it.
+        owner_only = matched_on in ("owner_name_fuzzy", "owner_name_substring")
+        if owner_only and facility_score < OWNER_ONLY_MATCH_FACILITY_FLOOR:
+            continue
 
         if best_score >= config.fuzzy_match_threshold:
             matches.append({
@@ -53,17 +80,48 @@ def _fetch_candidates(deal: dict, conn) -> list[dict]:
     """
     Pull candidate CMS ownership records from Postgres
     using state + date window filters to limit the search space.
+
+    UCC-1 filing dates have no fixed relationship to CMS's recorded
+    ownership_start_date — a filing gets renewed/continued independently
+    of when CMS actually records a change, so a long-tenured individual
+    owner's record can be decades older than the filing date. The date
+    window assumption only holds for sources reporting a deal that just
+    happened (CHOW, RSS, EDGAR), so UCC deals skip it and match on state
+    alone.
     """
     states = deal.get("states") or []
-    acq_date = deal.get("acquisition_date")
-
-    date_from, date_to = _date_window(acq_date)
-
-    # Large states have more records — use a higher limit for known high-volume states
-    HIGH_VOLUME_STATES = {"CA", "TX", "FL", "NY", "PA", "OH", "IL"}
-    limit = 5000 if any(s in HIGH_VOLUME_STATES for s in states) else 2000
+    is_ucc = deal.get("extraction_model") == "ucc_filing"
 
     with conn.cursor() as cur:
+        if is_ucc:
+            # No date filter, and deliberately no LIMIT/ORDER BY either —
+            # capping+ordering by date here would just reintroduce the
+            # same bias by dropping the oldest records in high-volume
+            # states (e.g. NY has 8,445 records, well past any limit
+            # that would fit that pattern).
+            if states:
+                cur.execute("""
+                    SELECT ccn, provider_name, owner_name, owner_type,
+                           provider_state, ownership_start_date
+                    FROM cms_ownership_records
+                    WHERE provider_state = ANY(%s)
+                """, (states,))
+            else:
+                cur.execute("""
+                    SELECT ccn, provider_name, owner_name, owner_type,
+                           provider_state, ownership_start_date
+                    FROM cms_ownership_records
+                """)
+            cols = [desc[0] for desc in cur.description]
+            return [dict(zip(cols, row)) for row in cur.fetchall()]
+
+        acq_date = deal.get("acquisition_date")
+        date_from, date_to = _date_window(acq_date)
+
+        # Large states have more records — use a higher limit for known high-volume states
+        HIGH_VOLUME_STATES = {"CA", "TX", "FL", "NY", "PA", "OH", "IL"}
+        limit = 5000 if any(s in HIGH_VOLUME_STATES for s in states) else 2000
+
         if states:
             cur.execute("""
                 SELECT ccn, provider_name, owner_name, owner_type,
@@ -105,14 +163,18 @@ def _get_search_names(deal: dict) -> list[tuple[str, str]]:
     return names
 
 
-def _score_record(record: dict, search_names: list[tuple]) -> tuple[int, str, str]:
+def _score_record(record: dict, search_names: list[tuple]) -> tuple[int, str, str, int]:
     """
     Score a CMS record against all search names.
-    Returns (best_score, match_method, matched_field).
+    Returns (best_score, match_method, matched_field, best_facility_score).
+    best_facility_score is the best facility_name_fuzzy score seen against
+    this record regardless of whether it was the overall winner — callers
+    use it to sanity-check owner-only matches (see OWNER_ONLY_MATCH_FACILITY_FLOOR).
     """
     best_score = 0
     best_method = ""
     best_field = ""
+    best_facility_score = 0
 
     owner_name = record.get("owner_name") or ""
     provider_name = record.get("provider_name") or ""
@@ -130,6 +192,8 @@ def _score_record(record: dict, search_names: list[tuple]) -> tuple[int, str, st
 
         # Score against provider_name (facility name)
         score_provider = _difflib_score(name, provider_name)
+        if score_provider > best_facility_score:
+            best_facility_score = score_provider
         if score_provider > best_score:
             best_score = score_provider
             best_method = "facility_name_fuzzy"
@@ -142,7 +206,7 @@ def _score_record(record: dict, search_names: list[tuple]) -> tuple[int, str, st
                 best_method = "owner_name_substring"
                 best_field = field
 
-    return best_score, best_method, best_field
+    return best_score, best_method, best_field, best_facility_score
 
 
 def _date_window(acq_date: Optional[str]) -> tuple[date, date]:
@@ -173,14 +237,27 @@ def _difflib_score(a: str, b: str) -> int:
     # Word-level intersection score (weighted 70%). Strip trailing commas so
     # CMS's "LAST, FIRST" owner_name format tokenizes the same as "FIRST LAST"
     # — otherwise "STEINBERG," never matches "STEINBERG".
-    a_words = {w.rstrip(",") for w in a.upper().split() if len(w) > 2}
-    b_words = {w.rstrip(",") for w in b.upper().split() if len(w) > 2}
+    a_words_all = {w.rstrip(",") for w in a.upper().split() if len(w) > 2}
+    b_words_all = {w.rstrip(",") for w in b.upper().split() if len(w) > 2}
+
+    # Drop generic facility-type words so two unrelated names don't score
+    # high purely on shared boilerplate ("NURSING", "REHAB", "CENTER", ...).
+    # Fall back to the unfiltered set if stripping empties a side — e.g. a
+    # name that's *only* generic words — rather than scoring 0 or dividing
+    # by zero.
+    a_words = {w for w in a_words_all if w.lower() not in FACILITY_STOPWORDS} or a_words_all
+    b_words = {w for w in b_words_all if w.lower() not in FACILITY_STOPWORDS} or b_words_all
     if not a_words:
         return 0
+
     intersection = a_words & b_words
     word_score = len(intersection) / len(a_words)
-    # Character sequence score as secondary signal (weighted 30%)
-    seq_score = difflib.SequenceMatcher(None, a.upper(), b.upper()).ratio()
+    # Character sequence score as secondary signal (weighted 30%), computed
+    # on the same stopword-stripped tokens so shared boilerplate substrings
+    # ("NURSING CENTER") don't inflate this half either.
+    seq_score = difflib.SequenceMatcher(
+        None, " ".join(sorted(a_words)), " ".join(sorted(b_words))
+    ).ratio()
     return int((word_score * 0.7 + seq_score * 0.3) * 100)
 
 

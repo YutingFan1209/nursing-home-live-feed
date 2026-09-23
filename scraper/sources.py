@@ -34,11 +34,15 @@ RSS_SOURCES = [
         name="Modern Healthcare — Post-Acute",
         url="https://www.modernhealthcare.com/section/post-acute-care/rss",
         source_type="rss",
+        active=False,
+        # 403 to any client, browser UA included (checked 2026-09-23)
     ),
     Source(
         name="Provider Magazine",
         url="https://www.providermagazine.com/feed/",
         source_type="rss",
+        active=False,
+        # feed gone: 404, and the homepage no longer advertises one (2026-09-23)
     ),
     Source(
         name="Senior Housing News",

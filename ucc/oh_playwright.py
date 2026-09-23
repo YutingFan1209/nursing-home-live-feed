@@ -2,12 +2,27 @@
 ucc/oh_playwright.py
 Ohio UCC search via Playwright (Angular Material portal).
 Secured party is in search results — no detail page needed.
+
+UNTESTED CDP variant added 2026-09-15: OH's login API started returning
+Cloudflare-mitigated challenges (`cf-mitigated: challenge`, `server:
+cloudflare`) partway through today, escalated from a plain app-level 429
+earlier the same day. This is the same signature NY's Turnstile challenge
+had, and the same fix worked there -- a real, independently-launched
+Chrome reached over CDP passes it where a Playwright-launched Chromium
+(even non-headless, even with the anti-detection args below) doesn't.
+search_oh_batch_cdp() mirrors ny_playwright.py's approach but has NOT
+been verified against OH yet -- test with a single-name probe before
+trusting a big batch, same as any other day's first OH check. If OH's
+challenge was actually just a transient rate-limit-window thing that
+clears on its own overnight, the plain headless search_oh_batch may
+already work fine again -- probe with that first since it's simpler.
 """
 from __future__ import annotations
 import logging
 from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
+from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
 
 logger = logging.getLogger(__name__)
 BASE_URL = "https://ucc.ohiosos.gov"
@@ -20,6 +35,18 @@ def _parse_date(s: str):
         return None
     try:
         return datetime.strptime(s.strip(), "%m/%d/%Y").date()
+    except Exception:
+        return None
+
+def _parse_iso_date(s: str):
+    """Dates from the /api/ohiosearch JSON response come as ISO datetimes
+    (e.g. "2022-05-04T16:11:50.61") with a variable-length fractional-second
+    component that datetime.fromisoformat() can reject pre-3.11 -- just
+    take the date part, we don't need time-of-day precision."""
+    if not s:
+        return None
+    try:
+        return datetime.strptime(s.split("T")[0], "%Y-%m-%d").date()
     except Exception:
         return None
 
@@ -73,35 +100,38 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
             """)
         page.wait_for_timeout(300)
 
-        # Click Search
-        page.click("button.rs-submit")
-
-        # Wait for results
+        # Click Search and capture the underlying JSON API response
+        # directly (POST /api/ohiosearch) instead of scraping rendered
+        # mat-row/mat-cell text -- more reliable (structured, typed data
+        # straight from the API instead of parsing rendered HTML), and
+        # it's the only way to get entityId, which is never rendered into
+        # the DOM anywhere (confirmed 2026-09-22 via a live network-tab
+        # capture) but is exactly what the portal's own "View Profile"
+        # button navigates to (company-profile/search/{entityId}) -- see
+        # ucc/audit_log.py:_detail_url for where this becomes a real
+        # per-filing deep link, same as NY/KY already have.
         try:
-            page.wait_for_selector("mat-row", timeout=8000)
+            with page.expect_response(
+                lambda r: "ohiosearch" in r.url and r.request.method == "POST",
+                timeout=10000,
+            ) as resp_info:
+                page.click("button.rs-submit")
+            payload = resp_info.value.json()
         except Exception:
             logger.info("OH UCC %s → 0 filings", owner_name)
             return []
 
-        page.wait_for_timeout(500)
-
-        # Extract via JS
-        rows = page.evaluate("""
-            Array.from(document.querySelectorAll('mat-row')).map(row =>
-                Array.from(row.querySelectorAll('mat-cell')).map(cell => cell.innerText.trim())
-            )
-        """)
-
+        rows = payload.get("data") or []
         today = date.today()
-        for cells in rows:
-            if len(cells) < 6:
+        for row in rows:
+            filing_number = row.get("finacialStatementNumber")
+            if not filing_number:
                 continue
-            filing_number = cells[0]
-            debtor_name = cells[1].replace("\n\n", ", ")
-            secured_party = cells[2]
-            filing_type = cells[3]
-            filing_date = _parse_date(cells[4])
-            lapse_date = _parse_date(cells[5])
+            debtor_name = ", ".join(row.get("debtorList") or [])
+            secured_party = ", ".join(row.get("securePartyList") or [])
+            filing_type = row.get("transactionCode") or "Original"
+            filing_date = _parse_iso_date(row.get("finacialStatementDate"))
+            lapse_date = _parse_iso_date(row.get("lapseDate"))
             status = "active" if lapse_date and lapse_date > today else "lapsed"
 
             results.append(UCCFiling(
@@ -114,7 +144,11 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
                 filing_type=filing_type,
                 status=status,
                 source_url=BASE_URL + "/search",
-                raw={"query_name": owner_name, "search_mode": "individual" if parsed else "organization"},
+                raw={
+                    "query_name": owner_name,
+                    "search_mode": "individual" if parsed else "organization",
+                    "internal_id": row.get("entityId"),
+                },
             ))
         logger.info("OH UCC %s (%s) → %d filings", owner_name, "individual" if parsed else "org", len(results))
     except Exception as e:
@@ -122,20 +156,44 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
     return results
 
 
-def search_oh_batch(org_names: list[str] = None, individual_names: list[str] = None) -> list[UCCFiling]:
-    """Search organization and individual debtor names. Individual names
-    are routed to the portal's Individual debtor mode (personInd1) --
-    see _search_one."""
-    terms = [(n, False) for n in (org_names or [])] + [(n, True) for n in (individual_names or [])]
-    all_results = []
+def _search_chunk(terms: list[tuple[str, bool]]) -> list[UCCFiling]:
+    """One worker's share of (name, is_individual) terms, each run in its
+    own hidden-window browser instance (OH needs headless=False -- a
+    plain headless launch gets flagged -- but doesn't need a real
+    external Chrome/CDP like NY does, so each thread can just launch its
+    own Playwright-bundled Chromium)."""
+    results = []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False, args=BROWSER_ARGS + ["--window-position=-10000,-10000"])
         context = browser.new_context(user_agent=USER_AGENT)
         page = context.new_page()
         page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         for name, is_individual in terms:
-            all_results.extend(_search_one(page, name, is_individual=is_individual))
+            results.extend(_search_one(page, name, is_individual=is_individual))
         browser.close()
+    return results
+
+
+def search_oh_batch(org_names: list[str] = None, individual_names: list[str] = None, max_workers: int = 3) -> list[UCCFiling]:
+    """Search organization and individual debtor names. Individual names
+    are routed to the portal's Individual debtor mode (personInd1) --
+    see _search_one. Runs max_workers hidden-window browser instances in
+    parallel, each working through its own slice of terms. Kept more
+    conservative than KY/NY's default of 4 (default 3 here) -- OH hit a
+    live 429 rate limit under repeated same-day volume on 2026-09-15
+    (since cleared), the most fragile of the three automated states, and
+    concurrency effectively raises request rate the same way more volume
+    would."""
+    terms = [(n, False) for n in (org_names or [])] + [(n, True) for n in (individual_names or [])]
+    if not terms:
+        return []
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    chunks = [c for c in (terms[i::max_workers] for i in range(max_workers)) if c]
+    all_results = []
+    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+        futures = [executor.submit(_search_chunk, chunk) for chunk in chunks]
+        for future in as_completed(futures):
+            all_results.extend(future.result())
     return all_results
 
 
@@ -143,6 +201,51 @@ def search_oh(owner_name: str, is_individual: bool = False) -> list[UCCFiling]:
     if is_individual:
         return search_oh_batch(individual_names=[owner_name])
     return search_oh_batch(org_names=[owner_name])
+
+
+def _search_chunk_cdp(cdp_url: str, terms: list[tuple[str, bool]]) -> list[UCCFiling]:
+    results = []
+    with sync_playwright() as p:
+        browser = p.chromium.connect_over_cdp(cdp_url)
+        context = browser.contexts[0] if browser.contexts else browser.new_context()
+        page = context.new_page()
+        for name, is_individual in terms:
+            filings = _search_one(page, name, is_individual=is_individual)
+            logger.info("OH UCC %s (%s, cdp) → %d filings", name, "individual" if is_individual else "org", len(filings))
+            results.extend(filings)
+        page.close()
+    return results
+
+
+def search_oh_batch_cdp(
+    org_names: list[str] = None,
+    individual_names: list[str] = None,
+    cdp_url: str = CDP_URL,
+    max_workers: int = 2,
+) -> list[UCCFiling]:
+    """UNTESTED as of 2026-09-15 -- see module docstring. Mirrors
+    ny_playwright.py:search_ny_batch_cdp: drives a real, independently-
+    launched Chrome over CDP (auto-launched if not already running,
+    shared with NY's instance) instead of a Playwright-launched Chromium.
+    Try search_oh_batch (the plain, already-working path) with a
+    single-name probe first -- only reach for this if that still shows
+    the Cloudflare-mitigated signature. max_workers defaults lower (2)
+    than search_oh_batch's 3 since this is unverified against OH; probe
+    with max_workers=1 before trusting any concurrency here at all.
+    """
+    ensure_chrome_cdp(cdp_url)
+    terms = [(n, False) for n in (org_names or [])] + [(n, True) for n in (individual_names or [])]
+    if not terms:
+        return []
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    chunks = [c for c in (terms[i::max_workers] for i in range(max_workers)) if c]
+    logger.info("OH UCC (cdp): %d terms split across %d workers", len(terms), len(chunks))
+    all_results = []
+    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+        futures = [executor.submit(_search_chunk_cdp, cdp_url, chunk) for chunk in chunks]
+        for future in as_completed(futures):
+            all_results.extend(future.result())
+    return all_results
 
 
 if __name__ == "__main__":

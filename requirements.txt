@@ -5,10 +5,17 @@ python-dotenv>=1.0.0
 
 # Scraping
 feedparser>=6.0.11
+lxml_html_clean>=0.4        # trafilatura needs lxml.html.clean, split out of lxml 5.2+ -- without it trafilatura fails to import and fetch_article_text silently fell back to the crude BS4 path (found 2026-09-23)
 trafilatura>=1.9.0      # actively maintained article text extractor (replaces newspaper3k)
 requests>=2.31.0
 beautifulsoup4>=4.12.3
 lxml>=5.2.0
+playwright>=1.44.0      # UCC-1 state portal scrapers (NY/KY/OH/PA) — run `playwright install` after pip install
+
+# Gmail OAuth (Google Alerts source)
+google-auth>=2.29.0
+google-auth-oauthlib>=1.2.0
+google-api-python-client>=2.130.0
 
 # Matching
 # rapidfuzz is preferred for token_set_ratio (handles word reordering)

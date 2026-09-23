@@ -17,7 +17,21 @@ def make_dedup_hash(deal: dict) -> str:
     Key: acquirer + states + date(YYYY-MM) + facility_count + deal_value
     Operator names are intentionally excluded — they vary across sources
     (seller vs buyer framing, partial names) and caused false non-duplicates.
+
+    UCC-sourced "new signal" deals (extraction_model == "ucc_filing") are
+    created with acquiring_entity/facility_count/deal_value all still
+    unknown, so the generic scheme above collapses to just state+month —
+    every same-state UCC filing in the same month collided into one hash
+    and every filing after the first was silently dropped as a "duplicate"
+    (confirmed 2026-09-21: 81 of 124 currently-eligible OH filings would
+    have been lost this way). These use the filing's own filing_number
+    instead, which is already guaranteed unique per state.
     """
+    if deal.get("extraction_model") == "ucc_filing" and deal.get("_ucc_filing_number"):
+        state = (deal.get("states") or [""])[0].upper()
+        key = f"ucc|{state}|{deal['_ucc_filing_number']}"
+        return hashlib.sha256(key.encode()).hexdigest()[:16]
+
     parts = []
 
     # Normalize acquirer
