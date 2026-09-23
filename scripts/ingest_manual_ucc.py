@@ -76,9 +76,11 @@ def main():
 
     print(f"Ingesting {len(filings)} manually-found {state} filings from {csv_path}")
 
+    ucc_source_id = main_mod.ensure_ucc_source(conn)
     new_deals = 0
     for filing in filings:
         article = _filing_to_article(filing)
+        article["source_id"] = ucc_source_id
         new_deals += main_mod.process_article(article, conn)
         conn.commit()
 

@@ -423,12 +423,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         logger.info("UCC filing fetch skipped (--skip-ucc)")
         return new_articles
     try:
-        ucc_source_id = _ensure_source(
-            type("S", (), {"name": "State UCC-1 Filings",
-                           "url": "ucc://multi-state",
-                           "source_type": "ucc"})(),
-            conn
-        )
+        ucc_source_id = ensure_ucc_source(conn)
         wanted = {s.upper() for s in ucc_states} if ucc_states else None
         known_operator_names = _get_known_operator_names(conn)
         ky_names = get_chow_operator_names("KY") if wanted is None or "KY" in wanted else None
@@ -897,6 +892,19 @@ def recheck_pending(conn) -> int:
 
 
 # ── Database helpers ──────────────────────────────────────────
+
+def ensure_ucc_source(conn) -> str:
+    """The single `sources` row every UCC-1 article hangs off. Shared with
+    scripts/ingest_manual_ucc.py -- an article without it has a NULL
+    source_type, so the frontend shows it as "News" and export_deals.py
+    can't turn its ucc:// URL into a real link."""
+    return _ensure_source(
+        type("S", (), {"name": "State UCC-1 Filings",
+                       "url": "ucc://multi-state",
+                       "source_type": "ucc"})(),
+        conn
+    )
+
 
 def _ensure_source(source, conn) -> str:
     with conn.cursor() as cur:

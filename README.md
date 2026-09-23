@@ -98,8 +98,10 @@ Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh
 `main` and `gh-pages` each track their **own independent copies** of the Python source files — they're not shared via untracked leftovers, they genuinely diverge. Don't run any Python while checked out on `gh-pages`; it'll be a stale, different version of the pipeline.
 
 ```bash
-# 1. On main: export deals.json from the DB
-psql "$DATABASE_URL" -t -A -c "SELECT json_build_object('deals', json_agg(...), 'total', COUNT(*)) FROM deals ..." > /tmp/deals.json
+# 1. On main: export deals.json from the DB (this also rewrites UCC source
+#    links and fetches fresh NJ portal search tokens -- a raw psql export
+#    would skip both)
+venv/bin/python3 scripts/export_deals.py /tmp/deals.json
 
 # 2. Stash any unrelated pre-existing changes blocking the branch switch,
 #    switch to gh-pages (git will show a diverged main.py etc. — expected, ignore it)

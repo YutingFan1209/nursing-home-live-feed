@@ -18,12 +18,24 @@ per-filing deep link -- NY via lienId, KY via filing param, OH via
 entityId as of 2026-09-22, see ucc/audit_log.py:_detail_url) or else the state's
 search portal homepage, with the filing number in the title so a viewer
 can search for it themselves.
+
+NJ is the exception to "portal homepage" (added 2026-09-23): its search
+wizard's ASP.NET ViewState/EventValidation turned out not to be bound to a
+session or cookie, so a replayed POST of the wizard's step-2 hidden fields
+plus a filing number lands directly on that filing's result row. This
+fetches fresh step-2 tokens once per export (_fetch_nj_search_form) and
+ships them in deals.json as `ucc_search_forms.NJ`. The frontend submits them
+as a cross-site form POST in a new tab. Tokens are re-fetched every export
+in case the portal's machine key rotates, and if fetching fails the key is
+just omitted and the frontend falls back to the plain portal link.
 """
+import re
 import sys
 import json
 
 sys.path.insert(0, "/Users/kitty/Projects/nursing-home-live-feed")
 import psycopg2
+import requests
 from config import get_config
 
 UCC_PORTAL_URLS = {
@@ -34,6 +46,58 @@ UCC_PORTAL_URLS = {
     "NJ": "https://www.njportal.com/ucc/search/noncertifiedsearch.aspx",  # was missing entirely -- confirmed 2026-09-22 that every NJ deal (337) was falling through to the raw ucc://NJ/{filing_number} scheme URL untouched, which isn't navigable at all (no browser handles the ucc:// protocol), worse than every other state's fallback
     "CA": "https://bizfileonline.sos.ca.gov/search/ucc",
 }
+
+NJ_WIZARD = "ctl00$mainContent$DebtorSearch1$Wizard1$"
+NJ_TOKEN_FIELDS = ("__VIEWSTATE", "__VIEWSTATEGENERATOR", "__EVENTVALIDATION")
+
+
+def _nj_hidden_fields(html: str) -> dict:
+    fields = {}
+    for name in NJ_TOKEN_FIELDS:
+        m = re.search(rf'id="{name}" value="([^"]*)"', html)
+        if not m:
+            raise ValueError(f"NJ portal page missing {name}")
+        fields[name] = m.group(1)
+    return fields
+
+
+def _fetch_nj_search_form() -> dict | None:
+    """Walk the NJ wizard's step 1 (search type = Filing Number, which the
+    portal only allows with output = Copies Only) and return step 2's hidden
+    fields, ready for the frontend to POST with a filing number filled in.
+    None on any failure, and the frontend falls back to the plain portal link."""
+    url = UCC_PORTAL_URLS["NJ"]
+    try:
+        s = requests.Session()
+        s.headers["User-Agent"] = "Mozilla/5.0"
+        step1 = s.get(url, timeout=30)
+        step1.raise_for_status()
+        step2 = s.post(url, timeout=30, data={
+            "__EVENTTARGET": "", "__EVENTARGUMENT": "", "__LASTFOCUS": "",
+            "__VIEWSTATEENCRYPTED": "",
+            **_nj_hidden_fields(step1.text),
+            NJ_WIZARD + "radioSwitchOrgPerson": "FilingNumber",
+            NJ_WIZARD + "radioOutputList": "PhotoCopies",
+            NJ_WIZARD + "StartNavigationTemplateContainerID$btnContinue": "Continue",
+        })
+        step2.raise_for_status()
+        if NJ_WIZARD + "txtFilingNumber1" not in step2.text:
+            raise ValueError("NJ wizard didn't advance to the filing-number step")
+        return {
+            "action": url,
+            "filing_number_field": NJ_WIZARD + "txtFilingNumber1",
+            "fields": {
+                "__EVENTTARGET": "", "__EVENTARGUMENT": "", "__LASTFOCUS": "",
+                "__VIEWSTATEENCRYPTED": "",
+                **_nj_hidden_fields(step2.text),
+                # without this a lapsed filing comes back "no results"
+                NJ_WIZARD + "cbIncludeLapsedFiling": "on",
+                NJ_WIZARD + "StepNavigationTemplateContainerID$btnContinue": "Search",
+            },
+        }
+    except Exception as e:
+        print(f"WARNING: couldn't fetch NJ UCC search form tokens ({e}) -- NJ links fall back to the portal homepage")
+        return None
 
 
 def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | None):
@@ -87,6 +151,8 @@ def main():
             deal["acquisition_date"] = str(deal["acquisition_date"]) if deal["acquisition_date"] else None
             deal["created_at"] = deal["created_at"].isoformat() if deal["created_at"] else None
             if deal["source_type"] == "ucc" and deal["source_url"]:
+                ucc_state, _, deal["ucc_filing_number"] = deal["source_url"].removeprefix("ucc://").partition("/")
+                deal["ucc_state"] = ucc_state.upper()
                 deal["source_url"], deal["source_title"] = _ucc_display_fields(
                     deal["source_url"], deal["source_title"], deal.pop("ucc_detail_url")
                 )
@@ -96,11 +162,16 @@ def main():
 
     conn.close()
 
+    ucc_search_forms = {}
+    nj_form = _fetch_nj_search_form()
+    if nj_form:
+        ucc_search_forms["NJ"] = nj_form
+
     out_path = sys.argv[1] if len(sys.argv) > 1 else "/tmp/deals.json"
     with open(out_path, "w") as f:
-        json.dump({"deals": deals, "total": len(deals)}, f, default=str)
+        json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms}, f, default=str)
 
-    print(f"Exported {len(deals)} deals to {out_path}")
+    print(f"Exported {len(deals)} deals to {out_path} (UCC search forms: {', '.join(ucc_search_forms) or 'none'})")
 
 
 if __name__ == "__main__":

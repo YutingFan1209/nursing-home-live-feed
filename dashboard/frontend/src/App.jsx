@@ -80,7 +80,47 @@ function Tooltip({ text, children }) {
   );
 }
 
-function DealCard({ deal, expanded, onToggle }) {
+// NJ's portal has no per-filing URL, but its search wizard accepts a
+// replayed POST of tokens scripts/export_deals.py fetches at export time
+// (deals.json `ucc_search_forms`), so this submits the filing-number search
+// in a new tab. PA has no equivalent at all (verified 2026-09-23), so it
+// gets a copy button to paste into the portal's search box instead.
+function UccSource({ deal, searchForm }) {
+  const [copied, setCopied] = useState(false);
+  const label = `${deal.ucc_state} UCC-1 filing #${deal.ucc_filing_number}`;
+
+  if (searchForm) {
+    return (
+      <form method="post" action={searchForm.action} target="_blank" style={{ margin: 0 }}>
+        {Object.entries(searchForm.fields).map(([name, value]) =>
+          <input key={name} type="hidden" name={name} value={value} />)}
+        <input type="hidden" name={searchForm.filing_number_field} value={deal.ucc_filing_number} />
+        <button type="submit" style={{ ...lnk, background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+          {label} ↗
+        </button>
+      </form>
+    );
+  }
+
+  const copy = () => navigator.clipboard?.writeText(deal.ucc_filing_number)
+    .then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+
+  return (
+    <span>
+      <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
+        {deal.source_title || deal.source_url} ↗
+      </a>
+      {deal.ucc_state === "PA" && (
+        <button onClick={copy} style={{ marginLeft: 8, fontSize: 11, color: "#374151", background: "#f3f4f6",
+          border: "1px solid #e5e7eb", borderRadius: 4, padding: "2px 7px", cursor: "pointer" }}>
+          {copied ? "Copied" : "Copy filing #"}
+        </button>
+      )}
+    </span>
+  );
+}
+
+function DealCard({ deal, expanded, onToggle, searchForms }) {
   const src = SOURCE[deal.source_type] || SOURCE.rss;
   const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
   const ccns = deal.ccns?.filter(Boolean) || [];
@@ -223,6 +263,8 @@ function DealCard({ deal, expanded, onToggle }) {
                     target="_blank" rel="noreferrer" style={lnk}>
                     CMS SNF Change of Ownership Dataset ↗
                   </a>
+                : deal.ucc_filing_number
+                ? <UccSource deal={deal} searchForm={searchForms?.[deal.ucc_state]} />
                 : <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
                     {deal.source_title || deal.source_url} ↗
                   </a>
@@ -287,6 +329,7 @@ export default function App() {
   const [loading, setLoading]     = useState(true);
   const [expanded, setExpanded]   = useState(new Set());
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [searchForms, setSearchForms] = useState({});
   const [state, setState]         = useState("");
   const [dateFrom, setDateFrom]   = useState("");
   const [dateTo, setDateTo]       = useState("");
@@ -307,6 +350,7 @@ export default function App() {
           return db.localeCompare(da);
         });
         setAllDeals(deals);
+        setSearchForms(data.ucc_search_forms || {});
         setLastUpdated(new Date());
       })
       .catch(e => setLoadError(e.message))
@@ -472,7 +516,8 @@ export default function App() {
           deals.map(deal => (
             <DealCard key={deal.id} deal={deal}
               expanded={expanded.has(deal.id)}
-              onToggle={toggleExpand} />
+              onToggle={toggleExpand}
+              searchForms={searchForms} />
           ))
         )}
 
