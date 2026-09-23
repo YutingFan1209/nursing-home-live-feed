@@ -14,6 +14,7 @@ import base64
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ def fetch_alert_articles(days_back: int = 5) -> list[dict]:
         service = _get_gmail_service()
     except Exception as e:
         logger.error(f"Gmail authentication failed: {e}")
+        health.source_failed("Gmail alerts", f"authentication failed: {e}")
         return []
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=days_back)
@@ -62,6 +64,7 @@ def fetch_alert_articles(days_back: int = 5) -> list[dict]:
         ).execute()
     except Exception as e:
         logger.error(f"Failed to fetch Gmail messages: {e}")
+        health.source_failed("Gmail alerts", f"message list failed: {e}")
         return []
 
     messages = results.get('messages', [])
@@ -71,6 +74,7 @@ def fetch_alert_articles(days_back: int = 5) -> list[dict]:
     seen = set()
 
     for msg in messages:
+        health.attempted("Gmail alert email parse")
         try:
             for art in _extract_articles_from_email(service, msg['id']):
                 if art['url'] not in seen:
@@ -78,6 +82,7 @@ def fetch_alert_articles(days_back: int = 5) -> list[dict]:
                     articles.append(art)
         except Exception as e:
             logger.warning(f"Failed to process email {msg['id']}: {e}")
+            health.failed("Gmail alert email parse", f"{msg['id']}: {e}")
 
     logger.info(f"Extracted {len(articles)} unique article URLs from alerts")
     return articles
@@ -202,6 +207,7 @@ def _parse_email_date(date_str: Optional[str]) -> Optional[datetime]:
     try:
         return parsedate_to_datetime(date_str)
     except Exception:
+        logger.warning(f"Unparseable alert email date {date_str!r}, using now")
         return datetime.now(timezone.utc)
 
 

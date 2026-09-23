@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 from ucc.base import UCCFiling
 from datetime import datetime
 import logging
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,7 @@ def _search_one(page, owner_name: str, include_lapsed: bool = True) -> list[UCCF
         logger.info("NJ UCC %s -> %d filings", owner_name, len(results))
     except Exception as e:
         logger.error("NJ search failed for %r: %s", owner_name, e)
+        health.failed("UCC NJ searches", f"{owner_name}: {e}")
     return results
 
 

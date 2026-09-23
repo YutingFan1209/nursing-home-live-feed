@@ -169,3 +169,49 @@ def test_news_deal_type_financing_only_from_extracted_fields():
     assert _news_deal_type({"financing_amount_m": 27, "lender": "CIBC"}) == "financing"
     assert _news_deal_type({"financing_amount_m": 27, "acquiring_entity": "PACS"}) == "ownership_change"
     assert _news_deal_type({"source_title": "Bridge Logistics refinances"}) == "ownership_change"
+
+
+# ── Run health (2026-09-23) ───────────────────────────────────
+# Failures used to be logged and forgotten; runs that lost whole sources
+# still exited 0.
+
+from pipeline.run_health import EXIT_UNHEALTHY, RunHealth
+
+
+def test_run_health_clean_run_exits_zero():
+    h = RunHealth()
+    h.attempted("Article text fetch", 26)
+    h.failed("Article text fetch", "https://example.test/paywalled")  # 1 of 26: tolerated
+    assert h.problems() == []
+    assert h.report() == 0
+
+
+def test_run_health_source_failure_fails_run():
+    h = RunHealth()
+    h.source_failed("RSS feed https://example.test/feed", "CERTIFICATE_VERIFY_FAILED")
+    assert h.report() == EXIT_UNHEALTHY
+
+
+def test_run_health_high_failure_rate_fails_run():
+    h = RunHealth()
+    h.attempted("Claude extraction", 8)
+    for i in range(2):
+        h.failed("Claude extraction", f"article {i}: credit balance too low")
+    assert len(h.problems()) == 1
+
+
+def test_run_health_failure_without_known_attempts_fails_run():
+    h = RunHealth()
+    h.failed("UCC filing save", "OH/123: connection reset")
+    assert h.problems()
+
+
+def test_rss_fetch_failure_reports_source_failure(monkeypatch):
+    from pipeline.run_health import health
+    health.reset()
+    def boom(*a, **kw):
+        raise requests.exceptions.SSLError("CERTIFICATE_VERIFY_FAILED")
+    monkeypatch.setattr(rss.requests, "get", boom)
+    rss.fetch_feed("https://example.test/feed")
+    assert any("example.test/feed" in p for p in health.problems())
+    health.reset()

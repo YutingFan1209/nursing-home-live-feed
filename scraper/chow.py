@@ -25,6 +25,7 @@ from datetime import date, datetime, timedelta, timezone
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import get_config
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 config = get_config()
@@ -149,6 +150,7 @@ def fetch_chow_deals(conn) -> list[dict]:
 
     if not rows:
         logger.error("Could not download any CHOW CSV file")
+        health.source_failed("CHOW", "could not download any CHOW CSV file")
         return []
 
     already_seen = _load_seen_chow_keys(conn)
@@ -258,6 +260,8 @@ def get_chow_operator_names(state: str) -> list[str]:
             continue
 
     if not rows:
+        # UCC searches for this state then run on live deal names only
+        health.source_failed(f"CHOW {state} UCC seed names", "could not download CHOW CSV")
         return []
 
     names = sorted(set(

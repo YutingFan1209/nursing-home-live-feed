@@ -39,6 +39,7 @@ from alerts.digest import send_daily_digest
 from pipeline.normalizer import normalize_deal
 from ucc.integrator import route_filing, ExistingDeal, RoutingDecision
 from ucc.audit_log import save_ucc_filings
+from pipeline.run_health import health
 config = get_config()
 
 
@@ -161,6 +162,7 @@ def parse_args():
 def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None, gmail_only=False, ucc_states=None):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
+    health.reset()
 
     conn = psycopg2.connect(config.database_url)
     psycopg2.extras.register_uuid()
@@ -192,6 +194,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
                 f"Estimated Claude cost for full batch: {estimate_cost(len(text_articles))}"
             )
             text_articles = text_articles[:cap]
+            health.note(f"text article cap hit: processed {cap} of {len(text_articles)}+")
 
         logger.info(
             f"Processing {len(ucc_articles)} UCC (cap-exempt) + "
@@ -227,6 +230,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
                     logger.info(f"CMS/UCC relink: {relinked} previously-unconfirmed deals now corroborated")
             except Exception as e:
                 logger.warning(f"CMS/UCC relink failed: {e}")
+                health.source_failed("CMS/UCC relink", e)
 
             # Step 2a.6 — name the facility behind each new UCC debtor
             # (CMS exact match, then CHOW buyer -> facility). Without this a
@@ -238,6 +242,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
                     logger.info(f"UCC facility-name enrichment: {enriched} deals named")
             except Exception as e:
                 logger.warning(f"UCC facility-name enrichment failed: {e}")
+                health.source_failed("UCC facility-name enrichment", e)
 
         # Step 2b — CHOW pre-extracted (fast path, serial, no Claude)
         for article in pre_extracted:
@@ -424,6 +429,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         logger.info(f"Gmail alerts: {len(alert_articles)} articles found")
     except Exception as e:
         logger.warning(f"Gmail alerts skipped: {e}")
+        health.source_failed("Gmail alerts", e)
 
     if gmail_only:
         logger.info("RSS/EDGAR/CHOW/UCC skipped (--gmail-only)")
@@ -463,6 +469,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         logger.info(f"UCC filings: {len(ucc_articles)} articles found")
     except Exception as e:
         logger.warning(f"UCC filing fetch skipped: {e}")
+        health.source_failed("UCC", e)
 
     return new_articles
 
@@ -473,13 +480,18 @@ def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
     """Fetch article text and call Claude. No DB operations — safe to run in a thread."""
     raw_text = article.get("raw_text")
     if not raw_text:
+        health.attempted("Article text fetch")
         raw_text = fetch_article_text(article["url"])
+        if not raw_text:
+            health.failed("Article text fetch", article["url"])
     if not raw_text:
         return article, None, []
+    health.attempted("Claude extraction")
     try:
         deals = extract_deals(raw_text, article["url"], article.get("published_at"))
     except Exception as e:
         logger.error(f"Extraction failed for {article['url']}: {e}")
+        health.failed("Claude extraction", f"{article['url']}: {e}")
         return article, raw_text, []
     return article, raw_text, deals
 
@@ -578,17 +590,23 @@ def process_article(article: dict, conn) -> int:
 
     raw_text = article.get("raw_text")
     if not raw_text:
+        health.attempted("Article text fetch")
         raw_text = fetch_article_text(article["url"])
         if raw_text:
             _update_article_text(article_id, raw_text, conn)
+        else:
+            health.failed("Article text fetch", article["url"])
 
     if not raw_text:
         _mark_extraction_error(article_id, "No article text available", conn)
         return 0
 
+    health.attempted("Claude extraction")
     try:
         deals = extract_deals(raw_text, article["url"], article.get("published_at"))
     except Exception as e:
+        logger.error(f"Extraction failed for {article['url']}: {e}")
+        health.failed("Claude extraction", f"{article['url']}: {e}")
         _mark_extraction_error(article_id, str(e), conn)
         return 0
 
@@ -780,6 +798,7 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
         save_ucc_filings([filing], conn)
     except Exception as e:
         logger.warning(f"save_ucc_filings failed for {filing.state}/{filing.filing_number}: {e}")
+        health.failed("UCC filing save", f"{filing.state}/{filing.filing_number}: {e}")
 
     if not classification.is_acquisition_relevant:
         logger.debug(
@@ -1075,3 +1094,6 @@ if __name__ == "__main__":
             gmail_only=args.gmail_only,
             ucc_states=[s.strip() for s in args.ucc_states.split(",") if s.strip()] if args.ucc_states else None,
         )
+        # non-zero when a source or step failed -- data that did succeed is
+        # already committed; see pipeline/run_health.py
+        sys.exit(health.report())

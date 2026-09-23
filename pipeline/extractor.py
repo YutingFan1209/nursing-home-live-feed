@@ -12,6 +12,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 import anthropic
 
 from config import get_config
+from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 config = get_config()
@@ -141,9 +142,11 @@ def extract_deals(article_text: str, article_url: str = "", published_at=None) -
         deals = _call_claude_with_retry(truncated_text, article_url, published_date_str)
     except json.JSONDecodeError as e:
         logger.error(f"Claude returned invalid JSON for {article_url}: {e}")
+        health.failed("Claude extraction", f"{article_url}: invalid JSON")
         return []
     except Exception as e:
         logger.error(f"Extraction failed after retries for {article_url}: {e}")
+        health.failed("Claude extraction", f"{article_url}: {e}")
         return []
 
     normalized = []

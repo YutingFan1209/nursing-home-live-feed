@@ -13,5 +13,12 @@ if ! docker start nh-test-db > /dev/null 2>&1; then
     exit 1
 fi
 
-venv/bin/python3 main.py --no-alerts
-echo "=== Pipeline run finished $(date '+%Y-%m-%d %H:%M:%S %Z') ==="
+# main.py exits 2 when the run finished but a source or step failed
+# (pipeline/run_health.py) -- report it instead of letting set -e hide it
+status=0
+venv/bin/python3 main.py --no-alerts || status=$?
+echo "=== Pipeline run finished $(date '+%Y-%m-%d %H:%M:%S %Z') (exit $status) ==="
+if [ "$status" -eq 2 ]; then
+    echo "WARNING: run finished with problems -- see the RUN HEALTH lines above"
+fi
+exit $status
