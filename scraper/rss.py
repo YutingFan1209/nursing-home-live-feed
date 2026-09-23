@@ -82,8 +82,10 @@ def fetch_article_text(url: str) -> Optional[str]:
             text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
             if text and len(text.split()) >= 50:
                 return text.strip()
-    except ImportError:
-        pass  # trafilatura not installed, fall through to BS4
+    except ImportError as e:
+        # was a silent `pass` -- trafilatura was broken this way for months
+        # (missing lxml_html_clean) without anyone noticing
+        logger.warning(f"trafilatura unavailable ({e}), using BS4 fallback")
     except Exception as e:
         logger.warning(f"trafilatura failed for {url}: {e}")
 
@@ -98,7 +100,7 @@ def fetch_article_text(url: str) -> Optional[str]:
         for tag in soup(["nav", "footer", "script", "style", "aside"]):
             tag.decompose()
         text = soup.get_text(separator="\n", strip=True)
-        return text[:10000] if text else None
+        return text[:config.article_max_chars] if text else None
     except Exception as e:
         logger.warning(f"Fallback fetch failed for {url}: {e}")
         return None

@@ -246,6 +246,12 @@ function DealCard({ deal, expanded, onToggle, searchForms }) {
               {fmtM(deal.deal_value_m)}
             </span>
           )}
+          {fmtM(deal.financing_amount_m) && (
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#7c3aed" }}
+              title="Loan / financing amount, not a sale price">
+              {fmtM(deal.financing_amount_m)} financing
+            </span>
+          )}
           {deal.lender && (
             // main.py stores an explanatory placeholder for NJ, whose free
             // UCC search never returns the secured party
@@ -387,7 +393,7 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
     if (search) {
       const q = search.toLowerCase();
       const haystack = [
-        d.acquiring_entity, d.seller_entity,
+        d.acquiring_entity, d.seller_entity, d.lender,
         ...(d.operator_names || []),
         ...(d.facility_names || []),
       ].filter(Boolean).join(" ").toLowerCase();
@@ -397,19 +403,50 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
   });
 }
 
+// Filters live in the URL (shareable/bookmarkable) and can be saved as
+// named views in this browser, each remembering when it was last opened so
+// it can show how many deals are new since then.
+const FILTER_PARAMS = { state: "state", dateFrom: "from", dateTo: "to", search: "q", sourceType: "source", ccnStatus: "ccn" };
+const SAVED_VIEWS_KEY = "nh-saved-views";
+
+function filtersFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return Object.fromEntries(Object.entries(FILTER_PARAMS).map(([k, p]) => [k, params.get(p) || ""]));
+}
+
+function loadSavedViews() {
+  try { return JSON.parse(localStorage.getItem(SAVED_VIEWS_KEY)) || []; } catch { return []; }
+}
+
+function storeSavedViews(views) {
+  try { localStorage.setItem(SAVED_VIEWS_KEY, JSON.stringify(views)); } catch { /* private mode etc. */ }
+}
+
+function viewName(f) {
+  return [
+    f.search && `"${f.search}"`,
+    f.state,
+    f.sourceType && (SOURCE[f.sourceType]?.label || f.sourceType),
+    f.ccnStatus && (f.ccnStatus === "matched" ? "CCN matched" : "No CCN"),
+    (f.dateFrom || f.dateTo) && `${f.dateFrom || "…"} – ${f.dateTo || "…"}`,
+  ].filter(Boolean).join(" · ");
+}
+
 export default function App() {
   const [allDeals, setAllDeals]   = useState([]);
   const [loadError, setLoadError] = useState(null);
   const [loading, setLoading]     = useState(true);
   const [expanded, setExpanded]   = useState(new Set());
-  const [lastUpdated, setLastUpdated] = useState(null);
   const [searchForms, setSearchForms] = useState({});
-  const [state, setState]         = useState("");
-  const [dateFrom, setDateFrom]   = useState("");
-  const [dateTo, setDateTo]       = useState("");
-  const [search, setSearch]       = useState("");
-  const [sourceType, setSourceType] = useState("");
-  const [ccnStatus, setCcnStatus] = useState("");
+  const [freshness, setFreshness] = useState({});
+  const initial = useMemo(filtersFromUrl, []);
+  const [state, setState]         = useState(initial.state);
+  const [dateFrom, setDateFrom]   = useState(initial.dateFrom);
+  const [dateTo, setDateTo]       = useState(initial.dateTo);
+  const [search, setSearch]       = useState(initial.search);
+  const [sourceType, setSourceType] = useState(initial.sourceType);
+  const [ccnStatus, setCcnStatus] = useState(initial.ccnStatus);
+  const [savedViews, setSavedViews] = useState(loadSavedViews);
   const [offset, setOffset]       = useState(0);
   const LIMIT = 20;
 
@@ -425,11 +462,44 @@ export default function App() {
         });
         setAllDeals(deals);
         setSearchForms(data.ucc_search_forms || {});
-        setLastUpdated(new Date());
+        setFreshness(data.freshness || {});
       })
       .catch(e => setLoadError(e.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus };
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [k, p] of Object.entries(FILTER_PARAMS)) if (currentFilters[k]) params.set(p, currentFilters[k]);
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+  }, [state, dateFrom, dateTo, search, sourceType, ccnStatus]);
+
+  const updateSavedViews = (views) => { setSavedViews(views); storeSavedViews(views); };
+  const currentName = viewName(currentFilters);
+  const isSaved = savedViews.some(v => v.name === currentName);
+
+  function saveView() {
+    if (!currentName || isSaved) return;
+    updateSavedViews([...savedViews, { name: currentName, filters: currentFilters, lastSeen: new Date().toISOString() }]);
+  }
+
+  function openView(view) {
+    const f = view.filters;
+    setState(f.state || ""); setDateFrom(f.dateFrom || ""); setDateTo(f.dateTo || "");
+    setSearch(f.search || ""); setSourceType(f.sourceType || ""); setCcnStatus(f.ccnStatus || "");
+    setOffset(0);
+    updateSavedViews(savedViews.map(v => v.name === view.name ? { ...v, lastSeen: new Date().toISOString() } : v));
+  }
+
+  const removeView = (name) => updateSavedViews(savedViews.filter(v => v.name !== name));
+
+  const newCounts = useMemo(() => Object.fromEntries(savedViews.map(v => [
+    v.name,
+    filterDeals(allDeals, v.filters).filter(d => d.created_at && new Date(d.created_at) > new Date(v.lastSeen)).length,
+  ])), [savedViews, allDeals]);
 
   const filtered = useMemo(
     () => filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus }),
@@ -458,8 +528,12 @@ export default function App() {
   }
 
   const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus;
-  const chowFreshness = "Last updated: Jan 2026 (quarterly)";
-  const edgarFreshness = lastUpdated ? `EDGAR checked ${lastUpdated.toLocaleTimeString()}` : "";
+  const fmtStamp = iso => iso && new Date(iso).toLocaleString(undefined,
+    { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  const pipelineFreshness = freshness.pipeline_ran_at && `Sources checked ${fmtStamp(freshness.pipeline_ran_at)}`;
+  const chowFreshness = freshness.chow_file_date &&
+    `CMS CHOW file: ${new Date(freshness.chow_file_date + "T12:00:00").toLocaleDateString(undefined,
+      { month: "short", day: "numeric", year: "numeric" })} (quarterly)`;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f9fafb",
@@ -474,9 +548,9 @@ export default function App() {
           <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>
             Nursing Home Ownership Feed
           </span>
-          {lastUpdated && (
+          {freshness.exported_at && (
             <span style={{ fontSize: 12, color: "#6b7280" }}>
-              · Updated {lastUpdated.toLocaleTimeString()}
+              · Updated {fmtStamp(freshness.exported_at)}
             </span>
           )}
         </div>
@@ -512,8 +586,8 @@ export default function App() {
                 flexDirection: "column", justifyContent: "center" }}>
                 <div style={{ fontSize: 11, color: "#15803d", fontWeight: 600,
                   textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>Data freshness</div>
-                <div style={{ fontSize: 12, color: "#16a34a" }}>{chowFreshness}</div>
-                {edgarFreshness && <div style={{ fontSize: 12, color: "#16a34a" }}>{edgarFreshness}</div>}
+                {pipelineFreshness && <div style={{ fontSize: 12, color: "#16a34a" }}>{pipelineFreshness}</div>}
+                {chowFreshness && <div style={{ fontSize: 12, color: "#16a34a" }}>{chowFreshness}</div>}
               </div>
             </div>
           )}
@@ -524,7 +598,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
             <input value={search} onChange={e => setSearch(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyFilters()}
-              placeholder="Search operator or acquirer..."
+              placeholder="Search operator, acquirer, facility or lender..."
               style={{ ...selStyle, flex: 1, minWidth: 200 }} />
             <select value={sourceType} onChange={e => { setSourceType(e.target.value); setOffset(0); }} style={selStyle}>
               <option value="">All sources</option>
@@ -549,11 +623,39 @@ export default function App() {
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={selStyle} />
             <button onClick={applyFilters} style={btnPrimary}>Apply</button>
             {hasFilters && <button onClick={clearAll} style={btnGhost}>Clear all</button>}
+            {hasFilters && !isSaved && (
+              <button onClick={saveView} style={btnGhost} title="Save these filters in this browser">☆ Save view</button>
+            )}
             <span style={{ fontSize: 12, color: "#9ca3af", marginLeft: "auto" }}>
               {total.toLocaleString()} record{total !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
+
+        {savedViews.length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600,
+              textTransform: "uppercase", letterSpacing: "0.06em", marginRight: 2 }}>Saved</span>
+            {savedViews.map(v => {
+              const active = v.name === currentName;
+              return (
+                <span key={v.name} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12,
+                  padding: "3px 6px 3px 10px", borderRadius: 20, cursor: "pointer",
+                  background: active ? "#111827" : "#fff", color: active ? "#fff" : "#374151",
+                  border: `1px solid ${active ? "#111827" : "#e5e7eb"}` }}
+                  onClick={() => openView(v)}>
+                  ★ {v.name}
+                  {newCounts[v.name] > 0 && (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "#7c3aed",
+                      borderRadius: 10, padding: "0 6px" }}>+{newCounts[v.name]} new</span>
+                  )}
+                  <span onClick={e => { e.stopPropagation(); removeView(v.name); }} title="Remove"
+                    style={{ color: active ? "#9ca3af" : "#9ca3af", padding: "0 2px" }}>×</span>
+                </span>
+              );
+            })}
+          </div>
+        )}
 
         {stats?.top_states?.length > 0 && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>

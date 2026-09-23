@@ -134,7 +134,7 @@ def extract_deals(article_text: str, article_url: str = "", published_at=None) -
     else:
         truncated = False
 
-    truncated_text = article_text[:8000]
+    truncated_text = article_text[:config.article_max_chars]
     published_date_str = str(published_at)[:10] if published_at else "unknown"
 
     try:

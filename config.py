@@ -18,7 +18,10 @@ class Config:
         default_factory=lambda: os.environ.get("ANTHROPIC_API_KEY", "")
     )
     claude_model: str = "claude-sonnet-4-5"
-    claude_max_tokens: int = 2000
+    claude_max_tokens: int = 4000         # roundup articles can return 10+ deals
+    # Article text kept for extraction. Was 10,000 at fetch and 8,000 at
+    # extraction -- long dealbook roundups lost their later deals entirely.
+    article_max_chars: int = 30000
 
     # SendGrid (alerts)
     sendgrid_api_key: Optional[str] = field(

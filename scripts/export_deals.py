@@ -32,6 +32,7 @@ just omitted and the frontend falls back to the plain portal link.
 import re
 import sys
 import json
+from datetime import datetime, timezone
 
 sys.path.insert(0, "/Users/kitty/Projects/nursing-home-live-feed")
 import psycopg2
@@ -100,6 +101,19 @@ def _fetch_nj_search_form() -> dict | None:
         return None
 
 
+def _chow_file_date() -> str | None:
+    """Date of the CMS CHOW file the pipeline is currently reading, from its
+    discovered filename (e.g. SNF_CHOW_2026.07.17.csv -> 2026-07-17). The
+    frontend's freshness card used to hardcode this and went stale."""
+    try:
+        from scraper.chow import _discover_chow_csv_url
+        m = re.search(r"(\d{4})\.(\d{2})\.(\d{2})\.csv", _discover_chow_csv_url() or "")
+        return "-".join(m.groups()) if m else None
+    except Exception as e:
+        print(f"WARNING: couldn't determine CHOW file date ({e})")
+        return None
+
+
 def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | None):
     """source_url for a UCC deal is 'ucc://STATE/FILING_NUMBER' -- parse
     it and swap in a real, clickable URL: detail_url (a genuine per-filing
@@ -124,7 +138,7 @@ def main():
         cur.execute("""
             SELECT
                 d.id, d.acquiring_entity, d.seller_entity, d.states,
-                d.facility_count, d.deal_value_m, d.acquisition_date,
+                d.facility_count, d.deal_value_m, d.financing_amount_m, d.acquisition_date,
                 d.operator_names, d.facility_names, d.created_at,
                 d.lender, d.ucc_confirmed, d.stage,
                 s.source_type, s.name AS source_name,
@@ -160,7 +174,16 @@ def main():
                 deal.pop("ucc_detail_url", None)
             deals.append(deal)
 
+        cur.execute("SELECT MAX(last_fetched_at) FROM sources")
+        pipeline_ran_at = cur.fetchone()[0]
+
     conn.close()
+
+    freshness = {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "pipeline_ran_at": pipeline_ran_at.isoformat() if pipeline_ran_at else None,
+        "chow_file_date": _chow_file_date(),
+    }
 
     ucc_search_forms = {}
     nj_form = _fetch_nj_search_form()
@@ -169,7 +192,7 @@ def main():
 
     out_path = sys.argv[1] if len(sys.argv) > 1 else "/tmp/deals.json"
     with open(out_path, "w") as f:
-        json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms}, f, default=str)
+        json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms, "freshness": freshness}, f, default=str)
 
     print(f"Exported {len(deals)} deals to {out_path} (UCC search forms: {', '.join(ucc_search_forms) or 'none'})")
 
