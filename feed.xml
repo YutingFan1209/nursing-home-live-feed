@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-09-23T18:44:01.742131+00:00</updated>
+  <updated>2026-09-25T12:45:35.149632+00:00</updated>
+  <entry>
+    <id>urn:uuid:2ed950b3-8ba1-48f3-b3ca-49f6818b629b</id>
+    <title>Ownership change: Verve Senior Living</title>
+    <link href="https://seniorhousingnews.com/2026/09/24/in-the-pipeline-verve-senior-living-plans-20m-renovation-new-affordable-community-planned-in-texas/"/>
+    <updated>2026-09-25T12:45:26.522210+00:00</updated>
+    <summary>Facilities: The Ravines, Verve The Ravines; Source: Senior Housing News</summary>
+  </entry>
   <entry>
     <id>urn:uuid:42bf87b6-c5f9-4ede-921c-57f54a5e44a9</id>
     <title>Ownership change: Priority Life Care (PA)</title>
@@ -347,12 +354,5 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2883261"/>
     <updated>2026-09-22T16:25:08.445143+00:00</updated>
     <summary>Effective 2020-02-04; Facilities: Fairview Nursing Care Center Inc.; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f363ef5c-be61-4f22-9524-d0151e9e1ed7</id>
-    <title>UCC financing: MAYFAIR CARE CENTER, INC. — LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3174280"/>
-    <updated>2026-09-22T16:25:07.803600+00:00</updated>
-    <summary>Effective 2022-08-05; Facilities: Mayfair Care Center; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
