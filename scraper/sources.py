@@ -27,7 +27,9 @@ RSS_SOURCES = [
     ),
     Source(
         name="McKnight's Long-Term Care News",
-        url="https://www.mcknights.com/feed/",
+        url="https://www.mcknights.com/news/feed/",
+        # /feed/ is the opinion-column feed -- nothing in it ever passed the
+        # acquisition keyword filter, so it had stored 0 articles (2026-09-28)
         source_type="rss",
     ),
     Source(

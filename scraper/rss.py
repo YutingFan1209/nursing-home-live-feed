@@ -26,6 +26,25 @@ HEADERS = {
 }
 
 
+def _http_get(url: str, timeout: int):
+    """
+    requests.get, retried with a Chrome-impersonating client on 403.
+
+    McKnight's sits behind Cloudflare bot protection that 403s every plain
+    HTTP client -- feed, homepage and articles, whatever the User-Agent --
+    because it fingerprints the TLS handshake, not the headers. Its feed had
+    never stored an article (found 2026-09-28). curl_cffi mimics a real
+    Chrome handshake and gets through.
+    """
+    resp = requests.get(url, headers=HEADERS, timeout=timeout)
+    if resp.status_code == 403:
+        from curl_cffi import requests as cffi_requests
+        logger.info(f"403 from {url}, retrying with browser impersonation")
+        resp = cffi_requests.get(url, impersonate="chrome", timeout=timeout)
+    resp.raise_for_status()
+    return resp
+
+
 def fetch_feed(url: str) -> list[dict]:
     logger.info(f"Fetching RSS feed: {url}")
     # Fetch with requests, not feedparser's own urllib fetch: urllib uses the
@@ -34,8 +53,7 @@ def fetch_feed(url: str) -> list[dict]:
     # as an empty feed (found 2026-09-23 -- no direct-feed article had ever
     # been stored; all news was arriving via Gmail alerts). requests uses certifi.
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=30)
-        resp.raise_for_status()
+        resp = _http_get(url, timeout=30)
         feed = feedparser.parse(resp.content)
     except Exception as e:
         logger.error(f"Failed to fetch feed {url}: {e}")
@@ -100,6 +118,9 @@ def fetch_article_text(url: str) -> Optional[str]:
         import trafilatura
         time.sleep(config.request_delay)
         downloaded = trafilatura.fetch_url(url)
+        if not downloaded:
+            # trafilatura's own fetch fails on bot-protected sites (403)
+            downloaded = _http_get(url, timeout=config.request_timeout).text
         if downloaded:
             with _LXML_LOCK:
                 text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
@@ -115,8 +136,7 @@ def fetch_article_text(url: str) -> Optional[str]:
     # Fallback: requests + BeautifulSoup
     try:
         time.sleep(config.request_delay)
-        resp = requests.get(url, headers=HEADERS, timeout=config.request_timeout)
-        resp.raise_for_status()
+        resp = _http_get(url, timeout=config.request_timeout)
         from bs4 import BeautifulSoup
         with _LXML_LOCK:
             soup = BeautifulSoup(resp.text, "lxml")
