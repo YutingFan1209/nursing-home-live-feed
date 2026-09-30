@@ -4,7 +4,231 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-09-30T14:07:52.369971+00:00</updated>
+  <updated>2026-09-30T14:22:32.613454+00:00</updated>
+  <entry>
+    <id>urn:uuid:c1cd1d81-2bf8-4408-85e5-3a8a34f43748</id>
+    <title>Ownership change: Florence SNF Property Holdings acquires from Florence Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-069%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T14:22:10.021060+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Florence Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6730b333-cebc-41bc-a1f5-774b642e01be</id>
+    <title>Ownership change: North Hill SNF Property Holdings acquires from North Hill (Birmingham) Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-068%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.905063+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: North Hill Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:39082613-8253-4d65-b887-b0a2d8cb5c27</id>
+    <title>Ownership change: North Mobile SNF Property Holdings acquires from Eight Mile Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-067%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.754562+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Eight Mile Nursing and Rehabilitation Center, North Mobile Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ef76c89e-ee65-4f01-aead-68f118f7896b</id>
+    <title>Ownership change: Mobile SNF Property Holdings acquires from Mobile Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-066%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.650160+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Mobile Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:33591561-9443-41cf-8d3b-ebeb46ea4a69</id>
+    <title>Ownership change: Elba SNF Property Holdings acquires from Elba Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-065%20Elba%20Nursing%20and%20Rehabilitation%20Center%20LLC%20031-N0003%20-%20CHOW%20App%209.29.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.557617+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Elba Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c18f599a-5e9d-4464-a8e0-05d87a2e771f</id>
+    <title>Ownership change: Birmingham East SNF Property Holdings acquires from Birmingham East Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-064%20Complete%2010.22.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.435434+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Birmingham Nursing and Rehabilitation Center East; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7c6b8713-6752-413d-a094-fd9381c278ca</id>
+    <title>Ownership change: Birmingham SNF Property Holdings acquires from Birmingham Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-063%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.329783+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Birmingham Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3ef809a0-a9f6-4cf4-bbe2-68688ffb0b25</id>
+    <title>Ownership change: SouthCare Health and Rehab of Vernon acquires from Generations of Vernon (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-062%20Complete%2010.10.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.208114+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: Generations of Vernon; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a1b87fc4-0792-4ac6-8426-678088099ce7</id>
+    <title>Ownership change: SouthCare Health and Rehab of Red Bay acquires from Generations of Red Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-061%20Complete%2010.10.2025.pdf"/>
+    <updated>2026-09-30T14:22:09.094429+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: Generations of Red Bay; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b51418b1-c71a-4c12-a843-0d31e222d4ae</id>
+    <title>Ownership change: 555 B PropCo acquires from Lafayette Nursing Home (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-076%20Lafayette%20Nursing%20Home%20017-N0003%20-%20CHOW%20App%207.23.2026.pdf"/>
+    <updated>2026-09-30T14:22:09.065120+00:00</updated>
+    <summary>Effective 2026-08-31; Facilities: Lafayette Nursing Home; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:688da79f-bee6-4a44-9698-5107f81307c7</id>
+    <title>Ownership change: 1050 Convalescent Realty acquires from Arabella Health &amp; Wellness of Vernon Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-070%20Complete%206.16.2026.pdf"/>
+    <updated>2026-09-30T14:22:09.008214+00:00</updated>
+    <summary>Effective 2026-06-24; Facilities: Arabella Health &amp; Wellness of Vernon Opco LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c770c044-1975-4eca-8b0c-fc4811a06b41</id>
+    <title>Ownership change: 200 Alabama Avenue acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-068%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.953466+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Cypress Cove Center, Cypress Cove Post Acute; $0.47M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ddfa80af-11a3-4f34-9fe9-72f3cbe95021</id>
+    <title>Ownership change: 211-213 Ana Drive Operations acquires from 211-213 Ana Drive (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-067%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.901303+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Glenwood Post Acute, Glenwood Center; $0.98M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a8f251b2-b538-4fcb-b9f2-54192fc59c7d</id>
+    <title>Ownership change: 1350 14th Avenue SE acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-066%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.847220+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: River City Center, River City Post Acute; $2.32M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:609356b1-46fe-4dbf-a56a-0f2198b3c035</id>
+    <title>Ownership change: 813 Keller Lane acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-065%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.793824+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Keller Landing Post Acute, Keller Landing; $0.20M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3f005bee-0082-4695-9831-95fb86a6f3eb</id>
+    <title>Ownership change: 280 Mount Hebron Road acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-064%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.736957+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Merry Wood Lodge, Merry Wood Post Acute; $1.12M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e9f45a02-83d7-4585-bf59-82f016f808a7</id>
+    <title>Ownership change: 500 John Aldridge Drive acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-063%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.678280+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Cottage Shoals Post Acute, Cottage of the Shoals; $1.05M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:53c385ef-6e4e-4dd6-95bf-bc37f6fed827</id>
+    <title>Ownership change: 420 Dean Lane acquires from SunBridge Gardendale Health Care Center (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-062%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.623101+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Magnolia Ridge Post Acute, SunBridge Gardendale Health Care Center; $0.11M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0ff273b0-d46f-499a-a3e9-a7f31aba105f</id>
+    <title>Ownership change: Cloverdale SNF Property Holdings acquires from Scottsboro Nursing Home (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-061%20Cloverdale%20Rehabilitation%20and%20Nursing%20Center%20071-N0003%20-%20CHOW%20App%205.27.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.578636+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: Cloverdale Rehabilitation and Nursing Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b21b11a1-f362-42b4-8693-c75f78a0f068</id>
+    <title>Ownership change: Redmont Property acquires from Arabella Health &amp; Wellness of Bessemer Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-047%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.481771+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Birmingham; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b3970f58-8727-4518-a955-058e1e07169e</id>
+    <title>Ownership change: Northgate Property acquires from Magnolia Ridge Rehabilitation and Senior Living Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-046%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.394308+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Ridgeway Rehabilitation &amp; Senior Living; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c456385c-6a44-4fda-b12a-4f20f6806f21</id>
+    <title>Ownership change: Stonehaven Property acquires from Oak Crest Health &amp; Wellness Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-045%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.311404+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Oak Crest Health &amp; Wellness; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:197a2762-b019-4115-b242-a2372a6f8e91</id>
+    <title>Ownership change: Bellway Property acquires from Arabella Health &amp; Wellness of Selma Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-044%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.218065+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Selma; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bb4bbcb9-5f69-4b9a-9b47-c805c692decc</id>
+    <title>Ownership change: Everstead Property acquires from Arabella Health &amp; Wellness of Russellville PropCo (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-043%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.118669+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Russellville; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:98fd9b24-587f-4101-80d2-c4b6b45496f9</id>
+    <title>Ownership change: Bridgeway Property acquires from Arabella Health &amp; Wellness of Phenix City PropCo (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-042%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:08.017656+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Phenix City; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5cdedb8f-a6aa-4ba2-82bc-1dccc24ebf35</id>
+    <title>Ownership change: Timberland Property acquires from Arabella Health &amp; Wellness of Butler Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-041%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:07.921622+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Butler; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bd077c3f-b039-44c5-bcad-369add3ebcd0</id>
+    <title>Ownership change: Altera Property acquires from Arabella Health &amp; Wellness of Fairhope Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-040%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:07.825415+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Fairhope; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a96e968a-dbd0-4aee-9b26-663225888704</id>
+    <title>Ownership change: Greenway Property acquires from Arabella Health &amp; Wellness of Grand Bay Propco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-039%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:07.729567+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Grand Bay; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:238ffc1c-e914-467b-a3e7-44da60bfcc67</id>
+    <title>Ownership change: Camellia Property acquires from Arabella Health &amp; Wellness of Mobile PropCo (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-038%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:07.632257+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Mobile; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4e90ea08-9784-49c0-803e-847c10a8a7cc</id>
+    <title>Ownership change: Rivertown Property acquires from Arabella Health &amp; Wellness of Montgomery PropCo (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-037%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T14:22:07.532026+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Montgomery; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:00aea96a-3457-4521-9739-18fcbdbac1ff</id>
+    <title>Ownership change: Arabella Health &amp; Wellness of Red Bay acquires from SouthCare Health and Rehab of Red Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-034%20Complete%201.5.2026.pdf"/>
+    <updated>2026-09-30T14:22:07.434750+00:00</updated>
+    <summary>Effective 2026-01-20; Facilities: SouthCare Health and Rehab of Red Bay; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:93ea4049-4ac2-42b2-aa41-aa113b60b1ae</id>
+    <title>Ownership change: Arabella Health &amp; Wellness of Vernon acquires from SouthCare Health and Rehab of Vernon (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-033%20Complete%201.5.2026.pdf"/>
+    <updated>2026-09-30T14:21:45.283355+00:00</updated>
+    <summary>Effective 2026-01-20; Facilities: SouthCare Health and Rehab of Vernon; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
   <entry>
     <id>urn:uuid:2ed950b3-8ba1-48f3-b3ca-49f6818b629b</id>
     <title>Ownership change: Verve Senior Living</title>
@@ -130,229 +354,5 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4168662"/>
     <updated>2026-09-22T16:25:34.502403+00:00</updated>
     <summary>Effective 2026-06-10; Facilities: SAPPHIRE HC REALTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b7b05f09-27dc-428b-9836-b516aedeec06</id>
-    <title>UCC financing: SAPPHIRE HC REALTY LLC — DMT SPE I LLC (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3652695"/>
-    <updated>2026-09-22T16:25:33.731528+00:00</updated>
-    <summary>Effective 2025-02-20; Facilities: SAPPHIRE HC REALTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e05867ad-6e73-4aae-a03f-2c0fd2da6a9f</id>
-    <title>UCC financing: HIGHBRIDGE-WOODYCREST CENTER, INC. — THE BANK OF NEW YORK, AS TRUSTEE (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1649424"/>
-    <updated>2026-09-22T16:25:32.785693+00:00</updated>
-    <summary>Effective 2005-06-29; Facilities: Highbridge Woodycrest Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:868e8885-7893-4145-8fea-acd606da33a7</id>
-    <title>UCC financing: BEACH TERRACE CARE CENTER, INC. — LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3584104"/>
-    <updated>2026-09-22T16:25:31.983899+00:00</updated>
-    <summary>Effective 2023-07-24; Facilities: Beach Terrace Care Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:15d56e11-4ea0-46b3-acda-6618a2da2ff5</id>
-    <title>UCC financing: PARK TERRACE CARE CENTER, INC. — METROPOLITAN COMMERCIAL BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4138316"/>
-    <updated>2026-09-22T16:25:31.222651+00:00</updated>
-    <summary>Effective 2026-03-17; Facilities: Park Terrace Care Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b43e0259-a4a1-43b8-ae1e-ead996c78472</id>
-    <title>UCC financing: SUNNYSIDE CARE CENTER, LLC — M&amp;T BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1854760"/>
-    <updated>2026-09-22T16:25:30.537809+00:00</updated>
-    <summary>Effective 2014-07-21; Facilities: SUNNYSIDE CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:215ed5f7-c2ba-45f6-9c85-544c812b581b</id>
-    <title>UCC financing: WOODSIDE MANOR NURSING HOME, INC. — HSBC BANK USA, NATIONAL ASSOCIATION (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1732309"/>
-    <updated>2026-09-22T16:25:29.914683+00:00</updated>
-    <summary>Effective 2011-11-09; Facilities: Woodside Manor Nursing Home Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:09bd544c-2cf9-4dc6-8ca8-ea8eb9e83652</id>
-    <title>UCC financing: WOODSIDE MANOR NURSING HOME, INC. — HSBC BANK USA, NATIONAL ASSOCIATION (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=635432"/>
-    <updated>2026-09-22T16:25:29.296015+00:00</updated>
-    <summary>Effective 2007-07-03; Facilities: Woodside Manor Nursing Home Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c0f1d2e3-4fcf-44f4-a3fb-334069f474aa</id>
-    <title>UCC financing: BLOSSOM HEALTH CARE CENTER, INC. — MARCY ACQUISITIONS LLC (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3750703"/>
-    <updated>2026-09-22T16:25:28.664366+00:00</updated>
-    <summary>Effective 2025-12-18; Facilities: Blossom Health Care Center Inc.; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5ab5123f-a076-43eb-84e4-d6ca428b4210</id>
-    <title>UCC financing: CONESUS LAKE NURSING HOME, LLC — M&amp;T BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2604425"/>
-    <updated>2026-09-22T16:25:27.311151+00:00</updated>
-    <summary>Effective 2017-11-03; Facilities: Conesus Lake Nursing Home, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a5845a48-1562-46ee-9c1f-fb375f4f53e6</id>
-    <title>UCC financing: CONESUS LAKE NURSING HOME, LLC — HSBC BANK USA, NATIONAL ASSOCIATION (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=870125"/>
-    <updated>2026-09-22T16:25:26.596228+00:00</updated>
-    <summary>Effective 2011-03-21; Facilities: Conesus Lake Nursing Home, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:159e74fb-9b61-48eb-9b70-165fb4b9c331</id>
-    <title>UCC financing: BLOSSOM NORTH, LLC — ASSISTANT SECRETARY FOR HOUSING - FEDERAL HOUSING COMMISSIONER (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=131468"/>
-    <updated>2026-09-22T16:25:25.627779+00:00</updated>
-    <summary>Effective 2010-02-01; Facilities: BLOSSOM NORTH REALTY, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:33a9393c-ddc9-42c7-859c-5e6179078b1d</id>
-    <title>UCC financing: THE BRIGHTONIAN, INC. — FIVE STAR BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3889836"/>
-    <updated>2026-09-22T16:25:24.937969+00:00</updated>
-    <summary>Effective 2025-09-15; Facilities: The Brightonian, Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1b6eb3ac-b66e-446a-a77b-e759e0f5db3d</id>
-    <title>UCC financing: THE BRIGHTONIAN, INC. — M&amp;T BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2564384"/>
-    <updated>2026-09-22T16:25:24.247181+00:00</updated>
-    <summary>Effective 2017-11-03; Facilities: The Brightonian, Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3665e7b1-9adb-42e5-a006-c6976eb48433</id>
-    <title>UCC financing: CREST MANOR LIVING AND REHABILITATION CENTER INC. — CUSTOMERS BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3457823"/>
-    <updated>2026-09-22T16:25:23.635668+00:00</updated>
-    <summary>Effective 2023-02-15; Facilities: Crest Manor Living and Rehabilitation Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d4616234-ce39-4e8a-8ab5-074984e18dff</id>
-    <title>UCC financing: CREST MANOR LIVING AND REHABILITATION CENTER INC. — EASTSIDE JM PROPCO LLC (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3406664"/>
-    <updated>2026-09-22T16:25:23.044512+00:00</updated>
-    <summary>Effective 2021-11-17; Facilities: Crest Manor Living and Rehabilitation Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6eef211c-c3f6-40cf-badd-b7b9e748d769</id>
-    <title>UCC financing: THE PHOENIX REHABILITATION AND NURSING CENTER C/O DAVID ROLL — : DONGO-WORKMAN TRUST TAHIRAH ALANI (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3646015"/>
-    <updated>2026-09-22T16:25:22.148863+00:00</updated>
-    <summary>Effective 2023-02-27; Facilities: THE PHOENIX REHABILITATION AND NURSING CENTER C/O DAVID ROLL; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3633ea9e-55ae-44bd-b6b0-ebdb43b43206</id>
-    <title>UCC financing: ABSOLUT CENTER FOR NURSING AND REHABILITATION AT THREE RIVERS, LLC — 101 CREEKSIDE DRIVE, LLC (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=335812"/>
-    <updated>2026-09-22T16:25:21.122975+00:00</updated>
-    <summary>Effective 2009-05-19; Facilities: ABSOLUT CENTER FOR NURSING AND REHABILITATION AT THREE RIVERS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b89cc4b9-6a0a-4e5e-a5c1-14636c408b41</id>
-    <title>UCC financing: NORWEGIAN CHRISTIAN HOME AND HEALTH CENTER INC — FIRST-CITIZENS BANK &amp; TRUST COMPANY (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3546853"/>
-    <updated>2026-09-22T16:25:19.532114+00:00</updated>
-    <summary>Effective 2023-03-22; Facilities: Norwegian Christian Home And Health Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:37936201-94cd-4118-8dae-900b55521e42</id>
-    <title>UCC financing: NORWEGIAN CHRISTIAN HOME AND HEALTH CENTER — PRUDENTIAL HUNTOON PAIGE ASSOCIATES, LTD. (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1086063"/>
-    <updated>2026-09-22T16:25:18.722975+00:00</updated>
-    <summary>Effective 2011-06-17; Facilities: Norwegian Christian Home And Health Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ec529b12-d6ee-4d44-a141-5dc754ebd990</id>
-    <title>UCC financing: STEVEN RUBIN — JPMORGAN CHASE BANK, N.A. (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4197590"/>
-    <updated>2026-09-22T16:25:18.099479+00:00</updated>
-    <summary>Effective 2026-08-20; Facilities: STEVEN RUBIN; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f4b0d809-3e29-456e-bfdd-69b3f3904cc4</id>
-    <title>UCC financing: STEVEN RUBINSTEIN — ACE FUNDING SOURCE LLC (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3706799"/>
-    <updated>2026-09-22T16:25:17.378492+00:00</updated>
-    <summary>Effective 2024-09-09; Facilities: STEVEN RUBINSTEIN; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:21e33a12-b2d4-4c42-8774-5c9e0a4574dc</id>
-    <title>UCC financing: ROCKAWAY CARE CENTER BUILDING COMPANY — HUDSON VALLEY BANK, N.A. (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=638794"/>
-    <updated>2026-09-22T16:25:16.463544+00:00</updated>
-    <summary>Effective 2008-07-25; Facilities: ROCKAWAY CARE CENTER BUILDING COMPANY; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fedfb9ec-fca6-4bc8-89a9-60369195df28</id>
-    <title>UCC financing: ROCKAWAY CARE CENTER — FLEET BANK N.A. (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=581180"/>
-    <updated>2026-09-22T16:25:15.965459+00:00</updated>
-    <summary>Effective 2006-06-03; Facilities: Rockaway Care Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f38a1cbe-c9b4-47c0-9c5d-242039d60eb0</id>
-    <title>UCC financing: WATER VIEW NURSING CARE CENTER, INC. — M&amp;T BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3270371"/>
-    <updated>2026-09-22T16:25:14.720989+00:00</updated>
-    <summary>Effective 2023-03-20; Facilities: WATER VIEW NURSING CARE CENTER, INC.; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:720e53f7-1814-4b7f-9e02-db4391dafa35</id>
-    <title>UCC financing: HAYM SOLOMON HOME FOR THE AGED, LLC — HEARTLAND BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1605094"/>
-    <updated>2026-09-22T16:25:13.792937+00:00</updated>
-    <summary>Effective 2011-11-18; Facilities: Haym Solomon Home for the Aged; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:320f57e8-3d9c-4b76-acce-3bc58c1575ee</id>
-    <title>UCC financing: CROWN HEIGHTS CENTER FOR NURSING AND REHABILITATION — SIGNATURE BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2494189"/>
-    <updated>2026-09-22T16:25:13.025772+00:00</updated>
-    <summary>Effective 2017-08-08; Facilities: Crown Heights Center for Nursing and Rehabilitatio; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6a3858da-d364-4ea0-a787-6f900f84db60</id>
-    <title>UCC financing: NEWARK MANOR NURSING HOME, INC. — FIVE STAR BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3774522"/>
-    <updated>2026-09-22T16:25:12.414171+00:00</updated>
-    <summary>Effective 2025-09-12; Facilities: Newark Manor Nursing Home Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2d4e50e8-e110-4a12-b86f-f0ae8c92fd14</id>
-    <title>UCC financing: OCEANSIDE CARE CENTER, INC. — LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3637814"/>
-    <updated>2026-09-22T16:25:11.747636+00:00</updated>
-    <summary>Effective 2024-09-16; Facilities: Oceanside Care Center Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c1511934-5dae-4162-89c9-6608210ebb3a</id>
-    <title>UCC financing: HAMILTON MANOR NURSING HOME REALTY, LLC — THE CANANDAIGUA NATIONAL BANK AND TRUST COMPANY (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2223111"/>
-    <updated>2026-09-22T16:25:10.927657+00:00</updated>
-    <summary>Effective 2016-02-02; Facilities: Hamilton Manor Nursing Home; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6b1a0095-af2a-4c27-a76f-0013f3ed95de</id>
-    <title>UCC financing: ST. MARY'S CENTER, INC. — DORMITORY AUTHORITY OF THE STATE OF NEW YORK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=1153056"/>
-    <updated>2026-09-22T16:25:10.257469+00:00</updated>
-    <summary>Effective 2003-01-31; Facilities: St Mary's Center Inc; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bdadc154-cc8a-4fdc-a738-8e2166cc264d</id>
-    <title>UCC financing: ALPINE REHABILITATION AND NURSING CENTER — M&amp;T BANK (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2464359"/>
-    <updated>2026-09-22T16:25:09.783157+00:00</updated>
-    <summary>Effective 2017-06-12; Facilities: ALPINE REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:88142945-60f7-4cf8-b07c-ff3c88ab3bea</id>
-    <title>UCC financing: FAIRVIEW NURSING CARE CENTER, INC. — HOUSING &amp; HEALTHCARE FINANCE, LLC (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2883261"/>
-    <updated>2026-09-22T16:25:08.445143+00:00</updated>
-    <summary>Effective 2020-02-04; Facilities: Fairview Nursing Care Center Inc.; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
