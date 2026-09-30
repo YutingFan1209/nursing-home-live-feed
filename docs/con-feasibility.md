@@ -177,6 +177,36 @@ Earliness: in the one case we caught, news beat the NY decision by 85 days. NY's
 
 ---
 
+## Beyond NCSL's list (research 2026-09-30)
+
+NCSL only lists states where a nursing home sale triggers a *certificate of need*. Some other states publish a pre-closing ownership filing through a CON exemption, an acquisition approval or a licensing notice. I checked ten candidates the same way as above: single-page fetches, then a check of any finds against the `deals` table.
+
+| State | What's filed | Where published | Format | Buyer named? | Rating |
+|---|---|---|---|---|---|
+| **NC** | CON exemption request to acquire an existing facility (G.S. 131E-184(a)(8)) | [DHSR "No Reviews and Exemptions"](https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html) | One HTML table per month: facility, facility ID, **applicant**, request date, decision date, description, letter PDF | ✅ Applicant | 🟢 Green |
+| **MD** | MHCC approval of a nursing home acquisition, requested ≥60 days before closing (Health-Gen. §19-120.2) | [Nursing Home Acquisition Applications](https://mhcc.maryland.gov/healthcare-communities/state-health-planning-and-certificate-need-con/acquisition-or-change-ownership/nursing-home-acquisition-applications) | HTML page, active and completed cases, application PDFs; 30-day public comment | ✅ In the application | 🟢 Green (low volume, big deals) |
+| **NJ** | Transfer-of-ownership application with a 30-day public comment period (N.J.S.A. 26:2H-7.25) | [LTC Transfer of Ownership](https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership) (plus a separate real-estate transfer page) | HTML table: accepted date, application no., facility, license no., comment period | ❌ Not on the page (full application by OPRA request) | 🟢/🟡 Green-yellow |
+| **IL** | HFSRB change-of-ownership exemption (20 ILCS 3960/8.5) | HFSRB announcements / project search | Per-project pages | ✅ | 🟡 Yellow: 2026 exemptions `E-001`–`E-019` contain no nursing homes; LTC sales show up only occasionally as permit projects (e.g. `25-031` Oak Hill, `26-028` Ignite) |
+| **RI** | Change in Effective Control, reviewed by the Health Services Council | RIDOH Health Systems Development | ⚠️ The page describes the process but I found no listing of cases | ✅ (in applications) | 🟡 Unverified |
+| **WA** | CON for nursing home projects | [Project Status](https://doh.wa.gov/licenses-permits-and-certificates/facilities-z/certificate-need/project-status), with a public **CSV export** (`/admin/certificate-of-need-export.csv?type=Nursing+home`) | CSV | n/a | 🔴 for ownership (no sales in the data), useful for capacity: bed banking, new beds |
+| **GA** | Acquisition is notice-only | Weekly CON tracking report PDF | PDF | n/a | 🔴 for ownership (acquisitions don't appear); shows SNF expansions |
+| **TN** | Licensing CHOW, letter of intent 60 days ahead | Not published (HFC CON exemptions page is home-health only) | n/a | n/a | 🔴 |
+| **FL** | AHCA CHOW application ≥60 days ahead | Not published | n/a | n/a | 🔴 |
+| **VT** | AHS transfer-of-ownership review (replaced CON in 2025) | Not published; hearing closed to the public | n/a | n/a | 🔴 |
+
+### North Carolina detail
+- Jan–Aug 2026: **62 acquisition-type exemptions**, about **14 of them nursing homes** (the rest are assisted living, hospitals, home health and equipment). The facility ID doesn't encode the type, and many facilities were renamed, so name-matching to CMS only caught 5 of the 14; a real scraper needs a better nursing-home test (e.g. the facility ID against the state's license list).
+- **Against the tracker:** 7 of the 14 were already in `deals` from news, but NC's filings came first: Ignite (Huntersville Oaks, Sardis Oaks, Cleveland Pines) requested 3/24, news 6/5 (**73 days**); the Asheville batch (Pittsboro, Grove Park, Tetra; Greentree Ridge came via CHOW) requested 4/2, news 7/6 (**95 days**). The other 7 (Ignite Albemarle, Compass Kannapolis, Mountain Ridge, Premier Living, Pembroke Post Acute (Genesis → 101 W State Street), Heritage Meadows, The Pines at Pinetown) aren't in the tracker at all.
+
+### Maryland detail
+- 2026 cases: CommuniCare's 18 homes (posted 2026-02-09), Regency Care of Silver Spring → Silver Spring Opco / Vierra (accepted 2026-05-01), Montcare at Bethesda / Potomac / Wheaton (accepted 2026-06-05), Althea Woodland (Sep 2026).
+- **Against the tracker:** the 18-home deal reached `deals` via EDGAR on 2026-07-29 and news on 2026-08-11, **~170 days after MHCC posted it**. Vierra/Regency came from news on 2026-07-29, **89 days** after MHCC. Montcare and Althea Woodland aren't in the tracker.
+
+### New Jersey detail
+- The page lists only recent applications (three, May–Jul 2026: Silver Healthcare Center, Alaris Health at Cedar Grove, Accelerate Piscataway), so the history would have to be built up by scraping it regularly. Some entries link a summary PDF; buyer names otherwise need an OPRA request.
+
+**Build order if we extend:** NC (structured, named buyer, measured 73–95 day lead) → MD (few cases, but the biggest lead time we've measured) → NJ (easy table, no buyer). WA's CSV is worth a look separately as a capacity signal.
+
 ## Unverified / open items
 
 - **OK:** location of "The Notice" index page; how long the Aug/Sep 2026 issues take to post.
