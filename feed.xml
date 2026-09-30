@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-09-30T14:30:10.687769+00:00</updated>
+  <updated>2026-09-30T15:02:13.975823+00:00</updated>
+  <entry>
+    <id>urn:uuid:9eef754f-419f-40e8-8518-c2aeec0a5306</id>
+    <title>Ownership change: Eagle Arc Acquisitions acquires from First Atlantic Healthcare, ., First Atlantic , and LTC (ME)</title>
+    <link href="https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/LOI%20EagleLink.pdf"/>
+    <updated>2026-09-30T15:00:29.704365+00:00</updated>
+    <summary>Effective 2026-12-31; Facilities: Seal Rock Health Care, Hawthorne House, Seaside Rehabilitation, Marshall Health Care, Woodlawn Rehabilitation; $275.00M; Source: Maine DHHS Certificate of Need Reviews</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c99d5b61-be42-4a89-88ec-e34491a4b4a5</id>
+    <title>Ownership change: 101 W State Street Holdings acquires from Genesis Healthcare (ME)</title>
+    <link href="https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/NewGen%20-%20Maine%20CON%20LOI%20%283.19.26%29.pdf"/>
+    <updated>2026-09-30T14:59:24.078544+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Cedar Ridge Center, Harbor Hills Center, Marshwood Center, Oak Grove Center, Orono Commons; $343.00M; Source: Maine DHHS Certificate of Need Reviews</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fccf1e86-da57-473d-9c4e-95c10b0e9e33</id>
+    <title>Ownership change: Red Bay acquires from Arabella Health &amp; Wellness of Red Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-069%20Complete%206.12.2026.pdf"/>
+    <updated>2026-09-30T14:58:10.303852+00:00</updated>
+    <summary>Effective 2026-06-24; Facilities: Arabella Health &amp; Wellness of Red Bay Opco LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
   <entry>
     <id>urn:uuid:634dd28b-b5bf-4d43-8127-c1b6b7e99c53</id>
     <title>Ownership change: [OK CON] 25-058-372 CN Exemption Change of Ownership or Stock Transfer: Fairfax Behavioral Health and Memory Care Community (OK)</title>
@@ -333,26 +354,5 @@
     <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-26-048"/>
     <updated>2026-09-30T14:29:41.853396+00:00</updated>
     <summary>Effective 2026-07-09; Facilities: McAlester Nursing &amp; Rehab; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:949d3839-6b40-40dc-a70d-e0eaaca236a5</id>
-    <title>Ownership change: [OK CON] 26-039 CN Application for Nursing Specialized Facility Acquisition: Hennessey Nursing &amp; Rehab (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-26-039"/>
-    <updated>2026-09-30T14:29:41.846627+00:00</updated>
-    <summary>Effective 2026-06-17; Facilities: Hennessey Nursing &amp; Rehab; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:15b5a11c-8fa8-4014-93ac-41a89b6fa2d6</id>
-    <title>Ownership change: [OK CON] 26-038 CN Application for Nursing Specialized Facility Acquisition: Hensley Nursing &amp; Rehab (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-26-038"/>
-    <updated>2026-09-30T14:29:41.839062+00:00</updated>
-    <summary>Effective 2026-06-17; Facilities: Hensley Nursing &amp; Rehab; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d58350ca-0884-477b-babc-d15e3721110c</id>
-    <title>Ownership change: [OK CON] 26-035-372 CN Exemption Change of Ownership or Stock Transfer: Memorial Heights Nursing Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-26-035-372"/>
-    <updated>2026-09-30T14:29:41.821711+00:00</updated>
-    <summary>Effective 2026-06-01; Facilities: Memorial Heights Nursing Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
   </entry>
 </feed>
