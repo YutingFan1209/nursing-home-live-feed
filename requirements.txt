@@ -10,6 +10,7 @@ trafilatura>=1.9.0      # actively maintained article text extractor (replaces n
 requests>=2.31.0
 curl_cffi>=0.7          # browser-TLS-impersonating fallback for Cloudflare-protected sites (McKnight's 403s plain requests)
 pypdf>=6.0              # text extraction from state CON notice PDFs (scraper/con_al.py)
+openpyxl>=3.1            # Michigan CON activity reports are XLSX (scraper/con_mi.py)
 beautifulsoup4>=4.12.3
 lxml>=5.2.0
 playwright>=1.44.0      # UCC-1 state portal scrapers (NY/KY/OH/PA) — run `playwright install` after pip install

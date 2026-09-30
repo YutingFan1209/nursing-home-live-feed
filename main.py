@@ -17,6 +17,7 @@ import logging.config
 import signal
 import sys
 import psycopg2
+import psycopg2.errors
 import psycopg2.extras
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse
@@ -30,6 +31,8 @@ from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
+from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
+from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
@@ -437,6 +440,34 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             art["source_id"] = con_me_source_id
             new_articles.append(art)
 
+        con_mi_source_id = _ensure_source(
+            type("S", (), {"name": CON_MI_SOURCE_NAME,
+                           "url": CON_MI_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("SELECT DISTINCT upper(provider_city) FROM cms_facilities WHERE provider_state = 'MI'")
+            mi_cities = {row[0] for row in cur.fetchall() if row[0]}
+        for deal in fetch_con_mi_deals(lambda url: _article_exists(url, conn), mi_cities):
+            deal["source_id"] = con_mi_source_id
+            new_articles.append(deal)
+
+        con_ms_source_id = _ensure_source(
+            type("S", (), {"name": CON_MS_SOURCE_NAME,
+                           "url": CON_MS_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        # Weekly items drop off 30 days after completion: backfill the whole
+        # recency window once, then only the latest weeks
+        with conn.cursor() as cur:
+            cur.execute("SELECT EXISTS (SELECT 1 FROM articles WHERE source_id = %s)", (con_ms_source_id,))
+            ms_backfill = not cur.fetchone()[0]
+        for deal in fetch_con_ms_deals(lambda url: _article_exists(url, conn), backfill=ms_backfill):
+            deal["source_id"] = con_ms_source_id
+            new_articles.append(deal)
+
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
         gmail_source_url = "gmail://googlealerts-noreply@google.com"
@@ -627,7 +658,18 @@ def process_article(article: dict, conn) -> int:
             hash_val = d.get("dedup_hash") or make_dedup_hash(d)
             if is_duplicate(hash_val, conn):
                 continue
-            deal_id = _store_deal(d, article_id, conn)
+            # CON records can name a buyer (MI "... BY X OPCO LLC"), which
+            # brings the semantic-dedup unique index into play; a collision
+            # must skip this record, not abort the whole run
+            with conn.cursor() as sp:
+                sp.execute("SAVEPOINT before_deal")
+            try:
+                deal_id = _store_deal(d, article_id, conn)
+            except psycopg2.errors.UniqueViolation:
+                with conn.cursor() as sp:
+                    sp.execute("ROLLBACK TO SAVEPOINT before_deal")
+                logger.debug(f"Semantic duplicate skipped: {d.get('acquiring_entity')} {d.get('states')}")
+                continue
             _run_cms_matching(d, deal_id, conn)
             stored += 1
         _mark_extraction_done(article_id, conn)
