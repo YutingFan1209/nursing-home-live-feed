@@ -1,129 +1,145 @@
 # Nursing Home Acquisition Tracker
 
-Live feed of PE acquisitions of nursing homes, surfaced via CMS CHOW records, SEC EDGAR filings, Google Alerts/news, and state UCC-1 filings.
+A live feed of U.S. nursing home (skilled nursing facility) ownership changes. It combines sources that are early but unconfirmed (state pre-closing filings, UCC-1 financing statements, trade press) with sources that are slow but authoritative (CMS ownership records), and matches everything against CMS facility and ownership data.
 
-**Live site:** https://yutingfan1209.github.io/nursing-home-live-feed/  
-**Current DB:** ~1,252 deals (as of 2026-07-16)
+**Live site:** https://yutingfan1209.github.io/nursing-home-live-feed/
+**As of 2026-09-30:** 2,549 live deals across 53 states and territories (UCC-1 1,653 · CMS CHOW 572 · news 162 · state filings 150 · SEC 12)
+
+| Doc | What's in it |
+|---|---|
+| [`docs/how-it-works.md`](docs/how-it-works.md) | Plain-English overview for non-developers |
+| [`docs/data-sources.md`](docs/data-sources.md) | Every source: how it's fetched, status, known issues |
+| [`docs/methodology.md`](docs/methodology.md) | CMS dataset IDs, matching and dedup internals |
+| [`docs/stages-and-tags.md`](docs/stages-and-tags.md) | Deal stages and researcher tags |
+| [`docs/con-feasibility.md`](docs/con-feasibility.md) | Research behind the state-filing sources, state by state, incl. the NY test |
 
 ---
 
 ## Architecture
 
 ```
-DISCOVERY                 PROCESSING                STORAGE       FRONTEND
-─────────────────         ──────────────────        ───────       ────────
-CMS CHOW CSV        →                          →    Postgres  →   GitHub Pages
-SEC EDGAR 8-Ks      →   Claude extraction      →    deals.json    (static React)
-Google Alerts email →   CMS ownership matcher  →
-State UCC-1 filings →   Dedup + stage tracker  →
-RSS feeds           →   Lender classifier       →
+DISCOVERY                        PROCESSING                      STORAGE      FRONTEND
+───────────────────────          ─────────────────────────       ─────────    ──────────────
+State pre-closing filings  ─┐    Claude extraction (news,        Postgres  →  deals.json +
+  (8 states, source 'con')  │      filings, scanned PDFs)          │          feed.xml on
+State UCC-1 filings (5)    ─┤    Pre-extracted fast path         export_      GitHub Pages
+CMS CHOW CSV (quarterly)   ─┼──→   (CHOW, UCC, table-based CON) → deals.py ─→ (static React,
+Google Alerts (Gmail)      ─┤    Dedup: exact hash + fuzzy                     Vite build)
+RSS trade press            ─┤    CMS ownership matcher → stage
+SEC EDGAR full-text search ─┘    Lender classifier (UCC)
 ```
 
-Deal stages: `detected` → `pending_cms` → `confirmed` | `unresolved`
+Deal stages: `detected` → `pending_cms` → `confirmed`, plus `unresolved`, `verified` and `dismissed` (see [`docs/stages-and-tags.md`](docs/stages-and-tags.md)). Pending deals are re-matched against CMS on every run until they confirm or hit the recheck limit.
 
 ---
 
 ## Data sources
 
-### CMS CHOW (primary — confirmed ownership changes)
-- Quarterly CSV from CMS; last updated Jan 2026, next drop April 2026
-- Matched against DB deals to upgrade `stage` to `confirmed`
+Summary only — [`docs/data-sources.md`](docs/data-sources.md) has the detail and current status of each.
 
-### State UCC-1 filings (acquisition signals)
-Headless browser scrapers — one per state portal:
+### State pre-closing filings (`source_type='con'`, added 2026-09-30)
+Filings a buyer makes with a state *before* a nursing home changes hands — usually weeks to months ahead of news and CMS. One module per state:
 
-| State | Search type | Deployment |
+| State | Filing | Buyer named? | How it's read |
+|---|---|---|---|
+| AL `scraper/con_al.py` | SHPDA change-of-ownership notice, ≥20 days pre-close | Yes | PDF → Claude; nursing homes by SHPDA facility-ID type |
+| OK `scraper/con_ok.py` | OSDH monthly CON "Notice" | No | PDF table, no Claude |
+| ME `scraper/con_me.py` | DHHS CON review (letter of intent) | Yes | PDF → Claude, one per case |
+| MI `scraper/con_mi.py` | MDHHS monthly letter-of-intent report | Sometimes | XLSX/PDF table, no Claude |
+| MS `scraper/con_ms.py` | MSDH weekly CHOW applications | No | PDF table, no Claude |
+| NC `scraper/con_nc.py` | DHSR CON exemption to acquire a facility | Yes | HTML table, no Claude |
+| MD `scraper/con_md.py` | MHCC acquisition application, ≥60 days pre-close | Yes | PDF → Claude, one per case |
+| NJ `scraper/con_nj.py` | DOH transfer-of-ownership + real estate transfer | Yes | PDF → Claude / HTML table |
+
+Scanned PDFs are transcribed by Claude (`pipeline/pdf_text.py`) — there's no system OCR on the pipeline machine. NY has been tested (found 9 of 9 recent sales in committee agendas 14–28 days before the vote) but isn't built yet.
+
+### State UCC-1 financing statements
+Browser scrapers per state portal (`ucc/`), orchestrated by `scraper/ucc.py`. A UCC-1 is financing, not a sale, so it either corroborates an existing deal or seeds a new "signal" deal, after the lender classifier (`ucc/lender_classifier.py`) filters out equipment, vendor and personal liens.
+
+| State | Automation | Notes |
 |---|---|---|
-| NY | Debtor name — **both** Organization mode (known operator LLCs) **and** Individual mode (CMS owner names, see below) | headless=True, AWS-ready |
-| KY | Debtor name (CHOW CSV seeds operator names) | headless=True, AWS-ready |
-| OH | Secured party | headless=False + hidden window, local only (needs Xvfb for cloud) |
-| PA | Secured party | requires live Chrome CDP session — **manual only** |
+| KY | Headless | Most reliable. Rate-limits a second full run on the same day |
+| NY | Real Chrome over CDP (`ucc/chrome_cdp.py`) | Cloudflare blocks headless. Org + individual-owner searches, multi-hour |
+| NJ | Headless, parallel workers | Portal never returns the lender; deals show "not available" |
+| PA | Real Chrome over CDP | Automated but gets Incapsula-challenged under volume |
+| OH | Blocked for Playwright since 2026-09 | Searches have been run through a real Chrome session instead |
 
-UCC articles bypass the 50/run article cap. Lender classifier pre-filters equipment/vendor/personal-financing filings (see below) before they enter the queue.
+Run states separately (`--ucc-states KY`); nothing commits until the whole UCC step returns. See [`docs/data-sources.md`](docs/data-sources.md) for search-name sourcing (CHOW + live deal names + CMS individual owners).
 
-#### NY individual owner search (CMS ownership matching)
-NY's UCC portal has separate Organization and Individual debtor search modes with different form fields — searching a person's name in Organization mode silently returns near-zero matches. `ucc/ny_playwright.py` routes correctly based on name type.
+### CMS CHOW (confirmation)
+Quarterly SNF change-of-ownership CSV. The download URL is discovered through CMS's data API, and every row is recorded in `chow_seen_records` so each run only considers genuinely new rows (until 2026-09-22 a date-window bug meant no CHOW deal had ever been created). Latest file: 2026-07-17.
 
-Individual search terms come from `cms_ownership_records` (loaded from CMS's Provider Data Catalog `NH_Ownership_*.csv`, not the raw enrollment "All Owners" API — that dataset is keyed by PECOS Enrollment ID and can't be joined to facility state at all), filtered to equity/control roles only (`main.py:_CMS_OWNERSHIP_RELEVANT_ROLES`) to keep runtime bounded. This roughly doubles NY's search volume and runtime (~40-75 min depending on role-filter width) but surfaces real acquisition signals — individual beneficial owners — that org-name search alone never finds.
+### News and filings
+- **Google Alerts** → dedicated Gmail inbox → Gmail API (`scraper/gmail_alerts.py`). Lookback widens automatically after a gap.
+- **RSS**: Skilled Nursing News, McKnight's (news feed, with a browser-impersonation fallback for 403s), Senior Housing News.
+- **SEC EDGAR** full-text search for operator/REIT 8-Ks.
 
-`cms_ownership_records` and `cms_facilities` are loaded via `cms/fetch_cms.py` / `matcher/carecompare.py`, which discover the current CSV URL dynamically via CMS's metastore API rather than a hardcoded monthly link (the direct CSV URL rotates every release). No scheduled refresh is wired up yet — rerun `python3 -m cms.fetch_cms` periodically to keep ownership data current.
-
-### Google Alerts (Gmail OAuth)
-- Google Alerts → dedicated Gmail inbox → OAuth via `gmail_token.json`
-- ~22 URLs extracted per run
-
-### SEC EDGAR
-- 8-K filings for major operators: Welltower, Sabra, CareTrust, Ensign, etc.
-
-### RSS feeds
-- Skilled Nursing News, McKnight's, Modern Healthcare, Senior Housing News
+### CMS reference data
+`cms_facilities` and `cms_ownership_records` (Provider Data Catalog, CCN-keyed), loaded by `cms/fetch_cms.py`; used for matching and for NY/OH individual-owner UCC searches.
 
 ---
 
-## Pipeline
+## Running the pipeline
 
 ```bash
-# One-off full run (no email digest)
+# Everything except the email digest
 venv/bin/python3 main.py --no-alerts
 
-# Skip UCC scraping (RSS/EDGAR/CHOW/Gmail alerts only) — use when UCC
-# already ran today and you just want news/alert ingestion (~1 min vs ~90 min)
+# Skip UCC (news, EDGAR, CHOW, Gmail and the state filings only): ~1 min vs hours
 venv/bin/python3 main.py --no-alerts --skip-ucc
 
-# Cron-safe wrapper — cd's to repo root, starts the DB container if
-# needed, runs main.py. No git/branch operations.
-./run_pipeline.sh
+# UCC for specific states only, one state per run
+venv/bin/python3 main.py --no-alerts --ucc-states KY
 
-# Runs daily at 8am via cron:
-#   0 8 * * * PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin /path/to/run_pipeline.sh >> /tmp/nh-pipeline.log 2>&1
-# Requires Full Disk Access granted to cron in System Settings > Privacy
-# & Security (macOS TCC blocks cron's filesystem access otherwise).
+# Gmail alerts only; or override the Gmail lookback after a long gap
+venv/bin/python3 main.py --no-alerts --gmail-only
+venv/bin/python3 main.py --no-alerts --gmail-days-back 8
+
+# Cron-safe wrapper: starts the DB container if needed, runs main.py, never touches git
+./run_pipeline.sh
 ```
 
-Key behaviors:
-- **Async extraction:** 8 concurrent Claude calls via `asyncio.gather`
-- **UCC cap exemption:** UCC articles not counted against 50/run limit
-- **Two-layer dedup:**
-  - *Exact hash* (`pipeline/dedup.py:make_dedup_hash`) — `acquirer + states + date(YYYY-MM) + facility_count + deal_value`, operator names excluded (too variable across sources). Blocks identical re-inserts before they hit the DB.
-  - *Fuzzy/semantic pass* (`pipeline/dedup.py:find_and_resolve_fuzzy_duplicate`) — runs after every insert. Catches the same deal reported by different articles with different state subsets, facility counts, or acquirer name variants ("Ensign Group" vs "The Ensign Group") that the exact hash misses. Matches on fuzzy acquirer name (≥85 token-sort ratio) + overlapping states (≥50%) + acquisition date (±30 days) + facility count (±20%), treating missing fields as non-contradictory rather than a hard mismatch. Keeps the more complete row, merges states, deletes the other.
-- **Multi-facility merge:** Duplicate deals sharing the same sorted `facility_names` array + lender + date are collapsed; operators merged into array
-- **Blank-lender guard:** UCC filings with no recoverable secured-party name (inactive/lapsed filings) don't seed new deals — logged as skipped rather than stored with no lender info
+**Scheduling:** there is currently no scheduled job — the daily launchd job is intentionally disabled (plist kept in `.disabled-launchagents/`) and runs are manual. Two sources depend on regular runs: MS removes items 30 days after they complete (runs must be ≤ ~6 weeks apart), and NJ's operator page only lists recent applications.
+
+**Run health:** each run ends with a `RUN HEALTH` summary (`pipeline/run_health.py`) and exits with code **2** if a source failed outright or too many fetches/extractions failed; `SOURCE HEALTH` warnings (`pipeline/source_health.py`) flag sources that have gone quiet.
+
+### Key behaviors
+- **Extraction:** text articles go to Claude 8 at a time, capped at 50 per run (the cap bounds Claude cost; CHOW, UCC and table-based state filings don't count against it).
+- **Two-layer dedup** (`pipeline/dedup.py`):
+  - *Exact hash* — acquirer + states + month + facility count + value. Records with no buyer hash on their own ID instead (UCC filing number, state CON record ID); otherwise every buyer-less record in a state and month collided into one.
+  - *Fuzzy pass* after each insert — fuzzy acquirer (≥85) + overlapping states + date within 30 days + similar facility count + a shared facility name. Keeps the more complete row and merges the other into it.
+- **CMS matching** (`matcher/ownership.py`) sets the stage. A state-filing deal only counts as `confirmed` by a CMS ownership record starting no earlier than 30 days before the filing; older records belong to the seller.
+- **Scope:** assisted living / memory care news deals are auto-dismissed (`pipeline/al_mc_scope.py`); state-filing deals skip that check since each source already restricts to nursing facilities.
+- **Names** are cleaned for display by `pipeline/normalizer.py` (legal suffixes dropped; "Opco" kept on street-number names like "813 Keller Lane Opco").
 
 ---
 
 ## Deployment (gh-pages)
 
-Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh` (cron) never touches git. This split exists because the old combined `run_and_deploy.sh` model (pipeline run + branch switch + deploy, all in one script that only lives on `gh-pages`) was fragile: it depended on the working directory being flipped to `gh-pages` at the exact moment it ran, with `main`'s Python source left behind as untracked files. When something instead left the working directory on `main`, cron found `run_and_deploy.sh` missing and automation silently stopped — this is why the daily run wasn't actually working for a while.
+Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh` never touches git. (The old combined `run_and_deploy.sh`, which only lives on `gh-pages`, silently stopped automation whenever the working directory was left on `main`.)
 
-`main` and `gh-pages` each track their **own independent copies** of the Python source files — they're not shared via untracked leftovers, they genuinely diverge. Don't run any Python while checked out on `gh-pages`; it'll be a stale, different version of the pipeline.
+`main` and `gh-pages` each track their **own copies** of the Python source; they genuinely diverge. Don't run any Python while checked out on `gh-pages`.
 
 ```bash
-# 1. On main: export deals.json from the DB (this also rewrites UCC source
-#    links and fetches fresh NJ portal search tokens -- a raw psql export
-#    would skip both)
+# 1. On main: export deals.json (also rewrites UCC source links, fetches NJ portal
+#    search tokens and derives deal types -- a raw psql export skips all of that)
 venv/bin/python3 scripts/export_deals.py /tmp/deals.json   # also writes /tmp/feed.xml
 
-# 2. Stash any unrelated pre-existing changes blocking the branch switch,
-#    switch to gh-pages (git will show a diverged main.py etc. — expected, ignore it)
+# 2. Stash unrelated changes if they block the switch, then switch
+#    (git will show a diverged main.py etc. -- expected)
 git stash
 git checkout gh-pages
 
-# 3. Copy in the fresh deals.json, commit, push
+# 3. Copy in the data, commit, push
 cp /tmp/deals.json /tmp/feed.xml .
 git add deals.json feed.xml && git commit -m "Data refresh $(date '+%Y-%m-%d %H:%M')" && git push origin gh-pages
 
-# 4. Return to main and restore
+# 4. Back to main
 git checkout main
 git stash pop
 ```
 
-`run_and_deploy.sh` (still on `gh-pages` only) does the same export+push, plus a full pipeline re-run and frontend copy — don't invoke it directly unless you actually want another full run; for a data-only refresh, do the steps above instead.
-
-**Branch rules:**
-- `main` — source code only, never deploy artifacts
-- `gh-pages` — `deals.json` + `index.html` + `assets/` only, plus its own (older, divergent) copy of the Python source
-
-Frontend is built with Vite/React in `dashboard/frontend/`. Rebuild and deploy:
+Frontend (Vite/React in `dashboard/frontend/`) — rebuild and deploy:
 ```bash
 cd dashboard/frontend && npm run build && cd ../..
 cp -r dashboard/frontend/dist /tmp/nh-dist      # dist/ isn't on gh-pages
@@ -135,7 +151,12 @@ git rm -q assets/*.js && cp /tmp/nh-dist/assets/*.js assets/
 git add -A index.html assets/ && git commit -m "Frontend: <what changed>" && git push origin gh-pages
 git checkout main
 ```
-Combine this with a data refresh (step 3 above) when both are going out, so it's one deploy instead of two.
+
+- Every push to `gh-pages` is a Pages deployment. Batch a frontend change with a data refresh into one push where you can.
+- After a frontend deploy, hard-refresh the site (Cmd+Shift+R) — browsers keep the old bundle cached.
+- `run_and_deploy.sh` still does a full pipeline run plus deploy, and exports `deals.json` with a raw query rather than `export_deals.py`. Don't use it for data refreshes.
+
+**Branch rules:** `main` has the source and never deploy artifacts; `gh-pages` has `deals.json`, `feed.xml`, `index.html` and `assets/`, plus its own older copy of the Python source.
 
 ---
 
@@ -153,35 +174,40 @@ psql "$DATABASE_URL" -f db/migration_ownership_associate_id.sql
 psql "$DATABASE_URL" -f db/migration_ownership_switch_source.sql
 psql "$DATABASE_URL" -f db/migration_add_ucc_detail_url.sql
 psql "$DATABASE_URL" -f db/migration_add_con_source_type.sql
+psql "$DATABASE_URL" -f db/migration_add_chow_seen_records.sql
 
-# Python env
+# Python env (3.10)
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-playwright install          # downloads browser binaries for the UCC scrapers (NY/KY/OH/PA)
+playwright install          # browser binaries for the UCC scrapers
 
 # Credentials
-cp .env.example .env      # add ANTHROPIC_API_KEY
+cp .env.example .env        # DATABASE_URL, ANTHROPIC_API_KEY
 
 # Gmail OAuth (Google Alerts source):
-#   1. In Google Cloud Console, create a project (or use an existing one),
-#      enable the Gmail API, and create an OAuth 2.0 Client ID
-#      (Application type: Desktop app).
-#   2. Download the client secret JSON and save it as gmail_credentials.json
-#      in the repo root (path is configurable via GMAIL_CREDENTIALS_FILE).
-#   3. Run any command that touches Gmail alerts once interactively
-#      (e.g. `python3 main.py --no-alerts`) — it opens a browser for you to
-#      authorize, then saves gmail_token.json for all future runs.
+#   1. In Google Cloud Console, create a project, enable the Gmail API, and
+#      create an OAuth 2.0 Client ID (Application type: Desktop app).
+#   2. Save the client secret JSON as gmail_credentials.json in the repo root
+#      (path configurable via GMAIL_CREDENTIALS_FILE).
+#   3. Run any command that reads Gmail alerts once interactively
+#      (e.g. `python3 main.py --no-alerts --gmail-only`) to authorize;
+#      it saves gmail_token.json for future runs.
+
+# Tests
+venv/bin/python3 -m pytest -q tests
 ```
 
 ---
 
-## Known limitations / next steps
+## Known limitations
 
-- **PA UCC** requires a live Chrome CDP session — cannot be automated without a persistent browser process. Currently manual.
-- **OH UCC** uses `headless=False` with a hidden window trick — works locally, needs Xvfb wrapper for cloud deployment.
-- **AWS deployment** (Lambda + RDS + EventBridge) designed but not yet deployed.
-- **Person-to-network mapping** partially addressed — individual CMS owner names now feed NY UCC search directly (see above), but there's still no aggregation linking an individual across multiple facilities into an operator network (e.g. recognizing that several individually-named owners all tie back to the same group like SentosaCare).
-- **CHOW data lag** — CMS CSV is quarterly; deals confirmed only after the next drop.
-- **`lender_classifier.py`'s default is permissive** — an unrecognized secured-party name defaults to `is_acquisition_relevant=True` rather than `False`. This is deliberate (surface maybe-relevant filings for review rather than silently drop real signals) but means new noise categories (personal loans, niche equipment financiers) only get filtered after someone notices them in the data and adds an exclusion pattern — there's no allowlist-only mode.
-- **`cms_ownership_records`/`cms_facilities` have no scheduled refresh** — loaded once via `cms/fetch_cms.py`, not on a cron. Individual-owner search terms will go stale as CMS updates ownership data (released monthly) unless this is rerun periodically.
-- **Fuzzy dedup only runs going forward** — `find_and_resolve_fuzzy_duplicate()` checks each newly-inserted deal against existing ones, so it self-heals new duplicates, but it was only manually swept once against pre-existing historical data (2026-07-02). No periodic full-table sweep is scheduled.
+- **No scheduled runs** (see Scheduling above) — the feed only updates when someone runs the pipeline.
+- **UCC automation is fragile:** NY and PA need a real Chrome (not cloud-ready as-is); PA and OH get bot-challenged under volume; OH is blocked for Playwright; KY and OH rate-limit repeat same-day runs.
+- **State-filing deals:** OK, MS and most MI records name no buyer; OK statuses and ME/MD cases aren't refreshed after they're first stored; MD dates come from upload month (late when documents are re-uploaded).
+- **One sale, several entries:** a sale reported by news and by a state filing (or a UCC-1) can appear as separate deals when the buyer names differ; fuzzy dedup only merges on a close buyer-name match.
+- **CMS data:** CHOW is quarterly and lags real closings by months; `cms_ownership_records` / `cms_facilities` have no scheduled refresh (rerun `python3 -m cms.fetch_cms`).
+- **Lender classifier is permissive by default:** unrecognized secured parties count as relevant, so new noise categories are only filtered once someone adds a pattern.
+- **Fuzzy dedup only runs on new inserts;** there's no periodic full-table sweep.
+- **Operator networks:** individual CMS owners feed NY/OH UCC searches, but nothing links an individual across facilities into an operator group.
+- **Deployment** is manual, and every data refresh commits a ~2.3 MB `deals.json` to `gh-pages` history. Moving to GitHub Actions Pages deploys would fix the growth.
+- **AWS deployment** (Lambda + RDS + EventBridge) was designed but never deployed.

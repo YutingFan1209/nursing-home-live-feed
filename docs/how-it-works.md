@@ -4,7 +4,7 @@
 
 This tracker follows ownership changes at skilled nursing facilities (nursing homes) across the United States. Its purpose is to close a timing gap: federal ownership records are accurate but slow, often taking months to reflect who actually owns a given nursing home. This project combines several public records and news sources — some fast but unconfirmed, others slow but authoritative — to build a more current picture of nursing home ownership than any single source provides on its own.
 
-As of this writing, the tracker covers **1,245 tracked deals across 40 states**, drawing on state lending records, federal ownership filings, SEC disclosures, and trade press coverage. The live feed is published at [yutingfan1209.github.io/nursing-home-live-feed](https://yutingfan1209.github.io/nursing-home-live-feed/).
+As of 2026-09-30, the tracker covers **2,549 live deals across 53 states and territories**, drawing on state pre-closing ownership filings (8 states), state lending records, federal ownership filings, SEC disclosures, and trade press coverage. The live feed is published at [yutingfan1209.github.io/nursing-home-live-feed](https://yutingfan1209.github.io/nursing-home-live-feed/).
 
 ---
 
