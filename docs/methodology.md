@@ -161,7 +161,6 @@ See `.env.example` for the authoritative template. Required/relevant variables:
 | `SENDGRID_API_KEY`, `ALERT_FROM_EMAIL`, `ALERT_TO_EMAILS` | Email digest delivery (`alerts/digest.py`). |
 | `ARCHIVE_BUCKET` | Optional S3/GCS bucket for raw article archival; leave blank to skip archiving. |
 | `EDGAR_CONTACT_EMAIL` | Required by SEC EDGAR's fair-use policy — requests without a real contact email in the User-Agent get blocked. |
-| `ALLOWED_ORIGINS` | CORS allowlist for the dashboard API. |
 | `VITE_FACILITY_BASE_URL` | Frontend build-time var — deals with a CCN link to `{VITE_FACILITY_BASE_URL}/{CCN}`. |
 | `FUZZY_MATCH_THRESHOLD`, `RECHECK_INTERVAL_DAYS`, `MAX_ARTICLE_AGE_DAYS` | Optional overrides for `config.py` defaults (commented out by default in `.env.example`). |
 

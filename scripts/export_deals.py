@@ -5,8 +5,7 @@ Exports deals.json for the gh-pages static frontend. Run from repo root
 on `main`, then copy the output to deals.json on `gh-pages` and push --
 see README's Deployment section for the full step-by-step.
 
-Excludes dismissed-stage deals (matches the `stage NOT IN ('dismissed')`
-filter main_api.py's live queries already use).
+Excludes dismissed-stage deals.
 
 UCC-1 sourced deals don't have a real per-filing URL to link to -- their
 articles.url is `ucc://{state}/{filing_number}`, an internal dedup key

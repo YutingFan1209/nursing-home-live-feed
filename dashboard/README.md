@@ -1,81 +1,28 @@
-# Dashboard — Phase 6
+# Dashboard (frontend)
 
-Full-stack team dashboard: FastAPI backend + React frontend.
+The live site is a static React app: it fetches `deals.json` directly and has no backend. (A FastAPI backend and a Railway deployment existed in June 2026; both were removed on 2026-09-30 after Railway had stopped deploying on 2026-07-01. They're in git history if ever needed.)
 
 ## Stack
-- **Backend**: FastAPI + psycopg2 (Python)
-- **Frontend**: React 18 + Vite (no component library — custom CSS-in-JS)
-- **Fonts**: Syne (display) + DM Sans (body) + DM Mono (code/labels)
+- React 18 + Vite, no component library (inline styles)
+- Data: `deals.json` + `feed.xml`, produced by `scripts/export_deals.py`
 
 ## Running locally
 
-### Backend
 ```bash
-# From project root
-pip install -r requirements.txt
-uvicorn dashboard.api.main:app --reload --port 8000
-```
-API docs available at: http://localhost:8000/docs
+# From the repo root: export current data into Vite's public/ folder
+mkdir -p dashboard/frontend/public
+venv/bin/python3 scripts/export_deals.py dashboard/frontend/public/deals.json   # also writes feed.xml next to it
 
-### Frontend
-```bash
 cd dashboard/frontend
 npm install
-npm run dev
-# Opens at http://localhost:3000
+npm run dev          # http://localhost:3000/nursing-home-live-feed/
 ```
 
-## Environment variable
-```bash
-# Optional — defaults to http://localhost:8000
-VITE_API_URL=https://your-internal-domain.org
-```
+`public/deals.json` and `public/feed.xml` are gitignored — they're local copies of the data, not source.
 
-## Deploying
+## Build and deploy
 
-### Backend (FastAPI)
-Any WSGI/ASGI host works. Recommended:
-```bash
-# With gunicorn + uvicorn workers
-gunicorn dashboard.api.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
-```
+`npm run build` writes `dist/`; deploying means copying `dist/index.html` and replacing `assets/*.js` on the `gh-pages` branch. Exact steps are in the root README's Deployment section.
 
-### Frontend
-```bash
-cd dashboard/frontend
-npm run build        # outputs to dist/
-# Serve dist/ with nginx, Caddy, or upload to S3 + CloudFront
-```
-
-## API endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/stats` | Dashboard stats + top states + weekly volume |
-| GET | `/api/deals` | Paginated deal list with filters |
-| GET | `/api/deals/{id}` | Full deal detail with CMS matches + annotations |
-| POST | `/api/deals/{id}/annotations` | Add team note |
-| PATCH | `/api/deals/{id}/stage` | Update deal stage (verify/dismiss) |
-| GET | `/api/export` | CSV export with optional filters |
-| GET | `/api/health` | Health check |
-
-## Filter params for `/api/deals`
-
-| Param | Example | Description |
-|---|---|---|
-| `stage` | `confirmed` | Filter by pipeline stage |
-| `state` | `VA` | Filter by 2-letter state code |
-| `operator` | `cascadia` | Fuzzy search on acquirer/operator name |
-| `confidence` | `high` | Filter by match confidence |
-| `tag` | `regulatory` | Filter by annotation tag |
-| `limit` | `50` | Page size (max 200) |
-| `offset` | `0` | Pagination offset |
-
-## What the team can do
-
-- **View** all deals with stage, confidence, states, value, and CMS match count
-- **Filter** by state (clickable stat bar), stage, confidence, operator name, or tag
-- **Open** any deal to see full CMS match details, source article, and prior owner
-- **Verify** or **Dismiss** a deal with one click
-- **Annotate** with a note tagged as research / regulatory / follow-up / flagged
-- **Export** current filtered view to CSV for analysis
+## Environment
+- `VITE_FACILITY_BASE_URL` (optional, read from the repo-root `.env`): deals with a CCN link to `{VITE_FACILITY_BASE_URL}/{CCN}`; defaults to Medicare Care Compare.

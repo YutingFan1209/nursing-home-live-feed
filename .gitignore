@@ -10,3 +10,10 @@ node_modules/
 .DS_Store
 CLAUDE.md
 *.bak-*
+
+# Local copies of exported data for `npm run dev`
+dashboard/frontend/public/deals.json
+dashboard/frontend/public/feed.xml
+# Vite copies public/ into dist/ on build
+dashboard/frontend/dist/deals.json
+dashboard/frontend/dist/feed.xml
