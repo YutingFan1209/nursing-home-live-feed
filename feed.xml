@@ -4,27 +4,300 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-09-30T15:55:14.427202+00:00</updated>
+  <updated>2026-09-30T16:08:14.146805+00:00</updated>
   <entry>
-    <id>urn:uuid:63fecf76-39b4-41fb-bcc1-4fc5c47e24af</id>
-    <title>Ownership change: 10 Sterling Drive (NJ)</title>
+    <id>urn:uuid:c3e560b2-fd0c-4153-9ed5-c30570f3ff67</id>
+    <title>Ownership change: 10 Sterling Drive Opco (NJ)</title>
     <link href="https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership/public-hearing-notice-accelerate-skilled-nursing-and-rehab-piscataway.pdf"/>
-    <updated>2026-09-30T15:53:34.968705+00:00</updated>
+    <updated>2026-09-30T16:06:42.060727+00:00</updated>
     <summary>Effective 2026-05-13; Facilities: Accelerate Skilled Nursing and Rehab Piscataway; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
   </entry>
   <entry>
-    <id>urn:uuid:6e794147-d60c-473e-bbb1-1e4f5b810efd</id>
+    <id>urn:uuid:596a166b-4429-4035-8835-a14816b720b9</id>
     <title>Ownership change: Cedar Grove Nursing and Rehabilitation acquires from CG Healthcare (NJ)</title>
     <link href="https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership/cedar-grove-summary.pdf"/>
-    <updated>2026-09-30T15:53:34.912062+00:00</updated>
+    <updated>2026-09-30T16:06:42.046074+00:00</updated>
     <summary>Effective 2026-06-09; Facilities: Alaris Health at Cedar Grove; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
   </entry>
   <entry>
-    <id>urn:uuid:31a80083-9934-49d1-9acf-3160e596f3cf</id>
-    <title>Ownership change: 1417 Brace Road acquires from The Silvercare (NJ)</title>
+    <id>urn:uuid:64153281-f74d-4f63-8e79-c90f87b857d7</id>
+    <title>Ownership change: 1417 Brace Road Opco acquires from The Silvercare (NJ)</title>
     <link href="https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership/silver-healthcare-center-application.pdf"/>
-    <updated>2026-09-30T15:53:34.869658+00:00</updated>
+    <updated>2026-09-30T16:06:42.032946+00:00</updated>
     <summary>Effective 2026-07-07; Facilities: Silver Healthcare Center, Silver Specialty Care Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b6888f2c-92cb-4302-9da1-cefcaf9e25cd</id>
+    <title>Ownership change: Silver Spring acquires from Regency Care of Silver Spring (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/2026-05/vierra_acq_appl_redacted.pdf"/>
+    <updated>2026-09-30T16:06:41.996828+00:00</updated>
+    <summary>Effective 2026-05-01; Facilities: Regency Care of Silver Spring; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:73285a0d-ed2c-41cb-b6b2-4d17cca4b6e8</id>
+    <title>Ownership change: Anchorage Nursing and Rehab Center acquires from OHI Asset (MD) Salisbury (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/2026-05/nh_acq_anchorage_redacted.pdf"/>
+    <updated>2026-09-30T16:06:41.821963+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: Anchorage Nursing and Rehab Center, Blue Point Healthcare Center, Clinton Healthcare Center, Cumberland Healthcare Center, Ellicott City Healthcare Center; $25.78M; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d3507036-5c2e-4e8b-80f9-00ce51397cad</id>
+    <title>Ownership change: 6530 Democracy Blvd acquires from HCP Maryland Properties (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/documents/2026-06/montcare_healthcare_bethesda_nh_acq_appl.pdf"/>
+    <updated>2026-09-30T16:06:41.800635+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: Montcare at Bethesda, Montcare at Potomac, Montcare at Wheaton; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:725ee763-316a-48b1-9f9d-73797067b844</id>
+    <title>Ownership change: Silver Spring Health acquires from Mountainaire Health (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/2026-09/althea_appl_nh_asq.pdf"/>
+    <updated>2026-09-30T16:06:41.788638+00:00</updated>
+    <summary>Effective 2026-09-01; Facilities: Althea Woodland Nursing Home; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3d89b537-1120-418a-8c0a-6d00b8324afd</id>
+    <title>Ownership change: Eagle Arc Acquisitions acquires from First Atlantic Healthcare, First Atlantic, and LTC (ME)</title>
+    <link href="https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/LOI%20EagleLink.pdf"/>
+    <updated>2026-09-30T16:06:41.757394+00:00</updated>
+    <summary>Effective 2026-08-12; Facilities: Seal Rock Health Care, Hawthorne House, Seaside Rehabilitation, Marshall Health Care, Woodlawn Rehabilitation; $275.00M; Source: Maine DHHS Certificate of Need Reviews</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d02c8194-198b-4837-8624-c4412cd444df</id>
+    <title>Ownership change: 101 W State Street Holdings acquires from Genesis Healthcare (ME)</title>
+    <link href="https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/NewGen%20-%20Maine%20CON%20LOI%20%283.19.26%29.pdf"/>
+    <updated>2026-09-30T16:06:41.718559+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Cedar Ridge Center, Harbor Hills Center, Marshwood Center, Oak Grove Center, Orono Commons; $343.00M; Source: Maine DHHS Certificate of Need Reviews</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:59ed2bb6-3e35-4c91-8a25-ab3b5b0538be</id>
+    <title>Ownership change: Florence SNF Property Holdings acquires from Florence Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-069%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T16:06:41.615455+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Florence Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fd1fb25a-04cd-456b-93ae-0f88d4f8797c</id>
+    <title>Ownership change: North Hill SNF Property Holdings acquires from North Hill (Birmingham) Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-068%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T16:06:41.499568+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: North Hill Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a55d5c45-afaf-46ab-a304-e5f2a8bad5d5</id>
+    <title>Ownership change: North Mobile SNF Property Holdings acquires from Eight Mile Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-067%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T16:06:41.370684+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Eight Mile Nursing and Rehabilitation Center, North Mobile Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b2a87431-afa8-4bd8-8110-8ab36656fc44</id>
+    <title>Ownership change: Mobile SNF Property Holdings acquires from Mobile Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-066%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T16:06:41.268966+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Mobile Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1b3474dd-c29a-4dd8-a3b7-f073b3f7346b</id>
+    <title>Ownership change: Elba SNF Property Holdings acquires from Elba Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-065%20Elba%20Nursing%20and%20Rehabilitation%20Center%20LLC%20031-N0003%20-%20CHOW%20App%209.29.2025.pdf"/>
+    <updated>2026-09-30T16:06:41.176619+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Elba Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:48851de4-a0ea-4663-85dd-386433073645</id>
+    <title>Ownership change: Birmingham East SNF Property Holdings acquires from Birmingham East Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-064%20Complete%2010.22.2025.pdf"/>
+    <updated>2026-09-30T16:06:41.055086+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Birmingham Nursing and Rehabilitation Center East; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6189cf55-33b2-4913-970f-749ff92cfff2</id>
+    <title>Ownership change: Birmingham SNF Property Holdings acquires from Birmingham Property Company (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-063%20Complete%2010.21.2025.pdf"/>
+    <updated>2026-09-30T16:06:40.951736+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Birmingham Nursing and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8aa4f140-6dfe-4455-a43b-a309ee8fc67a</id>
+    <title>Ownership change: SouthCare Health and Rehab of Vernon acquires from Generations of Vernon (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-062%20Complete%2010.10.2025.pdf"/>
+    <updated>2026-09-30T16:06:40.846188+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: Generations of Vernon; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:16f8046c-564c-435f-9d83-6893f55b06a5</id>
+    <title>Ownership change: SouthCare Health and Rehab of Red Bay acquires from Generations of Red Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2025/CO2025-061%20Complete%2010.10.2025.pdf"/>
+    <updated>2026-09-30T16:06:40.731274+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: Generations of Red Bay; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:74443ef0-808f-42c0-9956-c7b7339a11d8</id>
+    <title>Ownership change: 555 B PropCo acquires from Lafayette Nursing Home (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-076%20Lafayette%20Nursing%20Home%20017-N0003%20-%20CHOW%20App%207.23.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.699644+00:00</updated>
+    <summary>Effective 2026-08-31; Facilities: Lafayette Nursing Home; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e33193f2-3456-4c02-a637-e4be5d46cebb</id>
+    <title>Ownership change: 1050 Convalescent Realty acquires from Arabella Health &amp; Wellness of Vernon (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-070%20Complete%206.16.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.647033+00:00</updated>
+    <summary>Effective 2026-06-24; Facilities: Arabella Health &amp; Wellness of Vernon Opco LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:80dc562b-8ccf-43c3-9527-8be810013b18</id>
+    <title>Ownership change: 106 10th Realty acquires from Arabella Health &amp; Wellness of Red Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-069%20Complete%206.12.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.592144+00:00</updated>
+    <summary>Effective 2026-06-24; Facilities: Arabella Health &amp; Wellness of Red Bay Opco LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f0fed008-a6ca-45a9-a29b-a52d11240fcb</id>
+    <title>Ownership change: 200 Alabama Avenue Opco acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-068%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.535347+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Cypress Cove Post Acute, Cypress Cove Center; $0.47M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bd33bc34-4796-4f89-b95e-6b11437fc18d</id>
+    <title>Ownership change: 211-213 Ana Drive Opco acquires from 211-213 Ana Drive Opco (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-067%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.483422+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Glenwood Post Acute, Glenwood Center; $0.98M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:720eeb5d-3a5d-48c6-acee-3ef30f5971db</id>
+    <title>Ownership change: 1350 14th Avenue SE Opco acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-066%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.427211+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: River City Center, River City Post Acute; $2.32M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4009b2a5-0299-4b28-8c7c-d0546639cd62</id>
+    <title>Ownership change: 813 Keller Lane Opco acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-065%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.369690+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Keller Landing Post Acute, Keller Landing; $0.20M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1d83b6a4-82fb-4b95-bae0-53b6e44dd1f9</id>
+    <title>Ownership change: 280 Mount Hebron Road Opco acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-064%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.288556+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Merry Wood Lodge, Merry Wood Post Acute; $1.12M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8909b619-8f83-4947-af4c-e42779334bb4</id>
+    <title>Ownership change: 500 John Aldridge Drive Opco acquires from SunBridge Healthcare (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-063%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.232349+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Cottage Shoals Post Acute, Cottage of the Shoals; $1.05M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1d756a98-cd81-4590-8216-407c5bc171c2</id>
+    <title>Ownership change: 420 Dean Lane Opco acquires from SunBridge Gardendale Health Care Center (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-062%20Complete%206.29.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.174980+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Magnolia Ridge Post Acute, Magnolia Ridge; $0.11M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:de9e5304-5f22-4561-ac67-9737349c8c24</id>
+    <title>Ownership change: Cloverdale SNF Property Holdings acquires from Scottsboro Nursing Home (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-061%20Cloverdale%20Rehabilitation%20and%20Nursing%20Center%20071-N0003%20-%20CHOW%20App%205.27.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.131389+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: Cloverdale Rehabilitation and Nursing Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c099fad3-55d5-4e9a-b02f-7ec4cc921e3f</id>
+    <title>Ownership change: Redmont Property acquires from Arabella Health &amp; Wellness of Bessemer (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-047%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:40.037846+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Birmingham; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:37f6fd41-73f6-434a-90bf-3e64ab736263</id>
+    <title>Ownership change: Northgate Property acquires from Magnolia Ridge Rehabilitation and Senior Living (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-046%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.954146+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Ridgeway Rehabilitation &amp; Senior Living; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:30eff266-7b62-427b-ae55-6105959e5bfe</id>
+    <title>Ownership change: Stonehaven Property acquires from Oak Crest Health &amp; Wellness (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-045%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.873998+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Oak Crest Health &amp; Wellness; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:590afecd-899f-455b-a280-a38fa3312fe4</id>
+    <title>Ownership change: Bellway Property acquires from Arabella Health &amp; Wellness of Selma (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-044%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.784473+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Selma; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:179c0345-7dbf-43f1-90c2-ab27e4809263</id>
+    <title>Ownership change: Everstead Property acquires from Arabella Health &amp; Wellness of Russellville (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-043%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.688199+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Russellville; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e55b59aa-226c-4f30-8dfa-43b8de99de78</id>
+    <title>Ownership change: Bridgeway Property acquires from Arabella Health &amp; Wellness of Phenix City (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-042%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.591108+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Phenix City; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:30560a6b-1eff-4217-828c-b083483b3f1c</id>
+    <title>Ownership change: Timberland Property acquires from Arabella Health &amp; Wellness of Butler (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-041%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.497702+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Butler; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:671c5c88-d6fe-43d7-8653-27bf80e2bb6e</id>
+    <title>Ownership change: Altera Property acquires from Arabella Health &amp; Wellness of Fairhope (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-040%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.406810+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Fairhope; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1ca561fd-6407-4c44-b7a9-5d6dbf330bfa</id>
+    <title>Ownership change: Greenway Property acquires from Arabella Health &amp; Wellness of Grand Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-039%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.313311+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Grand Bay; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cb13ff49-3667-4edd-a70c-72e191b522f5</id>
+    <title>Ownership change: Camellia Property acquires from Arabella Health &amp; Wellness of Mobile (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-038%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.221928+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Mobile; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0ccf8083-1876-449b-9f2c-66f3808f36ac</id>
+    <title>Ownership change: Rivertown Property acquires from Arabella Health &amp; Wellness of Montgomery (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-037%20Complete%203.3.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.124700+00:00</updated>
+    <summary>Effective 2026-03-31; Facilities: Arabella Health &amp; Wellness of Montgomery; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a0b2830b-6302-463c-bd0c-ab075190e059</id>
+    <title>Ownership change: Arabella Health &amp; Wellness of Red Bay acquires from SouthCare Health and Rehab of Red Bay (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-034%20Complete%201.5.2026.pdf"/>
+    <updated>2026-09-30T16:06:39.014942+00:00</updated>
+    <summary>Effective 2026-01-20; Facilities: SouthCare Health and Rehab of Red Bay, LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:00d1a05b-b0de-467e-b10f-aba259fc75e7</id>
+    <title>Ownership change: Arabella Health &amp; Wellness of Vernon acquires from SouthCare Health and Rehab of Vernon (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-033%20Complete%201.5.2026.pdf"/>
+    <updated>2026-09-30T16:03:44.072214+00:00</updated>
+    <summary>Effective 2026-01-20; Facilities: SouthCare Health and Rehab of Vernon; Source: Alabama SHPDA Change of Ownership Notices</summary>
   </entry>
   <entry>
     <id>urn:uuid:d34fc92d-cb54-4e40-b4b1-96c2bf299e61</id>
@@ -62,34 +335,6 @@
     <summary>Effective 2026-06-05; Facilities: Alps at Wayne Rehab &amp; Care Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
   </entry>
   <entry>
-    <id>urn:uuid:56bb6b88-c836-4f73-8db3-d70c7ba24735</id>
-    <title>Ownership change: Anchorage Nursing and Rehab Center acquires from OHI Asset (MD) Salisbury (MD)</title>
-    <link href="https://mhcc.maryland.gov/sites/default/files/2026-05/nh_acq_anchorage_redacted.pdf"/>
-    <updated>2026-09-30T15:50:47.879945+00:00</updated>
-    <summary>Effective 2026-02-01; Facilities: Anchorage Nursing and Rehab Center, Blue Point Healthcare Center, Clinton Healthcare Center, Cumberland Healthcare Center, Ellicott City Healthcare Center; $25.78M; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:56e26c6a-d98e-4411-93c9-15fc5d0bed2a</id>
-    <title>Ownership change: 6530 Democracy Blvd acquires from HCP Maryland Properties (MD)</title>
-    <link href="https://mhcc.maryland.gov/sites/default/files/documents/2026-06/montcare_healthcare_bethesda_nh_acq_appl.pdf"/>
-    <updated>2026-09-30T15:50:27.893082+00:00</updated>
-    <summary>Effective 2026-06-01; Facilities: Montcare at Bethesda, Montcare at Potomac, Montcare at Wheaton; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:eb48cd6f-ef9d-43b2-b1df-7c3580cec148</id>
-    <title>Ownership change: Silver Spring acquires from Regency Care of Silver Spring (MD)</title>
-    <link href="https://mhcc.maryland.gov/sites/default/files/2026-05/vierra_acq_appl_redacted.pdf"/>
-    <updated>2026-09-30T15:49:15.252011+00:00</updated>
-    <summary>Effective 2026-05-01; Facilities: Regency Care of Silver Spring; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c26acb98-cafd-4e1b-8dae-9122b3fd4191</id>
-    <title>Ownership change: Silver Spring Health acquires from Mountainaire Health (MD)</title>
-    <link href="https://mhcc.maryland.gov/sites/default/files/2026-09/althea_appl_nh_asq.pdf"/>
-    <updated>2026-09-30T15:49:14.919945+00:00</updated>
-    <summary>Effective 2026-09-01; Facilities: Althea Woodland Nursing Home; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:6e71d6ba-c8c9-489e-b275-eed0e2c63c59</id>
     <title>Ownership change: DANA Properties, LLC (NC)</title>
     <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5234"/>
@@ -109,250 +354,5 @@
     <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5136"/>
     <updated>2026-09-30T15:49:08.563639+00:00</updated>
     <summary>Effective 2026-04-02; Facilities: Tetra Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2b41dc6b-2dc9-47ef-8f96-a0fe7c7c9dc1</id>
-    <title>Ownership change: Sweeten Creek Health and Rehab Center, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5135"/>
-    <updated>2026-09-30T15:49:08.503727+00:00</updated>
-    <summary>Effective 2026-04-02; Facilities: Greentree Ridge Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8f500df2-83c0-43ae-bf23-a1d6103998d5</id>
-    <title>Ownership change: Grove Park Health and Rehab Center, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5134"/>
-    <updated>2026-09-30T15:49:08.450410+00:00</updated>
-    <summary>Effective 2026-04-02; Facilities: Grove Park Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:63c3d02d-6a68-4ffc-bdf2-a67e5af8bf01</id>
-    <title>Ownership change: Pittsboro Health and Rehab Center, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5124"/>
-    <updated>2026-09-30T15:49:08.399884+00:00</updated>
-    <summary>Effective 2026-04-02; Facilities: Pittsboro Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e3e21458-0fb5-4516-9caa-70a8f4a24512</id>
-    <title>Ownership change: Ignite Albemarle Property, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5123"/>
-    <updated>2026-09-30T15:49:08.317584+00:00</updated>
-    <summary>Effective 2026-03-24; Facilities: Ignite Medical Resort Albemarle; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ea38604f-b046-4a97-9f2d-816111c4d472</id>
-    <title>Ownership change: Ignite South Charlotte Property, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5119"/>
-    <updated>2026-09-30T15:49:08.241235+00:00</updated>
-    <summary>Effective 2026-03-24; Facilities: Sardis Oaks; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:47ad6bb6-acfa-4822-9b50-651923f470fc</id>
-    <title>Ownership change: Ignite Huntersville Property, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5118"/>
-    <updated>2026-09-30T15:49:08.169721+00:00</updated>
-    <summary>Effective 2026-03-24; Facilities: Huntersville Oaks; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:87805219-ba46-48c4-9782-04fc9fcc2756</id>
-    <title>Ownership change: Ignite Shelby Property, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5117"/>
-    <updated>2026-09-30T15:49:08.099003+00:00</updated>
-    <summary>Effective 2026-03-24; Facilities: Cleveland Pines Nursing Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:59f05020-175a-4723-9f1c-2abad41925f6</id>
-    <title>Ownership change: Compass Realty Kannapolis, LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5101"/>
-    <updated>2026-09-30T15:49:08.019754+00:00</updated>
-    <summary>Effective 2026-03-18; Facilities: Compass Healthcare and Rehab Kannapolis; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2d5ff40f-0199-4d29-8977-6a99844f36ab</id>
-    <title>Ownership change: Mountain Ridge Opco LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5061"/>
-    <updated>2026-09-30T15:49:07.934843+00:00</updated>
-    <summary>Effective 2026-01-07; Facilities: Mountain Ridge Rehabilitation and Healthcare Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f0bac4ff-11c1-40b3-80fb-29c57f82d297</id>
-    <title>Ownership change: Premier Living and Healthcare Center LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5065"/>
-    <updated>2026-09-30T15:49:07.857902+00:00</updated>
-    <summary>Effective 2025-12-23; Facilities: Premier Living and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:61660ed9-e101-4609-9604-a2a05aa6fbc8</id>
-    <title>Ownership change: Rich Square Operator LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5012"/>
-    <updated>2026-09-30T15:49:07.722960+00:00</updated>
-    <summary>Effective 2025-10-31; Facilities: Rich Square Health Care Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:71656dd2-f236-4e9b-9e97-cc2bc72c2b4b</id>
-    <title>Ownership change: Maggie Valley Operator LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5011"/>
-    <updated>2026-09-30T15:49:07.575005+00:00</updated>
-    <summary>Effective 2025-10-31; Facilities: Maggie Valley Nursing and Rehabilitation; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1a26231f-d26a-4ce7-9a72-bd661f21df23</id>
-    <title>Ownership change: Durham Operator LLC (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5009"/>
-    <updated>2026-09-30T15:49:07.453610+00:00</updated>
-    <summary>Effective 2025-10-31; Facilities: Durham Nursing &amp; Rehabilitation Center; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bc2ae330-5397-4399-906d-c71ea47942ee</id>
-    <title>Ownership change: HBP Oberlin Senior Housing PROPCO KP6 (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-4962"/>
-    <updated>2026-09-30T15:48:53.162219+00:00</updated>
-    <summary>Effective 2025-10-03; Facilities: Bloomsbury at Hayes Barton Place; Source: North Carolina DHSR CON Exemptions</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bee9f8ab-6518-4110-b5ad-0e3c98059468</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Chadwick Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-chadwick-jackson-hinds-county-20251001"/>
-    <updated>2026-09-30T15:33:07.091192+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Chadwick Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fc182552-8381-4bef-a36b-60eae578b7e6</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): McComb Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-mccomb-mccomb-pike-county-20251001"/>
-    <updated>2026-09-30T15:33:07.078068+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: McComb Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0497e404-111f-419d-9a14-d50bf949bc64</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Cleveland Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-cleveland-cleveland-bolivar-county-20251001"/>
-    <updated>2026-09-30T15:33:07.059863+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Cleveland Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fa309bee-479b-4a56-827e-162129693864</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Lakeland Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-lakeland-jackson-hinds-county-20251001"/>
-    <updated>2026-09-30T15:33:07.044265+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Lakeland Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:45237b39-2ffe-49ae-871b-932b72df04b3</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Brandon Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-brandon-brandon-rankin-county-20251001"/>
-    <updated>2026-09-30T15:33:07.027581+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Brandon Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ab02a1ab-1c13-4cf5-970c-6eb69a1a3f92</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Manhattan Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-manhattan-jackson-hinds-county-20251001"/>
-    <updated>2026-09-30T15:33:07.011042+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Manhattan Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f95a9e9e-3ed4-4e95-a893-f294256a7045</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Ruleville Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-ruleville-ruleville-sunflower-county-20251001"/>
-    <updated>2026-09-30T15:33:06.995092+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Ruleville Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:31a4cbc2-8a6a-41b0-854c-10b64f1493e1</id>
-    <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Tupelo Community Care Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-tupelo-tupelo-lee-county-20251001"/>
-    <updated>2026-09-30T15:33:06.979200+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Tupelo Community Care Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:db83ab7b-ce48-4181-bdee-f1d90da756aa</id>
-    <title>Ownership change: [MS CON] CHOW (Lease): Bedford Care Center of Marion (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-bedford-marion-lauderdale-county-20251202"/>
-    <updated>2026-09-30T15:33:06.959451+00:00</updated>
-    <summary>Effective 2025-12-02; Facilities: Bedford Care Center of Marion; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b8be08e1-16d2-4df5-b00e-57ad14df3c6c</id>
-    <title>Ownership change: [MS CON] CHOW (Lease): Arabella Health and Wellness of Meridian (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-arabella-meridian-lauderdale-county-20260115"/>
-    <updated>2026-09-30T15:33:06.933437+00:00</updated>
-    <summary>Effective 2026-01-15; Facilities: Arabella Health and Wellness of Meridian; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1d2d6a30-e0d2-4cb8-a599-ffd1913501eb</id>
-    <title>Ownership change: [MS CON] CHOW (Purchase/Lease): Bolivar Medical Center Long Term Care (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-bolivar-cleveland-bolivar-county-20260428"/>
-    <updated>2026-09-30T15:33:06.903973+00:00</updated>
-    <summary>Effective 2026-04-28; Facilities: Bolivar Medical Center Long Term Care; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ff5c3ebc-d13a-4b1b-a8a4-42f63432fe51</id>
-    <title>Ownership change: [MS CON] CHOW (Lease): Academy Health Center, Inc. (currently being leased to Lamar Health and Rehabilitation Center) (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-academy-madison-madison-county-20260910"/>
-    <updated>2026-09-30T15:31:48.392387+00:00</updated>
-    <summary>Effective 2026-09-10; Facilities: Academy Health Center, Inc. (currently being leased to Lamar Health and Rehabilitation Center); Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:04d3a448-7bc1-4a1e-bff2-e5b153e1fcec</id>
-    <title>Ownership change: [MI CON] 25-0327 NEW 17 MTH LEASE &amp; LANDLORD [EXP. APRIL 2027] &amp; MEMBR: West Bloomfield Health And Rehabilitation Center (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0327"/>
-    <updated>2026-09-30T15:29:33.380197+00:00</updated>
-    <summary>Effective 2025-11-13; Facilities: West Bloomfield Health And Rehabilitation Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:07bb21db-cfed-4f09-b28f-3962837b31d4</id>
-    <title>Ownership change: [MI CON] 25-0373 NEW 36-MTH LEASE &amp; LANDLORD [WAIVER] DEC-2028: Optalis Health And Rehabilitation Of Kingsford (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0373"/>
-    <updated>2026-09-30T15:29:33.328557+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Kingsford; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fbe58326-a003-4103-8785-9580d809e964</id>
-    <title>Ownership change: [MI CON] 25-0371 NEW 31-MTH LEASE &amp; LANDLORD [WAIVER] (JUL-2028]: Optalis Health And Rehabilitation Of Allen Park (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0371"/>
-    <updated>2026-09-30T15:29:33.276150+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Allen Park; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1e0db6f2-0235-4eb3-a7fa-317199ad478f</id>
-    <title>Ownership change: [MI CON] 25-0368 NEW 36-MTH LEASE &amp; LANDLORD [WAIVER] DEC-2028: Optalis Health And Rehabilitation Of Canton (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0368"/>
-    <updated>2026-09-30T15:29:33.227711+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Canton; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7a8909ba-33df-40ec-b68b-225830a6e0e6</id>
-    <title>Ownership change: [MI CON] 25-0369 NEW 36-MTH LEASE &amp; LANDLORD [WAIVER] DEC-2028: Optalis Health And Rehab Of Dearborn Heights (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0369"/>
-    <updated>2026-09-30T15:29:33.165140+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehab Of Dearborn Heights; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c09bdc63-b250-4095-b832-7bd994f20565</id>
-    <title>Ownership change: [MI CON] 25-0370 NEW 36-MTH LEASE &amp; LANDLORD [WAIVER] DEC-2028: Optalis Health And Rehabilitation Of Grosse (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0370"/>
-    <updated>2026-09-30T15:29:33.118964+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Grosse; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:802a85ba-6129-4f4b-9eea-c6272f0f9a7b</id>
-    <title>Ownership change: [MI CON] 25-0376 NEW 31-MTH LEASE &amp; LANDLORD [WAIVER] JUL-2028: Optalis Health And Rehab Of Sterling Heights (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0376"/>
-    <updated>2026-09-30T15:29:33.055559+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehab Of Sterling Heights; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a72fb701-aaa4-4695-b0fb-6814bd116136</id>
-    <title>Ownership change: [MI CON] 25-0375 NEW 36-MTH LEASE &amp; LANDLORD [WAIVER] DEC-2028: Optalis Health And Rehabilitation Of Troy (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0375"/>
-    <updated>2026-09-30T15:29:33.007761+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Troy; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8f6a1176-dd03-404d-b0c6-0e2f5e729c13</id>
-    <title>Ownership change: [MI CON] 25-0374 NEW 36-MTH LEASE &amp; NEW LANDLORD [WAIVER]: Optalis Health And Rehabilitation Of Three (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0374"/>
-    <updated>2026-09-30T15:29:32.961325+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Three; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
   </entry>
 </feed>
