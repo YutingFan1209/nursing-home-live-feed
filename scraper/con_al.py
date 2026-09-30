@@ -27,15 +27,14 @@ The new owner isn't in CMS yet when a notice is filed, so these deals stay
 "detected" with no CMS match until the regular re-check sees CMS catch up.
 """
 
-import io
 import logging
 import re
 from datetime import date, datetime, timedelta, timezone
 from urllib.parse import urljoin
 
 from curl_cffi import requests as cffi_requests
-from pypdf import PdfReader
 
+from pipeline.pdf_text import pdf_text
 from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
@@ -50,8 +49,6 @@ CON_AL_RECENCY_DAYS = 365
 # Only the first few pages carry the cover letter and filing form; the rest
 # is org charts and exhibits, which add nothing but extraction tokens.
 MAX_PDF_PAGES = 6
-# Below this, the PDF is a scan (page stamps like "CO2026-069" only)
-MIN_TEXT_CHARS = 1500
 
 _ROW_RE = re.compile(
     r'<a href="([^"]+\.pdf)"[^>]*>\s*(CO\d{4}-\d+)\s*</a>\s*</td>\s*'
@@ -88,12 +85,6 @@ def _parse_index(html: str) -> list[dict]:
             "url": urljoin(CON_AL_INDEX_URL, href),
         })
     return notices
-
-
-def _pdf_text(content: bytes) -> str:
-    reader = PdfReader(io.BytesIO(content))
-    pages = reader.pages[:MAX_PDF_PAGES]
-    return "\n".join((p.extract_text() or "") for p in pages)
 
 
 def _facility_type(text: str, pdf_url: str) -> tuple[str | None, str | None]:
@@ -135,7 +126,8 @@ def fetch_con_al_notices(is_known) -> tuple[list[dict], list[dict]]:
     for n in candidates:
         health.attempted("AL CON notice download")
         try:
-            text = _pdf_text(_get(n["url"], timeout=120).content)
+            # Scans (e.g. CO2026-069) come back as a Claude transcription
+            text, _ = pdf_text(_get(n["url"], timeout=120).content, MAX_PDF_PAGES, n["co_number"])
         except Exception as e:
             logger.warning(f"AL CON {n['co_number']} download/parse failed: {e}")
             health.failed("AL CON notice download", f"{n['co_number']}: {e}")
@@ -167,13 +159,6 @@ def fetch_con_al_notices(is_known) -> tuple[list[dict], list[dict]]:
         )
         if is_nursing_home:
             nursing_homes.append(article)
-        elif not type_letter and len(text.strip()) < MIN_TEXT_CHARS:
-            # Scanned notice (e.g. CO2026-069, an Arabella nursing home): no
-            # text layer means neither the facility type nor the parties can
-            # be read without OCR. Surfaced rather than silently dropped.
-            article["skip_reason"] = "AL CON: scanned PDF, no text layer (needs OCR)"
-            health.note(f"AL CON {n['co_number']} ({n['facility']}) is a scanned PDF, not extracted: {n['url']}")
-            skipped.append(article)
         else:
             article["skip_reason"] = f"AL CON: not a nursing home (SHPDA ID {facility_id or 'not found'})"
             skipped.append(article)

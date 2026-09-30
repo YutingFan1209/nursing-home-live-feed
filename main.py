@@ -29,6 +29,7 @@ from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
+from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
@@ -426,6 +427,16 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             deal["source_id"] = con_ok_source_id
             new_articles.append(deal)
 
+        con_me_source_id = _ensure_source(
+            type("S", (), {"name": CON_ME_SOURCE_NAME,
+                           "url": CON_ME_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for art in fetch_con_me_cases(lambda url: _article_exists(url, conn)):
+            art["source_id"] = con_me_source_id
+            new_articles.append(art)
+
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
         gmail_source_url = "gmail://googlealerts-noreply@google.com"
@@ -565,7 +576,10 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
             with conn.cursor() as sp:
                 sp.execute("SAVEPOINT before_deal")
             deal_id = _store_deal(deal, article_id, conn)
-            if is_out_of_scope(deal):
+            # CON filings are already confirmed nursing-facility filings at the
+            # source; the name-based AL/MC check would dismiss a mixed portfolio
+            # over one "...Assisted Living" facility (Eagle Arc/Links, ME)
+            if article.get("source_type") != "con" and is_out_of_scope(deal):
                 logger.info(
                     f"Auto-dismissing out-of-scope AL/MC deal: "
                     f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
@@ -658,7 +672,10 @@ def process_article(article: dict, conn) -> int:
             with conn.cursor() as sp:
                 sp.execute("SAVEPOINT before_deal")
             deal_id = _store_deal(deal, article_id, conn)
-            if is_out_of_scope(deal):
+            # CON filings are already confirmed nursing-facility filings at the
+            # source; the name-based AL/MC check would dismiss a mixed portfolio
+            # over one "...Assisted Living" facility (Eagle Arc/Links, ME)
+            if article.get("source_type") != "con" and is_out_of_scope(deal):
                 logger.info(
                     f"Auto-dismissing out-of-scope AL/MC deal: "
                     f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
