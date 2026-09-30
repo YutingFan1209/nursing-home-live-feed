@@ -4,7 +4,210 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-09-30T15:35:18.451309+00:00</updated>
+  <updated>2026-09-30T15:55:14.427202+00:00</updated>
+  <entry>
+    <id>urn:uuid:63fecf76-39b4-41fb-bcc1-4fc5c47e24af</id>
+    <title>Ownership change: 10 Sterling Drive (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership/public-hearing-notice-accelerate-skilled-nursing-and-rehab-piscataway.pdf"/>
+    <updated>2026-09-30T15:53:34.968705+00:00</updated>
+    <summary>Effective 2026-05-13; Facilities: Accelerate Skilled Nursing and Rehab Piscataway; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6e794147-d60c-473e-bbb1-1e4f5b810efd</id>
+    <title>Ownership change: Cedar Grove Nursing and Rehabilitation acquires from CG Healthcare (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership/cedar-grove-summary.pdf"/>
+    <updated>2026-09-30T15:53:34.912062+00:00</updated>
+    <summary>Effective 2026-06-09; Facilities: Alaris Health at Cedar Grove; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:31a80083-9934-49d1-9acf-3160e596f3cf</id>
+    <title>Ownership change: 1417 Brace Road acquires from The Silvercare (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership/silver-healthcare-center-application.pdf"/>
+    <updated>2026-09-30T15:53:34.869658+00:00</updated>
+    <summary>Effective 2026-07-07; Facilities: Silver Healthcare Center, Silver Specialty Care Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d34fc92d-cb54-4e40-b4b1-96c2bf299e61</id>
+    <title>Ownership change: Harrogate Village, Inc acquires from Harrogate Incorporated (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#harrogate-20251104"/>
+    <updated>2026-09-30T15:53:29.297235+00:00</updated>
+    <summary>Effective 2025-11-04; Facilities: Harrogate; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0ff4b8de-ce7d-4c45-8ffe-ee90cfad8be3</id>
+    <title>Ownership change: Troy Hill Propco LLC acquires from Troy NH, LLC and Troy 1997 LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#troy-hills-center-20260217"/>
+    <updated>2026-09-30T15:53:29.279162+00:00</updated>
+    <summary>Effective 2026-02-17; Facilities: Troy Hills Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b9d368de-be2f-4b9f-9fb7-266a3ed4dd6d</id>
+    <title>Ownership change: Wayne Garden Realty Group LLC acquires from Wayneview Realty, LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#atrium-post-acute-care-of-wayneview-20260226"/>
+    <updated>2026-09-30T15:53:29.255566+00:00</updated>
+    <summary>Effective 2026-02-26; Facilities: Atrium Post Acute Care of Wayneview; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:90d1844f-890f-4a27-80e8-be32bf572961</id>
+    <title>Ownership change: 103 Pleasant Valley Way SNF Realty LLC acquires from Valley Hill Properties, LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#green-hill-20260602"/>
+    <updated>2026-09-30T15:53:29.233958+00:00</updated>
+    <summary>Effective 2026-06-02; Facilities: Green Hill; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cac04f4b-c812-447f-a11f-047c46c6f85c</id>
+    <title>Ownership change: 1120 Alps Road Realty LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#alps-at-wayne-rehab-care-center-20260605"/>
+    <updated>2026-09-30T15:52:08.676260+00:00</updated>
+    <summary>Effective 2026-06-05; Facilities: Alps at Wayne Rehab &amp; Care Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:56bb6b88-c836-4f73-8db3-d70c7ba24735</id>
+    <title>Ownership change: Anchorage Nursing and Rehab Center acquires from OHI Asset (MD) Salisbury (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/2026-05/nh_acq_anchorage_redacted.pdf"/>
+    <updated>2026-09-30T15:50:47.879945+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: Anchorage Nursing and Rehab Center, Blue Point Healthcare Center, Clinton Healthcare Center, Cumberland Healthcare Center, Ellicott City Healthcare Center; $25.78M; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:56e26c6a-d98e-4411-93c9-15fc5d0bed2a</id>
+    <title>Ownership change: 6530 Democracy Blvd acquires from HCP Maryland Properties (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/documents/2026-06/montcare_healthcare_bethesda_nh_acq_appl.pdf"/>
+    <updated>2026-09-30T15:50:27.893082+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: Montcare at Bethesda, Montcare at Potomac, Montcare at Wheaton; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:eb48cd6f-ef9d-43b2-b1df-7c3580cec148</id>
+    <title>Ownership change: Silver Spring acquires from Regency Care of Silver Spring (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/2026-05/vierra_acq_appl_redacted.pdf"/>
+    <updated>2026-09-30T15:49:15.252011+00:00</updated>
+    <summary>Effective 2026-05-01; Facilities: Regency Care of Silver Spring; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c26acb98-cafd-4e1b-8dae-9122b3fd4191</id>
+    <title>Ownership change: Silver Spring Health acquires from Mountainaire Health (MD)</title>
+    <link href="https://mhcc.maryland.gov/sites/default/files/2026-09/althea_appl_nh_asq.pdf"/>
+    <updated>2026-09-30T15:49:14.919945+00:00</updated>
+    <summary>Effective 2026-09-01; Facilities: Althea Woodland Nursing Home; Source: Maryland MHCC Nursing Home Acquisition Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6e71d6ba-c8c9-489e-b275-eed0e2c63c59</id>
+    <title>Ownership change: DANA Properties, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5234"/>
+    <updated>2026-09-30T15:49:08.673056+00:00</updated>
+    <summary>Effective 2026-06-29; Facilities: Heritage Meadows Long Term Care Facility; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b6d3a58f-9629-40f3-a7d8-d25f5f0309ee</id>
+    <title>Ownership change: 101 W State Street Holdings LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5167"/>
+    <updated>2026-09-30T15:49:08.607135+00:00</updated>
+    <summary>Effective 2026-04-27; Facilities: Pembroke Post Acute; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fa08540a-3c01-4b00-b59f-9767c41dd7d9</id>
+    <title>Ownership change: Tetra Health and Rehab Center, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5136"/>
+    <updated>2026-09-30T15:49:08.563639+00:00</updated>
+    <summary>Effective 2026-04-02; Facilities: Tetra Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2b41dc6b-2dc9-47ef-8f96-a0fe7c7c9dc1</id>
+    <title>Ownership change: Sweeten Creek Health and Rehab Center, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5135"/>
+    <updated>2026-09-30T15:49:08.503727+00:00</updated>
+    <summary>Effective 2026-04-02; Facilities: Greentree Ridge Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8f500df2-83c0-43ae-bf23-a1d6103998d5</id>
+    <title>Ownership change: Grove Park Health and Rehab Center, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5134"/>
+    <updated>2026-09-30T15:49:08.450410+00:00</updated>
+    <summary>Effective 2026-04-02; Facilities: Grove Park Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:63c3d02d-6a68-4ffc-bdf2-a67e5af8bf01</id>
+    <title>Ownership change: Pittsboro Health and Rehab Center, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5124"/>
+    <updated>2026-09-30T15:49:08.399884+00:00</updated>
+    <summary>Effective 2026-04-02; Facilities: Pittsboro Health and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e3e21458-0fb5-4516-9caa-70a8f4a24512</id>
+    <title>Ownership change: Ignite Albemarle Property, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5123"/>
+    <updated>2026-09-30T15:49:08.317584+00:00</updated>
+    <summary>Effective 2026-03-24; Facilities: Ignite Medical Resort Albemarle; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ea38604f-b046-4a97-9f2d-816111c4d472</id>
+    <title>Ownership change: Ignite South Charlotte Property, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5119"/>
+    <updated>2026-09-30T15:49:08.241235+00:00</updated>
+    <summary>Effective 2026-03-24; Facilities: Sardis Oaks; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:47ad6bb6-acfa-4822-9b50-651923f470fc</id>
+    <title>Ownership change: Ignite Huntersville Property, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5118"/>
+    <updated>2026-09-30T15:49:08.169721+00:00</updated>
+    <summary>Effective 2026-03-24; Facilities: Huntersville Oaks; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:87805219-ba46-48c4-9782-04fc9fcc2756</id>
+    <title>Ownership change: Ignite Shelby Property, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5117"/>
+    <updated>2026-09-30T15:49:08.099003+00:00</updated>
+    <summary>Effective 2026-03-24; Facilities: Cleveland Pines Nursing Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:59f05020-175a-4723-9f1c-2abad41925f6</id>
+    <title>Ownership change: Compass Realty Kannapolis, LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5101"/>
+    <updated>2026-09-30T15:49:08.019754+00:00</updated>
+    <summary>Effective 2026-03-18; Facilities: Compass Healthcare and Rehab Kannapolis; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2d5ff40f-0199-4d29-8977-6a99844f36ab</id>
+    <title>Ownership change: Mountain Ridge Opco LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5061"/>
+    <updated>2026-09-30T15:49:07.934843+00:00</updated>
+    <summary>Effective 2026-01-07; Facilities: Mountain Ridge Rehabilitation and Healthcare Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f0bac4ff-11c1-40b3-80fb-29c57f82d297</id>
+    <title>Ownership change: Premier Living and Healthcare Center LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5065"/>
+    <updated>2026-09-30T15:49:07.857902+00:00</updated>
+    <summary>Effective 2025-12-23; Facilities: Premier Living and Rehab Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:61660ed9-e101-4609-9604-a2a05aa6fbc8</id>
+    <title>Ownership change: Rich Square Operator LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5012"/>
+    <updated>2026-09-30T15:49:07.722960+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Rich Square Health Care Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:71656dd2-f236-4e9b-9e97-cc2bc72c2b4b</id>
+    <title>Ownership change: Maggie Valley Operator LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5011"/>
+    <updated>2026-09-30T15:49:07.575005+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Maggie Valley Nursing and Rehabilitation; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1a26231f-d26a-4ce7-9a72-bd661f21df23</id>
+    <title>Ownership change: Durham Operator LLC (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5009"/>
+    <updated>2026-09-30T15:49:07.453610+00:00</updated>
+    <summary>Effective 2025-10-31; Facilities: Durham Nursing &amp; Rehabilitation Center; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bc2ae330-5397-4399-906d-c71ea47942ee</id>
+    <title>Ownership change: HBP Oberlin Senior Housing PROPCO KP6 (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-4962"/>
+    <updated>2026-09-30T15:48:53.162219+00:00</updated>
+    <summary>Effective 2025-10-03; Facilities: Bloomsbury at Hayes Barton Place; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
   <entry>
     <id>urn:uuid:bee9f8ab-6518-4110-b5ad-0e3c98059468</id>
     <title>Ownership change: [MS CON] CHOW (Operations Transfer Agreement): Chadwick Community Care Center (MS)</title>
@@ -151,208 +354,5 @@
     <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0374"/>
     <updated>2026-09-30T15:29:32.961325+00:00</updated>
     <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Three; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4f23668b-87b9-4c4a-a66c-d29bd83509bf</id>
-    <title>Ownership change: [MI CON] 25-0367 NEW 28-MTH LEASE &amp; LANDLORD [WAIVER] APR-2028: Optalis Health And Rehabilitation Of Ann Arbor (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0367"/>
-    <updated>2026-09-30T15:29:32.905248+00:00</updated>
-    <summary>Effective 2025-12-16; Facilities: Optalis Health And Rehabilitation Of Ann Arbor; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ad34420d-844d-4114-9b69-bd5a78253c65</id>
-    <title>Ownership change: MI BS OPCO LLC (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0363"/>
-    <updated>2026-09-30T15:29:32.808065+00:00</updated>
-    <summary>Effective 2025-12-09; Facilities: Beaconshire Nursing Centre; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a180cec0-31e9-4cc3-b59e-e9f07df2fee9</id>
-    <title>Ownership change: MI WW OPCO, LLC (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0366"/>
-    <updated>2026-09-30T15:29:32.716727+00:00</updated>
-    <summary>Effective 2025-12-09; Facilities: Westwood Nursing Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:796e9cd2-ac10-4e7c-9878-2cf8eb5b614e</id>
-    <title>Ownership change: MI CH OPCO LLC (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-25-0364"/>
-    <updated>2026-09-30T15:29:32.624545+00:00</updated>
-    <summary>Effective 2025-12-09; Facilities: Chesaning Nursing And Rehabilitation Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8aecdbb0-7b67-4fd1-a12a-442137de0cc1</id>
-    <title>Ownership change: RCR&amp;NC, LLC (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0071"/>
-    <updated>2026-09-30T15:29:32.544770+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: Ch Rehab &amp; Nurs Cnt - Commons Dearborn; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5c7e056e-b3b1-4476-9e56-afc5131c5502</id>
-    <title>Ownership change: BCR&amp;NC, LLC (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0072"/>
-    <updated>2026-09-30T15:29:32.455073+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: Ch Rehab &amp; Nurs Cnt - Commons Farmington Hills; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5020138b-a1b3-4979-8812-b164dd3e4dad</id>
-    <title>Ownership change: [MI CON] 26-0042 INDIRECT OWNERSHIP CHG &amp; BOND PAYOFF [WAIVER]: Vista Grande Villa (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0042"/>
-    <updated>2026-09-30T15:29:32.422925+00:00</updated>
-    <summary>Effective 2026-02-17; Facilities: Vista Grande Villa; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0aaf9834-8eb2-4293-bdb2-3b200730d86f</id>
-    <title>Ownership change: [MI CON] 26-0076 INDIRECT OWNERSHIP CHANGE [WAIVER]: Inn At Freedom Village, The (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0076"/>
-    <updated>2026-09-30T15:29:32.384767+00:00</updated>
-    <summary>Effective 2026-03-17; Facilities: Inn At Freedom Village, The; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:92a72aea-bef0-40ac-9f70-8f173f49e659</id>
-    <title>Ownership change: [MI CON] 26-0134 NEW 20-YR LEASE [CURATIVE]: Oakland Nursing Center (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0134"/>
-    <updated>2026-09-30T15:29:32.362773+00:00</updated>
-    <summary>Effective 2026-05-07; Facilities: Oakland Nursing Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bb348a46-235a-4ecf-829c-2f4911ab57a4</id>
-    <title>Ownership change: [MI CON] 26-0193 NEW LEASE [35 YEARS]: Shelby Health And Rehabilitation Center (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0193"/>
-    <updated>2026-09-30T15:29:32.347873+00:00</updated>
-    <summary>Effective 2026-07-06; Facilities: Shelby Health And Rehabilitation Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:96ffd519-9e07-4973-9f65-c80be880a94b</id>
-    <title>Ownership change: [MI CON] 26-0187 NEW LEASE [35 YEARS]: Evergreen Health And Rehabilitation Center (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0187"/>
-    <updated>2026-09-30T15:29:32.325554+00:00</updated>
-    <summary>Effective 2026-07-06; Facilities: Evergreen Health And Rehabilitation Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5bc6893c-125a-4912-a26b-bb608ef599e9</id>
-    <title>Ownership change: [MI CON] 26-0196 NEW LEASE [35 YEARS] &amp; CURATIVE: Woodward Hills Health And Rehabilitation Ctr (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0196"/>
-    <updated>2026-09-30T15:29:32.301445+00:00</updated>
-    <summary>Effective 2026-07-06; Facilities: Woodward Hills Health And Rehabilitation Ctr; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:47b653c4-9ae3-40bc-989a-df0ab2cefd78</id>
-    <title>Ownership change: [MI CON] 26-0247 MEMBERSHIP INT TFER &amp; BUILDING PURCHASE (NO LEASE): The Oaks At Battle Creek (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/doing-business/providers/certificateofneed/reports/activity-reports#con-26-0247"/>
-    <updated>2026-09-30T15:28:20.564581+00:00</updated>
-    <summary>Effective 2026-08-21; Facilities: The Oaks At Battle Creek; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9eef754f-419f-40e8-8518-c2aeec0a5306</id>
-    <title>Ownership change: Eagle Arc Acquisitions acquires from First Atlantic Healthcare, ., First Atlantic , and LTC (ME)</title>
-    <link href="https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/LOI%20EagleLink.pdf"/>
-    <updated>2026-09-30T15:00:29.704365+00:00</updated>
-    <summary>Effective 2026-12-31; Facilities: Seal Rock Health Care, Hawthorne House, Seaside Rehabilitation, Marshall Health Care, Woodlawn Rehabilitation; $275.00M; Source: Maine DHHS Certificate of Need Reviews</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c99d5b61-be42-4a89-88ec-e34491a4b4a5</id>
-    <title>Ownership change: 101 W State Street Holdings acquires from Genesis Healthcare (ME)</title>
-    <link href="https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/NewGen%20-%20Maine%20CON%20LOI%20%283.19.26%29.pdf"/>
-    <updated>2026-09-30T14:59:24.078544+00:00</updated>
-    <summary>Effective 2026-06-30; Facilities: Cedar Ridge Center, Harbor Hills Center, Marshwood Center, Oak Grove Center, Orono Commons; $343.00M; Source: Maine DHHS Certificate of Need Reviews</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fccf1e86-da57-473d-9c4e-95c10b0e9e33</id>
-    <title>Ownership change: Red Bay acquires from Arabella Health &amp; Wellness of Red Bay (AL)</title>
-    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-069%20Complete%206.12.2026.pdf"/>
-    <updated>2026-09-30T14:58:10.303852+00:00</updated>
-    <summary>Effective 2026-06-24; Facilities: Arabella Health &amp; Wellness of Red Bay Opco LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:634dd28b-b5bf-4d43-8127-c1b6b7e99c53</id>
-    <title>Ownership change: [OK CON] 25-058-372 CN Exemption Change of Ownership or Stock Transfer: Fairfax Behavioral Health and Memory Care Community (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-058-372"/>
-    <updated>2026-09-30T14:29:42.633760+00:00</updated>
-    <summary>Effective 2025-11-21; Facilities: Fairfax Behavioral Health and Memory Care Community; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c355a2f9-50ec-4106-ae34-3e2b634f864c</id>
-    <title>Ownership change: [OK CON] 25-057-372 CN Exemption Change of Ownership or Stock Transfer: Antlers Manor (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-057-372"/>
-    <updated>2026-09-30T14:29:42.611796+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Antlers Manor; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:59028388-96c5-40ef-ad18-35408a5f6373</id>
-    <title>Ownership change: [OK CON] 25-056-372 CN Exemption Change of Ownership or Stock Transfer: Shawnee Care Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-056-372"/>
-    <updated>2026-09-30T14:29:42.592592+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Shawnee Care Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:00acb891-1347-4994-8d1b-7b5915da2a2b</id>
-    <title>Ownership change: [OK CON] 25-055-372 CN Exemption Change of Ownership or Stock Transfer: Boyce Manor Nursing Home (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-055-372"/>
-    <updated>2026-09-30T14:29:42.573454+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Boyce Manor Nursing Home; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:077588a0-cf0b-4e0d-ac10-db78278cb6f3</id>
-    <title>Ownership change: [OK CON] 25-054-372 CN Exemption Change of Ownership or Stock Transfer: Shady Rest Care Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-054-372"/>
-    <updated>2026-09-30T14:29:42.548590+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Shady Rest Care Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b8532862-e1cb-44eb-9769-bfdb41f8a8f6</id>
-    <title>Ownership change: [OK CON] 25-053-372 CN Exemption Change of Ownership or Stock Transfer: Calera Manor (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-053-372"/>
-    <updated>2026-09-30T14:29:42.526637+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Calera Manor; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e2b43a41-53e7-43d9-9732-373eba92a0ca</id>
-    <title>Ownership change: [OK CON] 25-052-372 CN Exemption Change of Ownership or Stock Transfer: Choctaw Nation Nursing Home (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-052-372"/>
-    <updated>2026-09-30T14:29:42.499439+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Choctaw Nation Nursing Home; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4a692759-ae55-4da7-a66a-46be2ad70104</id>
-    <title>Ownership change: [OK CON] 25-051-372 CN Exemption Change of Ownership or Stock Transfer: Cimarron Nursing Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-051-372"/>
-    <updated>2026-09-30T14:29:42.477189+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Cimarron Nursing Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:90e0fd9c-ddf8-4d06-ba1a-95d2d0c2cca7</id>
-    <title>Ownership change: [OK CON] 25-050-372 CN Exemption Change of Ownership or Stock Transfer: Colonial Terrace Care Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-050-372"/>
-    <updated>2026-09-30T14:29:42.447949+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Colonial Terrace Care Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:16459dc5-40cd-4711-bcc6-0944fda74103</id>
-    <title>Ownership change: [OK CON] 25-049-372 CN Exemption Change of Ownership or Stock Transfer: First Shamrock Care Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-049-372"/>
-    <updated>2026-09-30T14:29:42.416537+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: First Shamrock Care Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:166bb8e6-c96d-4b34-80af-ca9ea765fa24</id>
-    <title>Ownership change: [OK CON] 25-048-372 CN Exemption Change of Ownership or Stock Transfer: Homestead of Hugo (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-048-372"/>
-    <updated>2026-09-30T14:29:42.389323+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Homestead of Hugo; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:cd91e94b-fa62-4754-9daa-12609ca5a716</id>
-    <title>Ownership change: [OK CON] 25-047-372 CN Exemption Change of Ownership or Stock Transfer: Jan Frances Care Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-047-372"/>
-    <updated>2026-09-30T14:29:42.365628+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Jan Frances Care Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:29da9be9-1e45-4d28-97d7-726e9b842254</id>
-    <title>Ownership change: [OK CON] 25-046-372 CN Exemption Change of Ownership or Stock Transfer: Meadowbrook Nursing Center (OK)</title>
-    <link href="https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html#cn-25-046-372"/>
-    <updated>2026-09-30T14:29:42.342994+00:00</updated>
-    <summary>Effective 2025-11-19; Facilities: Meadowbrook Nursing Center; Source: Oklahoma OSDH Certificate of Need Notice</summary>
   </entry>
 </feed>
