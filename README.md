@@ -123,11 +123,19 @@ git stash pop
 - `main` — source code only, never deploy artifacts
 - `gh-pages` — `deals.json` + `index.html` + `assets/` only, plus its own (older, divergent) copy of the Python source
 
-Frontend is built with Vite/React in `dashboard/frontend/`. Rebuild:
+Frontend is built with Vite/React in `dashboard/frontend/`. Rebuild and deploy:
 ```bash
-cd dashboard/frontend && npm run build
-# copy dist/ files to repo root on gh-pages branch
+cd dashboard/frontend && npm run build && cd ../..
+cp -r dashboard/frontend/dist /tmp/nh-dist      # dist/ isn't on gh-pages
+git checkout gh-pages
+cp /tmp/nh-dist/index.html index.html
+# Replace the bundle rather than adding to it: each build gets a new hashed
+# name, and copying alongside old ones had left 20 unused bundles in assets/
+git rm -q assets/*.js && cp /tmp/nh-dist/assets/*.js assets/
+git add -A index.html assets/ && git commit -m "Frontend: <what changed>" && git push origin gh-pages
+git checkout main
 ```
+Combine this with a data refresh (step 3 above) when both are going out, so it's one deploy instead of two.
 
 ---
 
