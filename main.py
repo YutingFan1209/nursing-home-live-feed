@@ -28,6 +28,7 @@ from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
+from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
@@ -199,7 +200,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
         logger.info(
             f"Processing {len(ucc_articles)} UCC (cap-exempt) + "
-            f"{len(pre_extracted)} CHOW + "
+            f"{len(pre_extracted)} CHOW/CON pre-extracted + "
             f"{len(text_articles)} text articles (async) — "
             f"estimated Claude cost: {estimate_cost(len(text_articles))}"
         )
@@ -415,6 +416,16 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             art["source_id"] = con_al_source_id
             new_articles.append(art)
 
+        con_ok_source_id = _ensure_source(
+            type("S", (), {"name": CON_OK_SOURCE_NAME,
+                           "url": CON_OK_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for deal in fetch_con_ok_deals(lambda url: _article_exists(url, conn)):
+            deal["source_id"] = con_ok_source_id
+            new_articles.append(deal)
+
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
         gmail_source_url = "gmail://googlealerts-noreply@google.com"
@@ -592,9 +603,9 @@ def process_article(article: dict, conn) -> int:
             "acquiring_entity", "seller_entity", "operator_names",
             "facility_names", "states", "facility_count", "deal_value_m",
             "acquisition_date", "financing_amount_m", "lender", "rationale",
-            "ccn",
+            "ccn", "_con_id",
         ] if k in article}
-        deal["extraction_model"] = "chow_direct"
+        deal["extraction_model"] = article.get("extraction_model", "chow_direct")
         deals = [deal]
         deals = deduplicate_batch(deals)
         stored = 0

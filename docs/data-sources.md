@@ -61,7 +61,7 @@ and reliability characteristics.
 
 **Running UCC states:** `main.py --ucc-states NY,KY,OH` (or any subset) restricts the UCC step to just those states. Prefer running states separately (one cron/launchd job per state) rather than bundled — nothing commits to the DB until the whole UCC fetch call returns, so one state hanging or getting blocked loses every other state's already-good work for that run too. This bit hours off a run on 2026-09-15 when NY's multi-hour individual-name phase was still going when OH hit its 429.
 
-### State CON / Change-of-Ownership Notices — pre-closing signal (AL live since 2026-09-30)
+### State CON / Change-of-Ownership Notices — pre-closing signal (AL, OK live since 2026-09-30)
 
 Some states make a buyer file with a state agency *before* a nursing home changes hands. Research on which states publish usable filings is in `docs/con-feasibility.md`; build order there is AL → OK → ME → NY → MI → MS.
 
@@ -70,6 +70,10 @@ Some states make a buyer file with a state agency *before* a nursing home change
   - **CMS matching:** the new owner isn't in CMS yet when a notice is filed, so most of these sit in `detected` until the re-check sees CMS catch up. That lag is the point of the source.
   - **Scanned PDFs** (7 of 90 on first backfill, one a nursing home: CO2026-069 Arabella of Red Bay) have no text layer and are skipped with a `RUN HEALTH (ok)` note; they'd need OCR.
   - First backfill (2026-09-30): 90 notices in the last year → 32 nursing homes → 32 deals.
+- **OK (live):** `scraper/con_ok.py`. OSDH's monthly "The Notice" is a 2-page PDF table of active CON projects (CN #, facility, received date, type, status), linked from the [Health Facility Systems page](https://oklahoma.gov/health/services/licensing-inspections/long-term-care-service/health-facility-systems.html) — filenames are inconsistent, so issues are found from that page, never guessed. Parsed without Claude (pre-extracted path, `extraction_model = 'con_direct'`), one deal per CN, newest issue first so each CN gets its latest status. Kept: acquisitions and `-372` change-of-ownership/stock-transfer exemptions (2025 issues say "Change *for* Ownership"). Skipped: `-812` management agreements, `-371` relocations, `-372B` bed expansions, new construction, standard review, and withdrawn/denied CNs (withdrawn ones get refiled under a new CN).
+  - **No buyer or seller is published**, so these are facility-only deals; `acquisition_date` is the application received date (closing isn't published). The dedup hash uses `con|OK|<CN>` (`_con_id`) — without it every buyer-less OK deal in a month would share one state+month hash, the same collision UCC had.
+  - Status changes after a CN is first stored (e.g. "Under Program Area Review" → "Issued") aren't written back.
+  - First backfill (2026-09-30): 13 issues → 100 CNs → 52 ownership changes in the last year → 52 deals (11 already CMS-confirmed).
 
 ---
 
@@ -146,6 +150,7 @@ Gmail Alerts and UCC-1 filings aren't registered via `scraper/sources.py` at all
 | UCC-1 — PA | ⚠️ Automated but fragile under volume (2026-09-16) | Real Chrome over CDP works for small/isolated queries, but a full 237-name batch got Incapsula-challenged partway through (same pattern as OH) — probe before trusting a big batch, no PA-specific search-name list; no deep link possible (copy-filing-# button instead) |
 | UCC-1 — NJ | ✅ Working, automated, no lender name | Re-enabled 2026-09-22; parallel worker pool (8 workers), ~8 min for ~141 CHOW-derived names; deals get a "lender not available" placeholder |
 | State CON — AL (SHPDA ownership notices) | ✅ Working since 2026-09-30 | Pre-closing; nursing homes only (by SHPDA facility-ID type); scanned PDFs skipped |
+| State CON — OK (OSDH "The Notice") | ✅ Working since 2026-09-30 | Monthly; facility only, no buyer/seller; parsed without Claude |
 | CMS Ownership | ✅ Working | Provider Data Catalog, metastore-discovered URL |
 | CMS Provider Info / Care Compare | ✅ Working | Provider Data Catalog, metastore-discovered URL |
 | Google Alerts RSS feed (legacy) | ⚠️ Redundant/unverified | Registered in `scraper/sources.py`; Gmail OAuth path is primary |

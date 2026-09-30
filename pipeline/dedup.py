@@ -32,6 +32,13 @@ def make_dedup_hash(deal: dict) -> str:
         key = f"ucc|{state}|{deal['_ucc_filing_number']}"
         return hashlib.sha256(key.encode()).hexdigest()[:16]
 
+    # State CON records without a published buyer (OK) would collapse to
+    # state+month the same way; the state's CN number is unique per record.
+    if deal.get("_con_id"):
+        state = (deal.get("states") or [""])[0].upper()
+        key = f"con|{state}|{deal['_con_id']}"
+        return hashlib.sha256(key.encode()).hexdigest()[:16]
+
     parts = []
 
     # Normalize acquirer
