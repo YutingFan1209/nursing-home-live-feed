@@ -94,6 +94,16 @@ Earliness: in the one case we caught, news beat the NY decision by 85 days. NY's
 
 ---
 
+## NY scraping test (2026-09-30)
+
+A quick run to size a NY build, before deciding whether to do it. Not wired into the pipeline.
+
+- **Method:** read every meeting linked from the [PHHPC page](https://www.health.ny.gov/facilities/public_health_and_health_planning_council/) from 2025-10 on, downloaded each agenda-type PDF (skipping minutes, transcripts, video), extracted text with pypdf, and took every `Project #NNNNNN-E Exhibit Page 1` whose header says `Program: Residential Health Care Facility`.
+- **Result: 9 of 9** known nursing home sales from the backtest above were found, plus ArchCare at Eger (the known intra-system control change, not a sale) and `252144-E` (a second Rockville application). No misses, and no false positives other than those two.
+- **Earliness:** every one first appeared in a **committee agenda 14–28 days before the council vote** (e.g. Sands Point / Kirkhaven / Maplewood on 2025-11-13 for the 12-04 vote; Highland Park / Astoria on 2026-08-27 for the 09-17 vote). Minutes aren't needed to *find* a deal, only to confirm the vote, so the "5/7 has no agenda" trap above doesn't affect detection.
+- **Cost:** 20 meetings, 55 PDFs, 204 MB, about 4 minutes for the full year including 15 s of parsing per large agenda. Ongoing runs only read new meetings (1–2 a month). Exhibit page 1 names the applicant (d/b/a), the seller, both sides' members with ownership %, bed count and prices (Astoria: $100K operations, $9.4M real estate), so one Claude extraction per project (~9 a year) is enough.
+- **Build estimate:** similar to MD: meeting discovery + PDF parse + one extraction per project. This is much smaller than "parsing 100–700-page PDFs" first suggested, because the exhibit headers are regular.
+
 ## Per-state detail
 
 ### New York 🟢 (high confidence)
