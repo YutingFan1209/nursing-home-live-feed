@@ -9,6 +9,7 @@ lxml_html_clean>=0.4        # trafilatura needs lxml.html.clean, split out of lx
 trafilatura>=1.9.0      # actively maintained article text extractor (replaces newspaper3k)
 requests>=2.31.0
 curl_cffi>=0.7          # browser-TLS-impersonating fallback for Cloudflare-protected sites (McKnight's 403s plain requests)
+pypdf>=6.0              # text extraction from state CON notice PDFs (scraper/con_al.py)
 beautifulsoup4>=4.12.3
 lxml>=5.2.0
 playwright>=1.44.0      # UCC-1 state portal scrapers (NY/KY/OH/PA) — run `playwright install` after pip install

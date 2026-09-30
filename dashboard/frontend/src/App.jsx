@@ -103,6 +103,7 @@ const SOURCE = {
   edgar: { label: "SEC Filing",     dot: "#2563eb", tip: "SEC EDGAR 8-K — publicly traded company filing" },
   rss:   { label: "News",           dot: "#d97706", tip: "Trade press or news article" },
   ucc:   { label: "UCC Filing",     dot: "#7c3aed", tip: "State UCC-1 financing statement — early signal, not yet confirmed by CMS" },
+  con:   { label: "State CON",      dot: "#0891b2", tip: "State certificate-of-need / change-of-ownership notice — filed before the deal closes" },
 };
 
 // deal_type is derived in scripts/export_deals.py -- UCC from the filing
@@ -837,6 +838,7 @@ export default function App() {
               <option value="edgar">SEC Filing</option>
               <option value="rss">News</option>
               <option value="ucc">UCC Filing</option>
+              <option value="con">State CON</option>
             </select>
             <select value={dealType} onChange={e => { setDealType(e.target.value); setOffset(0); }} style={selStyle}>
               <option value="">All deal types</option>

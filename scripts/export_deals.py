@@ -278,7 +278,7 @@ def main():
             else:
                 for k in ("ucc_detail_url", "ucc_debtor", "ucc_filing_type"):
                     deal.pop(k, None)
-                deal["deal_type"] = "ownership_change" if deal["source_type"] == "chow" else _news_deal_type(deal)
+                deal["deal_type"] = "ownership_change" if deal["source_type"] in ("chow", "con") else _news_deal_type(deal)
             deals.append(deal)
 
         cur.execute("SELECT MAX(last_fetched_at) FROM sources")

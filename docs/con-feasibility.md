@@ -27,6 +27,8 @@ Scope: the 10 states where NCSL lists nursing home ownership transfer as a CON t
 
 ### Recommendation (build order)
 
+> **Status:** AL built 2026-09-30 (`scraper/con_al.py`, see `docs/data-sources.md`). Side note from building it: CO2026-080 Danberry (listed below as a recent AL item) is a specialty-care assisted living facility (`117-S3724`), not a nursing home.
+
 1. **AL:** an HTML table plus one PDF per filing, filed ≥20 days before closing, naming buyer, seller and closing date. Cheapest and richest.
 2. **OK:** a two-page monthly PDF with ~9 nursing home acquisitions in one issue. Easy to parse. It names facilities but not buyers, so it needs CMS matching to be useful.
 3. **ME:** one HTML page to diff. Low volume (~4–6 nursing facility cases a year), but the LOI appears months before anything else (see the lead-time example below).

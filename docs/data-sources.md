@@ -61,6 +61,16 @@ and reliability characteristics.
 
 **Running UCC states:** `main.py --ucc-states NY,KY,OH` (or any subset) restricts the UCC step to just those states. Prefer running states separately (one cron/launchd job per state) rather than bundled — nothing commits to the DB until the whole UCC fetch call returns, so one state hanging or getting blocked loses every other state's already-good work for that run too. This bit hours off a run on 2026-09-15 when NY's multi-hour individual-name phase was still going when OH hit its 429.
 
+### State CON / Change-of-Ownership Notices — pre-closing signal (AL live since 2026-09-30)
+
+Some states make a buyer file with a state agency *before* a nursing home changes hands. Research on which states publish usable filings is in `docs/con-feasibility.md`; build order there is AL → OK → ME → NY → MI → MS.
+
+- **AL (live):** `scraper/con_al.py`. SHPDA posts every Notice of Change of Ownership (filed ≥20 days before closing) on [one index page](http://shpda.alabama.gov/Announcements/certificateofneed/chow/changeownershipnotice.aspx) as a PDF. Each run fetches the index and downloads only PDFs not already stored and posted in the last 365 days. The SHPDA facility ID in the letter (`017-N0003`) gives the facility type; only `N` (nursing home) notices go to Claude, the rest (home health `H`, hospice `P`, assisted living `S`, dialysis `D`…) are stored with an `extraction_error` skip reason so they're never downloaded again. Deals have `source_type = 'con'` ("State CON" on the site).
+  - **One deal per notice:** the prepended header tells the extractor the buyer is the per-facility proposed licensee. Batch filings (CO2026-062…068, seven Genesis facilities → 101 W State Street Holdings) otherwise all extract the same parent, and the semantic-dedup index silently kept only the first.
+  - **CMS matching:** the new owner isn't in CMS yet when a notice is filed, so most of these sit in `detected` until the re-check sees CMS catch up. That lag is the point of the source.
+  - **Scanned PDFs** (7 of 90 on first backfill, one a nursing home: CO2026-069 Arabella of Red Bay) have no text layer and are skipped with a `RUN HEALTH (ok)` note; they'd need OCR.
+  - First backfill (2026-09-30): 90 notices in the last year → 32 nursing homes → 32 deals.
+
 ---
 
 ## CMS Reference Datasets
@@ -135,6 +145,7 @@ Gmail Alerts and UCC-1 filings aren't registered via `scraper/sources.py` at all
 | UCC-1 — OH | ⚠️ Working, local only, fragile under volume | Needs Xvfb wrapper for cloud; hit 429s under repeated same-day volume (2026-09-15) |
 | UCC-1 — PA | ⚠️ Automated but fragile under volume (2026-09-16) | Real Chrome over CDP works for small/isolated queries, but a full 237-name batch got Incapsula-challenged partway through (same pattern as OH) — probe before trusting a big batch, no PA-specific search-name list; no deep link possible (copy-filing-# button instead) |
 | UCC-1 — NJ | ✅ Working, automated, no lender name | Re-enabled 2026-09-22; parallel worker pool (8 workers), ~8 min for ~141 CHOW-derived names; deals get a "lender not available" placeholder |
+| State CON — AL (SHPDA ownership notices) | ✅ Working since 2026-09-30 | Pre-closing; nursing homes only (by SHPDA facility-ID type); scanned PDFs skipped |
 | CMS Ownership | ✅ Working | Provider Data Catalog, metastore-discovered URL |
 | CMS Provider Info / Care Compare | ✅ Working | Provider Data Catalog, metastore-discovered URL |
 | Google Alerts RSS feed (legacy) | ⚠️ Redundant/unverified | Registered in `scraper/sources.py`; Gmail OAuth path is primary |

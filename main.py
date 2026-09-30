@@ -27,6 +27,7 @@ from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
 from scraper.gmail_alerts import fetch_alert_articles
+from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
@@ -394,6 +395,25 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             if not _article_exists(deal["url"], conn):
                 deal["source_id"] = chow_source_id
                 new_articles.append(deal)
+
+        # State CON / ownership-change notices — pre-closing filings. Nursing
+        # home notices already carry raw_text, so they take the normal Claude
+        # path; other facility types are stored now so their PDFs are never
+        # downloaded again.
+        con_al_source_id = _ensure_source(
+            type("S", (), {"name": CON_AL_SOURCE_NAME,
+                           "url": CON_AL_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        con_notices, con_skipped = fetch_con_al_notices(lambda url: _article_exists(url, conn))
+        for art in con_skipped:
+            art["source_id"] = con_al_source_id
+            _mark_extraction_error(_store_article(art, conn), art["skip_reason"], conn)
+        conn.commit()
+        for art in con_notices:
+            art["source_id"] = con_al_source_id
+            new_articles.append(art)
 
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
