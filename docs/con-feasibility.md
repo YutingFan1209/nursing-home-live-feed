@@ -205,7 +205,7 @@ NCSL only lists states where a nursing home sale triggers a *certificate of need
 ### New Jersey detail
 - The page lists only recent applications (three, May–Jul 2026: Silver Healthcare Center, Alaris Health at Cedar Grove, Accelerate Piscataway), so the history would have to be built up by scraping it regularly. Some entries link a summary PDF; buyer names otherwise need an OPRA request.
 
-**Build order if we extend:** NC (structured, named buyer, measured 73–95 day lead) → MD (few cases, but the biggest lead time we've measured) → NJ (easy table, no buyer). WA's CSV is worth a look separately as a capacity signal.
+**Status:** NC, MD and NJ built 2026-09-30 (`scraper/con_nc.py`, `con_md.py`, `con_nj.py`). NJ turned out to have a second table, real estate transfers, which names seller and buyer. WA's CSV is still worth a look separately as a capacity signal.
 
 ## Unverified / open items
 

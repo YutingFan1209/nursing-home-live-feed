@@ -33,6 +33,9 @@ from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
+from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
+from scraper.con_md import fetch_con_md_cases, CON_MD_SOURCE_NAME, CON_MD_INDEX_URL
+from scraper.con_nj import fetch_con_nj, CON_NJ_SOURCE_NAME, CON_NJ_OPERATOR_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from pipeline.extractor import extract_deals
@@ -468,6 +471,39 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             deal["source_id"] = con_ms_source_id
             new_articles.append(deal)
 
+        con_nc_source_id = _ensure_source(
+            type("S", (), {"name": CON_NC_SOURCE_NAME,
+                           "url": CON_NC_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("SELECT provider_name FROM cms_facilities WHERE provider_state = 'NC'")
+            nc_cms_names = [row[0] for row in cur.fetchall() if row[0]]
+        for deal in fetch_con_nc_deals(lambda url: _article_exists(url, conn), nc_cms_names):
+            deal["source_id"] = con_nc_source_id
+            new_articles.append(deal)
+
+        con_md_source_id = _ensure_source(
+            type("S", (), {"name": CON_MD_SOURCE_NAME,
+                           "url": CON_MD_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for art in fetch_con_md_cases(lambda url: _article_exists(url, conn)):
+            art["source_id"] = con_md_source_id
+            new_articles.append(art)
+
+        con_nj_source_id = _ensure_source(
+            type("S", (), {"name": CON_NJ_SOURCE_NAME,
+                           "url": CON_NJ_OPERATOR_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for art in fetch_con_nj(lambda url: _article_exists(url, conn)):
+            art["source_id"] = con_nj_source_id
+            new_articles.append(art)
+
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
         gmail_source_url = "gmail://googlealerts-noreply@google.com"
@@ -585,6 +621,16 @@ async def _batch_fetch_extract(
     return await asyncio.gather(*[_one(a) for a in articles])
 
 
+def _default_con_dates(article: dict, deals: list[dict]) -> list[dict]:
+    """A CON filing that states no closing date is still dated by the filing
+    itself; without this the site shows the day we ingested it instead."""
+    if article.get("source_type") == "con" and article.get("published_at"):
+        for d in deals:
+            if not d.get("acquisition_date"):
+                d["acquisition_date"] = str(article["published_at"])[:10]
+    return deals
+
+
 def _store_article_result(article: dict, raw_text: str | None, deals: list[dict], conn) -> int:
     """DB-write half of the text-article path — called after async extraction."""
     article_id = _store_article(article, conn)
@@ -595,7 +641,7 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
     if not deals:
         _mark_extraction_done(article_id, conn)
         return 0
-    deals = deduplicate_batch(deals)
+    deals = deduplicate_batch(_default_con_dates(article, deals))
     stored = 0
     for deal in deals:
         deal = normalize_deal(deal)
@@ -701,7 +747,7 @@ def process_article(article: dict, conn) -> int:
         _mark_extraction_done(article_id, conn)
         return 0
 
-    deals = deduplicate_batch(deals)
+    deals = deduplicate_batch(_default_con_dates(article, deals))
 
     stored = 0
     for deal in deals:
