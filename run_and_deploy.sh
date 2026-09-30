@@ -46,10 +46,13 @@ WHERE d.stage != 'dismissed';
 
 echo "=== Copying frontend build to root ==="
 cp dashboard/frontend/dist/index.html index.html
+# Replace, don't add: each build has a new hashed bundle name, and copying
+# alongside the old ones left 20 unused bundles in assets/ (cleaned 2026-09-30)
+rm -f assets/*.js
 cp dashboard/frontend/dist/assets/*.js assets/
 
 echo "=== Pushing to GitHub Pages ==="
-git add deals.json index.html assets/
+git add -A deals.json index.html assets/
 git diff --cached --quiet && echo "No new deals, skipping push." || \
   git commit -m "Data refresh $(date '+%Y-%m-%d %H:%M')" && git push origin gh-pages
 
