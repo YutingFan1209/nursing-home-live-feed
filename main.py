@@ -811,6 +811,33 @@ def _build_known_ccn_match(deal: dict, conn) -> list[dict]:
     }]
 
 
+# A CMS ownership record older than this before a state filing belongs to the
+# owner who is selling, so it can't confirm the sale
+CON_CONFIRM_LOOKBACK_DAYS = 30
+
+
+def _con_confirming_matches(deal_id, matches: list[dict], conn) -> list[dict]:
+    """
+    For a deal from a state pre-closing filing, only CMS records that start
+    around or after the filing can confirm it. Anything older is the seller
+    (audit 2026-09-30: 7 of 28 "confirmed" CON deals rested only on pre-filing
+    owner/staff records, e.g. Ridgeway AL matched a 2025-11 owner for a
+    2026-03 filing). Other deals' matches pass through unchanged.
+    """
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT a.published_at::date FROM deals d
+            JOIN articles a ON a.id = d.article_id JOIN sources s ON s.id = a.source_id
+            WHERE d.id = %s AND s.source_type = 'con'
+        """, (deal_id,))
+        row = cur.fetchone()
+    if not row or not row[0]:
+        return matches
+    floor = row[0] - timedelta(days=CON_CONFIRM_LOOKBACK_DAYS)
+    return [m for m in matches
+            if m.get("ownership_start_date") and str(m["ownership_start_date"])[:10] >= floor.isoformat()]
+
+
 def _run_cms_matching(deal: dict, deal_id, conn):
     if deal.get("ccn"):
         matches = _build_known_ccn_match(deal, conn)
@@ -820,7 +847,7 @@ def _run_cms_matching(deal: dict, deal_id, conn):
             matches = [m for m in matches if m["match_score"] >= config.ucc_min_match_score]
     matches = enrich_matches(matches, deal.get("states") or [], conn)
     matches = flag_policy_risks(matches)
-    stage, confidence = determine_stage(matches)
+    stage, confidence = determine_stage(_con_confirming_matches(deal_id, matches, conn))
 
     if matches:
         _store_cms_matches(deal_id, matches, conn)

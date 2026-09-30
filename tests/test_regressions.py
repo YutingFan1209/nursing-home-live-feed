@@ -106,6 +106,7 @@ FEED_XML = b"""<?xml version="1.0"?><rss version="2.0"><channel><title>t</title>
 
 class _Resp:
     content = FEED_XML
+    status_code = 200  # rss._http_get checks for a 403 before falling back to curl_cffi
     def raise_for_status(self): pass
 
 

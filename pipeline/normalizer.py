@@ -17,8 +17,11 @@ LEGAL_SUFFIXES = [
     r'\bREIT\b',
     r'\bCO\b',
     r'\bPTY\b',
-    r'\bOPCO\b',  # operating company — common in PE deals
 ]
+# Operating/property-company markers. Stripped from "Cascadia Opco" but kept
+# on names that start with a street number ("813 Keller Lane Opco"), which
+# otherwise read as an address rather than a company.
+OPCO_SUFFIXES = [r'\bOPCO\b', r'\bPROPCO\b']
 
 # Known name mappings — raw legal name -> display name
 # Add to this as you encounter common operators
@@ -39,7 +42,7 @@ def normalize_entity_name(name: str) -> str:
     Clean up a raw legal entity name into a readable display name.
 
     Examples:
-      620 HEATHWOOD DRIVE OPCO LLC  ->  620 Heathwood Drive
+      620 HEATHWOOD DRIVE OPCO LLC  ->  620 Heathwood Drive Opco
       CASCADIA HEALTHCARE INC       ->  Cascadia Healthcare
       Welltower Inc.                ->  Welltower
     """
@@ -59,6 +62,18 @@ def normalize_entity_name(name: str) -> str:
     for suffix in LEGAL_SUFFIXES:
         cleaned = re.sub(suffix, '', cleaned, flags=re.IGNORECASE).strip()
         cleaned = cleaned.rstrip('.,;').strip()
+    if not re.match(r'\d', cleaned):
+        for suffix in OPCO_SUFFIXES:
+            cleaned = re.sub(suffix, '', cleaned, flags=re.IGNORECASE).strip()
+            cleaned = cleaned.rstrip('.,;').strip()
+
+    # A suffix removed mid-string leaves its punctuation behind:
+    # "First Atlantic Healthcare, Inc., First Atlantic Corporation, and LTC, LLC"
+    # -> "First Atlantic Healthcare, ., First Atlantic , and LTC"
+    cleaned = re.sub(r'\s+,', ',', cleaned)
+    cleaned = re.sub(r',\s*\.', ',', cleaned)
+    cleaned = re.sub(r'(,\s*)+,', ',', cleaned)
+    cleaned = re.sub(r'[,\s]+(and|&)?$', '', cleaned, flags=re.IGNORECASE).strip()
 
     # Convert ALL CAPS to Title Case
     if cleaned.isupper():

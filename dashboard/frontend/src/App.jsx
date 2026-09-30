@@ -9,9 +9,17 @@ const DATA_URL = import.meta.env.BASE_URL + "deals.json";
 const localDateStr = (date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
+// A bare "YYYY-MM-DD" is a calendar date. new Date() reads it as UTC
+// midnight, which in US time zones is the previous evening, so every
+// acquisition date used to display one day early.
+const parseDay = (v) => {
+  const m = typeof v === "string" && /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
+};
+
 const fmtDate = (v) => {
   if (!v) return null;
-  const d = new Date(v);
+  const d = parseDay(v);
   const now = new Date();
   const dStr = localDateStr(d);
   const todayStr = localDateStr(now);
@@ -297,16 +305,20 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
         ? deal.facility_names[0] : deal.operator_names?.[0])
     : null;
 
+  // A filing sometimes names the same entity on both sides (a propco selling
+  // to its own opco) -- "X acquired from X" says nothing
+  const seller = deal.seller_entity && deal.seller_entity !== deal.acquiring_entity ? deal.seller_entity : null;
+
   const headline = uccSubject
     ? <><strong>{uccSubject}</strong><span style={{color:"#6b7280"}}> — {
         deal.deal_type === "amendment" ? "UCC-3 amendment"
         : deal.deal_type === "non_deal_lien" ? "likely non-deal lien" : "UCC-1 financing"}</span></>
-    : deal.acquiring_entity && deal.seller_entity
-    ? <><EntityLink name={deal.acquiring_entity} onPick={onEntity} /><span style={{color:"#6b7280"}}> acquired from </span><EntityLink name={deal.seller_entity} onPick={onEntity} /></>
+    : deal.acquiring_entity && seller
+    ? <><EntityLink name={deal.acquiring_entity} onPick={onEntity} /><span style={{color:"#6b7280"}}> acquired from </span><EntityLink name={seller} onPick={onEntity} /></>
     : deal.acquiring_entity
     ? <><EntityLink name={deal.acquiring_entity} onPick={onEntity} /><span style={{color:"#6b7280"}}> — new ownership</span></>
-    : deal.seller_entity
-    ? <><EntityLink name={deal.seller_entity} onPick={onEntity} /><span style={{color:"#6b7280"}}> changes ownership</span></>
+    : seller
+    ? <><EntityLink name={seller} onPick={onEntity} /><span style={{color:"#6b7280"}}> changes ownership</span></>
     : deal.facility_names?.length > 0 && !hasUnresolvedFacilities(deal)
     ? <><strong>{deal.facility_names[0]}</strong><span style={{color:"#6b7280"}}> — ownership change</span></>
     : deal.facility_count || deal.states?.length
@@ -552,7 +564,7 @@ function computeStats(allDeals) {
   const stateCounts = {};
   let last90 = 0;
   for (const d of allDeals) {
-    if (d.acquisition_date && new Date(d.acquisition_date) >= cutoff90) last90++;
+    if (d.acquisition_date && parseDay(d.acquisition_date) >= cutoff90) last90++;
     for (const s of (d.states || [])) {
       stateCounts[s] = (stateCounts[s] || 0) + 1;
     }
@@ -795,8 +807,9 @@ export default function App() {
             Nursing Home Ownership Changes
           </h1>
           <p style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.6, maxWidth: 520 }}>
-            Federal data on skilled nursing facility ownership changes, sourced from
-            CMS Provider Enrollment records and SEC filings.
+            Skilled nursing facility ownership changes from CMS ownership records,
+            state pre-closing filings, UCC-1 financing statements, SEC filings and
+            trade press.
           </p>
 
           {stats && (

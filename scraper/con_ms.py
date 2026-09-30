@@ -128,6 +128,10 @@ def _parse_chow_items(text: str) -> list[dict]:
         licensee = None
         if "Licensee Name:" in head:
             head, licensee = [p.strip() for p in head.split("Licensee Name:", 1)]
+        # "Academy Health Center, Inc. (currently being leased to Lamar Health and Rehabilitation Center)"
+        leased = re.match(r"(.*?)\s*\((?:currently\s+)?(?:being\s+)?leased\s+to\s+(.*?)\)?$", head, re.I)
+        if leased:
+            head, licensee = leased.group(1).strip(" ,"), licensee or leased.group(2).strip()
         items.append({
             "type": ftype,
             "facility": head,
