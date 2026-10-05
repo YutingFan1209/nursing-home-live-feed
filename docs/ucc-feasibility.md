@@ -22,7 +22,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 |---|---|---|---|---|
 | **AL** | [arc-sos UCC name search](https://arc-sos.state.al.us/CGI/UCCNAME.MBR/INPUT) | Free | Loads, plain HTML (CGI) | 🟢 |
 | **AK** | [DNR Recorder's Office UCC](https://dnr.alaska.gov/ssd/recoff/ucc) | Free | Loads | 🟢 (≈18 nursing homes) |
-| **AZ** | [azsos UCC search](https://apps.azsos.gov/apps/ucc/search/) | Free; debtor **and** secured-party search | Loads; Cloudflare bot-management script, no challenge | 🟢 |
+| **AZ** | [azsos UCC search](https://apps.azsos.gov/apps/ucc/search/) | Free; debtor **and** secured-party search with a date range (wildcard match needed); results list only the secured party, so each filing needs a second lookup for the debtor. Paid monthly index: $1,800/yr | Real Chrome works, no captcha (checked 2026-10-05) | 🟢 Not built |
 | **AR** | [bcs.sos.arkansas.gov](https://bcs.sos.arkansas.gov/) | Free lookup ($6 for official UCC-11) | JS single-page app (shell only on GET) | 🟢 |
 | **CO** | [SOS UCC standard search](https://www.sos.state.co.us/ucc/pages/search/standardSearch.xhtml) | Free; secured party via advanced search | Loads; Cloudflare script, no challenge | 🟢 |
 | **CT** | [service.ct.gov lien search](https://service.ct.gov/business/s/onlineenquiry?language=en_US) | Free, no account | Salesforce app with **reCAPTCHA** on the page | 🟡 |
@@ -48,10 +48,10 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **NV** | ORION portal (UCC module since Dec 2025) | Free basic search | **Incapsula** | 🟡 |
 | **NH** | QuickStart UCC | Free | Loads | 🟢 (small) |
 | **NM** | [enterprise.sos.nm.gov](https://enterprise.sos.nm.gov/) | Free, no login; debtor and secured party | JS shell | 🟢 |
-| **NC** | [sosnc.gov UCC search](https://www.sosnc.gov/online_services/search/UCC_Search) | Free; debtor and secured party | **Cloudflare challenge (403 "Just a moment")**, the NY situation | 🟡 (NY's real-Chrome CDP approach should work) |
+| **NC** | [sosnc.gov UCC search](https://www.sosnc.gov/online_services/search/UCC_Search) | Free; debtor and secured party. **Bulk data: weekly FTP feed, $750 setup + $250/yr** | **Cloudflare challenge (403 "Just a moment")**, the NY situation | 🟡 (NY's real-Chrome CDP approach should work) |
 | **ND** | NDCIS | Subscription | n/a | 🔴 |
 | **OK** | [okcc.online](https://www.okcc.online/) (Oklahoma County Clerk is the statewide central filing office) | Free, no login | Loads | 🟢 |
-| **OR** | [secure.sos.state.or.us/ucc](https://secure.sos.state.or.us/ucc/searchHome.action) | Free; debtor and secured party | Loads, no wall | 🟢 |
+| **OR** | [secure.sos.state.or.us/ucc](https://secure.sos.state.or.us/ucc/searchHome.action) | Free; debtor and secured party, with a date range | F5 bot defense (TSPD) on real use: plain HTTP gets a JS challenge, Playwright a blank page; a person's own Chrome works | 🟡 Live sessions only (built 2026-10-05: `scripts/or_ucc_lender_search.js`) |
 | **RI** | [business.sos.ri.gov UCC](https://business.sos.ri.gov/corpweb/uccsearch/uccsearch.aspx) | Free | Loads, no wall | 🟢 |
 | **SC** | [ucconline.sc.gov](https://ucconline.sc.gov/UCCFiling/UCCMainPage.aspx) | Free, no subscription needed; debtor and secured party | Loads, no wall | 🟢 |
 | **SD** | SOS UCC | $300/year search subscription | n/a | 🟡 (flat fee, small state) |
@@ -61,7 +61,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **VT** | [bizfilings UCC inquiry](https://bizfilings.vermont.gov/online/UCCInquire/) | Free | Loads | 🟢 (small) |
 | **VA** | [SCC CIS UCC search](https://cis.scc.virginia.gov/UCCOnlineSearch/UCCSearch) | Free; results list secured parties | Cookie-consent redirect + **reCAPTCHA** | 🟡 |
 | **WA** | [DOL UCC search](https://fortress.wa.gov/dol/ucc/search.aspx) | Free; debtor and secured party | **reCAPTCHA** (grecaptcha) | 🟡 |
-| **WV** | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search) | Free; debtor and secured party | Loads, no wall | 🟢 |
+| **WV** | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search) | Free | The search button stays disabled until a **reCAPTCHA** is solved (checked 2026-10-05) | 🟡 Not automatable |
 | **WI** | [DFI lien search](https://dfi.wi.gov/Pages/BusinessServices/UCC/SearchLienFilings.aspx) | Free, no login | Loads | 🟢 |
 | **WY** | wyobiz UCC | Basic search free; certified search needs subscription | Empty response to a plain GET | 🟡 |
 
