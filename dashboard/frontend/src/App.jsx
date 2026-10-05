@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL || "https://www.medicare.gov/care-compare/details/nursing-home";
 const DATA_URL = import.meta.env.BASE_URL + "deals.json";
@@ -562,6 +562,75 @@ function CompanyPanel({ entity, deals, onEntity, onClose }) {
   );
 }
 
+// Tile-grid US map (one square per state, laid out roughly where the state
+// sits) for the "States covered" stat: shading = deal count, hover names
+// the state, click filters the list like the top-state chips.
+const TILE_POS = {
+  AK:[0,0],ME:[11,0],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],WI:[7,2],MI:[8,2],NY:[9,2],RI:[10,2],MA:[11,2],
+  OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],
+  CA:[1,4],UT:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],VA:[8,4],MD:[9,4],DE:[10,4],
+  AZ:[2,5],NM:[3,5],KS:[4,5],AR:[5,5],TN:[6,5],NC:[7,5],SC:[8,5],DC:[9,5],
+  OK:[4,6],LA:[5,6],MS:[6,6],AL:[7,6],GA:[8,6],HI:[0,7],TX:[4,7],FL:[9,7],
+};
+const STATE_NAMES = {AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",DC:"District of Columbia",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+// Light to dark blue; deal counts are very skewed (NY has hundreds of UCC
+// deals), so buckets are quantiles of the states that have any deals.
+const MAP_SHADES = ["#dbeafe", "#93c5fd", "#3b82f6", "#1d4ed8", "#1e3a8a"];
+
+function mapBuckets(counts) {
+  const vals = Object.values(counts).filter(v => v > 0).sort((a, b) => a - b);
+  if (!vals.length) return [];
+  return [0.2, 0.4, 0.6, 0.8].map(q => vals[Math.min(vals.length - 1, Math.floor(q * vals.length))]);
+}
+
+function StatesMap({ counts, selected, onPick }) {
+  const [hover, setHover] = useState(null);
+  const cuts = mapBuckets(counts);
+  const shade = (n) => MAP_SHADES[cuts.filter(c => n > c).length];
+  const shown = hover || selected;
+  const n = shown ? (counts[shown] || 0) : null;
+  return (
+    <div>
+      <div style={{ fontSize: 12, color: "#374151", minHeight: 18, marginBottom: 8 }}>
+        {shown
+          ? <><strong>{STATE_NAMES[shown]}</strong> · {n.toLocaleString()} deal{n === 1 ? "" : "s"}{shown === selected && !hover ? " (filtered)" : ""}</>
+          : <span style={{ color: "#6b7280" }}>Hover a state for its count · click to filter the list</span>}
+      </div>
+      <div role="group" aria-label="Deals by state"
+        style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 3 }}
+        onMouseLeave={() => setHover(null)}>
+        {Object.entries(TILE_POS).map(([s, [c, r]]) => {
+          const v = counts[s] || 0;
+          const bg = v ? shade(v) : "#f3f4f6";
+          const dark = v && MAP_SHADES.indexOf(bg) >= 2;
+          return (
+            <button key={s} type="button"
+              aria-label={`${STATE_NAMES[s]}: ${v} deals`}
+              disabled={!v}
+              onMouseEnter={() => setHover(s)} onFocus={() => setHover(s)} onBlur={() => setHover(null)}
+              onClick={() => onPick(s)}
+              style={{ gridColumn: c + 1, gridRow: r + 1, aspectRatio: "1", padding: 0,
+                border: selected === s ? "2px solid #111827" : "1px solid transparent",
+                borderRadius: 4, background: bg, cursor: v ? "pointer" : "default",
+                color: dark ? "#fff" : (v ? "#1e3a8a" : "#9ca3af"),
+                fontSize: 10, fontWeight: 600, lineHeight: 1 }}>
+              {s}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 11, color: "#6b7280" }}>
+        <span>Fewer</span>
+        {MAP_SHADES.map(c => <span key={c} style={{ width: 16, height: 10, borderRadius: 2, background: c }} />)}
+        <span>More deals</span>
+        <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 10, height: 10, borderRadius: 2, background: "#f3f4f6", border: "1px solid #e5e7eb" }} /> None
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function computeStats(allDeals) {
   const now = new Date();
   const cutoff90 = new Date(now - 90 * 24 * 60 * 60 * 1000);
@@ -584,6 +653,7 @@ function computeStats(allDeals) {
     // extraction once pushed this to 53
     states_covered: Object.keys(stateCounts).filter(s => s !== "DC" && US_STATES.includes(s)).length,
     top_states: topStates,
+    state_counts: stateCounts,
   };
 }
 
@@ -663,6 +733,26 @@ export default function App() {
   const [savedViews, setSavedViews] = useState(loadSavedViews);
   const [offset, setOffset]       = useState(0);
   const [parade, setParade]       = useState(false);
+  const [mapOpen, setMapOpen]     = useState(false);
+  const mapTimer = useRef(null);
+  const mapOpenedAt = useRef(0);
+  const mapAnchor = useRef(null);
+  const [mapAlignRight, setMapAlignRight] = useState(false);
+  const openMap = () => {
+    clearTimeout(mapTimer.current);
+    // Open toward whichever side has room for the 420px map
+    const r = mapAnchor.current?.getBoundingClientRect();
+    if (r) setMapAlignRight(r.left + Math.min(420, window.innerWidth - 40) > window.innerWidth - 16);
+    setMapOpen(o => { if (!o) mapOpenedAt.current = Date.now(); return true; });
+  };
+  // A tap fires mouseenter/focus (which open the map) right before click, so
+  // a click that soon after opening keeps it open instead of toggling it shut
+  const toggleMap = () => {
+    if (Date.now() - mapOpenedAt.current < 400) return;
+    setMapOpen(o => { if (!o) mapOpenedAt.current = Date.now(); return !o; });
+  };
+  // A short delay lets the pointer cross the gap from the card to the map
+  const closeMapSoon = () => { clearTimeout(mapTimer.current); mapTimer.current = setTimeout(() => setMapOpen(false), 150); };
   const LIMIT = 20;
 
   useKonami(useCallback(() => setParade(true), []));
@@ -819,19 +909,40 @@ export default function App() {
           </p>
 
           {stats && (
-            <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}
+              onKeyDown={e => { if (e.key === "Escape") setMapOpen(false); }}>
               {[
                 ["Total records", stats.total?.toLocaleString()],
                 ["Last 90 days", stats.last_90_days?.toLocaleString()],
-                ["States covered", stats.states_covered],
               ].map(([label, val]) => (
-                <div key={label} style={{ background: "#fff", border: "1px solid #e5e7eb",
-                  borderRadius: 8, padding: "12px 16px", minWidth: 110 }}>
-                  <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600,
-                    textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>{label}</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: "#111827" }}>{val}</div>
+                <div key={label} style={statCard}>
+                  <div style={statLabel}>{label}</div>
+                  <div style={statValue}>{val}</div>
                 </div>
               ))}
+              <div ref={mapAnchor} style={{ position: "relative" }}>
+                <button type="button" aria-expanded={mapOpen} aria-controls="states-map"
+                  onMouseEnter={openMap} onMouseLeave={closeMapSoon}
+                  onFocus={openMap} onClick={toggleMap}
+                  style={{ ...statCard, textAlign: "left", cursor: "pointer", font: "inherit",
+                    borderColor: mapOpen ? "#93c5fd" : "#e5e7eb" }}>
+                  <div style={statLabel}>States covered <span aria-hidden="true" style={{ color: "#2563eb" }}>▾</span></div>
+                  <div style={statValue}>{stats.states_covered}</div>
+                </button>
+                {mapOpen && (
+                  // paddingTop instead of a margin keeps the gap hoverable
+                  <div id="states-map" onMouseEnter={openMap} onMouseLeave={closeMapSoon}
+                    style={{ position: "absolute", top: "100%", paddingTop: 8, zIndex: 20,
+                      width: "min(420px, calc(100vw - 40px))",
+                      ...(mapAlignRight ? { right: 0 } : { left: 0 }) }}>
+                    <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8,
+                      padding: 14, boxShadow: "0 8px 24px rgba(17,24,39,0.12)" }}>
+                      <StatesMap counts={stats.state_counts} selected={state}
+                        onPick={s => { setState(p => p === s ? "" : s); setDateFrom(""); setDateTo(""); setOffset(0); }} />
+                    </div>
+                  </div>
+                )}
+              </div>
               <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0",
                 borderRadius: 8, padding: "12px 16px", display: "flex",
                 flexDirection: "column", justifyContent: "center" }}>
@@ -1011,6 +1122,9 @@ export default function App() {
 const dl = { fontSize: 10, color: "#9ca3af", textTransform: "uppercase",
   letterSpacing: "0.07em", marginBottom: 3, fontWeight: 600 };
 const dv = { fontSize: 13, color: "#374151", lineHeight: 1.5 };
+const statCard = { background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "12px 16px", minWidth: 110 };
+const statLabel = { fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 };
+const statValue = { fontSize: 20, fontWeight: 700, color: "#111827" };
 const lnk = { fontSize: 13, color: "#2563eb", textDecoration: "none" };
 const selStyle = { background: "#fff", border: "1px solid #e5e7eb", color: "#374151",
   borderRadius: 6, padding: "7px 12px", fontSize: 13, outline: "none" };
