@@ -107,8 +107,24 @@ def _smart_title_case(text: str) -> str:
     return ' '.join(result)
 
 
+# The 50 states plus DC. Claude extraction sometimes tags a news deal with a
+# non-US region code (GB for a UK portfolio, NB/NL for Canadian provinces);
+# four such deals reached the site and its "States covered" count.
+US_STATE_CODES = frozenset("""
+    AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO
+    MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC
+""".split())
+
+
 def normalize_deal(deal: dict) -> dict:
-    """Apply name normalization to all entity fields in a deal dict."""
+    """Apply name normalization to all entity fields in a deal dict, and
+    drop non-US state codes. A deal whose states were all non-US gets
+    _non_us_only so the caller can dismiss it."""
+    if deal.get('states'):
+        us = [s.upper() for s in deal['states'] if s and s.upper() in US_STATE_CODES]
+        if not us:
+            deal['_non_us_only'] = True
+        deal['states'] = us
     if deal.get('acquiring_entity'):
         deal['acquiring_entity'] = normalize_entity_name(deal['acquiring_entity'])
     if deal.get('seller_entity'):

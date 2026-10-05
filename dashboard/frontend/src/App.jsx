@@ -580,7 +580,9 @@ function computeStats(allDeals) {
   return {
     total: allDeals.length,
     last_90_days: last90,
-    states_covered: Object.keys(stateCounts).length,
+    // The 50 states only: DC isn't a state, and stray non-US codes from news
+    // extraction once pushed this to 53
+    states_covered: Object.keys(stateCounts).filter(s => s !== "DC" && US_STATES.includes(s)).length,
     top_states: topStates,
   };
 }

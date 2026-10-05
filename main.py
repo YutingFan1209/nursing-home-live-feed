@@ -700,7 +700,11 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
             # CON filings are already confirmed nursing-facility filings at the
             # source; the name-based AL/MC check would dismiss a mixed portfolio
             # over one "...Assisted Living" facility (Eagle Arc/Links, ME)
-            if article.get("source_type") != "con" and is_out_of_scope(deal):
+            if deal.get("_non_us_only"):
+                logger.info(f"Auto-dismissing non-US deal: {deal.get('acquiring_entity')}")
+                with conn.cursor() as sc:
+                    sc.execute("UPDATE deals SET stage = 'dismissed' WHERE id = %s", (deal_id,))
+            elif article.get("source_type") != "con" and is_out_of_scope(deal):
                 logger.info(
                     f"Auto-dismissing out-of-scope AL/MC deal: "
                     f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
@@ -807,7 +811,11 @@ def process_article(article: dict, conn) -> int:
             # CON filings are already confirmed nursing-facility filings at the
             # source; the name-based AL/MC check would dismiss a mixed portfolio
             # over one "...Assisted Living" facility (Eagle Arc/Links, ME)
-            if article.get("source_type") != "con" and is_out_of_scope(deal):
+            if deal.get("_non_us_only"):
+                logger.info(f"Auto-dismissing non-US deal: {deal.get('acquiring_entity')}")
+                with conn.cursor() as sc:
+                    sc.execute("UPDATE deals SET stage = 'dismissed' WHERE id = %s", (deal_id,))
+            elif article.get("source_type") != "con" and is_out_of_scope(deal):
                 logger.info(
                     f"Auto-dismissing out-of-scope AL/MC deal: "
                     f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
