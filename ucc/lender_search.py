@@ -61,8 +61,29 @@ def norm_name(name: str) -> str:
     return " ".join(_SUFFIXES.sub(" ", name).split())
 
 
-def _looks_like_nursing_home(debtor: str, cms_names: set[str]) -> bool:
-    return norm_name(debtor) in cms_names or bool(_HEALTHCARE_WORDS.search(debtor.upper()))
+# Stricter test for a statewide feed (FL's daily files), where "HEALTH CARE"
+# matches every medical practice and "REHAB" every physical therapy or
+# addiction clinic: rehab only counts next to a nursing/health/center word,
+# and clinic words disqualify a name that has no CMS match.
+_STRICT_WORDS = re.compile(
+    r"\b(NURSING|SKILLED (NURSING|CARE)|SNF|POST[- ]?ACUTE|CONVALESCENT|LONG[- ]TERM CARE|EXTENDED CARE)\b"
+    r"|\bREHAB\w* (CENTER|CTR|AND HEALTH|& HEALTH)"
+    r"|\b(HEALTH|HEALTHCARE|HEALTH CARE|NURSING|CARE) (AND|&) REHAB"
+)
+_NOT_NURSING_HOME = re.compile(
+    r"\b(CHIROPRACT\w*|PHYSICAL|THERAP\w*|SPINE|SPORTS|NEURO|ELECTRODIAG\w*|RECOVERY|"
+    r"HOSP|HOSPITAL|MEDICAL|DENTAL|PAIN|ORTHO\w*|PROFESSIONAL|ASSISTED LIVING|BEHAVIORAL|"
+    r"VETERINAR\w*|ANIMAL|PLLC)\b"
+)
+
+
+def looks_like_nursing_home(debtor: str, cms_names: set[str], strict: bool = False) -> bool:
+    if norm_name(debtor) in cms_names:
+        return True
+    name = debtor.upper()
+    if strict:
+        return bool(_STRICT_WORDS.search(name)) and not _NOT_NURSING_HOME.search(name)
+    return bool(_HEALTHCARE_WORDS.search(name))
 
 
 def filter_lender_hits(filings: list[UCCFiling], cms_names: set[str], today: date = None) -> list[UCCFiling]:
@@ -82,7 +103,7 @@ def filter_lender_hits(filings: list[UCCFiling], cms_names: set[str], today: dat
 
     kept = []
     for members in clusters.values():
-        if any(_looks_like_nursing_home(f.debtor_name, cms_names) for f in members):
+        if any(looks_like_nursing_home(f.debtor_name, cms_names) for f in members):
             for f in members:
                 f.raw["lender_search"] = True
                 kept.append(f)

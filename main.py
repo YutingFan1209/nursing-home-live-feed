@@ -611,6 +611,19 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
                 conn, get_chow_operator_names("CA") + _get_known_operator_names(conn, "CA"))
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
         oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
+        # FL: the registry's own daily data files, not a name search
+        # (ucc/fl_download.py); runs here because it saves its last day read
+        fl_filings = None
+        if wanted is None or "FL" in wanted:
+            from ucc.fl_download import fetch_new_days
+            from ucc.lender_search import norm_name
+            fl_names = _cms_healthcare_names(conn, "FL") | {
+                norm_name(n) for n in get_chow_operator_names("FL") + _get_known_operator_names(conn, "FL")}
+            try:
+                fl_filings = fetch_new_days(conn, fl_names)
+            except Exception as e:
+                logger.warning(f"FL UCC daily files failed: {e}")
+                health.source_failed("UCC FL", e)
         ucc_articles = fetch_ucc_filings(
             known_operator_names=known_operator_names,
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
@@ -621,6 +634,7 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             oh_individual_names=oh_individual_names or None,
             nj_search_names=nj_names or None,
             ca_search_names=ca_names or None,
+            fl_filings=fl_filings,
             pa_search_names=pa_names or None,
             pa_lender_terms=pa_lenders,
             cms_healthcare_names=cms_hc_names,
@@ -998,15 +1012,22 @@ def _save_ca_offset(conn, offset: int, total: int) -> None:
     _save_offset(conn, CA_OFFSET_KEY, offset, ca_playwright.LAST_SEARCHED, total, "CA")
 
 
-def _cms_healthcare_names(conn) -> set[str]:
+def _cms_healthcare_names(conn, state: str = None) -> set[str]:
     """Normalized CMS organization owner and facility names, used to tell
-    nursing home debtors from everything else in lender-search results."""
+    nursing home debtors from everything else in lender-search results.
+    state limits it to that state's facilities: matching a statewide feed
+    (FL) against national names let "CRUSH IT LLP", an Iowa home's
+    contractor, pull in a Florida equipment loan."""
     from ucc.lender_search import norm_name
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT owner_name FROM cms_ownership_records WHERE owner_type = 'Organization'
-            UNION SELECT provider_name FROM cms_facilities
-        """)
+            SELECT owner_name FROM cms_ownership_records
+            WHERE owner_type = 'Organization' AND (%(st)s IS NULL OR provider_state = %(st)s)
+              -- lenders CMS lists with a security/mortgage interest (BANK OF
+              -- AMERICA CORP) aren't nursing home entities
+              AND owner_role NOT LIKE '%%SECURITY INTEREST%%' AND owner_role NOT LIKE '%%MORTGAGE INTEREST%%' 
+            UNION SELECT provider_name FROM cms_facilities WHERE %(st)s IS NULL OR provider_state = %(st)s
+        """, {"st": state})
         return {norm_name(r[0]) for r in cur.fetchall() if r[0]}
 
 

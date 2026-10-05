@@ -28,11 +28,11 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **CT** | [service.ct.gov lien search](https://service.ct.gov/business/s/onlineenquiry?language=en_US) | Free, no account | Salesforce app with **reCAPTCHA** on the page | 🟡 |
 | **DE** | Authorized searchers only | $25/debtor + $25 expedite | n/a | 🔴 (see caveat above) |
 | **DC** | Recorder of Deeds (CountyFusion) | Login | TLS error to plain clients | 🔴 (≈17 nursing homes) |
-| **FL** | [floridaucc.com/search](https://floridaucc.com/search) | Free; debtor and secured party | JS app shell, no wall | 🟢 |
+| **FL** | [floridaucc.com/search](https://floridaucc.com/search) | Free; debtor and secured party; **daily and full data downloads** | JS app shell, no wall | ✅ Built 2026-10-05 from the data downloads (`ucc/fl_download.py`) |
 | **GA** | [GSCCCA UCC index](https://search.gsccca.org/UCC_Search/) | Subscription (~$15/month, unlimited) | Login | 🟡 (cheap flat fee) |
 | **HI** | Bureau of Conveyances RecordEASE | Login | Login page | 🔴 (≈45 nursing homes) |
 | **ID** | [sosbiz UCC search](https://sosbiz.idaho.gov/search/ucc) | Free | Cloudflare script | 🟢 |
-| **IL** | [apps.ilsos.gov/uccsearch](https://apps.ilsos.gov/uccsearch/) | Free (image copies $20) | Loads, no wall | 🟢 |
+| **IL** | [apps.ilsos.gov/uccsearch](https://apps.ilsos.gov/uccsearch/) | Free (image copies $20) | Page loads, but headless browsers get an Akamai 403 and every search submission from a real Chrome gets an Akamai challenge, then a **reCAPTCHA** (checked 2026-10-05) | 🟡 Not automatable |
 | **IN** | [INBiz UCC search](https://inbiz.in.gov/BOS/PublicSearch/Search) | Free; debtor and secured party | Loads. ⚠️ Some guides say an Access Indiana login is needed; unverified | 🟢 |
 | **IA** | [filings.sos.iowa.gov UCC](https://filings.sos.iowa.gov/UCCSearch/UCC) | Free | **reCAPTCHA** + Cloudflare | 🟡 |
 | **KS** | mykansas.ks.gov UCC | $10/debtor, subscription | n/a | 🔴 |
@@ -65,7 +65,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **WI** | [DFI lien search](https://dfi.wi.gov/Pages/BusinessServices/UCC/SearchLienFilings.aspx) | Free, no login | Loads | 🟢 |
 | **WY** | wyobiz UCC | Basic search free; certified search needs subscription | Empty response to a plain GET | 🟡 |
 
-**Tally:** 19 🟢, 17 🟡, 8 🔴 (plus the 7 states already built).
+**Tally:** 17 🟢, 18 🟡, 8 🔴, plus FL built and the 7 states built before it. A 🟢 here means the search *page* loaded cleanly; Illinois showed a captcha only after a search was submitted, so test a real search before trusting the rating.
 
 ---
 
@@ -73,7 +73,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 
 Weighted by nursing home count (CMS) and how easy the portal looked:
 
-1. **FL** and **IL**: large (≈700 homes each), free, no wall seen. FL searches secured parties too, so a lender-side search (like PA's) is possible.
+1. ~~FL~~ (built from the data downloads) and ~~IL~~ (captcha on every search; not automatable).
 2. **IN**, **MO**, **WI**, **MD**, **SC**, **OK**, **OR**, **AL**, **WV**: free, mid-size, mostly plain pages. MO needs a look at why the plain GET bounced to an error page.
 3. **NC**: free and rich (secured-party search), but behind the same Cloudflare challenge as NY, so it needs the `ucc/chrome_cdp.py` real-Chrome path. Worth it: NC CON already shows NC is active.
 4. **TX**: the largest nursing home state, $1 per search. Affordable as a targeted monthly run over new deal names, not a full nightly sweep.

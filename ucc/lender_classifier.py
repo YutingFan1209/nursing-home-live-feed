@@ -98,6 +98,10 @@ EXCLUDE_PATTERNS = [
     r"\bolympus america\b",        # Olympus America Inc. (endoscopy equipment)
     r"\bzimmer\b",                 # Zimmer US / Zimmer Biomet (orthopedic devices)
     r"\bglobus medical\b",         # Globus Medical (spine surgical equipment)
+    # Seen as secured party on nursing home debtors in FL's daily files (2026-10-05)
+    r"\bapple inc\b",              # device purchase financing
+    r"\bbaxter healthcare\b",      # infusion pumps / medical supplies
+    r"\bge hfs\b",                 # GE HealthCare Financial Services (imaging equipment)
     r"\bb\.? braun\b",             # B. Braun Medical (medical devices)
     r"\bortho.?clinical\b",        # Ortho-Clinical Diagnostics
     r"\bquidelortho\b",            # QuidelOrtho Sales

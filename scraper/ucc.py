@@ -84,6 +84,7 @@ def fetch_ucc_filings(
     nj_search_names: list[str] = None,
     ca_search_names: list[str] = None,
     ca_individual_names: list[str] = None,
+    fl_filings: list[UCCFiling] = None,
     pa_search_names: list[str] = None,
     pa_lender_terms: list[str] = None,
     cms_healthcare_names: set[str] = None,
@@ -107,6 +108,11 @@ def fetch_ucc_filings(
         return flag and (wanted is None or code in wanted)
 
     filings: list[UCCFiling] = []
+
+    # FL: already read from the daily data files by main.py
+    # (ucc/fl_download.py); only the lender filter below applies
+    if fl_filings and (wanted is None or "FL" in wanted):
+        filings.extend(fl_filings)
 
     # KY (Playwright, no Cloudflare, headless=True)
     # Use ky_search_names (CHOW facility-level LLCs) — the KY portal only
