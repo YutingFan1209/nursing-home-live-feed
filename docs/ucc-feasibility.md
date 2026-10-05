@@ -32,7 +32,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **GA** | [GSCCCA UCC index](https://search.gsccca.org/UCC_Search/) | Subscription (~$15/month, unlimited) | Login | 🟡 (cheap flat fee) |
 | **HI** | Bureau of Conveyances RecordEASE | Login | Login page | 🔴 (≈45 nursing homes) |
 | **ID** | [sosbiz UCC search](https://sosbiz.idaho.gov/search/ucc) | Free | Cloudflare script | 🟢 |
-| **IL** | [apps.ilsos.gov/uccsearch](https://apps.ilsos.gov/uccsearch/) | Free (image copies $20) | Page loads, but headless browsers get an Akamai 403 and every search submission from a real Chrome gets an Akamai challenge, then a **reCAPTCHA** (checked 2026-10-05) | 🟡 Not automatable |
+| **IL** | [apps.ilsos.gov/uccsearch](https://apps.ilsos.gov/uccsearch/) | Free (image copies $20) | Page loads, but headless browsers get an Akamai 403 and every search submission from a real Chrome gets an Akamai challenge, then a **reCAPTCHA** (checked 2026-10-05) | 🟡 Not automatable — **on hold (2026-10-05)**, manual search only |
 | **IN** | [INBiz UCC search](https://inbiz.in.gov/BOS/PublicSearch/Search) | Free; debtor and secured party | Loads. ⚠️ Some guides say an Access Indiana login is needed; unverified | 🟢 |
 | **IA** | [filings.sos.iowa.gov UCC](https://filings.sos.iowa.gov/UCCSearch/UCC) | Free | **reCAPTCHA** + Cloudflare | 🟡 |
 | **KS** | mykansas.ks.gov UCC | $10/debtor, subscription | n/a | 🔴 |
@@ -61,7 +61,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **VT** | [bizfilings UCC inquiry](https://bizfilings.vermont.gov/online/UCCInquire/) | Free | Loads | 🟢 (small) |
 | **VA** | [SCC CIS UCC search](https://cis.scc.virginia.gov/UCCOnlineSearch/UCCSearch) | Free; results list secured parties | Cookie-consent redirect + **reCAPTCHA** | 🟡 |
 | **WA** | [DOL UCC search](https://fortress.wa.gov/dol/ucc/search.aspx) | Free; debtor and secured party | **reCAPTCHA** (grecaptcha) | 🟡 |
-| **WV** | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search) | Free | The search button stays disabled until a **reCAPTCHA** is solved (checked 2026-10-05) | 🟡 Not automatable |
+| **WV** | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search) | Free | The search button stays disabled until a **reCAPTCHA** is solved (checked 2026-10-05) | 🟡 Not automatable — **on hold (2026-10-05)**, manual search only |
 | **WI** | [DFI lien search](https://dfi.wi.gov/Pages/BusinessServices/UCC/SearchLienFilings.aspx) | Free, no login | Loads | 🟢 |
 | **WY** | wyobiz UCC | Basic search free; certified search needs subscription | Empty response to a plain GET | 🟡 |
 
