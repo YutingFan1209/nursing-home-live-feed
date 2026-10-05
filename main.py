@@ -34,6 +34,7 @@ from scraper.cms_owner_changes import (
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
+from scraper.con_pa import fetch_con_pa_deals, CON_PA_SOURCE_NAME, CON_PA_INDEX_URL, _norm as _con_pa_norm
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
@@ -461,6 +462,24 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         )
         for deal in fetch_con_ok_deals(lambda url: _article_exists(url, conn)):
             deal["source_id"] = con_ok_source_id
+            new_articles.append(deal)
+
+        # PA DOH licence applications: a rolling window, so runs shouldn't
+        # lapse more than a week (scraper/con_pa.py)
+        con_pa_source_id = _ensure_source(
+            type("S", (), {"name": CON_PA_SOURCE_NAME,
+                           "url": CON_PA_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT unnest(d.facility_names) FROM deals d JOIN articles a ON a.id = d.article_id
+                WHERE a.source_id = %s
+            """, (con_pa_source_id,))
+            pa_known = {_con_pa_norm(r[0]) for r in cur.fetchall() if r[0]}
+        for deal in fetch_con_pa_deals(lambda url: _article_exists(url, conn), pa_known):
+            deal["source_id"] = con_pa_source_id
             new_articles.append(deal)
 
         con_me_source_id = _ensure_source(

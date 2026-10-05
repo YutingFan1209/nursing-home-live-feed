@@ -250,7 +250,7 @@ Every state not covered above, checked the same way (single-page fetches, then a
 - AB 1502 requires CDPH to post SNF CHOW applications for public comment 120 days before closing. That would be the richest California source, but I couldn't find the page. cdph.ca.gov also failed TLS verification from here. **Worth one targeted look**, e.g. a call to CDPH's Centralized Applications Branch.
 
 ### Build order for this pass
-1. **PA DOH list:** no Claude needed for the core fields, pre-closing with a start date, and it adds coverage for a state where UCC is fragile. The owner PDFs can go to Claude for parents and members.
+1. **PA DOH list (built 2026-10-05, `scraper/con_pa.py`):** no Claude needed for the core fields, pre-closing with a start date, and it adds coverage for a state where UCC is fragile. The owner PDFs can go to Claude for parents and members.
 2. **CA OHCA list:** low volume, but names both parties months ahead.
 3. Philadelphia city notices, as a PA add-on.
 4. DC and HI only if cheap (few facilities).
