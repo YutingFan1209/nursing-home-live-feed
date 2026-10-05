@@ -45,6 +45,26 @@ def _http_get(url: str, timeout: int):
     return resp
 
 
+def unwrap_google_redirect(url: str) -> str:
+    """Google Alerts feed links are https://www.google.com/url?...&url=<real
+    article>&...; fetching the wrapper never yields the article (all 51
+    alert-feed articles from 2026-09 failed with "No article text"), and
+    the wrapped URL also defeats URL dedup against the Gmail alert copy."""
+    from urllib.parse import urlparse, parse_qs
+    parsed = urlparse(url)
+    if parsed.netloc.endswith("google.com") and parsed.path == "/url":
+        target = parse_qs(parsed.query).get("url") or parse_qs(parsed.query).get("q")
+        if target:
+            return target[0]
+    return url
+
+
+def _strip_tags(text: str) -> str:
+    import re
+    import html
+    return html.unescape(re.sub(r"<[^>]+>", "", text or "")).strip()
+
+
 def fetch_feed(url: str) -> list[dict]:
     logger.info(f"Fetching RSS feed: {url}")
     # Fetch with requests, not feedparser's own urllib fetch: urllib uses the
@@ -72,11 +92,12 @@ def fetch_feed(url: str) -> list[dict]:
             published_at = _parse_date(entry)
             if published_at and published_at < cutoff:
                 continue
-            article_url = entry.get("link", "").strip()
+            article_url = unwrap_google_redirect(entry.get("link", "").strip())
             if not article_url:
                 continue
-            title = entry.get("title", "")
-            summary = entry.get("summary", "")
+            # Google Alerts titles carry <b> highlighting
+            title = _strip_tags(entry.get("title", ""))
+            summary = _strip_tags(entry.get("summary", ""))
             # Skip keyword filter for Google Alerts — Google already matched relevance
             is_google_alert = 'google.com/alerts' in url
             if not is_google_alert and not _is_acquisition_related(title + " " + summary):
