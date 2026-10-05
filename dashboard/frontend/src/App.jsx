@@ -502,7 +502,11 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
           {deal.source_url && (
             <div>
               <div style={dl}>Source</div>
-              {deal.source_type === 'chow'
+              {deal.source_type === 'chow' && deal.source_url.includes('y2hd-n93e')
+                ? <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnk}>
+                    CMS Nursing Home Ownership Data ↗
+                  </a>
+                : deal.source_type === 'chow'
                 ? <a href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership"
                     target="_blank" rel="noreferrer" style={lnk}>
                     CMS SNF Change of Ownership Dataset ↗

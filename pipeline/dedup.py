@@ -39,6 +39,11 @@ def make_dedup_hash(deal: dict) -> str:
         key = f"con|{state}|{deal['_con_id']}"
         return hashlib.sha256(key.encode()).hexdigest()[:16]
 
+    # CMS Ownership-file changes: one per buyer + start date
+    if deal.get("_cms_change_id"):
+        key = f"cmsown|{deal['_cms_change_id']}"
+        return hashlib.sha256(key.encode()).hexdigest()[:16]
+
     parts = []
 
     # Normalize acquirer

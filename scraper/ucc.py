@@ -4,6 +4,7 @@ scraper/ucc.py
 from __future__ import annotations
 
 import logging
+import os
 from ucc.nj import NewJerseyUCCSource
 from ucc.me import MaineUCCSource
 from ucc.ny_playwright import search_ny_batch_cdp
@@ -49,7 +50,10 @@ ENABLE_NJ_PLAYWRIGHT = True  # re-enabled 2026-09-22 -- disabled 2026-06-23 beca
 ENABLE_OH_PLAYWRIGHT = True
 ENABLE_KY_PLAYWRIGHT = True
 ENABLE_PA_PLAYWRIGHT = True  # confirmed 2026-09-16: auto-launch works, no longer manual-only
-ENABLE_CA_PLAYWRIGHT = False  # Incapsula-protected, needs Chrome CDP -- manual trigger only, same as PA
+ENABLE_CA_PLAYWRIGHT = True  # enabled 2026-09-30: auto-launched Chrome like PA. Incapsula
+# blocks sustained volume (429 after ~35 fast searches), so ucc/ca_playwright.py runs one
+# throttled tab and stops the batch at the first block -- run CA on its own
+# (--ucc-states CA) and not twice in one day.
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -121,17 +125,22 @@ def fetch_ucc_filings(
     if _enabled(ENABLE_PA_PLAYWRIGHT, "PA"):
         health.attempted("UCC PA searches", len(known_operator_names))
         try:
-            filings.extend(search_pa_batch(known_operator_names))
+            # PA_UCC_WORKERS: drop to 1 to go easier on Incapsula
+            filings.extend(search_pa_batch(
+                known_operator_names, max_workers=int(os.environ.get("PA_UCC_WORKERS", 4))))
         except Exception as e:
             logger.warning(f"PA UCC batch search failed: {e}")
             health.source_failed("UCC PA", e)
 
-    # CA (Chrome CDP required - Incapsula, manual only, not in automated pipeline)
-    # CA's search API is a single unified index over debtor + secured-party
-    # names (see ucc/ca_playwright.py docstring) -- no mode split needed,
-    # so search and individual terms are just merged into one term list.
+    # CA (real Chrome over CDP, auto-launched, same as PA). CA's search API
+    # is a single unified index over debtor + secured-party names (see
+    # ucc/ca_playwright.py docstring) -- no mode split needed. main.py
+    # passes CA CHOW buyers plus deal names involving CA, not the national
+    # list: the portal blocks sustained volume. CMS individual owners aren't
+    # passed yet -- "LAST, FIRST" returned nothing and other formats are
+    # untested.
     if _enabled(ENABLE_CA_PLAYWRIGHT, "CA"):
-        ca_terms = (ca_search_names or known_operator_names) + (ca_individual_names or [])
+        ca_terms = _union_names(ca_search_names, []) + (ca_individual_names or [])
         health.attempted("UCC CA searches", len(ca_terms))
         try:
             filings.extend(search_ca_batch(ca_terms))

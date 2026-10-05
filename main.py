@@ -27,6 +27,10 @@ from scraper.sources import get_active_sources
 from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
+from scraper.cms_owner_changes import (
+    fetch_cms_owner_change_deals, refresh_ownership_if_stale,
+    ensure_source as ensure_cms_owner_change_source,
+)
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
@@ -139,6 +143,14 @@ def parse_args():
              "Fastest way to check for new deals since the last run.",
     )
     parser.add_argument(
+        "--ucc-only",
+        action="store_true",
+        help="Only scrape UCC-1 filings (pair with --ucc-states) -- skips Gmail/RSS/"
+             "EDGAR/CHOW/CON. Lets several single-state UCC runs go in parallel: a "
+             "full run upserts every sources row and holds those row locks until its "
+             "whole UCC scrape returns, so a second concurrent full run blocks behind it.",
+    )
+    parser.add_argument(
         "--gmail-days-back",
         type=int,
         default=None,
@@ -168,7 +180,7 @@ def parse_args():
 
 # ── Main run ──────────────────────────────────────────────────
 
-def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None, gmail_only=False, ucc_states=None):
+def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail_days_back=None, gmail_only=False, ucc_states=None, ucc_only=False):
     mode = "DRY RUN" if dry_run else "LIVE"
     logger.info(f"=== Nursing Home Acquisition Pipeline Starting [{mode}] ===")
     health.reset()
@@ -178,7 +190,7 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
     try:
         # Step 1 — Discover new articles
-        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back, gmail_only=gmail_only, ucc_states=ucc_states)
+        articles = discover_articles(conn, skip_ucc=skip_ucc, gmail_days_back=gmail_days_back, gmail_only=gmail_only, ucc_states=ucc_states, ucc_only=ucc_only)
         total_found = len(articles)
         logger.info(f"Discovered {total_found} new articles")
 
@@ -367,7 +379,9 @@ def run_test_article(url: str):
 
 # ── Discovery ─────────────────────────────────────────────────
 
-def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None, gmail_only: bool = False, ucc_states: list[str] = None) -> list[dict]:
+def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None, gmail_only: bool = False, ucc_states: list[str] = None, ucc_only: bool = False) -> list[dict]:
+    if ucc_only:
+        return _discover_ucc(conn, [], ucc_states, ucc_only=True)
     new_articles = []
 
     if not gmail_only:
@@ -403,6 +417,21 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             if not _article_exists(deal["url"], conn):
                 deal["source_id"] = chow_source_id
                 new_articles.append(deal)
+
+        # CMS Ownership file — monthly, ~1-2 months after closing. Reloads
+        # the file when the stored copy is stale, then turns new owners into
+        # deals (see scraper/cms_owner_changes.py)
+        try:
+            refresh_ownership_if_stale(conn)
+            cms_owner_source_id = ensure_cms_owner_change_source(conn)
+            for deal in fetch_cms_owner_change_deals(conn):
+                if not _article_exists(deal["url"], conn):
+                    deal["source_id"] = cms_owner_source_id
+                    new_articles.append(deal)
+        except Exception as e:
+            conn.rollback()
+            logger.warning(f"CMS ownership changes skipped: {e}")
+            health.source_failed("CMS ownership changes", e)
 
         # State CON / ownership-change notices — pre-closing filings. Nursing
         # home notices already carry raw_text, so they take the normal Claude
@@ -550,14 +579,26 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
     if skip_ucc:
         logger.info("UCC filing fetch skipped (--skip-ucc)")
         return new_articles
+    return _discover_ucc(conn, new_articles, ucc_states)
+
+
+def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, ucc_only: bool = False) -> list[dict]:
     try:
         ucc_source_id = ensure_ucc_source(conn)
+        if ucc_only:
+            # Release the sources-row lock before the long scrape so a
+            # parallel --ucc-only run for another state isn't blocked on it
+            conn.commit()
         wanted = {s.upper() for s in ucc_states} if ucc_states else None
         known_operator_names = _get_known_operator_names(conn)
         ky_names = get_chow_operator_names("KY") if wanted is None or "KY" in wanted else None
         oh_names = get_chow_operator_names("OH") if wanted is None or "OH" in wanted else None
         ny_names = get_chow_operator_names("NY") if wanted is None or "NY" in wanted else None
         nj_names = get_chow_operator_names("NJ") if wanted is None or "NJ" in wanted else None
+        ca_names, ca_offset = None, 0
+        if wanted is None or "CA" in wanted:
+            ca_names, ca_offset = _rotate_ca_names(
+                conn, get_chow_operator_names("CA") + _get_known_operator_names(conn, "CA"))
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
         oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
         ucc_articles = fetch_ucc_filings(
@@ -569,8 +610,11 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             oh_search_names=oh_names or None,
             oh_individual_names=oh_individual_names or None,
             nj_search_names=nj_names or None,
+            ca_search_names=ca_names or None,
             states=ucc_states,
         )
+        if ca_names:
+            _save_ca_offset(conn, ca_offset, len(ca_names))
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
                 art["source_id"] = ucc_source_id
@@ -694,7 +738,7 @@ def process_article(article: dict, conn) -> int:
             "acquiring_entity", "seller_entity", "operator_names",
             "facility_names", "states", "facility_count", "deal_value_m",
             "acquisition_date", "financing_amount_m", "lender", "rationale",
-            "ccn", "_con_id",
+            "ccn", "ccns", "_con_id", "_cms_change_id",
         ] if k in article}
         deal["extraction_model"] = article.get("extraction_model", "chow_direct")
         deals = [deal]
@@ -788,27 +832,26 @@ def process_article(article: dict, conn) -> int:
 
 def _build_known_ccn_match(deal: dict, conn) -> list[dict]:
     """CHOW deals arrive with a CMS-verified CCN already known from the
-    filing itself (CCN - BUYER column) — fuzzy-matching against
+    filing itself (CCN - BUYER column), and CMS Ownership-file changes
+    with one per facility (ccns) — fuzzy-matching against
     cms_ownership_records would be an approximation of something we
-    already have exactly, so build the match record directly instead."""
-    ccn = deal["ccn"]
-    provider_name = None
+    already have exactly, so build the match records directly instead."""
+    ccns = deal.get("ccns") or [deal["ccn"]]
+    method = "cms_ownership_direct" if deal.get("ccns") else "chow_ccn_direct"
     with conn.cursor() as cur:
-        cur.execute("SELECT provider_name FROM cms_facilities WHERE ccn = %s", (ccn,))
-        row = cur.fetchone()
-        if row:
-            provider_name = row[0]
+        cur.execute("SELECT ccn, provider_name, provider_state FROM cms_facilities WHERE ccn = ANY(%s)", (ccns,))
+        facilities = {row[0]: row[1:] for row in cur.fetchall()}
     return [{
         "ccn":                  ccn,
-        "provider_name":        provider_name,
+        "provider_name":        facilities.get(ccn, (None, None))[0],
         "owner_name":           deal.get("acquiring_entity"),
         "owner_type":           None,
-        "provider_state":       (deal.get("states") or [None])[0],
+        "provider_state":       facilities.get(ccn, (None, None))[1] or (deal.get("states") or [None])[0],
         "ownership_start_date": deal.get("acquisition_date"),
         "match_score":          100,
-        "match_method":         "chow_ccn_direct",
+        "match_method":         method,
         "matched_on_field":     "ccn",
-    }]
+    } for ccn in ccns]
 
 
 # A CMS ownership record older than this before a state filing belongs to the
@@ -839,7 +882,7 @@ def _con_confirming_matches(deal_id, matches: list[dict], conn) -> list[dict]:
 
 
 def _run_cms_matching(deal: dict, deal_id, conn):
-    if deal.get("ccn"):
+    if deal.get("ccn") or deal.get("ccns"):
         matches = _build_known_ccn_match(deal, conn)
     else:
         matches = match_deal(deal, conn)
@@ -865,9 +908,11 @@ def _run_cms_matching(deal: dict, deal_id, conn):
 # scoping + "both confirmation and new source" decision from the 6/17
 # meeting. See ucc/integrator.py for the matching logic itself.
 
-def _get_known_operator_names(conn) -> list[str]:
+def _get_known_operator_names(conn, state: str = None) -> list[str]:
     """Pull entity names (LLC, Inc, Corp etc.) from deals DB for UCC search.
-    Skips personal names — Organization search won't find them anyway."""
+    Skips personal names — Organization search won't find them anyway.
+    state limits it to deals involving that state (CA, whose portal blocks
+    sustained volume, can't afford the full national list)."""
     import re
     entity_pattern = re.compile(
         r'\b(LLC|INC|CORP|LTD|LP|LLP|HOLDINGS|GROUP|CARE|HEALTH|MANAGEMENT|'
@@ -878,14 +923,39 @@ def _get_known_operator_names(conn) -> list[str]:
         cur.execute("""
             SELECT DISTINCT name FROM (
                 SELECT unnest(operator_names) AS name FROM deals
-                WHERE operator_names IS NOT NULL
+                WHERE operator_names IS NOT NULL AND (%(state)s IS NULL OR %(state)s = ANY(states))
                 UNION
                 SELECT acquiring_entity AS name FROM deals
-                WHERE acquiring_entity IS NOT NULL
+                WHERE acquiring_entity IS NOT NULL AND (%(state)s IS NULL OR %(state)s = ANY(states))
             ) t
-        """)
+        """, {"state": state})
         all_names = [row[0] for row in cur.fetchall() if row[0]]
     return [n for n in all_names if entity_pattern.search(n)]
+
+
+CA_OFFSET_KEY = "ucc_ca_next_offset"
+
+
+def _rotate_ca_names(conn, names: list[str]) -> tuple[list[str], int]:
+    """CA's portal blocks a run partway through (after ~160 of ~440 names on
+    2026-09-30), so each run starts where the last one stopped: sort the
+    names for a stable order, then rotate to the saved offset."""
+    from cms.fetch_cms import _get_checkpoint
+    names = sorted({n.strip() for n in names if n and n.strip()}, key=str.upper)
+    if not names:
+        return names, 0
+    offset = _get_checkpoint(conn, CA_OFFSET_KEY) % len(names)
+    logger.info(f"CA UCC: {len(names)} names, starting at #{offset} ({names[offset]})")
+    return names[offset:] + names[:offset], offset
+
+
+def _save_ca_offset(conn, offset: int, total: int) -> None:
+    from cms.fetch_cms import _save_checkpoint
+    from ucc import ca_playwright
+    searched = ca_playwright.LAST_SEARCHED
+    _save_checkpoint(conn, CA_OFFSET_KEY, (offset + searched) % total)
+    conn.commit()
+    logger.info(f"CA UCC: searched {searched} of {total} names; next run starts at #{(offset + searched) % total}")
 
 
 # Ownership/control roles only — excludes weaker-signal roles (ADP of the
@@ -1256,6 +1326,7 @@ if __name__ == "__main__":
             gmail_days_back=args.gmail_days_back,
             gmail_only=args.gmail_only,
             ucc_states=[s.strip() for s in args.ucc_states.split(",") if s.strip()] if args.ucc_states else None,
+            ucc_only=args.ucc_only,
         )
         # non-zero when a source or step failed -- data that did succeed is
         # already committed; see pipeline/run_health.py
