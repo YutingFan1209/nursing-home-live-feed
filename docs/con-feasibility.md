@@ -196,7 +196,7 @@ NCSL only lists states where a nursing home sale triggers a *certificate of need
 | **NC** | CON exemption request to acquire an existing facility (G.S. 131E-184(a)(8)) | [DHSR "No Reviews and Exemptions"](https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html) | One HTML table per month: facility, facility ID, **applicant**, request date, decision date, description, letter PDF | ✅ Applicant | 🟢 Green |
 | **MD** | MHCC approval of a nursing home acquisition, requested ≥60 days before closing (Health-Gen. §19-120.2) | [Nursing Home Acquisition Applications](https://mhcc.maryland.gov/healthcare-communities/state-health-planning-and-certificate-need-con/acquisition-or-change-ownership/nursing-home-acquisition-applications) | HTML page, active and completed cases, application PDFs; 30-day public comment | ✅ In the application | 🟢 Green (low volume, big deals) |
 | **NJ** | Transfer-of-ownership application with a 30-day public comment period (N.J.S.A. 26:2H-7.25) | [LTC Transfer of Ownership](https://www.nj.gov/health/healthfacilities/certificate-need/ltc-transfer-ownership) (plus a separate real-estate transfer page) | HTML table: accepted date, application no., facility, license no., comment period | ❌ Not on the page (full application by OPRA request) | 🟢/🟡 Green-yellow |
-| **IL** | HFSRB change-of-ownership exemption (20 ILCS 3960/8.5) | HFSRB announcements / project search | Per-project pages | ✅ | 🟡 Yellow: 2026 exemptions `E-001`–`E-019` contain no nursing homes; LTC sales show up only occasionally as permit projects (e.g. `25-031` Oak Hill, `26-028` Ignite) |
+| **IL** | HFSRB change-of-ownership exemption (20 ILCS 3960/8.5) | HFSRB announcements / project search | Per-project pages | ✅ | 🟡 Yellow: 2026 exemptions `E-001`–`E-019` contain no nursing homes. Sales of **county-owned** homes need a CON permit (`25-031` Oak Hill, Monroe County → Accolade; `25-041` Stephenson County Nursing Center → Freeport Nursing LLC, neither in the tracker). `26-028` Ignite is new construction, not a sale |
 | **RI** | Change in Effective Control, reviewed by the Health Services Council | RIDOH Health Systems Development | ⚠️ The page describes the process but I found no listing of cases | ✅ (in applications) | 🟡 Unverified |
 | **WA** | CON for nursing home projects | [Project Status](https://doh.wa.gov/licenses-permits-and-certificates/facilities-z/certificate-need/project-status), with a public **CSV export** (`/admin/certificate-of-need-export.csv?type=Nursing+home`) | CSV | n/a | 🔴 for ownership (no sales in the data), useful for capacity: bed banking, new beds |
 | **GA** | Acquisition is notice-only | Weekly CON tracking report PDF | PDF | n/a | 🔴 for ownership (acquisitions don't appear); shows SNF expansions |
@@ -216,6 +216,68 @@ NCSL only lists states where a nursing home sale triggers a *certificate of need
 - The page lists only recent applications (three, May–Jul 2026: Silver Healthcare Center, Alaris Health at Cedar Grove, Accelerate Piscataway), so the history would have to be built up by scraping it regularly. Some entries link a summary PDF; buyer names otherwise need an OPRA request.
 
 **Status:** NC, MD and NJ built 2026-09-30 (`scraper/con_nc.py`, `con_md.py`, `con_nj.py`). NJ turned out to have a second table, real estate transfers, which names seller and buyer. WA's CSV is still worth a look separately as a capacity signal.
+
+## Remaining states (research 2026-09-30, second pass)
+
+Every state not covered above, checked the same way (single-page fetches, then a check of any finds against `deals`). Beyond CON, this pass also looked at **licensure notice rules** and the newer **health care transaction notice laws** (CA OHCA, OR HCMO, IN, MN), since those are where the new pre-closing records turned up.
+
+| State | What's filed before closing | Where published | Buyer named? | Rating |
+|---|---|---|---|---|
+| **PA** | Licensure application for a change of ownership, with a 10-day public comment period (28 Pa. Code §201.12a, in force since 2023-10) | [DOH "Initial Provider Application Public Review" list](https://sais.health.pa.gov/CommonPOC/Licensing/IPA-NCF/PublicReviewFacList.aspx), plus Philadelphia's [city notice page](https://www.phila.gov/documents/notices-of-ownership-changes-of-long-term-care-facilities-and-hospitals/) (Phila. Code 6-409) | ✅ Applicant, planned start date, landlord/propco, 5%+ owner list (PDF attachment) | 🟢 Green |
+| **CA** | OHCA material change notice, ≥90 days before closing (SB 184); also CDPH licensure application ≥120 days before (AB 1502), which the law says CDPH must post for comment | [OHCA Material Change Notices list](https://hcai.ca.gov/affordability/ohca/assess-market-consolidation/material-change-transaction-notices-mcn-and-cost-and-market-impact-review-cmir/) (HTML table + notice PDFs). ⚠️ The CDPH posting page was **not found** | ✅ Both parties | 🟢 Green (OHCA), CDPH unverified |
+| **DC** | CON for any change in effective control of ≥10% (D.C. Code §44-406), 60-day review, mandatory public informational hearing | Hearing notices on open-dc.gov; the 2025 CON Improvement Act requires a 3-year application list on DC Health's site (not found yet) | ✅ | 🟡 Yellow (≈17 nursing homes) |
+| **HI** | CON for SNF acquisitions (SHPDA administrative review) | [SHPDA Applications and Decisions](https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/) | ✅ | 🟡 Yellow (one SNF acquisition, 24-04A, in 2023–26) |
+| **OR** | HCMO notice of material change transaction | [HCMO transactions list](https://www.oregon.gov/oha/HPA/HP/Pages/HCMO-transaction-notices-and-reviews.aspx) | ✅ | 🟡 Yellow (almost no nursing facility deals; mostly hospitals, home health) |
+| **WV** | CON exemption for acquiring a SNF (W. Va. Code §16-2D-11) | Not posted; only through the HCA's FOIA document archive | ✅ in the filing | 🔴 Not public |
+| **VA** | 30-day notice of intent to acquire to the Commissioner (§32.1-102.1:2), COPN only if beds/services change | [DCOPN public notices](https://www.vdh.virginia.gov/licensure-and-certification/the-certificate-of-public-need-program/public-notices/) list COPN requests only (beds, equipment); acquisition notices aren't posted | n/a | 🔴 |
+| **DE** | Certificate of Public Review can cover acquisitions | [HRB monthly activity reports](https://dhss.delaware.gov/dhcc/dhrb/): **no nursing home acquisition in 20 months** (Jan 2025–Aug 2026) | n/a | 🔴 In practice |
+| **SC** | CON retained for nursing homes (Act 20, 2023), but a sale isn't a CON project | Monthly CON updates list construction and beds only; the exemptions section is empty | n/a | 🔴 |
+| **IN** | 90-day AG notice for health care entity M&A ≥$10M (IC 25-1-8.5) | Not published | n/a | 🔴 |
+| **MN** | 145D transaction notice | Nursing homes are exempt (except 145D.41 for-profit / PE conversions); notices are civil investigative data | n/a | 🔴 |
+| **TX** | HHSC CHOW application in TULIP ≥30 days before | Not published (only a quarterly processing-time report) | n/a | 🔴 |
+| **OH** | ODH change-of-operator license application; ODM notice (ORC 5165.51, since 2024-10) | Not published | n/a | 🔴 |
+| **LA** | CHOW reported ≥5 days before | Not published | n/a | 🔴 |
+| AZ, CO, ID, IA, KS, MT, NE, NV, NH, NM, ND, SD, UT, WI, WY, AK | No CON trigger for buying an existing nursing home (no CON at all, or CON only for new beds / moratorium states) | n/a | n/a | 🔴 Desk check only: statutes and program pages, no deeper search for other notice records |
+
+### Pennsylvania detail
+- The DOH list has two tables. **Pending** (open for comment): Cedar Haven Healthcare Center LLC, Lebanon (324 beds) and Park Avenue Rehabilitation & Healthcare Center LLC, Meadville, both posted **2026-09-21**. **Recent decisions**: 11 renamed facilities approved 2026-07-02 → 09-09, including a six-home batch on 07-02 (Beaver, Lakeview, Mulberry, Scottdale, Ridgeview, Sena Kean → "… Nursing and Rehab Center"), which looks like one portfolio sale.
+- Each application page (`InitialApplication.aspx?ipaappid=…&IPA_PUBLIC=y`) is an ASP.NET form whose `<input value>`s hold the data: CHOW flag, previous license no., **anticipated start date** (Cedar Haven: 10/01/2026, i.e. the closing), applicant, lessor (Cedar Haven: 590 South 5th Propco LLC, Howell NJ), management company, and PDF attachments listing 5%+ owners and the owners' other facilities. No login or bot wall; plain `curl_cffi` works.
+- **Against the tracker:** of the 13 facilities on the page, none is in `deals` as this transaction. The only name hit, Onyx, is an older CMS CHOW record. Philadelphia's page adds city-only notices (Chapel Manor, 2026-09-29; five homes on 2025-12-17), also not in the tracker.
+
+### California detail
+- OHCA's list has ~75 notices since 2024-01, about 13 of them SNF operators or SNF real estate (e.g. Reche Canyon Regional Rehab, Golden Madera, Covenant Care portfolio, Alexandria / Sharon / Alta Care Centers). OHCA only covers entities above its revenue thresholds, so it catches mid-size and larger deals, not every sale.
+- **Against the tracker:** 8 of 11 checked names aren't in `deals`. The other 3 (Crescent City, Covenant Care, KTLA) came only from CMS CHOW, which lands after closing.
+- AB 1502 requires CDPH to post SNF CHOW applications for public comment 120 days before closing. That would be the richest California source, but I couldn't find the page. cdph.ca.gov also failed TLS verification from here. **Worth one targeted look**, e.g. a call to CDPH's Centralized Applications Branch.
+
+### Build order for this pass
+1. **PA DOH list:** no Claude needed for the core fields, pre-closing with a start date, and it adds coverage for a state where UCC is fragile. The owner PDFs can go to Claude for parents and members.
+2. **CA OHCA list:** low volume, but names both parties months ahead.
+3. Philadelphia city notices, as a PA add-on.
+4. DC and HI only if cheap (few facilities).
+
+## CON proxy backtest (2026-09-30)
+
+**Question:** in CON states that don't publish sales, can other CON filings stand in for one? Two proxies were tested: (1) a filing on an existing home whose applicant isn't the operator CMS has on file, and (2) beds moving between operators.
+
+**Data:** 12 months of CON records from five states: SC monthly updates (13 issues), KY monthly newsletters (Jan–Sep 2026; 2025 issues aren't posted), GA weekly tracking reports (52 of 56 weeks), IL HFSRB project announcements, VA COPN public notices. Ground truth: `cms_ownership_records` (refreshed 2026-09-16), counting a facility as sold when a new 5%+ direct owner starts between 2025-08 and 2026-08.
+
+| State | Nursing home CON items (12 mo) | What they were |
+|---|---|---|
+| KY | 10 | Bed relocations and replacement buildings |
+| GA | 7 | SNF expansions, renovations, relocation determinations |
+| IL | 6 | 2 county-home sales (direct CON), 1 modernization, 1 bed conversion, 2 new builds |
+| VA | 3 | Two bed relocations/transfers, one new 36-bed home |
+| SC | 2 | One new CCRC nursing home, one bed consolidation |
+
+**Proxy 1 (applicant ≠ CMS operator): 0 hits in 19 existing-home items.** Every applicant was the facility's current operator (e.g. Cumming Operating Co, Parkside Operating Co, Loudoun Center for Rehabilitation and Nursing LLC).
+
+**Proxy 2 (beds between operators): mostly intra-company.** Golden Age–Inman and Inman Healthcare (SC) have the same owners (Bokor / MDB Holdings / Yakar). Trilogy's Crestwood and Shelby Farms beds come from Trilogy's own Springs at Oldham Reserve and Forest Springs. Only two were real cross-operator deals, both bed or unit purchases rather than facility sales: Trilogy's Hamburg Health Campus taking Encompass's 74-bed Cardinal Hill Skilled Rehabilitation Unit (KY), and Greenville Nursing and Rehabilitation buying 45 beds from Owensboro Health's hospital LTC unit (KY).
+
+**Recall:** CMS shows **39 facilities in these five states with a new direct owner** in the window (GA 13, KY 10, IL 8, VA 6, SC 2), including batches such as Health Scholarships Inc (5 GA homes, 2025-11), Select Health Care (5 GA homes, 2025-12), Commonwealth SNF Operations (3 KY homes) and the Lowry trusts (3 KY homes). **None of the 39 appears in any CON record.** The tracker has about 9 of them.
+
+**Conclusion:** CON proxies aren't worth building for these states. The one direct record is **Illinois county-home sales** (CON-required, about 2 a year), which could be added cheaply from HFSRB announcements.
+
+**What the backtest turned up instead:** the CMS monthly ownership file is itself a better post-closing signal than CHOW. Nationally, **211 facilities** got a new 5%+ direct owner with a start date in 2025-08 → 2026-08, and **116 of them aren't linked to any tracker deal.** Start dates run to 2026-08-01 in the 2026-09 refresh, so the lag is about 1–2 months, versus months for the CHOW file (still stuck at effective date 2026-02-01). Caveats: some new owners are restructurings or trust reshuffles rather than sales, and counting only *direct*-ownership roles undercounts. **Built 2026-09-30** as `scraper/cms_owner_changes.py` (see `docs/data-sources.md`, CMS Ownership Changes).
 
 ## Unverified / open items
 
