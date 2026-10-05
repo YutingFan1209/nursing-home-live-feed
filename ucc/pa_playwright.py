@@ -14,6 +14,7 @@ itself before searching, so this runs unattended like NY/KY/OH do.
 from __future__ import annotations
 import logging
 import json
+import threading
 from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
@@ -33,57 +34,78 @@ def _parse_date(s: str):
     except Exception:
         return None
 
-def _search_one(page, owner_name: str, search_type: str = "DEBTOR") -> list[UCCFiling]:
-    results = []
-    try:
-        payload = {
-            "SEARCH_VALUE": "",
-            "SEARCH_TYPE": search_type,
-            "NAME_TYPE_ID": "2",
-            "ORGANIZATION_NAME": owner_name,
-            "INDIVIDUAL_NAME": {"FIRST_NAME": "", "MIDDLE_NAME": "", "LAST_NAME": "", "SUFFIX": ""},
-            "SEARCH_CITY": "",
-            "SEARCH_STATE": "",
-            "SEARCH_LAPSED": True,
-            "FILING_DATE": {"start": None, "end": None},
-        }
-        result = page.evaluate(f"""
-            fetch('{SEARCH_API}', {{
-                method: 'POST',
-                headers: {{'Content-Type': 'application/json'}},
-                body: JSON.stringify({json.dumps(payload)})
-            }}).then(r => r.json())
-        """)
-        page.wait_for_timeout(300)
+class PABlocked(RuntimeError):
+    pass
 
-        today = date.today()
-        for row_id, row in (result.get("rows") or {}).items():
-            status_raw = row.get("STATUS", "").lower()
-            status = "active" if "active" in status_raw and "inactive" not in status_raw else "inactive"
-            results.append(UCCFiling(
-                state="PA",
-                debtor_name=row.get("DEBTOR", ""),
-                secured_party_name=row.get("SEC_PARTY", ""),
-                filing_number=row.get("RECORD_NUM", ""),
-                filing_date=_parse_date(row.get("FILING_DATE", "")),
-                lapse_date=_parse_date(row.get("LAPSE_DATE", "")),
-                filing_type=row.get("RECORD_TYPE", ""),
-                status=status,
-                source_url=BASE_URL + "/search/ucc",
-                raw={"query_name": owner_name, "record_id": row_id},
-            ))
-        logger.info("PA UCC %s (%s) → %d filings", owner_name, search_type, len(results))
-    except Exception as e:
-        logger.error("PA search failed for %r: %s", owner_name, e)
-        health.failed("UCC PA searches", f"{owner_name}: {e}")
+
+# Names actually searched by the last search_pa_batch call (a block stops
+# the batch early); used to resume the lender list where a run stopped.
+LAST_SEARCHED = 0
+
+
+def _split_name(value: str) -> str:
+    """DEBTOR comes back as 'NAME - CITY - ST'; keep the name."""
+    parts = (value or "").rsplit(" - ", 2)
+    return parts[0].strip() if len(parts) == 3 else (value or "").strip()
+
+
+def _search_one(page, owner_name: str, search_type: str = "DEBTOR") -> list[UCCFiling]:
+    payload = {
+        "SEARCH_VALUE": "",
+        "SEARCH_TYPE": search_type,
+        "NAME_TYPE_ID": "2",
+        "ORGANIZATION_NAME": owner_name,
+        "INDIVIDUAL_NAME": {"FIRST_NAME": "", "MIDDLE_NAME": "", "LAST_NAME": "", "SUFFIX": ""},
+        "SEARCH_CITY": "",
+        "SEARCH_STATE": "",
+        "SEARCH_LAPSED": True,
+        "FILING_DATE": {"start": None, "end": None},
+    }
+    response = page.evaluate(
+        """(payload) => fetch('""" + SEARCH_API + """', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).then(async r => ({status: r.status, text: await r.text()}))""",
+        payload,
+    )
+    page.wait_for_timeout(300)
+    # Incapsula answers with an HTML challenge page instead of JSON (the
+    # 2026-09-16 batch failure). Anything without "rows" is a block, not
+    # "0 filings" -- the same silent failure CA had.
+    try:
+        result = json.loads(response["text"])
+    except ValueError:
+        result = None
+    if response["status"] != 200 or not isinstance(result, dict) or "rows" not in result:
+        raise PABlocked(f"HTTP {response['status']}: {response['text'][:120]}")
+
+    results = []
+    for row_id, row in (result.get("rows") or {}).items():
+        status_raw = row.get("STATUS", "").lower()
+        status = "active" if "active" in status_raw and "inactive" not in status_raw else "inactive"
+        results.append(UCCFiling(
+            state="PA",
+            debtor_name=_split_name(row.get("DEBTOR", "")),
+            secured_party_name=_split_name(row.get("SEC_PARTY", "")),
+            filing_number=row.get("RECORD_NUM", ""),
+            filing_date=_parse_date(row.get("FILING_DATE", "")),
+            lapse_date=_parse_date(row.get("LAPSE_DATE", "")),
+            filing_type=row.get("RECORD_TYPE", ""),
+            status=status,
+            source_url=BASE_URL + "/search/ucc",
+            raw={"query_name": owner_name, "record_id": row_id, "search_type": search_type},
+        ))
+    logger.info("PA UCC %s (%s) → %d filings", owner_name, search_type, len(results))
     return results
 
-def _search_chunk(cdp_url: str, names: list[str], search_type: str) -> list[UCCFiling]:
+
+def _search_chunk(cdp_url: str, names: list[str], search_type: str, blocked: threading.Event) -> list[UCCFiling]:
     """One worker's share of names, run serially against a page it opens
     once and reuses -- each worker still needs its own real page load of
     SEARCH_URL first (to get Incapsula's session cookie), but the actual
     per-name searches are just fetch() calls against the already-loaded
-    page, no navigation between them."""
+    page, no navigation between them. Stops once any worker is blocked."""
     results = []
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(cdp_url)
@@ -92,7 +114,20 @@ def _search_chunk(cdp_url: str, names: list[str], search_type: str) -> list[UCCF
         page.goto(SEARCH_URL, timeout=30000)
         page.wait_for_timeout(3000)
         for name in names:
-            results.extend(_search_one(page, name, search_type))
+            if blocked.is_set():
+                break
+            try:
+                results.extend(_search_one(page, name, search_type))
+                global LAST_SEARCHED
+                LAST_SEARCHED += 1
+            except PABlocked as e:
+                blocked.set()
+                logger.error("PA UCC blocked at %r: %s -- stopping the batch", name, e)
+                health.source_failed("UCC PA", f"blocked by Incapsula at {name!r}: {e}")
+                break
+            except Exception as e:
+                logger.error("PA search failed for %r: %s", name, e)
+                health.failed("UCC PA searches", f"{name}: {e}")
         page.close()
     return results
 
@@ -112,14 +147,17 @@ def search_pa_batch(owner_names: list[str], search_type: str = "DEBTOR", cdp_url
     NOT mean a full batch will get through; probe right before AND
     reduce workers/volume if this keeps happening, same caution as OH.
     """
+    global LAST_SEARCHED
+    LAST_SEARCHED = 0
     if not owner_names:
         return []
     ensure_chrome_cdp(cdp_url)
     from concurrent.futures import ThreadPoolExecutor, as_completed
+    blocked = threading.Event()
     chunks = [c for c in (owner_names[i::max_workers] for i in range(max_workers)) if c]
     all_results = []
     with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
-        futures = [executor.submit(_search_chunk, cdp_url, chunk, search_type) for chunk in chunks]
+        futures = [executor.submit(_search_chunk, cdp_url, chunk, search_type, blocked) for chunk in chunks]
         for future in as_completed(futures):
             all_results.extend(future.result())
     return all_results

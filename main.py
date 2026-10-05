@@ -42,6 +42,7 @@ from scraper.con_md import fetch_con_md_cases, CON_MD_SOURCE_NAME, CON_MD_INDEX_
 from scraper.con_nj import fetch_con_nj, CON_NJ_SOURCE_NAME, CON_NJ_OPERATOR_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
+from ucc.lender_search import LENDER_TERMS
 from pipeline.extractor import extract_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
 from pipeline.excluded_urls import EXCLUDED_URLS, EXCLUDED_DOMAINS, EXCLUDED_PATTERNS
@@ -595,6 +596,11 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
         oh_names = get_chow_operator_names("OH") if wanted is None or "OH" in wanted else None
         ny_names = get_chow_operator_names("NY") if wanted is None or "NY" in wanted else None
         nj_names = get_chow_operator_names("NJ") if wanted is None or "NJ" in wanted else None
+        pa_lenders, pa_lender_offset, cms_hc_names = None, 0, None
+        if wanted is None or "PA" in wanted:
+            pa_lenders, pa_lender_offset = _rotate_names(conn, LENDER_TERMS, PA_LENDER_OFFSET_KEY, "PA lender",
+                                                         keep_order=True)
+            cms_hc_names = _cms_healthcare_names(conn)
         ca_names, ca_offset = None, 0
         if wanted is None or "CA" in wanted:
             ca_names, ca_offset = _rotate_ca_names(
@@ -611,10 +617,16 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             oh_individual_names=oh_individual_names or None,
             nj_search_names=nj_names or None,
             ca_search_names=ca_names or None,
+            pa_lender_terms=pa_lenders,
+            cms_healthcare_names=cms_hc_names,
             states=ucc_states,
         )
         if ca_names:
             _save_ca_offset(conn, ca_offset, len(ca_names))
+        if pa_lenders:
+            import scraper.ucc as ucc_step
+            _save_offset(conn, PA_LENDER_OFFSET_KEY, pa_lender_offset,
+                         ucc_step.LAST_PA_LENDER_SEARCHED, len(pa_lenders), "PA lender")
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
                 art["source_id"] = ucc_source_id
@@ -942,28 +954,50 @@ def _get_known_operator_names(conn, state: str = None) -> list[str]:
 
 
 CA_OFFSET_KEY = "ucc_ca_next_offset"
+PA_LENDER_OFFSET_KEY = "ucc_pa_lender_next_offset"
 
 
-def _rotate_ca_names(conn, names: list[str]) -> tuple[list[str], int]:
-    """CA's portal blocks a run partway through (after ~160 of ~440 names on
-    2026-09-30), so each run starts where the last one stopped: sort the
-    names for a stable order, then rotate to the saved offset."""
+def _rotate_names(conn, names: list[str], key: str, label: str, keep_order: bool = False) -> tuple[list[str], int]:
+    """Portals that block a run partway through (CA after ~160 names, PA's
+    lender search after 14 lenders) start each run where the last one
+    stopped: put the names in a stable order, then rotate to the offset
+    saved under key in cms_load_checkpoints."""
     from cms.fetch_cms import _get_checkpoint
-    names = sorted({n.strip() for n in names if n and n.strip()}, key=str.upper)
+    if not keep_order:
+        names = sorted({n.strip() for n in names if n and n.strip()}, key=str.upper)
     if not names:
         return names, 0
-    offset = _get_checkpoint(conn, CA_OFFSET_KEY) % len(names)
-    logger.info(f"CA UCC: {len(names)} names, starting at #{offset} ({names[offset]})")
+    offset = _get_checkpoint(conn, key) % len(names)
+    logger.info(f"{label} UCC: {len(names)} names, starting at #{offset} ({names[offset]})")
     return names[offset:] + names[:offset], offset
 
 
-def _save_ca_offset(conn, offset: int, total: int) -> None:
+def _save_offset(conn, key: str, offset: int, searched: int, total: int, label: str) -> None:
     from cms.fetch_cms import _save_checkpoint
-    from ucc import ca_playwright
-    searched = ca_playwright.LAST_SEARCHED
-    _save_checkpoint(conn, CA_OFFSET_KEY, (offset + searched) % total)
+    _save_checkpoint(conn, key, (offset + searched) % total)
     conn.commit()
-    logger.info(f"CA UCC: searched {searched} of {total} names; next run starts at #{(offset + searched) % total}")
+    logger.info(f"{label} UCC: searched {searched} of {total}; next run starts at #{(offset + searched) % total}")
+
+
+def _rotate_ca_names(conn, names: list[str]) -> tuple[list[str], int]:
+    return _rotate_names(conn, names, CA_OFFSET_KEY, "CA")
+
+
+def _save_ca_offset(conn, offset: int, total: int) -> None:
+    from ucc import ca_playwright
+    _save_offset(conn, CA_OFFSET_KEY, offset, ca_playwright.LAST_SEARCHED, total, "CA")
+
+
+def _cms_healthcare_names(conn) -> set[str]:
+    """Normalized CMS organization owner and facility names, used to tell
+    nursing home debtors from everything else in lender-search results."""
+    from ucc.lender_search import norm_name
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT owner_name FROM cms_ownership_records WHERE owner_type = 'Organization'
+            UNION SELECT provider_name FROM cms_facilities
+        """)
+        return {norm_name(r[0]) for r in cur.fetchall() if r[0]}
 
 
 # Ownership/control roles only — excludes weaker-signal roles (ADP of the

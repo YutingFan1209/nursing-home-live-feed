@@ -80,6 +80,10 @@ Weighted by nursing home count (CMS) and how easy the portal looked:
 5. Captcha states (**CT**, **IA**, **VA**, **WA**) and Incapsula states (**MA**, **NV**): only if Claude in Chrome or manual review is acceptable, same as OH today.
 6. Skip: **DE**, **KS**, **MN**, **ND**, **UT**, **MT**, **HI**, **DC** (paid per search, subscription-only, or login).
 
+## Lender search (2026-10-05)
+
+Searching by secured party for nursing home lenders, rather than by known borrower names, finds borrowers no name list contains. Pennsylvania's first run turned up 103 recent nursing home filings, 96 of them new to the tracker (`ucc/lender_search.py`). Of the states rated above, **FL, AZ, NC, OR and WV** also support a secured-party search, so lender search should be part of any adapter built for them. California's unified index covers secured parties too.
+
 ## Open items
 
 - None of the 🟢 ratings are proven by a real search. Run a single-name probe per state before building, then a small batch; PA and OH both passed probes and then failed under volume.
