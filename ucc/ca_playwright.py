@@ -68,7 +68,9 @@ def _split_name_city(parts) -> str:
 # That body has no "rows", which the first version read as "0 filings", so a
 # block looked like a clean run. Any response without rows now counts as a
 # block and stops the whole batch.
-SEARCH_DELAY_MS = 2500
+# 2.5 s got 159 names through on 2026-09-30 but only 25 on 2026-10-02;
+# 8 s trades runtime (~30 min for the rest of the list) for fewer blocks
+SEARCH_DELAY_MS = 8000
 
 # Terms actually searched by the last search_ca_batch call (a block stops
 # the batch early). main.py uses it to resume the next run where this one

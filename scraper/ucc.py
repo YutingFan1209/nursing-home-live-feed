@@ -13,6 +13,8 @@ from ucc.oh_playwright import search_oh_batch
 from ucc.ky_playwright import search_ky_batch
 from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
+from ucc import pa_playwright
+from ucc.lender_search import filter_lender_hits
 from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
 from pipeline.run_health import health
@@ -50,6 +52,8 @@ ENABLE_NJ_PLAYWRIGHT = True  # re-enabled 2026-09-22 -- disabled 2026-06-23 beca
 ENABLE_OH_PLAYWRIGHT = True
 ENABLE_KY_PLAYWRIGHT = True
 ENABLE_PA_PLAYWRIGHT = True  # confirmed 2026-09-16: auto-launch works, no longer manual-only
+LAST_PA_LENDER_SEARCHED = 0  # lender terms searched in the last PA step, for main.py's resume offset
+LAST_PA_DEBTOR_SEARCHED = 0  # debtor names searched in the last PA step (0 if skipped)
 ENABLE_CA_PLAYWRIGHT = True  # enabled 2026-09-30: auto-launched Chrome like PA. Incapsula
 # blocks sustained volume (429 after ~35 fast searches), so ucc/ca_playwright.py runs one
 # throttled tab and stops the batch at the first block -- run CA on its own
@@ -80,6 +84,9 @@ def fetch_ucc_filings(
     nj_search_names: list[str] = None,
     ca_search_names: list[str] = None,
     ca_individual_names: list[str] = None,
+    pa_search_names: list[str] = None,
+    pa_lender_terms: list[str] = None,
+    cms_healthcare_names: set[str] = None,
     states: list[str] = None,
 ) -> list[dict]:
     """states: optional list of 2-letter state codes (case-insensitive) to
@@ -122,15 +129,43 @@ def fetch_ucc_filings(
     # generic national operator list rather than a PA-specific facility
     # name list (no ky_search_names/ny_search_names-style fix done for PA
     # yet) -- may under-hit the same way NY did before that fix.
+    #
+    # Lender search runs first (ucc/lender_search.py): secured-party
+    # searches for nursing home lenders find borrowers no name list
+    # contains -- 103 recent PA nursing home filings on the first try, 96 of
+    # them new. Each returns hundreds of rows, so Incapsula blocks sooner
+    # (after 14 of 27 lenders on 2026-10-05); main.py rotates the lender
+    # list so each run resumes where the last stopped, and a blocked lender
+    # search skips the debtor search for that run.
+    global LAST_PA_LENDER_SEARCHED, LAST_PA_DEBTOR_SEARCHED
+    LAST_PA_LENDER_SEARCHED = LAST_PA_DEBTOR_SEARCHED = 0
     if _enabled(ENABLE_PA_PLAYWRIGHT, "PA"):
-        health.attempted("UCC PA searches", len(known_operator_names))
-        try:
-            # PA_UCC_WORKERS: drop to 1 to go easier on Incapsula
-            filings.extend(search_pa_batch(
-                known_operator_names, max_workers=int(os.environ.get("PA_UCC_WORKERS", 4))))
-        except Exception as e:
-            logger.warning(f"PA UCC batch search failed: {e}")
-            health.source_failed("UCC PA", e)
+        pa_blocked = False
+        if pa_lender_terms and cms_healthcare_names:
+            health.attempted("UCC PA lender searches", len(pa_lender_terms))
+            try:
+                hits = search_pa_batch(pa_lender_terms, search_type="SECURED_PARTY", max_workers=1)
+                LAST_PA_LENDER_SEARCHED = pa_playwright.LAST_SEARCHED
+                pa_blocked = LAST_PA_LENDER_SEARCHED < len(pa_lender_terms)
+                filings.extend(filter_lender_hits(hits, cms_healthcare_names))
+            except Exception as e:
+                logger.warning(f"PA UCC lender search failed: {e}")
+                health.source_failed("UCC PA lender search", e)
+        if pa_blocked:
+            logger.warning("PA UCC: lender search was blocked; skipping the debtor search this run")
+        else:
+            # PA CHOW buyers plus PA deal names (main.py), not the national
+            # list: about 420 names instead of 1,548 (2026-10-05)
+            pa_terms = pa_search_names or known_operator_names
+            health.attempted("UCC PA searches", len(pa_terms))
+            try:
+                # PA_UCC_WORKERS: drop to 1 to go easier on Incapsula
+                filings.extend(search_pa_batch(
+                    pa_terms, max_workers=int(os.environ.get("PA_UCC_WORKERS", 4))))
+                LAST_PA_DEBTOR_SEARCHED = pa_playwright.LAST_SEARCHED
+            except Exception as e:
+                logger.warning(f"PA UCC batch search failed: {e}")
+                health.source_failed("UCC PA", e)
 
     # CA (real Chrome over CDP, auto-launched, same as PA). CA's search API
     # is a single unified index over debtor + secured-party names (see

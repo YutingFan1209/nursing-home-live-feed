@@ -597,7 +597,11 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
         ny_names = get_chow_operator_names("NY") if wanted is None or "NY" in wanted else None
         nj_names = get_chow_operator_names("NJ") if wanted is None or "NJ" in wanted else None
         pa_lenders, pa_lender_offset, cms_hc_names = None, 0, None
+        pa_names, pa_offset = None, 0
         if wanted is None or "PA" in wanted:
+            pa_names, pa_offset = _rotate_names(
+                conn, get_chow_operator_names("PA") + _get_known_operator_names(conn, "PA"),
+                PA_OFFSET_KEY, "PA")
             pa_lenders, pa_lender_offset = _rotate_names(conn, LENDER_TERMS, PA_LENDER_OFFSET_KEY, "PA lender",
                                                          keep_order=True)
             cms_hc_names = _cms_healthcare_names(conn)
@@ -617,6 +621,7 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             oh_individual_names=oh_individual_names or None,
             nj_search_names=nj_names or None,
             ca_search_names=ca_names or None,
+            pa_search_names=pa_names or None,
             pa_lender_terms=pa_lenders,
             cms_healthcare_names=cms_hc_names,
             states=ucc_states,
@@ -627,6 +632,10 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             import scraper.ucc as ucc_step
             _save_offset(conn, PA_LENDER_OFFSET_KEY, pa_lender_offset,
                          ucc_step.LAST_PA_LENDER_SEARCHED, len(pa_lenders), "PA lender")
+        if pa_names:
+            import scraper.ucc as ucc_step
+            _save_offset(conn, PA_OFFSET_KEY, pa_offset,
+                         ucc_step.LAST_PA_DEBTOR_SEARCHED, len(pa_names), "PA")
         for art in ucc_articles:
             if not _article_exists(art["url"], conn):
                 art["source_id"] = ucc_source_id
@@ -955,6 +964,7 @@ def _get_known_operator_names(conn, state: str = None) -> list[str]:
 
 CA_OFFSET_KEY = "ucc_ca_next_offset"
 PA_LENDER_OFFSET_KEY = "ucc_pa_lender_next_offset"
+PA_OFFSET_KEY = "ucc_pa_next_offset"
 
 
 def _rotate_names(conn, names: list[str], key: str, label: str, keep_order: bool = False) -> tuple[list[str], int]:

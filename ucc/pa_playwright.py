@@ -106,6 +106,7 @@ def _search_chunk(cdp_url: str, names: list[str], search_type: str, blocked: thr
     SEARCH_URL first (to get Incapsula's session cookie), but the actual
     per-name searches are just fetch() calls against the already-loaded
     page, no navigation between them. Stops once any worker is blocked."""
+    global LAST_SEARCHED
     results = []
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(cdp_url)
@@ -118,7 +119,6 @@ def _search_chunk(cdp_url: str, names: list[str], search_type: str, blocked: thr
                 break
             try:
                 results.extend(_search_one(page, name, search_type))
-                global LAST_SEARCHED
                 LAST_SEARCHED += 1
             except PABlocked as e:
                 blocked.set()
