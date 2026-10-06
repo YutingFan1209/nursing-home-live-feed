@@ -23,7 +23,7 @@ from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse
 
 from config import get_config
-from scraper.sources import get_active_sources
+from scraper.sources import ALL_SOURCES, get_active_sources
 from scraper.rss import fetch_feed, fetch_article_text
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
@@ -189,6 +189,8 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
     conn = psycopg2.connect(config.database_url)
     psycopg2.extras.register_uuid()
+    if not dry_run:
+        _sync_inactive_sources(conn)
 
     try:
         # Step 1 — Discover new articles
@@ -1263,6 +1265,24 @@ def ensure_ucc_source(conn) -> str:
                        "source_type": "ucc"})(),
         conn
     )
+
+
+def _sync_inactive_sources(conn):
+    """Mirror active=False from the registry into the sources table.
+
+    _ensure_source only runs for active sources, so a source switched off in
+    scraper/sources.py otherwise stays active=True in the DB forever
+    (Provider Magazine and Modern Healthcare, found 2026-10-06).
+    """
+    inactive = [s.url for s in ALL_SOURCES if not s.active]
+    if not inactive:
+        return
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE sources SET active = FALSE WHERE url = ANY(%s) AND active",
+            (inactive,),
+        )
+    conn.commit()
 
 
 def _ensure_source(source, conn) -> str:
