@@ -35,6 +35,7 @@ from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
 from scraper.con_pa import fetch_con_pa_deals, CON_PA_SOURCE_NAME, CON_PA_INDEX_URL, _norm as _con_pa_norm
+from scraper.con_ca import fetch_con_ca_notices, CON_CA_SOURCE_NAME, CON_CA_INDEX_URL
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
@@ -454,6 +455,23 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         conn.commit()
         for art in con_notices:
             art["source_id"] = con_al_source_id
+            new_articles.append(art)
+
+        # CA OHCA material change notices: filed 90+ days before closing.
+        # Non-SNF notices are stored as skipped so their PDFs aren't refetched
+        con_ca_source_id = _ensure_source(
+            type("S", (), {"name": CON_CA_SOURCE_NAME,
+                           "url": CON_CA_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        ca_notices, ca_skipped = fetch_con_ca_notices(lambda url: _article_exists(url, conn))
+        for art in ca_skipped:
+            art["source_id"] = con_ca_source_id
+            _mark_extraction_error(_store_article(art, conn), art["skip_reason"], conn)
+        conn.commit()
+        for art in ca_notices:
+            art["source_id"] = con_ca_source_id
             new_articles.append(art)
 
         con_ok_source_id = _ensure_source(

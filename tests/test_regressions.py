@@ -216,3 +216,20 @@ def test_rss_fetch_failure_reports_source_failure(monkeypatch):
     rss.fetch_feed("https://example.test/feed")
     assert any("example.test/feed" in p for p in health.problems())
     health.reset()
+
+
+# ── CA OHCA notice parsing (2026-10-06) ───────────────────────
+
+def test_ca_ohca_parses_rows_and_screens_snf_text():
+    from scraper.con_ca import _SNF_RE, _parse_notices
+    page = """<table><tr><th>MCN Parties</th><th>Type</th><th>Date</th><th>CMIR?</th></tr>
+      <tr><td><a href="https://hcai.ca.gov/document/a/">Madera SNF Operations LLC</a></td>
+          <td>Madera SNF Operations LLC is the licensee of Golden Madera Care Center, a skilled nursing facility.</td>
+          <td>May 1, 2025</td><td>CMIR Waived</td></tr>
+      <tr><td>No link</td><td>x</td><td>May 2, 2025</td><td></td></tr></table>"""
+    notices = _parse_notices(page)
+    assert len(notices) == 1
+    assert notices[0]["submitted"] == date(2025, 5, 1)
+    assert notices[0]["links"] == ["https://hcai.ca.gov/document/a/"]
+    assert _SNF_RE.search(notices[0]["description"])
+    assert not _SNF_RE.search("Abbott Laboratories is acquiring Exact Sciences Corporation")
