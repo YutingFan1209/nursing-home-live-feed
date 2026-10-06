@@ -1037,8 +1037,14 @@ def _get_known_operator_names(conn, state: str = None) -> list[str]:
     """Pull entity names (LLC, Inc, Corp etc.) from deals DB for UCC search.
     Skips personal names — Organization search won't find them anyway.
     state limits it to deals involving that state (CA, whose portal blocks
-    sustained volume, can't afford the full national list)."""
+    sustained volume, can't afford the full national list).
+
+    Only deals found by an ownership source count: a UCC deal's debtor fed
+    back in made every run's search list grow from the last run's results
+    (PA 359 -> 376 names in one day), and dismissed or news deals brought
+    in hospitals and home health agencies (2026-10-06 audit)."""
     import re
+    from ucc.lender_search import _NOT_NURSING_HOME
     entity_pattern = re.compile(
         r'\b(LLC|INC|CORP|LTD|LP|LLP|HOLDINGS|GROUP|CARE|HEALTH|MANAGEMENT|'
         r'ASSOCIATES|SERVICES|CENTER|PARTNERS|TRUST|ACQUISITION|OPERATING)\b',
@@ -1049,13 +1055,15 @@ def _get_known_operator_names(conn, state: str = None) -> list[str]:
             SELECT DISTINCT name FROM (
                 SELECT unnest(operator_names) AS name FROM deals
                 WHERE operator_names IS NOT NULL AND (%(state)s IS NULL OR %(state)s = ANY(states))
+                  AND extraction_model IS DISTINCT FROM 'ucc_filing' AND stage <> 'dismissed'
                 UNION
                 SELECT acquiring_entity AS name FROM deals
                 WHERE acquiring_entity IS NOT NULL AND (%(state)s IS NULL OR %(state)s = ANY(states))
+                  AND extraction_model IS DISTINCT FROM 'ucc_filing' AND stage <> 'dismissed'
             ) t
         """, {"state": state})
         all_names = [row[0] for row in cur.fetchall() if row[0]]
-    return [n for n in all_names if entity_pattern.search(n)]
+    return [n for n in all_names if entity_pattern.search(n) and not _NOT_NURSING_HOME.search(n.upper())]
 
 
 CA_OFFSET_KEY = "ucc_ca_next_offset"
@@ -1174,6 +1182,55 @@ def _fetch_existing_deals_for_ucc_matching(conn, states: list[str] = None) -> li
         ]
 
 
+_CMS_NAMES_BY_STATE: dict = {}
+
+
+def _ucc_debtor_qualifies(filing, classification, conn) -> bool:
+    """A filing from an unrecognized lender or a generic bank becomes a new
+    deal only if its debtor looks like a nursing home: a CMS owner or
+    facility name in that state, or nursing words in the name -- the test
+    the lender search already uses. The classifier keeps unknown lenders
+    "for review", which let any filing a name search returned through
+    (CARPINTERIA FRUIT COMPANY, KEYSTONECARE HOME HEALTH; 2026-10-06 audit).
+    Recognized healthcare/RE/PE lenders, and the nursing home lenders the
+    lender search uses (CAPITAL FINANCE isn't in the classifier), don't
+    need the check. NY's searches by CMS individual owners return people,
+    which no name test can place, so CMS individual owners pass as before.
+    So do the state's CHOW buyers and ownership-source deal names.
+    Operating-company words count: these filings came from searching
+    nursing home names, and opcos like "LEGACY NORTH ROYALTON OPERATING
+    COMPANY" have no nursing word and no exact CMS name."""
+    import re
+    from ucc.lender_classifier import LenderCategory
+    from ucc.lender_search import LENDER_TERMS, looks_like_nursing_home, norm_name
+    if classification.category not in (LenderCategory.UNKNOWN, LenderCategory.BANK_GENERAL):
+        return True
+    lender = (filing.secured_party_name or "").upper()
+    if any(lender.startswith(t) for t in LENDER_TERMS):
+        return True
+    debtor = filing.debtor_name or ""
+    if re.search(r"\b(OPERATING|OPERATIONS|OPERATOR|OPCO|PROPCO|HOLDCO)\b", debtor.upper()):
+        return True
+    st = filing.state
+    if st not in _CMS_NAMES_BY_STATE:
+        # CMS lists people as "LAST, FIRST"; NY's portal returns "FIRST LAST"
+        # and may add a middle initial ("ROBERT W HURLBUT"): match first + last
+        people = {_first_last(" ".join(reversed([p.strip() for p in n.split(",", 1)])))
+                  for n in _get_cms_individual_owner_names(conn, st)} if st == "NY" else set()
+        # Plus the state's CHOW buyers and ownership-source deal names (the
+        # cleaned search list): EMBASSY PARK AVENUE, COMPLETE CARE AT HOLIDAY
+        known = {norm_name(n) for n in get_chow_operator_names(st) + _get_known_operator_names(conn, st)}
+        _CMS_NAMES_BY_STATE[st] = _cms_healthcare_names(conn, st) | people | known
+    return (looks_like_nursing_home(debtor, _CMS_NAMES_BY_STATE[st])
+            or _first_last(debtor) in _CMS_NAMES_BY_STATE[st])
+
+
+def _first_last(name: str) -> str:
+    from ucc.lender_search import norm_name
+    parts = norm_name(name).split()
+    return f"{parts[0]} {parts[-1]}" if len(parts) >= 2 else " ".join(parts)
+
+
 def _process_ucc_filing(article: dict, article_id, conn) -> int:
     filing = article["_ucc_filing_obj"]
     classification = article["_ucc_classification"]
@@ -1224,6 +1281,14 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
         # gets an explicit placeholder instead of staying blank so a
         # viewer can tell at a glance that lender verification wasn't
         # possible for this deal, not just silently omitted.
+        if not _ucc_debtor_qualifies(filing, classification, conn):
+            logger.debug(
+                f"UCC new-signal skipped: unrecognized lender and non-nursing-home debtor "
+                f"{filing.debtor_name!r} (filing {filing.filing_number}, {filing.state})"
+            )
+            _mark_extraction_done(article_id, conn)
+            return 0
+
         if not filing.secured_party_name and filing.state != "NJ":
             logger.debug(
                 f"UCC new-signal skipped: no secured party "

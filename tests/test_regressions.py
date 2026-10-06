@@ -243,3 +243,23 @@ def test_con_text_deals_from_different_filings_dont_collide():
     assert make_dedup_hash(a[0]) != make_dedup_hash(b[0])
     news = _key_con_deals({"source_type": "rss", "url": "https://x/n"}, [dict(deal)])
     assert "_con_id" not in news[0]
+
+
+# ── UCC new-signal criteria (2026-10-06 audit) ────────────────
+
+def test_unknown_lender_needs_nursing_home_debtor(monkeypatch):
+    import main
+    from types import SimpleNamespace
+    from ucc.lender_classifier import classify_secured_party
+    monkeypatch.setitem(main._CMS_NAMES_BY_STATE, "PA", {"EMBASSY PARK AVENUE", "ROBERT HURLBUT"})
+
+    def ok(debtor, lender):
+        f = SimpleNamespace(state="PA", debtor_name=debtor, secured_party_name=lender, filing_number="")
+        return main._ucc_debtor_qualifies(f, classify_secured_party(lender, state="PA"), None)
+
+    assert not ok("CARPINTERIA VALLEY ROOFING, INC.", "MONTECITO BANK & TRUST")
+    assert ok("EMBASSY PARK AVENUE, LLC", "SIENA LENDING GROUP LLC")        # known name
+    assert ok("ROBERT W HURLBUT", "HSBC BANK USA")                           # person, middle initial
+    assert ok("SUNRISE NURSING AND REHABILITATION LLC", "SOME BANK, N.A.")   # nursing words
+    assert ok("LEGACY NORTH ROYALTON OPERATING COMPANY", "SOME BANK, N.A.")  # opco
+    assert ok("ANYTHING LLC", "CAPITAL FINANCE, LLC, AS AGENT")              # lender-search lender
