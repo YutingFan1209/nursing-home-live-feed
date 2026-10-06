@@ -233,3 +233,13 @@ def test_ca_ohca_parses_rows_and_screens_snf_text():
     assert notices[0]["links"] == ["https://hcai.ca.gov/document/a/"]
     assert _SNF_RE.search(notices[0]["description"])
     assert not _SNF_RE.search("Abbott Laboratories is acquiring Exact Sciences Corporation")
+
+
+def test_con_text_deals_from_different_filings_dont_collide():
+    from main import _key_con_deals
+    deal = {"acquiring_entity": "BQ Operations Holdings", "states": ["CA"], "acquisition_date": "2024-10-01"}
+    a = _key_con_deals({"source_type": "con", "url": "https://x/alexandria"}, [dict(deal)])
+    b = _key_con_deals({"source_type": "con", "url": "https://x/sharon"}, [dict(deal)])
+    assert make_dedup_hash(a[0]) != make_dedup_hash(b[0])
+    news = _key_con_deals({"source_type": "rss", "url": "https://x/n"}, [dict(deal)])
+    assert "_con_id" not in news[0]

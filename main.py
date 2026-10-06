@@ -749,6 +749,45 @@ def _default_con_dates(article: dict, deals: list[dict]) -> list[dict]:
     return deals
 
 
+def _key_con_deals(article: dict, deals: list[dict]) -> list[dict]:
+    """Key Claude-extracted CON deals on their filing, like pre-extracted ones.
+
+    The generic hash is acquirer + state + month, so two filings by one buyer
+    in the same month collided and the second was silently dropped (CA OHCA
+    Sharon vs Alexandria Care Center, both BQ Operations, found 2026-10-06).
+    """
+    if article.get("source_type") == "con":
+        for i, d in enumerate(deals):
+            d.setdefault("_con_id", f"{article['url']}#{i}" if i else article["url"])
+    return deals
+
+
+def _merge_con_twin(deal: dict, conn):
+    """A CON filing with the same buyer, state, closing date and size as a
+    stored deal is the same portfolio transaction filed per facility
+    (Summit Care -> BQ Operations: Alexandria and Sharon Care Centers, CA
+    OHCA). idx_deals_semantic_dedup rejects it, so add its facilities to
+    the stored deal instead of dropping them."""
+    names = [n for n in (deal.get("facility_names") or []) if n]
+    if not names:
+        return
+    with conn.cursor() as cur:
+        cur.execute("""
+            UPDATE deals SET
+                facility_names = ARRAY(SELECT DISTINCT unnest(facility_names || %s::text[])),
+                facility_count = GREATEST(facility_count,
+                    cardinality(ARRAY(SELECT DISTINCT unnest(facility_names || %s::text[])))),
+                updated_at = NOW()
+            WHERE acquiring_entity = %s AND states = %s
+              AND acquisition_date = %s AND facility_count IS NOT DISTINCT FROM %s
+            RETURNING id
+        """, (names, names, deal.get("acquiring_entity"), deal.get("states"),
+              deal.get("acquisition_date"), deal.get("facility_count")))
+        row = cur.fetchone()
+    if row:
+        logger.info(f"CON filing merged into deal {row[0]}: + {names}")
+
+
 def _store_article_result(article: dict, raw_text: str | None, deals: list[dict], conn) -> int:
     """DB-write half of the text-article path — called after async extraction."""
     article_id = _store_article(article, conn)
@@ -759,7 +798,7 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
     if not deals:
         _mark_extraction_done(article_id, conn)
         return 0
-    deals = deduplicate_batch(_default_con_dates(article, deals))
+    deals = deduplicate_batch(_key_con_deals(article, _default_con_dates(article, deals)))
     stored = 0
     for deal in deals:
         deal = normalize_deal(deal)
@@ -794,6 +833,8 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
                 logger.debug(f"Semantic duplicate skipped: {deal.get('acquiring_entity')} {deal.get('states')}")
                 with conn.cursor() as sp:
                     sp.execute("ROLLBACK TO SAVEPOINT before_deal")
+                if article.get("source_type") == "con":
+                    _merge_con_twin(deal, conn)
             else:
                 raise
     _mark_extraction_done(article_id, conn)
@@ -869,7 +910,7 @@ def process_article(article: dict, conn) -> int:
         _mark_extraction_done(article_id, conn)
         return 0
 
-    deals = deduplicate_batch(_default_con_dates(article, deals))
+    deals = deduplicate_batch(_key_con_deals(article, _default_con_dates(article, deals)))
 
     stored = 0
     for deal in deals:
@@ -905,6 +946,8 @@ def process_article(article: dict, conn) -> int:
                 logger.debug(f"Semantic duplicate skipped: {deal.get('acquiring_entity')} {deal.get('states')}")
                 with conn.cursor() as sp:
                     sp.execute("ROLLBACK TO SAVEPOINT before_deal")
+                if article.get("source_type") == "con":
+                    _merge_con_twin(deal, conn)
             else:
                 raise
 
