@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-06T15:48:38.094574+00:00</updated>
+  <updated>2026-10-06T16:03:36.466833+00:00</updated>
   <entry>
     <id>urn:uuid:767b6b10-b5e3-4a3d-b644-76b0c1d45e01</id>
     <title>UCC financing: WYNDMOOR SNF OPERATING COMPANY LLC — METROPOLITAN COMMERCIAL BANK (PA)</title>
@@ -123,13 +123,6 @@
     <link href="https://file.dos.pa.gov/search/ucc"/>
     <updated>2026-10-06T15:47:04.684879+00:00</updated>
     <summary>Effective 2021-04-23; Facilities: TWINBROOK OPCO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2967fad7-22a4-4b76-be76-cf429885aa14</id>
-    <title>UCC financing: TRI-COUNTY HOME SUPPORT SERVICES, LLC — S&amp;T BANK (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-10-06T15:47:03.475295+00:00</updated>
-    <summary>Effective 2011-05-09; Facilities: TRI-COUNTY HOME SUPPORT SERVICES, LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:0800274e-2676-431d-9748-288d153e5dc6</id>
@@ -354,5 +347,12 @@
     <link href="https://file.dos.pa.gov/search/ucc"/>
     <updated>2026-10-06T15:46:21.864561+00:00</updated>
     <summary>Effective 2025-09-29; Facilities: ROCHESTER MANOR OPCO LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8f77dd5f-05d7-41b2-8ad3-874473c3b512</id>
+    <title>UCC financing: THE ROBERT PACKER HOSPITAL — BAUSCH &amp; LOMB (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-10-06T15:46:20.582999+00:00</updated>
+    <summary>Effective 2025-12-31; Facilities: THE ROBERT PACKER HOSPITAL; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
