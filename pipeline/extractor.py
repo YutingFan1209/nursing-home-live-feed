@@ -43,7 +43,7 @@ Each deal object must have these fields (use null if not mentioned):
   "acquisition_date": "YYYY-MM-DD if mentioned, else null",
   "financing_amount_m": <financing/loan amount in millions if mentioned>,
   "lender": "name of lender or financing entity if mentioned",
-  "rationale": "1-2 sentence summary of this specific deal"
+  "rationale": "1-2 sentence summary of this specific deal, shown on the deal's card"
 }}
 
 Scope — only extract deals where the acquired asset is one of: a nursing home, skilled nursing
@@ -93,6 +93,12 @@ exclude those deals too.
 Rules:
 - Split broker/lender announcements from acquisition deals (they are separate deals)
 - If the acquirer is described as "unnamed" or "undisclosed", use null for acquiring_entity
+- Roundups and broker/lender announcements often keep the parties anonymous ("a regional operator",
+  "a national owner"). Still fill every field the text does give (lender, financing_amount_m,
+  deal_value_m, states, facility_count), and make the rationale say what happened with its numbers:
+  the kind of deal (sale, lease, refinancing, new loan), the lender or broker, the amount, beds, and
+  how the parties are described, e.g. "CIBC closed a $53M cash-out refinancing for a 9-facility,
+  930-bed Pennsylvania SNF portfolio owned by a regional operator."
 - Include parent company names (e.g. "Welltower" even if the actual seller was "an affiliate of Welltower")
 - States should be 2-letter codes only: ["VA", "CO", "AL"]
 - deal_value_m and financing_amount_m must be numbers, not strings

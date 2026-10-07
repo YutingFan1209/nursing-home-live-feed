@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 
 from config import get_config
 from scraper.sources import ALL_SOURCES, get_active_sources
-from scraper.rss import fetch_feed, fetch_article_text
+from scraper.rss import fetch_feed, fetch_article, fetch_article_text, looks_like_snippet
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
 from scraper.cms_owner_changes import (
@@ -725,9 +725,12 @@ def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
     raw_text = article.get("raw_text")
     if not raw_text:
         health.attempted("Article text fetch")
-        raw_text = fetch_article_text(article["url"])
+        raw_text, headline = fetch_article(article["url"])
         if not raw_text:
             health.failed("Article text fetch", article["url"])
+        # Google Alert titles are text fragments; the page has the headline
+        if headline and looks_like_snippet(article.get("title"), article["url"]):
+            article["title"] = headline
     if not raw_text:
         return article, None, []
     health.attempted("Claude extraction")
@@ -904,7 +907,10 @@ def process_article(article: dict, conn) -> int:
     raw_text = article.get("raw_text")
     if not raw_text:
         health.attempted("Article text fetch")
-        raw_text = fetch_article_text(article["url"])
+        raw_text, headline = fetch_article(article["url"])
+        if headline and looks_like_snippet(article.get("title"), article["url"]):
+            with conn.cursor() as cur:
+                cur.execute("UPDATE articles SET title = %s WHERE id = %s", (headline, article_id))
         if raw_text:
             _update_article_text(article_id, raw_text, conn)
         else:
@@ -1501,9 +1507,9 @@ def _store_deal(deal: dict, article_id, conn) -> str:
                 article_id, acquiring_entity, seller_entity, operator_names,
                 facility_names, states, facility_count, deal_value_m,
                 acquisition_date, financing_amount_m, lender,
-                dedup_hash, extraction_model
+                dedup_hash, extraction_model, summary
             ) VALUES (
-                %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
             ) RETURNING id
         """, (
             article_id,
@@ -1519,6 +1525,8 @@ def _store_deal(deal: dict, article_id, conn) -> str:
             deal.get("lender"),
             deal.get("dedup_hash"),
             deal.get("extraction_model"),
+            # Claude's per-deal rationale, or a state filing's own summary
+            deal.get("summary") or deal.get("rationale"),
         ))
         deal_id = cur.fetchone()[0]
     return find_and_resolve_fuzzy_duplicate(deal_id, conn)

@@ -369,6 +369,14 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
         <div style={{ fontSize: 15, lineHeight: 1.5, color: "#111827", marginBottom: 8 }}>
           {headline}
         </div>
+        {/* What the source says happened -- most useful on anonymized
+            roundup items ("a regional operator"), which have no names to
+            headline. CHOW's summary only repeats the fields above. */}
+        {deal.summary && ["rss", "edgar", "con"].includes(deal.source_type) && (
+          <div style={{ fontSize: 13, lineHeight: 1.5, color: "#4b5563", marginBottom: 8 }}>
+            {deal.summary}
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
           {deal.facility_count && (
             <span style={{ fontSize: 13, color: "#6b7280" }}>

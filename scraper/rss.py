@@ -3,6 +3,7 @@ RSS feed scraper.
 Fetches and parses RSS feeds, returns new articles not yet in DB.
 """
 
+import re
 import time
 import logging
 import threading
@@ -130,11 +131,37 @@ _LXML_LOCK = threading.Lock()
     reraise=False,
 )
 def fetch_article_text(url: str) -> Optional[str]:
+    return fetch_article(url)[0]
+
+
+_SNIPPET_TITLE = re.compile(r"^([a-z]|\d+ [a-z])|\.\.\.$|…$")
+
+
+def looks_like_snippet(title: str, url: str = "") -> bool:
+    """Google Alert emails carry a text fragment, not the headline
+    ("buyouts and ...", "the Ohio market, a press release noted")."""
+    title = (title or "").strip()
+    return not title or title == url or title.startswith("http") or bool(_SNIPPET_TITLE.search(title))
+
+
+def _page_title(html: str) -> Optional[str]:
+    try:
+        import trafilatura
+        with _LXML_LOCK:
+            meta = trafilatura.extract_metadata(html)
+        title = (meta.title if meta else "") or ""
+        return title.strip() or None
+    except Exception:
+        return None
+
+
+def fetch_article(url: str) -> tuple[Optional[str], Optional[str]]:
     """
-    Fetch and parse full article text from URL.
+    Fetch and parse full article text from URL, plus the page's headline.
     Uses trafilatura (actively maintained) instead of newspaper3k (abandoned).
     Falls back to requests + BeautifulSoup if trafilatura returns nothing.
     """
+    title = None
     try:
         import trafilatura
         time.sleep(config.request_delay)
@@ -143,10 +170,11 @@ def fetch_article_text(url: str) -> Optional[str]:
             # trafilatura's own fetch fails on bot-protected sites (403)
             downloaded = _http_get(url, timeout=config.request_timeout).text
         if downloaded:
+            title = _page_title(downloaded)
             with _LXML_LOCK:
                 text = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
             if text and len(text.split()) >= 50:
-                return text.strip()
+                return text.strip(), title
     except ImportError as e:
         # was a silent `pass` -- trafilatura was broken this way for months
         # (missing lxml_html_clean) without anyone noticing
@@ -158,6 +186,7 @@ def fetch_article_text(url: str) -> Optional[str]:
     try:
         time.sleep(config.request_delay)
         resp = _http_get(url, timeout=config.request_timeout)
+        title = title or _page_title(resp.text)
         from bs4 import BeautifulSoup
         with _LXML_LOCK:
             soup = BeautifulSoup(resp.text, "lxml")
@@ -165,10 +194,10 @@ def fetch_article_text(url: str) -> Optional[str]:
             for tag in soup(["nav", "footer", "script", "style", "aside"]):
                 tag.decompose()
             text = soup.get_text(separator="\n", strip=True)
-        return text[:config.article_max_chars] if text else None
+        return (text[:config.article_max_chars] if text else None), title
     except Exception as e:
         logger.warning(f"Fallback fetch failed for {url}: {e}")
-        return None
+        return None, title
 
 
 def _parse_date(entry) -> Optional[datetime]:
