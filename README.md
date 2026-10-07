@@ -147,7 +147,7 @@ git checkout gh-pages
 cp /tmp/nh-dist/index.html index.html
 # Replace the bundle rather than adding to it: each build gets a new hashed
 # name, and copying alongside old ones had left 20 unused bundles in assets/
-git rm -q assets/*.js && cp /tmp/nh-dist/assets/*.js assets/
+git rm -q assets/*.js && mkdir -p assets && cp /tmp/nh-dist/assets/*.js assets/   # mkdir: removing the only bundle removes the folder
 git add -A index.html assets/ && git commit -m "Frontend: <what changed>" && git push origin gh-pages
 git checkout main
 ```
