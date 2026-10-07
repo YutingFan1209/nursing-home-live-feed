@@ -177,7 +177,7 @@ psql "$DATABASE_URL" -f db/migration_add_con_source_type.sql
 psql "$DATABASE_URL" -f db/migration_add_chow_seen_records.sql
 psql "$DATABASE_URL" -f db/migration_add_cms_owner_change_seen.sql
 
-# Python env (3.10)
+# Python env (3.11+; runs on 3.14 — Google's API libraries dropped 3.10)
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 playwright install          # browser binaries for the UCC scrapers
