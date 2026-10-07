@@ -58,6 +58,19 @@ KNOWN_HEALTHCARE_REITS = {
     "ares capital", "benefit street", "owl rock",
 }
 
+# Lenders that specialize in nursing homes (HUD 232, bridge, healthcare
+# ABL, SNF-focused bank groups) but read as unknown or a generic bank. The
+# most frequent such secured parties on UCC deals as of 2026-10-07; same
+# category and weight as the REIT list above.
+KNOWN_HEALTHCARE_LENDERS = {
+    "ohi asset",  # Omega Healthcare's property entities
+    "lancaster pollard", "oxford finance", "white oak healthcare", "capital finance, llc",
+    "dwight capital", "dwight mortgage", "dwight mezz", "dmt spe",
+    "forbright bank", "cibc bank usa", "metropolitan commercial bank", "bankwell",
+    "congressional bank", "siena lending", "ecapital healthcare", "vium capital",
+    "ikaria abl",
+}
+
 KNOWN_PE_SPONSORS = {
     "formation capital", "blue mountain capital", "portopiccolo group",
     "national healthcare corp", "kindred healthcare", "genesis healthcare",
@@ -154,6 +167,11 @@ def classify_secured_party(name: str, state: str = None) -> LenderClassification
         if known in normalized:
             return LenderClassification(
                 LenderCategory.REAL_ESTATE, 0.95, f"known REIT: {known}", True
+            )
+    for known in KNOWN_HEALTHCARE_LENDERS:
+        if known in normalized:
+            return LenderClassification(
+                LenderCategory.REAL_ESTATE, 0.95, f"known healthcare lender: {known}", True
             )
     for known in KNOWN_PE_SPONSORS:
         if known in normalized:

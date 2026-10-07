@@ -263,3 +263,12 @@ def test_unknown_lender_needs_nursing_home_debtor(monkeypatch):
     assert ok("SUNRISE NURSING AND REHABILITATION LLC", "SOME BANK, N.A.")   # nursing words
     assert ok("LEGACY NORTH ROYALTON OPERATING COMPANY", "SOME BANK, N.A.")  # opco
     assert ok("ANYTHING LLC", "CAPITAL FINANCE, LLC, AS AGENT")              # lender-search lender
+
+
+def test_known_healthcare_lenders_are_recognized():
+    for name in ["OHI ASSET (OH) SPRINGFIELD, LLC", "CAPITAL FINANCE, LLC, AS ADMINISTRATIVE AGENT",
+                 "DMT SPE I LLC", "FORBRIGHT BANK, AS AGENT", "CIBC BANK USA",
+                 "WHITE OAK HEALTHCARE FINANCE, LLC", "LANCASTER POLLARD MORTGAGE COMPANY"]:
+        assert classify_secured_party(name).category == LenderCategory.REAL_ESTATE, name
+    # General banks stay general
+    assert classify_secured_party("TRUIST BANK, AS ADMINISTRATIVE AGENT").category == LenderCategory.BANK_GENERAL
