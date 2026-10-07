@@ -46,6 +46,7 @@ from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from ucc.lender_search import LENDER_TERMS
 from pipeline.extractor import extract_deals
+from pipeline.same_sale import resolve_new_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
 from pipeline.excluded_urls import EXCLUDED_URLS, EXCLUDED_DOMAINS, EXCLUDED_PATTERNS
 from pipeline.al_mc_scope import is_out_of_scope
@@ -190,6 +191,9 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
     conn = psycopg2.connect(config.database_url)
     psycopg2.extras.register_uuid()
+    with conn.cursor() as cur:
+        cur.execute("SELECT now()")
+        run_started = cur.fetchone()[0]
     if not dry_run:
         _sync_inactive_sources(conn)
 
@@ -285,6 +289,19 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
                 conn.commit()
 
         logger.info(f"Extracted and stored {new_deals} new deals")
+
+        # Step 2d — One sale stored twice by different sources (CON filing,
+        # news, CHOW): merge the clear cases among this run's new deals,
+        # log the rest for review (pipeline/same_sale.py). After CMS
+        # matching, since a shared facility is the main signal.
+        if not dry_run:
+            with conn.cursor() as cur:
+                cur.execute("SELECT id FROM deals WHERE created_at >= %s", (run_started,))
+                run_ids = [r[0] for r in cur.fetchall()]
+            merged, to_review = resolve_new_deals(conn, run_ids)
+            conn.commit()
+            if merged or to_review:
+                logger.info(f"Same-sale check: {merged} merged, {to_review} pairs need review")
 
         # Step 3 — Re-check pending deals
         rechecked = recheck_pending(conn)

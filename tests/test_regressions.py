@@ -272,3 +272,16 @@ def test_known_healthcare_lenders_are_recognized():
         assert classify_secured_party(name).category == LenderCategory.REAL_ESTATE, name
     # General banks stay general
     assert classify_secured_party("TRUIST BANK, AS ADMINISTRATIVE AGENT").category == LenderCategory.BANK_GENERAL
+
+
+# ── Same sale stored twice (2026-10-07) ───────────────────────
+
+def test_same_sale_rules():
+    from pipeline.same_sale import _filed_after_closing, _names_agree
+    assert _names_agree("The Ensign Group", "Ensign Group, Inc.")
+    assert _names_agree(None, "WEST BLOOMFIELD OPCO, LLC")          # blank = no info
+    assert not _names_agree("Standard Bearer Healthcare", "The Ensign Group")
+    con = {"source_type": "con", "extraction_model": "claude", "acquisition_date": date(2025, 11, 13)}
+    chow = {"source_type": "chow", "extraction_model": "chow_direct", "acquisition_date": date(2025, 7, 1)}
+    assert _filed_after_closing(con, chow)                           # filing 4 months after closing
+    assert not _filed_after_closing({**con, "acquisition_date": date(2025, 6, 1)}, chow)
