@@ -6,16 +6,19 @@
 // poll window.__pa. It calls the page's own search API for each name, ~3 s
 // apart, stops at the first non-JSON answer (Incapsula challenge), and saves
 // pa_ucc_<timestamp>.json to Downloads either way. Set window.__pa.stop = true
-// to end early (results are still saved).
+// to end early (results are still saved). window.PA_SEARCH_TYPE =
+// 'SECURED_PARTY' searches lenders instead of debtors (pa_ucc_browser.py
+// lenders); default 'DEBTOR'.
 const NAMES = window.PA_NAMES || [];
+const SEARCH_TYPE = window.PA_SEARCH_TYPE || 'DEBTOR';
 const GAP_MS = 3000;
 window.__pa = {status: 'running', done: 0, total: NAMES.length, filings: 0, stopped: null, stop: false, results: []};
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const save = () => {
-  const blob = new Blob([JSON.stringify({results: window.__pa.results, stopped: window.__pa.stopped})], {type: 'application/json'});
+  const blob = new Blob([JSON.stringify({search_type: SEARCH_TYPE, results: window.__pa.results, stopped: window.__pa.stopped})], {type: 'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'pa_ucc_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+  a.download = 'pa_ucc_' + SEARCH_TYPE.toLowerCase() + '_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
   a.click();
 };
 window.__paRun = (async () => {
@@ -24,7 +27,7 @@ window.__paRun = (async () => {
       if (window.__pa.stop) { window.__pa.stopped = 'stopped by hand'; break; }
       const r = await fetch('/api/Records/uccsearch', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({SEARCH_VALUE: '', SEARCH_TYPE: 'DEBTOR', NAME_TYPE_ID: '2', ORGANIZATION_NAME: name,
+        body: JSON.stringify({SEARCH_VALUE: '', SEARCH_TYPE, NAME_TYPE_ID: '2', ORGANIZATION_NAME: name,
           INDIVIDUAL_NAME: {FIRST_NAME: '', MIDDLE_NAME: '', LAST_NAME: '', SUFFIX: ''},
           SEARCH_CITY: '', SEARCH_STATE: '', SEARCH_LAPSED: true, FILING_DATE: {start: null, end: null}}),
       });
