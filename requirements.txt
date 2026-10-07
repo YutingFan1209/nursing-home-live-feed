@@ -13,7 +13,7 @@ pypdf>=6.0              # text extraction from state CON notice PDFs (scraper/co
 openpyxl>=3.1            # Michigan CON activity reports are XLSX (scraper/con_mi.py)
 beautifulsoup4>=4.12.3
 lxml>=5.2.0
-playwright>=1.44.0      # UCC-1 state portal scrapers (NY/KY/OH/PA) — run `playwright install` after pip install
+playwright==1.60.0      # UCC-1 state portal scrapers — pinned: 1.63 needs a new Chromium download; run `playwright install` if you bump it
 
 # Gmail OAuth (Google Alerts source)
 google-auth>=2.29.0
