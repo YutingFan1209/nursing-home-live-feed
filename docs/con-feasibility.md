@@ -252,7 +252,7 @@ Every state not covered above, checked the same way (single-page fetches, then a
 ### Build order for this pass
 1. **PA DOH list (built 2026-10-05, `scraper/con_pa.py`):** no Claude needed for the core fields, pre-closing with a start date, and it adds coverage for a state where UCC is fragile. The owner PDFs can go to Claude for parents and members.
 2. **CA OHCA list (built 2026-10-06, `scraper/con_ca.py`):** low volume, but names both parties months ahead.
-3. Philadelphia city notices, as a PA add-on.
+3. Philadelphia city notices, as a PA add-on (built 2026-10-08, `scraper/con_phl.py`).
 4. DC and HI only if cheap (few facilities).
 
 ## CON proxy backtest (2026-09-30)

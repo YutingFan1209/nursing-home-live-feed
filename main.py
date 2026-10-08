@@ -36,6 +36,7 @@ from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDE
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
 from scraper.con_pa import fetch_con_pa_deals, CON_PA_SOURCE_NAME, CON_PA_INDEX_URL, _norm as _con_pa_norm
 from scraper.con_ca import fetch_con_ca_notices, CON_CA_SOURCE_NAME, CON_CA_INDEX_URL
+from scraper.con_phl import fetch_con_phl_notices, CON_PHL_SOURCE_NAME, CON_PHL_INDEX_URL
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
@@ -519,6 +520,18 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             deal["source_id"] = con_pa_source_id
             new_articles.append(deal)
 
+        # Philadelphia's own notices of nursing home ownership changes,
+        # filed with the city before the transfer (scraper/con_phl.py)
+        con_phl_source_id = _ensure_source(
+            type("S", (), {"name": CON_PHL_SOURCE_NAME,
+                           "url": CON_PHL_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for art in fetch_con_phl_notices(lambda url: _article_exists(url, conn)):
+            art["source_id"] = con_phl_source_id
+            new_articles.append(art)
+
         con_me_source_id = _ensure_source(
             type("S", (), {"name": CON_ME_SOURCE_NAME,
                            "url": CON_ME_INDEX_URL,
@@ -791,19 +804,32 @@ def _merge_con_twin(deal: dict, conn):
     names = [n for n in (deal.get("facility_names") or []) if n]
     if not names:
         return
+    # Merge into the largest stored copy: a batch filed per facility
+    # (Philadelphia's five Joel Mayer Epstein homes, 2025-12-17) grows one
+    # deal's count as each arrives, and growing a smaller copy could make it
+    # identical to a bigger one -- which once crashed a whole run.
     with conn.cursor() as cur:
-        cur.execute("""
-            UPDATE deals SET
-                facility_names = ARRAY(SELECT DISTINCT unnest(facility_names || %s::text[])),
-                facility_count = GREATEST(facility_count,
-                    cardinality(ARRAY(SELECT DISTINCT unnest(facility_names || %s::text[])))),
-                updated_at = NOW()
-            WHERE acquiring_entity = %s AND states = %s
-              AND acquisition_date = %s AND facility_count IS NOT DISTINCT FROM %s
-            RETURNING id
-        """, (names, names, deal.get("acquiring_entity"), deal.get("states"),
-              deal.get("acquisition_date"), deal.get("facility_count")))
-        row = cur.fetchone()
+        cur.execute("SAVEPOINT con_twin")
+        try:
+            cur.execute("""
+                UPDATE deals SET
+                    facility_names = ARRAY(SELECT DISTINCT unnest(facility_names || %s::text[])),
+                    facility_count = GREATEST(facility_count,
+                        cardinality(ARRAY(SELECT DISTINCT unnest(facility_names || %s::text[])))),
+                    updated_at = NOW()
+                WHERE id = (
+                    SELECT id FROM deals
+                    WHERE acquiring_entity = %s AND states = %s AND acquisition_date = %s
+                    ORDER BY facility_count DESC NULLS LAST LIMIT 1)
+                RETURNING id
+            """, (names, names, deal.get("acquiring_entity"), deal.get("states"),
+                  deal.get("acquisition_date")))
+            row = cur.fetchone()
+            cur.execute("RELEASE SAVEPOINT con_twin")
+        except psycopg2.errors.UniqueViolation as e:
+            cur.execute("ROLLBACK TO SAVEPOINT con_twin")
+            logger.warning(f"CON twin merge skipped for {names}: {e}")
+            return
     if row:
         logger.info(f"CON filing merged into deal {row[0]}: + {names}")
 

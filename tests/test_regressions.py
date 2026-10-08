@@ -285,3 +285,23 @@ def test_same_sale_rules():
     chow = {"source_type": "chow", "extraction_model": "chow_direct", "acquisition_date": date(2025, 7, 1)}
     assert _filed_after_closing(con, chow)                           # filing 4 months after closing
     assert not _filed_after_closing({**con, "acquisition_date": date(2025, 6, 1)}, chow)
+
+
+# ── Philadelphia notices (2026-10-08) ─────────────────────────
+
+def test_phl_notices_dedupe_links_and_attach_exhibits_by_name():
+    from scraper.con_phl import _parse_notices, _HOSPITAL
+    page = """<main>
+      <a href="/media/20260929151037/chapel-manor.pdf">Chapel Manor PDF</a>
+      <a href="/media/20260929151037/chapel-manor.pdf"></a>
+      <a href="/media/20260929151035/chapel-manor-exhibit-a.pdf">Chapel Manor, Exhibit A PDF</a>
+      <a href="/media/20240516120907/Tulip-update.pdf">Tulip Special Care, LLC (5/15/24 update) PDF</a>
+      <a href="/media/20240305091530/Tulip.pdf">Tulip Special Care, LLC PDF</a>
+      <a href="/media/20221115092057/Hospital.pdf">Chestnut Hill Hospital PDF</a>
+      <a href="/media/20220309104726/Restore.pdf">Restore Health at University City PDF</a></main>"""
+    ns = {n["title"]: n for n in _parse_notices(page)}
+    assert set(ns) == {"Chapel Manor", "Tulip Special Care, LLC", "Chestnut Hill Hospital", "Restore Health at University City"}
+    assert ns["Chapel Manor"]["date"] == date(2026, 9, 29)
+    assert ns["Chapel Manor"]["exhibits"] == ["Chapel Manor, Exhibit A"]
+    assert ns["Tulip Special Care, LLC"]["exhibits"] == ["Tulip Special Care, LLC (5/15/24 update)"]
+    assert _HOSPITAL.search("Chestnut Hill Hospital") and not _HOSPITAL.search("Restore Health at University City")
