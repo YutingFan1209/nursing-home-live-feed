@@ -175,7 +175,12 @@ def apply_pairs(pairs: list, conn, log_path: str = None) -> int:
         if x["id"] in dismissed or y["id"] in dismissed:
             continue
         keep, drop = (x, y) if _completeness_score(x) >= _completeness_score(y) else (y, x)
-        if merge(keep, drop, conn):
+        # Growing the kept row to the other's facility count can make it
+        # identical to the other row (unique index): keep the other instead
+        ok = merge(keep, drop, conn)
+        if not ok and merge(drop, keep, conn):
+            keep, drop, ok = drop, keep, True
+        if ok:
             dismissed.add(drop["id"])
             merged += 1
             if log:
