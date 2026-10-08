@@ -4,27 +4,132 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-08T15:02:48.190459+00:00</updated>
+  <updated>2026-10-08T15:32:06.670880+00:00</updated>
   <entry>
-    <id>urn:uuid:e1c1ab12-b27f-40fe-9992-1c7d4edb2b43</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$27.00M financing; Source: Google Alerts (Gmail)</summary>
+    <id>urn:uuid:bca2aac8-1c61-4b2d-b997-a25931d165c5</id>
+    <title>Ownership change: Somerton Acquisition acquires from SC Rehab &amp; Nursing Center (PA)</title>
+    <link href="https://www.phila.gov/media/20220131121343/Notice-to-the-City-of-Philadelphia-pursuant-to-Ordinance-section-6-409.pdf"/>
+    <updated>2026-10-08T15:31:30.369722+00:00</updated>
+    <summary>Effective 2022-01-31; Facilities: Somerton Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
   </entry>
   <entry>
-    <id>urn:uuid:ff851b13-f140-4620-baab-6a70ec7988ed</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$53.00M financing; Source: Google Alerts (Gmail)</summary>
+    <id>urn:uuid:e88609e2-4d86-4560-ad2e-276a0cbf2b5a</id>
+    <title>Ownership change: University City Operator acquires from Chestnut Nursing and Rehabilitation (PA)</title>
+    <link href="https://www.phila.gov/media/20220309104726/2022.1.7-NOTICE-OF-INTENT-TO-ACQUIRE-PHILADELPHIA-LONG-TERM-CARE-FACILITY.pdf"/>
+    <updated>2026-10-08T15:31:30.192672+00:00</updated>
+    <summary>Effective 2022-03-01; Facilities: Restore Health at University City; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
   </entry>
   <entry>
-    <id>urn:uuid:ac0448d5-57ee-426b-ac67-5a7371f4d80b</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (NH)</title>
+    <id>urn:uuid:f4e6afe2-666c-45f4-ac81-b2663d2325dc</id>
+    <title>Ownership change: Logan Real Property acquires from SNR 21 Logan Square Owner (PA)</title>
+    <link href="https://www.phila.gov/media/20221110111710/notice-of-intent-springs-at-watermark.pdf"/>
+    <updated>2026-10-08T15:31:29.872534+00:00</updated>
+    <summary>Effective 2022-10-20; Facilities: The Watermark at Logan Square, The Springs at the Watermark; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2d1d531f-aafd-4b8e-bc8e-6631f0434afb</id>
+    <title>Ownership change: Ivy Hill Post Acute Nursing &amp; Rehabilitation acquires from Embassy Ivy Hill (PA)</title>
+    <link href="https://www.phila.gov/media/20221110111713/notice-of-intent-ivy-hill.pdf"/>
+    <updated>2026-10-08T15:31:29.642681+00:00</updated>
+    <summary>Effective 2022-11-01; Facilities: Ivy Hill Post Acute Nursing and Rehabilitation; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8bd4dc06-8de3-42ca-ae14-f741ba5e71a3</id>
+    <title>Ownership change: East Falls Healthcare acquires from Tulip Special Care (PA)</title>
+    <link href="https://www.phila.gov/media/20240305091530/Notice-of-Intent-to-Acquire-Tulip-Special-Care.pdf"/>
+    <updated>2026-10-08T15:31:29.353178+00:00</updated>
+    <summary>Effective 2024-05-01; Facilities: East Falls Healthcare, AristaCare at East Falls; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2b9b79a4-57da-481e-8a90-78e2f26a0c84</id>
+    <title>Ownership change: 4401 Haverford Avenue acquires from St. Ignatius Nursing Home (PA)</title>
+    <link href="https://www.phila.gov/media/20240417093316/Notice-of-Intent-to-Acquire-St-Ignatius-Nursing-Notice_4_15_24.pdf"/>
+    <updated>2026-10-08T15:31:29.047849+00:00</updated>
+    <summary>Effective 2024-06-01; Facilities: St. Ignatius Nursing &amp; Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:edd4df26-e4f0-40a0-91e5-8628583e50c1</id>
+    <title>Ownership change: 4401 Haverford Avenue Opco (PA)</title>
+    <link href="https://www.phila.gov/media/20240506133607/Notice-of-Intent-to-Acquire-West-Park-Rehabilitation-and-Nursing-Center.pdf"/>
+    <updated>2026-10-08T15:31:28.881448+00:00</updated>
+    <summary>Effective 2024-01-01; Facilities: West Park Rehabilitation and Nursing Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cf189b4a-e62a-47a6-a446-b3365f3b090e</id>
+    <title>Ownership change: Rittenhouse Operator acquires from Presbyterian Medical Center of the University of Pennsylvania Health System (PA)</title>
+    <link href="https://www.phila.gov/media/20240528115658/Presbyterian-Center-for-Continuing-Care-Change-of-Ownership-5_24_24.pdf"/>
+    <updated>2026-10-08T15:31:28.333725+00:00</updated>
+    <summary>Effective 2024-08-01; Facilities: Presbyterian Center for Continuing Care; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f15897d1-4a0e-4141-b6e0-bf7e5caeed01</id>
+    <title>Ownership change: Graduate Operator acquires from 1526 Lombard Street SNF Operations II (PA)</title>
+    <link href="https://www.phila.gov/media/20241114131600/Accelerate-Skilled-Nursing-and-Rehabilitation-Graduate-Operator-LLC.pdf"/>
+    <updated>2026-10-08T15:31:27.796154+00:00</updated>
+    <summary>Effective 2025-01-01; Facilities: Accelerate Skilled Nursing and Rehabilitation Philadelphia; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c013eae5-7b9b-4b34-b13a-9b0969bda736</id>
+    <title>Ownership change: YO Operating (PA)</title>
+    <link href="https://www.phila.gov/media/20250605124503/YORK.NURSING.CHOW_.6.1.25.LICENSE.pdf"/>
+    <updated>2026-10-08T15:31:27.613882+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: York Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e6f15ea7-b01d-4e42-80c2-03ee72be3ba1</id>
+    <title>Ownership change: TH Operating (PA)</title>
+    <link href="https://www.phila.gov/media/20250605124502/TUCKER.HOUSE_.CHOW_.LICENSE.6.1.25.pdf"/>
+    <updated>2026-10-08T15:31:27.422499+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Tucker House Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:860d3dc5-d7d7-4a2d-b2cf-01643f65bf78</id>
+    <title>Ownership change: MA Operating acquires from MAPLEWOOD OPERATING LLC (PA)</title>
+    <link href="https://www.phila.gov/media/20250605124500/MAPLEWOOD.CHOW_.LICENSE.6.1.25.pdf"/>
+    <updated>2026-10-08T15:31:27.216336+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Maplewood Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6749becf-e5e2-4ada-8bd3-3e961f1f8a70</id>
+    <title>Ownership change: CL Operating (PA)</title>
+    <link href="https://www.phila.gov/media/20250605124504/CLIVEDEN.CHOW_.LICENSE.6.1.25.pdf"/>
+    <updated>2026-10-08T15:31:27.014148+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Cliveden Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6353a6e5-035c-4831-af4a-8878ae8767f2</id>
+    <title>Ownership change: CP Operating acquires from CARE PAVILION OPERATING LLC (PA)</title>
+    <link href="https://www.phila.gov/media/20250605124505/CARE.PAVILION.CHOW_.LICENSE.6.1.25.pdf"/>
+    <updated>2026-10-08T15:31:26.809201+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Care Pavilion Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:30f50d00-bf85-4877-aab8-c2a22d89db20</id>
+    <title>Ownership change: 600 W Cheltenham Opco acquires from AHF/Montgomery (PA)</title>
+    <link href="https://www.phila.gov/media/20251001102202/health-longterm-care-ownership-change-cheltenham-nursing-and-rehab-center-20250905.pdf"/>
+    <updated>2026-10-08T15:31:26.643230+00:00</updated>
+    <summary>Effective 2025-10-01; Facilities: Cheltenham Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7a437cdf-3df1-4755-b066-2bc2e3c0286c</id>
+    <title>Ownership change: Joel Mayer Epstein (PA)</title>
+    <link href="https://www.phila.gov/media/20251217165216/health-longterm-care-ownership-change-cliveden-nursing-and-rehabilitation-center-20251217.pdf"/>
+    <updated>2026-10-08T15:21:13.144973+00:00</updated>
+    <summary>Effective 2025-12-17; Facilities: Care Pavilion Nursing and Rehabilitation Center, Cliveden Nursing and Rehabilitation Center, Maplewood Nursing and Rehabilitation Center, Tucker House Nursing and Rehabilitation Center, York Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:835018c5-3d16-44e0-b2a9-9e10a0df2d8a</id>
+    <title>Ownership change: 1104 Welsh Road Opco acquires from 1104 Welsh Road Operations (PA)</title>
+    <link href="https://www.phila.gov/media/20260929151037/health-ltc-ownership-change-chapel-manor-202609.pdf"/>
+    <updated>2026-10-08T15:11:09.905711+00:00</updated>
+    <summary>Effective 2026-09-30; Facilities: Chapel Manor; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0a013a42-3c8c-4d0e-ab52-7c526ad6cf78</id>
+    <title>Ownership change: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (AR)</title>
     <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
     <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
+    <summary>Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:3695f66a-e176-4d49-b095-29520ed86b9a</id>
@@ -34,6 +139,20 @@
     <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
+    <id>urn:uuid:ac0448d5-57ee-426b-ac67-5a7371f4d80b</id>
+    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (NH)</title>
+    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
+    <updated>2026-10-08T15:02:26.546371+00:00</updated>
+    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e1c1ab12-b27f-40fe-9992-1c7d4edb2b43</id>
+    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
+    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
+    <updated>2026-10-08T15:02:26.546371+00:00</updated>
+    <summary>$27.00M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:4c3f5ca5-4e25-4d12-bbf0-c98659158b20</id>
     <title>Ownership change: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (OH)</title>
     <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
@@ -41,11 +160,11 @@
     <summary>Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
-    <id>urn:uuid:0a013a42-3c8c-4d0e-ab52-7c526ad6cf78</id>
-    <title>Ownership change: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (AR)</title>
+    <id>urn:uuid:ff851b13-f140-4620-baab-6a70ec7988ed</id>
+    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
     <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
     <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>Source: Google Alerts (Gmail)</summary>
+    <summary>$53.00M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:335c39ed-29f6-4e7d-a407-a9aff831b0a9</id>
@@ -235,124 +354,5 @@
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
     <updated>2026-10-08T14:48:32.939142+00:00</updated>
     <summary>Effective 2018-02-09; Facilities: VILLA DEL RIO PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:59e67e1c-36da-4d9a-b6c1-8565d8b23868</id>
-    <title>UCC financing: VILLA DEL RIO, INC. — POPULAR BANK (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:31.341282+00:00</updated>
-    <summary>Effective 2021-02-03; Facilities: VILLA DEL RIO; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e127b086-eba5-43f8-9440-bea3191e933f</id>
-    <title>UCC financing: VENTURA POST ACUTE, LLC — 4020 LOMA VISTA ROAD, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:29.611918+00:00</updated>
-    <summary>Effective 2016-09-26; Facilities: Ventura Post Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:21a1608a-a14a-410c-9b57-749014588613</id>
-    <title>UCC financing: VENICE BEACH HOLDINGS LLC — FORBRIGHT BANK, AS AGENT (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:27.646297+00:00</updated>
-    <summary>Effective 2023-06-30; Facilities: THE SPRINGS POST-ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ab89f425-cd31-4df4-a796-6a0a53df0672</id>
-    <title>UCC financing: VALLEY VISTA NURSING AND TRANSITIONAL CARE, LLC — CONGRESSIONAL BANK (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:25.580628+00:00</updated>
-    <summary>Effective 2018-12-28; Facilities: VALLEY VISTA NURSING AND TRANSITIONAL CARE LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f337ee04-e4a7-4b8e-b0d5-d7538607a616</id>
-    <title>UCC financing: VALLEY VISTA NURSING AND TRANSITIONAL CARE, LLC. — CONGRESSIONAL BANK (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:23.462608+00:00</updated>
-    <summary>Effective 2017-11-01; Facilities: VALLEY VISTA NURSING AND TRANSITIONAL CARE LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:02f72720-d4d7-4fa8-b56c-ea2c3275c995</id>
-    <title>UCC financing: VALLEY VIEW CARE CENTER LLC — SECRETARY OF HOUSING AND URBAN DEVELOPMENT * (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:22.077344+00:00</updated>
-    <summary>Effective 2024-03-13; Facilities: VALLEY VIEW CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a91fccc9-3c00-49f9-956e-94fc7ca52817</id>
-    <title>UCC financing: VALLEY VIEW CARE CENTER — SIENA LENDING GROUP LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:20.895361+00:00</updated>
-    <summary>Effective 2022-03-01; Facilities: VALLEY VIEW CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ecf8fa6b-2f09-4529-b496-76ea9e560957</id>
-    <title>UCC financing: VALLEY VIEW CARE CENTER LLC — EMERALD DEBT, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:19.530422+00:00</updated>
-    <summary>Effective 2023-02-23; Facilities: VALLEY VIEW CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d2a91987-7f02-469d-b2cd-714a9caafa8e</id>
-    <title>UCC financing: VALLEY VIEW CARE CENTER LLC — 729 BROWNING ROAD LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:18.163848+00:00</updated>
-    <summary>Effective 2021-02-03; Facilities: VALLEY VIEW CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b77b5055-9197-445c-b73d-9901282e4dd3</id>
-    <title>UCC financing: VALLEY OAKS POST ACUTE, LLC — 830 E. CHAPEL, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:16.137789+00:00</updated>
-    <summary>Effective 2022-07-14; Facilities: Valley Oaks Post Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:df416ea9-5e50-4629-aee8-3fb32761368d</id>
-    <title>UCC financing: UTAH LAKE HOLDINGS LLC — 8665 LA MESA BOULEVARD, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:14.386399+00:00</updated>
-    <summary>Effective 2023-06-02; Facilities: JACOB HEALTHCARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7a49d5e2-4bb4-4581-9c4f-d9adceaf1e59</id>
-    <title>UCC financing: UNIVERSITY HEALTH LLC — 230 EAST ADAMS BOULEVARD, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:13.035055+00:00</updated>
-    <summary>Effective 2023-01-05; Facilities: UNIVERSITY PARK HEALTHCARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ed732a70-28c0-4aa5-9550-d5a67323cc91</id>
-    <title>UCC financing: UNICA HC LLC — CIBC BANK USA (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:12.004268+00:00</updated>
-    <summary>Effective 2024-09-06; Facilities: University Post Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c86c0597-14be-4e09-aa55-4c27c1cb251a</id>
-    <title>UCC financing: UNICA HC PROPCO RE LLC — CIBC BANK USA (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:10.632351+00:00</updated>
-    <summary>Effective 2024-09-06; Facilities: UNICA HC PROPCO RE LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:23d1284f-761e-4486-85a0-a59d2bd5e59e</id>
-    <title>UCC financing: UNICA HC LLC — CNH FINANCE FUND I, L.P. (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:09.599127+00:00</updated>
-    <summary>Effective 2021-07-02; Facilities: University Post Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8930ab63-8020-48c2-b663-1572d8820e4e</id>
-    <title>UCC financing: TUSTIN HILLS HEALTHCARE INC. — CAREHOUSE PROPERTY HOLDINGS, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:07.630713+00:00</updated>
-    <summary>Effective 2019-09-18; Facilities: THE HILLS POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a2c981b0-a636-461f-b965-ac887365cda6</id>
-    <title>UCC financing: TULARE HEALTHCARE &amp; WELLNESS CENTER, LP — CIBC BANK USA (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:05.699012+00:00</updated>
-    <summary>Effective 2020-12-30; Facilities: TULARE HEALTHCARE &amp; WELLNESS CENTER, LP; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
