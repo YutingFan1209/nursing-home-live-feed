@@ -18,3 +18,8 @@ dashboard/frontend/public/feed.xml
 dashboard/frontend/dist/deals.json
 dashboard/frontend/dist/feed.xml
 venv310/
+
+# Local working files: re-extraction/merge backups, dismissal lists, browser-session results
+data/
+# The switched-off daily launchd job (kept for reference, not deployed)
+.disabled-launchagents/
