@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-08T15:32:06.670880+00:00</updated>
+  <updated>2026-10-08T15:47:32.013271+00:00</updated>
   <entry>
     <id>urn:uuid:bca2aac8-1c61-4b2d-b997-a25931d165c5</id>
     <title>Ownership change: Somerton Acquisition acquires from SC Rehab &amp; Nursing Center (PA)</title>
@@ -132,20 +132,6 @@
     <summary>Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
-    <id>urn:uuid:3695f66a-e176-4d49-b095-29520ed86b9a</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (MA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ac0448d5-57ee-426b-ac67-5a7371f4d80b</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (NH)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:e1c1ab12-b27f-40fe-9992-1c7d4edb2b43</id>
     <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
     <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
@@ -158,6 +144,20 @@
     <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
     <updated>2026-10-08T15:02:26.546371+00:00</updated>
     <summary>Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ac0448d5-57ee-426b-ac67-5a7371f4d80b</id>
+    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (NH)</title>
+    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
+    <updated>2026-10-08T15:02:26.546371+00:00</updated>
+    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3695f66a-e176-4d49-b095-29520ed86b9a</id>
+    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (MA)</title>
+    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
+    <updated>2026-10-08T15:02:26.546371+00:00</updated>
+    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:ff851b13-f140-4620-baab-6a70ec7988ed</id>
