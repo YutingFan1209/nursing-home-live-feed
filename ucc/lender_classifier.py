@@ -69,6 +69,18 @@ KNOWN_HEALTHCARE_LENDERS = {
     "forbright bank", "cibc bank usa", "metropolitan commercial bank", "bankwell",
     "congressional bank", "siena lending", "ecapital healthcare", "vium capital",
     "ikaria abl",
+    # Round 2 (2026-10-08)
+    "ctr partnership",  # CareTrust REIT's operating partnership
+    "california aviv",  # Aviv REIT, now Omega
+    "gemino healthcare", "housing & healthcare finance", "locust point private credit",
+    "acrc lender", "dwight bridge",
+    "department of housing and urban", "department of housing & urban",  # HUD spellings
+}
+
+# Banks whose names dodge the generic "bank" pattern below
+KNOWN_BANKS = {
+    "vnb new york", "privatebank and trust", "banco popular",
+    "manufacturers and traders trust", "capital one",
 }
 
 KNOWN_PE_SPONSORS = {
@@ -199,7 +211,7 @@ def classify_secured_party(name: str, state: str = None) -> LenderClassification
             )
 
     # 4. Generic bank — ambiguous, flag for human review rather than drop
-    if re.search(r"\bbank\b|\bbanking\b|\bn\.?a\.?\b", normalized):
+    if any(b in normalized for b in KNOWN_BANKS) or re.search(r"\bbank\b|\bbanking\b|\bn\.?a\.?\b", normalized):
         return LenderClassification(
             LenderCategory.BANK_GENERAL, 0.3, "generic bank — needs review", True
         )
@@ -262,6 +274,15 @@ EXCLUDE_PATTERNS.extend([
     # Registered agent abbreviations — file as secured party on behalf of real lender
     r"^csc[,\s]",                   # CSC (Corporation Service Company abbreviation)
     r"\bcsc as representative\b",
+])
+
+# Equipment vendors, merchant-cash-advance lenders and filing agents seen on
+# UCC deals (round 2, 2026-10-08)
+EXCLUDE_PATTERNS.extend([
+    r"\bgreatamerica financial\b", r"\bverdant commercial capital\b", r"\baxis capital\b",
+    r"\bintuitive surgical\b", r"\blaundry equipment\b", r"\btrimark usa\b",
+    r"\bncmic finance\b", r"\bfunding metrics\b",
+    r"\bchtd company\b", r"\bfirst corporate solutions\b",  # filing agents, not lenders
 ])
 
 # HUD loans are healthcare RE financing — acquisition relevant
