@@ -10,6 +10,7 @@ fragments ("buyouts and ..."); the page's own headline replaces them.
 
     venv/bin/python3 scripts/reextract_news.py --titles     # headlines only, all news deals' articles
     venv/bin/python3 scripts/reextract_news.py --bare       # re-extract articles behind bare deals
+    venv/bin/python3 scripts/reextract_news.py --summaries  # re-extract articles whose deals have no summary
 
 --bare writes every replaced deal to data/reextract_<date>.jsonl first, and
 skips articles with a deal in data/same_sale_merges.jsonl, so a merge made
@@ -36,6 +37,7 @@ _NEWS_ARTICLES = """
     WHERE d.stage <> 'dismissed' AND s.source_type = 'rss' {extra}
 """
 _BARE = "AND COALESCE(d.acquiring_entity, '') = '' AND COALESCE(array_length(d.facility_names, 1), 0) = 0"
+_NO_SUMMARY = "AND d.summary IS NULL"
 
 
 def _rows(conn, extra=""):
@@ -59,7 +61,7 @@ def fix_titles(conn) -> int:
     return fixed
 
 
-def reextract_bare(conn) -> tuple[int, int, int]:
+def reextract_bare(conn, which: str = _BARE, keep_if_fewer: bool = False) -> tuple[int, int, int]:
     merged = set()
     try:
         for line in open(f"{ROOT}/same_sale_merges.jsonl"):
@@ -69,7 +71,7 @@ def reextract_bare(conn) -> tuple[int, int, int]:
         pass
     backup = open(f"{ROOT}/reextract_{date.today()}.jsonl", "a")
     done = before = after = 0
-    for a in _rows(conn, _BARE):
+    for a in _rows(conn, which):
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute("SELECT * FROM deals WHERE article_id = %s", (a["id"],))
             old = cur.fetchall()
@@ -79,6 +81,10 @@ def reextract_bare(conn) -> tuple[int, int, int]:
         deals = extract_deals(a["raw_text"], a["url"], a["published_at"])
         if not deals:
             print(f"  kept as is (re-extraction found no deals): {a['url']}")
+            continue
+        live = [d for d in old if d["stage"] != "dismissed"]
+        if keep_if_fewer and len(deals) < len(live):
+            print(f"  kept as is (re-extraction found {len(deals)} deals, {len(live)} stored): {a['url']}")
             continue
         for d in old:
             backup.write(json.dumps(d, default=str) + "\n")
@@ -99,4 +105,7 @@ if __name__ == "__main__":
         print(f"{fix_titles(conn)} titles replaced with the page headline")
     if "--bare" in sys.argv:
         done, before, after = reextract_bare(conn)
+        print(f"{done} articles re-extracted: {before} old deals -> {after} new deals")
+    if "--summaries" in sys.argv:
+        done, before, after = reextract_bare(conn, _NO_SUMMARY, keep_if_fewer=True)
         print(f"{done} articles re-extracted: {before} old deals -> {after} new deals")
