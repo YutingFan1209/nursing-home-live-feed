@@ -72,7 +72,7 @@ I matched on facility names, old names, buyer and seller entities, and member na
 
 | Facility | In tracker? | Source | First seen vs NY decision |
 |---|---|---|---|
-| The Pearl / Astoria at Rochester | ✅ Deal `030b7462` (NY) | Google Alerts → Skilled Nursing News dealbook, 2026-06-24 ("120-bed NY facility sold") | **85 days *before*** the 2026-09-17 decision |
+| The Pearl / Astoria at Rochester | ❌ (corrected 2026-10-09) | Was listed as deal `030b7462` from the 2026-06-24 Skilled Nursing News dealbook, but that article covers Black Pearl Equities (Selectis) and an Arizona 120-bed facility, not this sale; the deal no longer exists | — |
 | Sands Point | ❌ | — | — |
 | Kirkhaven | ❌ | — | — |
 | Maplewood | ❌ | — | — |

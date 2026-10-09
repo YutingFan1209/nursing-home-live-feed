@@ -43,6 +43,7 @@ from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_
 from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
 from scraper.con_md import fetch_con_md_cases, CON_MD_SOURCE_NAME, CON_MD_INDEX_URL
 from scraper.con_nj import fetch_con_nj, CON_NJ_SOURCE_NAME, CON_NJ_OPERATOR_URL
+from scraper.con_ny import fetch_con_ny_projects, project_number as _con_ny_project, CON_NY_SOURCE_NAME, CON_NY_INDEX_URL
 from pipeline.source_health import log_source_health
 from scraper.ucc import fetch_ucc_filings
 from ucc.lender_search import LENDER_TERMS
@@ -59,6 +60,10 @@ from ucc.integrator import route_filing, ExistingDeal, RoutingDecision
 from ucc.audit_log import save_ucc_filings
 from pipeline.run_health import health
 config = get_config()
+
+# NY PHHPC establishment approvals (scraper/con_ny.py): a first run reads a
+# year of agenda PDFs (~200 MB, ~3 min); later runs only new ones
+ENABLE_CON_NY = True
 
 
 # ── Structured logging ────────────────────────────────────────
@@ -602,6 +607,28 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         for art in fetch_con_nj(lambda url: _article_exists(url, conn)):
             art["source_id"] = con_nj_source_id
             new_articles.append(art)
+
+        # NY PHHPC nursing home establishments: committee agenda exhibits,
+        # 2-4 weeks before the Full Council vote. Scanned agenda PDFs are
+        # stored as skipped so they aren't downloaded again
+        if ENABLE_CON_NY:
+            con_ny_source_id = _ensure_source(
+                type("S", (), {"name": CON_NY_SOURCE_NAME,
+                               "url": CON_NY_INDEX_URL,
+                               "source_type": "con"})(),
+                conn
+            )
+            with conn.cursor() as cur:
+                cur.execute("SELECT url FROM articles WHERE source_id = %s", (con_ny_source_id,))
+                ny_known = {n for (url,) in cur.fetchall() if (n := _con_ny_project(url))}
+            ny_projects, ny_scanned = fetch_con_ny_projects(lambda url: _article_exists(url, conn), ny_known)
+            for art in ny_scanned:
+                art["source_id"] = con_ny_source_id
+                _mark_extraction_error(_store_article(art, conn), art["skip_reason"], conn)
+            conn.commit()
+            for art in ny_projects:
+                art["source_id"] = con_ny_source_id
+                new_articles.append(art)
 
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:
