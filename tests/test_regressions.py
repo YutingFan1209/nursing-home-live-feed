@@ -305,3 +305,33 @@ def test_phl_notices_dedupe_links_and_attach_exhibits_by_name():
     assert ns["Chapel Manor"]["exhibits"] == ["Chapel Manor, Exhibit A"]
     assert ns["Tulip Special Care, LLC"]["exhibits"] == ["Tulip Special Care, LLC (5/15/24 update)"]
     assert _HOSPITAL.search("Chestnut Hill Hospital") and not _HOSPITAL.search("Restore Health at University City")
+
+
+# ── UCC acquisition financing vs refinancing (2026-10-09) ─────
+
+def test_ucc_category_and_repeats():
+    from pipeline.ucc_category import categorize, collapse_repeats
+
+    def ucc(debtor, lender, filed, ccns=("395001",), state="PA"):
+        return {"source_type": "ucc", "deal_type": "financing", "ucc_state": state, "ucc_debtor": debtor,
+                "lender": lender, "acquisition_date": filed, "ccns": list(ccns), "created_at": filed}
+    owner_starts = {"395001": {date(2023, 5, 1)}}
+    deals = [
+        ucc("WEATHERWOOD REHABILITATION AND HEALTHCARE LLC", "GMCC II, LLC", "2023-05-08"),          # owner changed a week earlier
+        ucc("WEATHERWOOD REHABILITATION AND HEALTHCARE LLC", "GREYSTONE SERVICING COMPANY LLC", "2026-03-27"),
+        ucc("SPRUCE MANOR NURSING LLC", "CIBC BANK USA", "2018-02-08", ccns=()),
+        ucc("SPRUCE MANOR NURSING LLC", "CIBC BANK USA", "2022-05-02", ccns=()),                     # same loan, filed again
+        ucc("JEFFREY RUBIN", "YARDVILLE NATIONAL BANK", "2004-11-16", state="NY"),                     # a person
+        ucc("JEFFREY RUBIN", "YARDVILLE NATIONAL BANK", "2006-04-19", state="NY"),
+        ucc("EASTERN PINES CARE LLC", "Not available — NJ", "2022-01-05", ccns=(), state="NJ"),
+        ucc("EASTERN PINES CARE LLC", "Not available — NJ", "2025-09-02", ccns=(), state="NJ"),
+    ]
+    categorize(deals, owner_starts)
+    assert [d["deal_type"] for d in deals[:2]] == ["acquisition_financing", "refinancing"]
+    assert deals[4]["deal_type"] == "financing"                       # persons stay uncategorised
+    assert deals[7]["deal_type"] == "financing"                       # NJ: no lender, no history test
+    out = collapse_repeats(deals)
+    spruce = [d for d in out if d["ucc_debtor"].startswith("SPRUCE")]
+    assert len(spruce) == 1 and spruce[0]["acquisition_date"] == "2022-05-02"
+    assert spruce[0]["ucc_also_filed"] == ["2018-02-08"]
+    assert len(out) == len(deals) - 1                                 # persons and NJ aren't collapsed

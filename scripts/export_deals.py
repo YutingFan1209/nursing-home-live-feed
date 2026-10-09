@@ -40,6 +40,7 @@ import psycopg2
 import requests
 from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
+from pipeline.ucc_category import categorize, collapse_repeats
 
 UCC_PORTAL_URLS = {
     "NY": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
@@ -190,7 +191,8 @@ def _feed_title(d: dict) -> str:
         subject = d.get("ucc_debtor") or (d.get("facility_names") or ["?"])[0]
         lender = d.get("lender") or ""
         via = "" if not lender or lender.startswith("Not available") else f" — {lender}"
-        return f"UCC financing: {subject}{via}{states}"
+        kind = "UCC acquisition financing" if d.get("deal_type") == "acquisition_financing" else "UCC financing"
+        return f"{kind}: {subject}{via}{states}"
     parties = " acquires from ".join(p for p in (d.get("acquiring_entity"), d.get("seller_entity")) if p)
     kind = "Financing" if d.get("deal_type") == "financing" else "Ownership change"
     return f"{kind}: {parties or d.get('source_title') or 'deal reported'}{states}"
@@ -200,8 +202,9 @@ def write_atom_feed(deals: list[dict], path: str, updated: str) -> None:
     """Newest-first Atom feed of what the pipeline found, so people can
     follow the site in a feed reader. Static hosting can't send per-view
     email alerts; this is the closest thing. Ordered by when a deal was
-    found (created_at), not its effective date, and skips non-deal liens."""
-    recent = sorted((d for d in deals if d.get("deal_type") != "non_deal_lien"),
+    found (created_at), not its effective date, and skips non-deal liens and
+    refinancings (the site's default view hides refinancings too)."""
+    recent = sorted((d for d in deals if d.get("deal_type") not in ("non_deal_lien", "refinancing")),
                     key=lambda d: d.get("created_at") or "", reverse=True)[:FEED_SIZE]
     entries = []
     for d in recent:
@@ -283,6 +286,22 @@ def main():
 
         cur.execute("SELECT MAX(last_fetched_at) FROM sources")
         pipeline_ran_at = cur.fetchone()[0]
+
+        # UCC financing -> acquisition financing / refinancing, and one row
+        # per repeated loan (pipeline/ucc_category.py)
+        cur.execute("""
+            SELECT ccn, ownership_start_date FROM cms_ownership_records
+            WHERE ownership_start_date IS NOT NULL
+              AND owner_role ILIKE '%DIRECT OWNERSHIP%' AND owner_role NOT ILIKE '%INDIRECT%'
+            UNION
+            SELECT ccn, TO_DATE(effective_date, 'MM/DD/YYYY') FROM chow_seen_records
+            WHERE effective_date ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
+        """)
+        owner_starts = {}
+        for ccn, start in cur.fetchall():
+            owner_starts.setdefault(ccn, set()).add(start)
+        categorize(deals, owner_starts)
+        deals = collapse_repeats(deals)
 
     conn.close()
 

@@ -119,6 +119,8 @@ const SOURCE = {
 const DEAL_TYPE = {
   ownership_change: { label: "Ownership change", tip: "A change of owner or operator" },
   financing:        { label: "Financing", tip: "A loan or financing statement on the facility or its operator — often, but not always, tied to a sale" },
+  acquisition_financing: { label: "Acquisition financing", tip: "UCC-1 filed within 6 months of the facility's owner changing in CMS records — a loan to the buyer around closing" },
+  refinancing:      { label: "Refinancing", tip: "UCC-1 filed while the facility's owner stayed the same (CMS owner in place 6+ months earlier, or the borrower had an earlier loan from another lender) — hidden by default" },
   non_deal_lien:   { label: "Non-deal lien", tip: "Lien from an equipment vendor, registered agent or small-business lender — rarely deal-related" },
   amendment:        { label: "UCC-3 amendment", tip: "An amendment (assignment, continuation or termination) to an earlier UCC-1 filing" },
 };
@@ -312,7 +314,10 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
   const headline = uccSubject
     ? <><strong>{uccSubject}</strong><span style={{color:"#6b7280"}}> — {
         deal.deal_type === "amendment" ? "UCC-3 amendment"
-        : deal.deal_type === "non_deal_lien" ? "likely non-deal lien" : "UCC-1 financing"}</span></>
+        : deal.deal_type === "non_deal_lien" ? "likely non-deal lien"
+        : deal.deal_type === "acquisition_financing" ? "UCC-1 acquisition financing"
+        : deal.deal_type === "refinancing" ? "UCC-1 refinancing" : "UCC-1 financing"}{
+        deal.ucc_also_filed?.length > 0 && ` (same loan also filed ${deal.ucc_also_filed.join(", ")})`}</span></>
     : deal.acquiring_entity && seller
     ? <><EntityLink name={deal.acquiring_entity} onPick={onEntity} /><span style={{color:"#6b7280"}}> acquired from </span><EntityLink name={seller} onPick={onEntity} /></>
     : deal.acquiring_entity
@@ -355,8 +360,8 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
           ))}
           {deal.deal_type && deal.deal_type !== (deal.source_type === "ucc" ? "financing" : "ownership_change") && (
             <span title={DEAL_TYPE[deal.deal_type]?.tip} style={{ fontSize: 11, fontWeight: 600,
-              color: deal.deal_type === "non_deal_lien" ? "#9ca3af" : "#b45309",
-              background: deal.deal_type === "non_deal_lien" ? "#f3f4f6" : "#fffbeb",
+              color: deal.deal_type === "non_deal_lien" ? "#9ca3af" : deal.deal_type === "refinancing" ? "#475569" : "#b45309",
+              background: deal.deal_type === "non_deal_lien" ? "#f3f4f6" : deal.deal_type === "refinancing" ? "#f1f5f9" : "#fffbeb",
               padding: "1px 7px", borderRadius: 20 }}>{DEAL_TYPE[deal.deal_type]?.label}</span>
           )}
           {fresh && (
@@ -673,7 +678,10 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
     if (dateTo && effectiveDate && effectiveDate > dateTo + "T99") return false;
     if (sourceType && d.source_type !== sourceType) return false;
     if (entity && dealRoles(d, entity).length === 0) return false;
-    if (dealType === "no_liens" ? d.deal_type === "non_deal_lien" : dealType && d.deal_type !== dealType) return false;
+    // No deal type picked = everything except refinancings; "all" includes them
+    if (!dealType ? d.deal_type === "refinancing"
+        : dealType === "no_liens" ? d.deal_type === "non_deal_lien"
+        : dealType !== "all" && d.deal_type !== dealType) return false;
     const hasCcn = (d.ccns || []).filter(Boolean).length > 0;
     if (ccnStatus === "matched" && !hasCcn) return false;
     if (ccnStatus === "unmatched" && hasCcn) return false;
@@ -716,7 +724,8 @@ function viewName(f) {
     f.search && `"${f.search}"`,
     f.state,
     f.sourceType && (SOURCE[f.sourceType]?.label || f.sourceType),
-    f.dealType && (f.dealType === "no_liens" ? "No non-deal liens" : DEAL_TYPE[f.dealType]?.label || f.dealType),
+    f.dealType && (f.dealType === "no_liens" ? "No non-deal liens" : f.dealType === "all" ? "All deal types"
+      : DEAL_TYPE[f.dealType]?.label || f.dealType),
     f.ccnStatus && (f.ccnStatus === "matched" ? "CCN matched" : "No CCN"),
     (f.dateFrom || f.dateTo) && `${f.dateFrom || "…"} – ${f.dateTo || "…"}`,
   ].filter(Boolean).join(" · ");
@@ -827,7 +836,12 @@ export default function App() {
     [allDeals, state, dateFrom, dateTo, search, sourceType, ccnStatus, dealType, entity]
   );
 
-  const stats = useMemo(() => allDeals.length ? computeStats(allDeals) : null, [allDeals]);
+  // Headline counts follow the deal type filter, so refinancings aren't
+  // counted in the default view
+  const stats = useMemo(
+    () => allDeals.length ? computeStats(filterDeals(allDeals, { dealType })) : null,
+    [allDeals, dealType]
+  );
 
   const byCcn = useMemo(() => {
     const m = new Map();
@@ -979,7 +993,8 @@ export default function App() {
               <option value="con">State CON</option>
             </select>
             <select value={dealType} onChange={e => { setDealType(e.target.value); setOffset(0); }} style={selStyle}>
-              <option value="">All deal types</option>
+              <option value="">All except refinancing</option>
+              <option value="all">All deal types</option>
               {Object.entries(DEAL_TYPE).map(([k, t]) => <option key={k} value={k}>{t.label}</option>)}
               <option value="no_liens">All except non-deal liens</option>
             </select>
