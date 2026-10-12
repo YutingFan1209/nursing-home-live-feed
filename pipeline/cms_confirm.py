@@ -29,6 +29,41 @@ def facility_key(name: str) -> str:
 
 CMS_NAME_LIMIT = 50  # cms_facilities.provider_name is cut off at 50 characters
 
+# Words every nursing home name shares. What's left must match exactly for a
+# fuzzy name match to count: "The Ridge Post Acute" -> {RIDGE} is not "Ocean
+# Ridge Post Acute" -> {OCEAN, RIDGE}, but "Westwood Post Acute" is
+# "Westwood Post Acute Care" (2026-10-12 audit: half of the non-identical
+# fuzzy matches on UCC records were a different home).
+_GENERIC_WORDS = set("""
+THE OF AT AND ON IN FOR A AN LLC INC L L C LP CO CORP CORPORATION COMPANY OPERATING OPERATIONS OPCO PROPCO
+NURSING REHABILITATION REHAB HEALTH HEALTHCARE CARE CENTER CENTRE CTR HOME HOMES FACILITY SKILLED UNIT VILLAGE
+POST ACUTE CONVALESCENT HOSPITAL WELLNESS LIVING SENIOR COMMUNITY MANOR RESIDENCE SUBACUTE EXTENDED
+LONG TERM TRANSITIONAL CARE SERVICES CENTERS SNF
+""".split())
+
+
+def distinctive_key(name: str) -> frozenset:
+    words = re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper()).split()
+    return frozenset(w for w in words if w not in _GENERIC_WORDS)
+
+
+def same_facility_name(a: str, b: str) -> bool:
+    """Two facility names agree once generic words are set aside. A name CMS
+    cut off at 50 characters may drop the last word."""
+    # A cut-off last word ("...REHABILITATION AND NURSI") is a fragment of a
+    # word in the full name; drop it
+    words_a = re.sub(r"[^A-Z0-9 ]", " ", (a or "").upper()).split()
+    words_b = re.sub(r"[^A-Z0-9 ]", " ", (b or "").upper()).split()
+    if words_b:
+        full = [w for w in words_a if w != words_b[-1] and w.startswith(words_b[-1])]
+        if full:
+            words_b = words_b[:-1]
+            words_a = [w for w in words_a if w != full[0]]
+        elif len(words_b[-1]) >= 3 and any(g != words_b[-1] and g.startswith(words_b[-1]) for g in _GENERIC_WORDS):
+            words_b = words_b[:-1]  # "...SKILLED CARE AND REHABILIT"
+    ka, kb = distinctive_key(" ".join(words_a)), distinctive_key(" ".join(words_b))
+    return bool(ka) and ka == kb
+
 
 def _mdy(s):
     m = re.match(r"(\d{2})/(\d{2})/(\d{4})$", s or "")

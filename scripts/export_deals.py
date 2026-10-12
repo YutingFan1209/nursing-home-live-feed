@@ -43,7 +43,7 @@ from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline.ucc_category import categorize, collapse_repeats
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
-from pipeline.cms_confirm import CmsIndex
+from pipeline.cms_confirm import CmsIndex, same_facility_name
 from pipeline.deal_groups import group
 
 # NY UCC filings against a person name a private individual. Tyler approved
@@ -372,6 +372,35 @@ def main():
 
         cur.execute("SELECT MAX(last_fetched_at) FROM sources")
         pipeline_ran_at = cur.fetchone()[0]
+
+        # Fuzzy facility-name matches count only when the names agree once
+        # generic words are set aside (pipeline/cms_confirm.same_facility_name):
+        # "The Ridge Post Acute" had been linked to Ocean, Pelican and
+        # Chestnut Ridge Post Acute. Debtor and owner matches aren't name-based.
+        cur.execute("""
+            SELECT m.deal_id::text, m.ccn, m.provider_name, d.facility_names, d.operator_names, d.acquiring_entity
+            FROM cms_matches m JOIN deals d ON d.id = m.deal_id
+            WHERE m.match_method = 'facility_name_fuzzy' AND d.stage <> 'dismissed'
+        """)
+        weak = set()
+        for deal_id, ccn, provider, facs, ops, buyer in cur.fetchall():
+            # A home renamed after its sale carries the buyer's name in CMS
+            # (Oak Hill -> "Accolade Healthcare of Waterloo")
+            names = (facs or []) + (ops or []) + ([buyer] if buyer else [])
+            if not any(same_facility_name(n, provider or "") for n in names):
+                weak.add((deal_id, ccn))
+        strong = {}
+        cur.execute("""SELECT deal_id::text, ccn FROM cms_matches
+                       WHERE match_method <> 'facility_name_fuzzy' AND ccn IS NOT NULL""")
+        for deal_id, ccn in cur.fetchall():
+            strong.setdefault(deal_id, set()).add(ccn)
+        dropped = 0
+        for deal in deals:
+            if deal.get("ccns") and deal["source_type"] != "chow":
+                keep = [c for c in deal["ccns"] if (deal["id"], c) not in weak or c in strong.get(deal["id"], ())]
+                dropped += len(deal["ccns"]) - len(keep)
+                deal["ccns"] = keep or None
+        print(f"Dropped {dropped} fuzzy facility matches whose names don't agree")
 
         # UCC financing -> acquisition financing / refinancing, and one row
         # per repeated loan (pipeline/ucc_category.py)

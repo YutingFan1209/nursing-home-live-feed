@@ -367,3 +367,23 @@ def test_more_rewritten_phrasing():
     d = buyer_fields(_news("A community in West Virginia changed hands; a publicly traded REIT that already owns a "
                            "nearby community submitted the winning bid."))
     assert d["buyer_description"] == "a publicly traded REIT that already owns a nearby community"
+
+
+# ── Fuzzy facility-name matches (2026-10-12) ──────────────────────────────
+
+from pipeline.cms_confirm import same_facility_name
+
+
+@pytest.mark.parametrize("a,b,same", [
+    ("THE RIDGE POST ACUTE", "OCEAN RIDGE POST ACUTE", False),
+    ("VALLEY SKILLED NURSING CENTER", "NAPA VALLEY CARE CENTER", False),
+    ("AVIATA AT THE BAY", "AVIATA AT PALM BAY", False),
+    ("WA OPERATING, LLC", "Mahoning Operating LLC", False),
+    ("WESTWOOD POST ACUTE", "WESTWOOD POST ACUTE CARE", True),
+    ("BRADFORD HEIGHTS HEALTH & REHAB", "Bradford Heights Nursing & Rehabilitation", True),
+    ("GREENWOOD CENTER FOR NURSING AND REHAB", "GREENWOOD CENTER FOR REHABILITATION AND NURSI", True),
+    ("Optalis Health And Rehab Of Dearborn Heights", "Optalis Health and Rehabilitation of Dearborn Heig", True),
+    ("THE ROBERT PACKER HOSPITAL", "ROBERT PACKER HOSPITAL SKILLED CARE AND REHABILIT", True),
+])
+def test_same_facility_name(a, b, same):
+    assert same_facility_name(a, b) is same
