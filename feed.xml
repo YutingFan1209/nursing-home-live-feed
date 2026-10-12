@@ -4,14 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-12T19:17:23.411037+00:00</updated>
-  <entry>
-    <id>urn:uuid:a341faca-8207-4cb4-b508-b3f819ae5d61</id>
-    <title>Genesis HealthCare sells to 101 W State Street Holdings LLC</title>
-    <link href="https://www.mcknights.com/news/genesis-set-to-close-sale-seek-final-approval-tuesday/"/>
-    <updated>2026-10-12T17:46:14.185751+00:00</updated>
-    <summary>$996.00M; Source: McKnight's Long-Term Care News</summary>
-  </entry>
+  <updated>2026-10-12T19:19:46.308294+00:00</updated>
   <entry>
     <id>urn:uuid:49b674a8-d246-44d0-84c9-37414a605650</id>
     <title>292 Applegarth Road Propco, LLC to acquire Cranbury Center from Cranbury RE, LLC (NJ)</title>
@@ -354,5 +347,12 @@
     <link href="https://www.phila.gov/media/20260929151037/health-ltc-ownership-change-chapel-manor-202609.pdf"/>
     <updated>2026-10-08T15:11:09.905711+00:00</updated>
     <summary>Effective 2026-09-30; Facilities: Chapel Manor; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3695f66a-e176-4d49-b095-29520ed86b9a</id>
+    <title>CIBC finances a facility in MA (MA)</title>
+    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
+    <updated>2026-10-08T15:02:26.546371+00:00</updated>
+    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
 </feed>
