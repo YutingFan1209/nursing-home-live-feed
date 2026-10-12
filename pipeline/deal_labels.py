@@ -394,4 +394,5 @@ def label(d: dict, cms, facilities: list[str], today: date | None = None,
 
 
 def is_individual_filing(d: dict) -> bool:
-    return d.get("source_type") == "ucc" and d.get("ucc_state") == "NY" and is_person(d.get("ucc_debtor"))
+    from pipeline.individual_owners import STATES
+    return d.get("source_type") == "ucc" and d.get("ucc_state") in STATES and is_person(d.get("ucc_debtor"))

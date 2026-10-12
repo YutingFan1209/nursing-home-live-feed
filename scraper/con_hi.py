@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 CON_HI_SOURCE_NAME = "Hawaii SHPDA Certificate of Need Applications"
 CON_HI_INDEX_URL = "https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/"
 
-FIRST_YEAR = 2024  # 24-04A is the latest nursing facility acquisition (2026-10)
+FIRST_YEAR = 2022  # 24-04A is the latest; 2022 brought five (Hale Nani, Hale Ola Kino, three PSH homes)
 
 _ROW_RE = re.compile(r"<tr[^>]*>(.*?)</tr>", re.S)
 _CELL_RE = re.compile(r"<t[dh][^>]*>(.*?)</t[dh]>", re.S)

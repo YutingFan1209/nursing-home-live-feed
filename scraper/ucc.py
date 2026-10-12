@@ -77,6 +77,7 @@ def fetch_ucc_filings(
     known_operator_names: list[str],
     ky_bulk_file_path: str = None,
     ky_search_names: list[str] = None,
+    ky_individual_names: list[str] = None,
     ny_search_names: list[str] = None,
     ny_individual_names: list[str] = None,
     oh_search_names: list[str] = None,
@@ -123,9 +124,11 @@ def fetch_ucc_filings(
     # which left 34/129 KY deal names never searched (fixed 2026-09-22).
     if _enabled(ENABLE_KY_PLAYWRIGHT, "KY"):
         ky_terms = _union_names(ky_search_names, known_operator_names)
-        health.attempted("UCC KY searches", len(ky_terms))
+        # Plus CMS individual owners, searched by last and first name (the
+        # NY individual-owner track, extended 2026-10-12)
+        health.attempted("UCC KY searches", len(ky_terms) + len(ky_individual_names or []))
         try:
-            filings.extend(search_ky_batch(ky_terms))
+            filings.extend(search_ky_batch(ky_terms, individual_names=ky_individual_names))
         except Exception as e:
             logger.warning(f"KY UCC batch search failed: {e}")
             health.source_failed("UCC KY", e)

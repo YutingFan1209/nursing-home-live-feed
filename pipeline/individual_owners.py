@@ -1,10 +1,12 @@
 """
-Match NY UCC filings against a person to the homes that person owns.
+Match UCC filings against a person to the homes that person owns (NY, and
+since 2026-10-12 KY and OH, the states whose UCC search includes CMS
+individual owners).
 
 NY's UCC search includes CMS individual owners (Tyler's methodology), so
 about 850 NY filings name a person as debtor. The filing says nothing about
 which home, so this only records which NY homes the debtor owns or controls
-in the CMS ownership file: one home -> single_home, several -> multi_home
+in the CMS ownership file, in the filing's own state: one home -> single_home, several -> multi_home
 (every one is only a "possible home"), none -> unmatched.
 
 Names are matched on first + last name, as main.py's UCC debtor check does
@@ -43,6 +45,10 @@ def first_last(name: str) -> str:
     return f"{parts[0]} {parts[-1]}" if len(parts) >= 2 else " ".join(parts)
 
 
+# States whose UCC search includes CMS individual owners (main.INDIVIDUAL_UCC_STATES)
+STATES = ("NY", "KY", "OH")
+
+
 def cms_owner_index(conn, state: str = "NY") -> dict:
     """first + last name -> {ccn: (provider_name, owner_name, owner_role)}"""
     with conn.cursor() as cur:
@@ -65,16 +71,16 @@ def person_filings(conn) -> list[tuple]:
     ucc_filings row."""
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT d.id, uf.debtor_name, a.title FROM deals d JOIN articles a ON a.id = d.article_id
-            LEFT JOIN ucc_filings uf ON uf.state = 'NY' AND uf.filing_number = split_part(a.url, '/', 4)
-            WHERE d.stage <> 'dismissed' AND a.url LIKE 'ucc://NY/%%'
-        """)
+            SELECT d.id, uf.debtor_name, a.title, split_part(a.url, '/', 3) FROM deals d JOIN articles a ON a.id = d.article_id
+            LEFT JOIN ucc_filings uf ON uf.state = split_part(a.url, '/', 3) AND uf.filing_number = split_part(a.url, '/', 4)
+            WHERE d.stage <> 'dismissed' AND split_part(a.url, '/', 3) = ANY(%s) AND a.url LIKE 'ucc://%%'
+        """, (list(STATES),))
         out = []
-        for deal_id, debtor, title in cur.fetchall():
+        for deal_id, debtor, title, state in cur.fetchall():
             if not debtor and (title or "").startswith(UCC_TITLE_PREFIX):
                 debtor = title[len(UCC_TITLE_PREFIX):].split(" / ")[0]
             if is_person(debtor):
-                out.append((deal_id, debtor))
+                out.append((deal_id, debtor, state))
         return out
 
 
@@ -98,11 +104,11 @@ def owner_line(home_names: list[str]) -> str:
 def refresh(conn) -> dict:
     """Rebuild ucc_individual_matches for every live NY person filing.
     Returns counts: filings, matched, single_home, multi_home, unmatched."""
-    index = cms_owner_index(conn)
+    indexes = {st: cms_owner_index(conn, st) for st in STATES}
     filings = person_filings(conn)
     rows, counts = [], {"filings": len(filings), "single_home": 0, "multi_home": 0, "unmatched": 0}
-    for deal_id, debtor in filings:
-        homes = index.get(first_last(debtor), {})
+    for deal_id, debtor, state in filings:
+        homes = indexes[state].get(first_last(debtor), {})
         kind = match_type(len(homes))
         counts[kind] += 1
         rows += [(deal_id, ccn, prov, owner, role, kind) for ccn, (prov, owner, role) in homes.items()]

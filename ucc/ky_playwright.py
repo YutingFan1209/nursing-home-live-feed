@@ -21,12 +21,27 @@ def _parse_date(s: str):
     except Exception:
         return None
 
-def _search_one(page, owner_name: str) -> list[UCCFiling]:
+def _parse_individual_name(name: str):
+    """CMS lists people as 'LAST, FIRST [MIDDLE]'; KY's form has separate
+    last and first name boxes for individual debtors."""
+    if "," not in (name or ""):
+        return None
+    last, first = (p.strip() for p in name.split(",", 1))
+    first = first.split()[0] if first else ""
+    return (last, first) if last and first else None
+
+
+def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCFiling]:
     results = []
     try:
         page.goto(BASE_URL)
         page.wait_for_timeout(1500)
-        page.fill("#ctl00_ContentPlaceHolder1_SearchForm1_tOrgname", owner_name)
+        person = _parse_individual_name(owner_name) if is_individual else None
+        if person:
+            page.fill("#ctl00_ContentPlaceHolder1_SearchForm1_tIlname", person[0])
+            page.fill("#ctl00_ContentPlaceHolder1_SearchForm1_tIfname", person[1])
+        else:
+            page.fill("#ctl00_ContentPlaceHolder1_SearchForm1_tOrgname", owner_name)
         page.click("#ctl00_ContentPlaceHolder1_SearchForm1_bSearch")
         page.wait_for_load_state("networkidle", timeout=10000)
         page.wait_for_timeout(1000)
@@ -70,7 +85,8 @@ def _search_one(page, owner_name: str) -> list[UCCFiling]:
                 filing_type="UCC1",
                 status=status,
                 source_url=BASE_URL,
-                raw={"query_name": owner_name, "internal_id": internal_id},
+                raw={"query_name": owner_name, "internal_id": internal_id,
+                     "search_mode": "individual" if person else "organization"},
             ))
         logger.info("KY UCC %s → %d filings", owner_name, len(results))
     except Exception as e:
@@ -78,7 +94,7 @@ def _search_one(page, owner_name: str) -> list[UCCFiling]:
         health.failed("UCC KY searches", f"{owner_name}: {e}")
     return results
 
-def _search_chunk(names: list[str]) -> list[UCCFiling]:
+def _search_chunk(names: list) -> list[UCCFiling]:
     """One worker's share of names, run serially against its own headless
     browser instance (KY has no Cloudflare/fingerprint requirement, so
     unlike NY there's no need to share a single real browser -- each
@@ -87,13 +103,13 @@ def _search_chunk(names: list[str]) -> list[UCCFiling]:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        for name in names:
-            results.extend(_search_one(page, name))
+        for name, is_individual in names:
+            results.extend(_search_one(page, name, is_individual))
         browser.close()
     return results
 
 
-def search_ky_batch(owner_names: list[str], max_workers: int = 4) -> list[UCCFiling]:
+def search_ky_batch(owner_names: list[str], max_workers: int = 4, individual_names: list[str] = None) -> list[UCCFiling]:
     """Runs max_workers headless browser instances in parallel, each
     working through its own slice of owner_names. Kept conservative
     (default 4) -- KY has a confirmed same-day rate limit under sustained
@@ -101,10 +117,11 @@ def search_ky_batch(owner_names: list[str], max_workers: int = 4) -> list[UCCFil
     TLS-reset-blocked), and concurrency effectively increases request
     rate the same way a bigger burst would, so don't push this much
     higher without testing on a day when re-blocking is low-stakes."""
-    if not owner_names:
+    terms = [(n, False) for n in owner_names or []] + [(n, True) for n in individual_names or []]
+    if not terms:
         return []
     from concurrent.futures import ThreadPoolExecutor, as_completed
-    chunks = [c for c in (owner_names[i::max_workers] for i in range(max_workers)) if c]
+    chunks = [c for c in (terms[i::max_workers] for i in range(max_workers)) if c]
     all_results = []
     with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
         futures = [executor.submit(_search_chunk, chunk) for chunk in chunks]

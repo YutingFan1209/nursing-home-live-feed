@@ -67,6 +67,8 @@ config = get_config()
 # NY PHHPC establishment approvals (scraper/con_ny.py): a first run reads a
 # year of agenda PDFs (~200 MB, ~3 min); later runs only new ones
 ENABLE_CON_NY = True
+# States whose UCC search includes CMS individual owners by name
+INDIVIDUAL_UCC_STATES = ("NY", "KY", "OH")
 
 
 # ── Structured logging ────────────────────────────────────────
@@ -742,6 +744,7 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
                 conn, get_chow_operator_names("CA") + _get_known_operator_names(conn, "CA"))
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
         oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
+        ky_individual_names = _get_cms_individual_owner_names(conn, "KY") if wanted is None or "KY" in wanted else None
         # FL: the registry's own daily data files, not a name search
         # (ucc/fl_download.py); runs here because it saves its last day read
         fl_filings = None
@@ -759,6 +762,7 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             known_operator_names=known_operator_names,
             ky_bulk_file_path=getattr(config, "ky_ucc_bulk_file_path", None),
             ky_search_names=ky_names or None,
+            ky_individual_names=ky_individual_names or None,
             ny_search_names=ny_names or None,
             ny_individual_names=ny_individual_names or None,
             oh_search_names=oh_names or None,
@@ -1327,7 +1331,7 @@ def _ucc_debtor_qualifies(filing, classification, conn) -> bool:
         # CMS lists people as "LAST, FIRST"; NY's portal returns "FIRST LAST"
         # and may add a middle initial ("ROBERT W HURLBUT"): match first + last
         people = {_first_last(" ".join(reversed([p.strip() for p in n.split(",", 1)])))
-                  for n in _get_cms_individual_owner_names(conn, st)} if st == "NY" else set()
+                  for n in _get_cms_individual_owner_names(conn, st)} if st in INDIVIDUAL_UCC_STATES else set()
         # Plus the state's CHOW buyers and ownership-source deal names (the
         # cleaned search list): EMBASSY PARK AVENUE, COMPLETE CARE AT HOLIDAY
         known = {norm_name(n) for n in get_chow_operator_names(st) + _get_known_operator_names(conn, st)}
