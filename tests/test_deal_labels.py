@@ -303,3 +303,49 @@ def test_long_pending_filing_turns_unconfirmed():
     assert "over 6 months ago" in d["status_detail"] and "new owner" not in d["status_detail"]
     recent = labeled("rhinebeck")  # reported pending, found 2026
     assert recent["status"] == "expected"
+
+
+# ── Rewritten-summary phrasing (2026-10-12) ───────────────────────────────
+
+def _news(summary, **kw):
+    return {"source_type": "rss", "deal_type": "ownership_change", "summary": summary, **kw}
+
+
+def test_unnamed_buyer_is_not_undisclosed():
+    d = buyer_fields(_news("Fallbrook Rehabilitation & Care Center sold for $15 million to an unnamed buyer."))
+    assert d["buyer_disclosure"] == "not_named"
+    d = buyer_fields(_news("A five-facility Ohio portfolio was sold to an unnamed national owner and a new operator "
+                           "entering the Ohio market; the sale has closed."))
+    assert d["buyer_description"] == "a national owner and a new operator"
+    d = buyer_fields(_news("An owner-operator sold a Colorado community to an unnamed Utah-based buyer for $20.8 million."))
+    assert d["buyer_description"] == "a Utah-based buyer"
+    d = buyer_fields(_news("ArchCare plans to sell its Rhinebeck home to an undisclosed buyer."))
+    assert d["buyer_disclosure"] == "undisclosed"
+
+
+def test_buyer_descriptions_in_rewritten_phrasing():
+    d = buyer_fields(_news("A private real estate investment group, using a New York-based operator, acquired a "
+                           "four-community portfolio in western New York."))
+    assert d["buyer_description"] == "a private real estate investment group"
+    d = buyer_fields(_news("SLIB brokered the sale. The seller was a large operator; the buyer was a West Coast "
+                           "owner partnering with a local operator."))
+    assert d["buyer_description"] == "a West Coast owner"
+
+
+def test_operator_takeover_under_landlord_lease_is_a_lease():
+    s = ("PACS Group closed on its takeover of operations of 32 Florida nursing homes owned by Omega Healthcare "
+         "Investors. The properties join Omega's master lease with PACS, with rent rising $26.1M.")
+    assert transaction_type(_news(s)) == "lease"
+    assert transaction_type(_news("A new lease commenced in July 2026 for a 96-bed skilled nursing facility in "
+                                  "New Harmony, Indiana.")) == "lease"
+    # a purchase whose buyer will operate under a lease stays a sale
+    assert transaction_type(_news("Ensign announced the acquisition of four skilled nursing facilities; an "
+                                  "affiliate will operate them under long-term triple net leases.")) == "ownership_change"
+
+
+def test_will_operate_is_not_pending_and_took_over_is_done():
+    from pipeline.deal_labels import status
+    done = status(_news("Ensign announced the acquisition of four facilities; an affiliate will operate them."), None, TODAY)
+    assert done["status"] == "reported"
+    took = status(_news("Prestige took over operations of four homes on June 30, 2026. A fifth remains pending."), None, TODAY)
+    assert took["status"] == "reported"

@@ -38,8 +38,13 @@ def _day(s):
 _LEASE_RE = re.compile(
     r"\[MI CON\] [\d-]+ NEW [^:]*LEASE"
     r"|\[MS CON\] CHOW \(Lease\)"
-    r"|\b(executed|arranged|signed|entered into) an? (new )?[\w -]{0,30}\blease\b",
+    r"|\b(executed|arranged|signed|entered into) an? (new )?[\w -]{0,30}\blease\b"
+    r"|\bnew lease (commenced|began|started|took effect)\b",
     re.I)
+# A new operator taking over under the landlord's lease: PACS taking over 32
+# Omega-owned Florida homes "on Omega's master lease" is not a purchase
+_OPS_TRANSFER_RE = re.compile(r"\b(takeover|took over|take over|transition\w*) (of |the )?operations?\b", re.I)
+_LEASE_WORD_RE = re.compile(r"\b(lease|leases|rent)\b", re.I)
 _SALE_RE = re.compile(r"\b(acquir\w*|purchas\w*|bought|sold|sale of|ACQ)\b", re.I)
 
 # Control passes without a sale: ArchCare going from passive to active parent
@@ -68,6 +73,10 @@ def transaction_type(d: dict) -> str:
             return "control_change"
         if _LEASE_RE.search(text) and not (d.get("source_type") in ("rss", "edgar") and _SALE_RE.search(d.get("summary") or "")):
             return "lease"
+        summary = d.get("summary") or ""
+        if (d.get("source_type") in ("rss", "edgar") and _OPS_TRANSFER_RE.search(summary)
+                and _LEASE_WORD_RE.search(summary) and not _SALE_RE.search(summary)):
+            return "lease"
         return dt
     if dt in ("financing", "refinancing", "acquisition_financing"):
         # "for the acquisition of" wins over "refinancing" in the same line
@@ -86,7 +95,7 @@ _SNF_RE = re.compile(
     r"|health (care|and rehabilitation) center|\bcare center\b|convalescent|nursing\b", re.I)
 _SENIOR_RE = re.compile(
     r"assisted living|memory care|independent living|senior living|senior housing|seniors housing"
-    r"|\bCCRC\b|continuing care retirement|life plan|retirement communit|supportive living|\bunits?\b", re.I)
+    r"|\bCCRC\b|continuing care retirement|life plan|retirement communit|supportive living|residential care|\bunits?\b", re.I)
 _HOSPITAL_RE = re.compile(r"\bhospital\b|\bmedical center\b", re.I)
 
 FACILITY_TYPES = ("skilled_nursing", "senior_living", "hospital", "non_us", "unknown")
@@ -97,6 +106,9 @@ def facility_type(d: dict) -> str:
     SNF beds, a hospital campus with an SNF). CMS, UCC and state CON records
     are all nursing-facility sources; news is read from its own words."""
     if d.get("source_type") in ("chow", "ucc", "con"):
+        return "skilled_nursing"
+    if d.get("ccns"):
+        # matched to a CMS-certified nursing home in the record's own state
         return "skilled_nursing"
     if looks_non_us(d):
         return "non_us"
@@ -111,18 +123,34 @@ def facility_type(d: dict) -> str:
 
 
 # ── Buyer ────────────────────────────────────────────────────────────────
+# "Undisclosed" only when the source says so; "an unnamed buyer" just means
+# the article doesn't name one
 _UNDISCLOSED_RE = re.compile(
-    r"\b(undisclosed|unnamed|unidentified) (buyer|purchaser|acquirer)\b"
+    r"\bundisclosed (buyer|purchaser|acquirer)\b"
     r"|\bbuyer (was|is|were|has) not (been )?(disclosed|named|identified)\b"
     r"|\bdid not (disclose|name|identify) the (buyer|purchaser)\b", re.I)
 # "acquired by a national owner and a new operator entering the Ohio market"
 _STOP = (r"(?=,|;|\.|\s(?:in|for|at|from|with|whose|who|that|which|as|on|to|after|"
          r"entering|seeking|marking|partnering|expanding|making|continuing|while)\b|$)")
 _DESC_AFTER_RE = re.compile(
-    r"\b(?:sold to|sale \w+ to|to|acquired by|purchased by|bought by|Buyer was)\s+((?:an?|the)\s+[^,;.]{2,110}?)" + _STOP)
+    r"\b(?:sold to|sale \w+ to|to|acquired by|purchased by|bought by|(?i:the buyer was|buyer was))\s+((?:an?|the)\s+[^,;.]{2,110}?)" + _STOP)
+# "A private real estate investment group, using a New York-based operator, acquired"
 _DESC_SUBJECT_RE = re.compile(
-    r"^((?:An?|The)\s+[^,;.]{2,80}?)\s+(?:acquired|purchased|bought|is acquiring|is entering|has acquired)\b")
-_NOT_A_DESC_RE = re.compile(r"^(an?|the)\s+(buyer|purchaser|portfolio|facility|price|sale|deal|transaction|\d)", re.I)
+    r"^((?:An?|The)\s+[^,;.]{2,80}?)(?:,[^,;.]{0,80},)?\s+(?:acquired|purchased|bought|is acquiring|is entering|has acquired)\b")
+_NOT_A_DESC_RE = re.compile(r"^(an?|the)\s+(undisclosed|buyer|purchaser|acquirer|portfolio|facility|price|sale|deal|transaction|\d)", re.I)
+_UNNAMED_RE = re.compile(r"^(an?|the)\s+(unnamed|unidentified)\s+", re.I)
+
+
+def _clean_description(desc: str) -> str | None:
+    """'an unnamed Utah-based buyer' -> 'a Utah-based buyer'; nothing left
+    but 'a buyer' -> None."""
+    m = _UNNAMED_RE.match(desc)
+    if m:
+        rest = desc[m.end():]
+        desc = ("an " if rest[:1].lower() in "aeio" else "a ") + rest  # "a Utah-based"
+    if _NOT_A_DESC_RE.match(desc):
+        return None
+    return desc[0].lower() + desc[1:]
 # Extraction sometimes puts a description in the name field: "regional
 # owner/operator", "Ohio-based provider", seller "public"
 # Lower-case first word, "X-based ...", or a lone adjective like "public".
@@ -159,9 +187,8 @@ def buyer_fields(d: dict) -> dict:
         return {"buyer": None, "seller": seller, "buyer_description": None, "buyer_disclosure": "undisclosed"}
     if not desc:
         m = _DESC_AFTER_RE.search(summary) or _DESC_SUBJECT_RE.search(summary)
-        if m and not _NOT_A_DESC_RE.match(m.group(1)):
-            desc = m.group(1).strip()
-            desc = desc[0].lower() + desc[1:]
+        if m:
+            desc = _clean_description(m.group(1).strip())
     if desc:
         return {"buyer": None, "seller": seller, "buyer_description": desc, "buyer_disclosure": "described"}
     if d.get("source_type") in ("con", "chow"):
@@ -171,14 +198,15 @@ def buyer_fields(d: dict) -> dict:
 
 # ── Status ───────────────────────────────────────────────────────────────
 _PENDING_RE = re.compile(
-    r"\b(plans? to|agreed to|agrees to|will (acquire|sell|purchase|operate|lease)|to acquire|to sell|is acquiring|"
+    r"\b(plans? to|agreed to|agrees to|will (acquire|sell|purchase)|to acquire|to sell|is acquiring|"
     r"are acquiring|is selling|is purchasing|expected to (close|be completed)|entered into an agreement|"
     r"signed a (definitive |non-binding )?(agreement|MOU|LOI)|under contract|pending|upon .{0,30}approval|"
     r"is transitioning|projected to close|set to close|"
     # a sale awaiting a court or regulator: "final court approval expected October 14"
     r"(court |final |regulatory )?approval (is |was )?expected|expected .{0,40}approval|awaiting .{0,40}approval|"
     r"subject to .{0,40}approval|asked to (give final approval|approve|confirm))\b", re.I)
-_DONE_RE = re.compile(r"\b(completed|closed (on )?the|has acquired|finalized)\b", re.I)
+_DONE_RE = re.compile(r"\b(completed|closed (on )?the|closed on|has acquired|finalized|took over|closed sale|"
+                      r"(sale|deal|transaction) (that )?closed)\b", re.I)
 
 
 def cms_event(d: dict, cms) -> dict | None:

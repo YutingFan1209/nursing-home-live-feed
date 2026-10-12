@@ -196,6 +196,30 @@ def _news_deal_type(deal: dict) -> str:
     return "ownership_change"
 
 
+def _facility_pages(cur, deals: list[dict]) -> dict:
+    """CMS details for every facility a record points to, for the site's
+    facility pages (?ccn=): name, city, state, certified beds, and its
+    direct owners in CMS ownership data with start dates."""
+    ccns = set()
+    for d in deals:
+        ccns |= set(d.get("ccns") or []) | {h["ccn"] for h in d.get("possible_homes") or []}
+    ccns = sorted(c for c in ccns if c)
+    out = {}
+    cur.execute("SELECT ccn, provider_name, provider_city, provider_state, bed_count FROM cms_facilities WHERE ccn = ANY(%s)",
+                (ccns,))
+    for ccn, name, city, state, beds in cur.fetchall():
+        out[ccn] = {"name": name, "city": city, "state": state, "beds": beds, "owners": []}
+    cur.execute("""
+        SELECT DISTINCT ccn, owner_name, ownership_start_date FROM cms_ownership_records
+        WHERE ccn = ANY(%s) AND owner_role ILIKE '%%DIRECT OWNERSHIP%%' AND owner_role NOT ILIKE '%%INDIRECT%%'
+        ORDER BY ccn, ownership_start_date DESC NULLS LAST
+    """, (list(out),))
+    for ccn, owner, start in cur.fetchall():
+        if len(out[ccn]["owners"]) < 12:
+            out[ccn]["owners"].append([owner, start.isoformat() if start else None])
+    return out
+
+
 def _resolved_facilities(deal: dict) -> list[str]:
     """UCC deals seeded from a person's name get facility_names equal to
     operator_names (main.py's NEW_SIGNAL builder) -- that's the person, not
@@ -399,6 +423,8 @@ def main():
                         "on_site": did in live_ids, "title": title}
                        for c, did, note, stage, title in cur.fetchall()]
 
+        facilities = _facility_pages(cur, deals)
+
         counts = group(deals, merged)
         for deal in deals:
             if deal.get("group_ccns") and deal["source_type"] != "ucc":
@@ -421,7 +447,7 @@ def main():
     out_path = sys.argv[1] if len(sys.argv) > 1 else "/tmp/deals.json"
     with open(out_path, "w") as f:
         json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms, "freshness": freshness,
-                   "corrections": corrections}, f, default=str)
+                   "corrections": corrections, "facilities": facilities}, f, default=str)
 
     feed_path = os.path.join(os.path.dirname(os.path.abspath(out_path)), "feed.xml")
     write_atom_feed(deals, feed_path, freshness["exported_at"])
