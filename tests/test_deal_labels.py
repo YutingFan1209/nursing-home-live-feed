@@ -170,3 +170,11 @@ def test_non_us_and_hospital_types():
 def test_no_headline_says_acquired():
     for name in FIXTURES:
         assert " acquired " not in text(labeled(name)["headline"]), name
+
+
+def test_sale_awaiting_court_approval_is_expected_not_reported():
+    # the original Genesis summary: past tense, but approval still pending
+    row = {**raw("genesis"), "summary": FIXTURES["genesis"]["summary"]}
+    d = {**row, **label(row, {}, [], today=TODAY)}
+    assert d["status"] == "expected"
+    assert "acquire" not in text(d["headline"]) or "to acquire" in text(d["headline"]) or "to sell" in text(d["headline"])

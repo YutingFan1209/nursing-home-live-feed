@@ -170,7 +170,10 @@ _PENDING_RE = re.compile(
     r"\b(plans? to|agreed to|agrees to|will (acquire|sell|purchase|operate|lease)|to acquire|to sell|is acquiring|"
     r"are acquiring|is selling|is purchasing|expected to (close|be completed)|entered into an agreement|"
     r"signed a (definitive |non-binding )?(agreement|MOU|LOI)|under contract|pending|upon .{0,30}approval|"
-    r"is transitioning|projected to close)\b", re.I)
+    r"is transitioning|projected to close|set to close|"
+    # a sale awaiting a court or regulator: "final court approval expected October 14"
+    r"(court |final |regulatory )?approval (is |was )?expected|expected .{0,40}approval|awaiting .{0,40}approval|"
+    r"subject to .{0,40}approval|asked to (give final approval|approve|confirm))\b", re.I)
 _DONE_RE = re.compile(r"\b(completed|closed (on )?the|has acquired|finalized)\b", re.I)
 
 
