@@ -6,34 +6,18 @@ with the date and what was done about it.
 
 ## Open
 
-### 1. Keep the OK, MI and MS CON sources, and how to label deals with no buyer?
+### 1. Keep the OK, MI and MS CON sources?
 *Raised 2026-10-06. Approval question added 2026-10-12.*
 
 OK, MI and MS were built and put live before Tyler approved them (86 deals
 on the site as of 2026-10-12: OK 52, MI 22, MS 12; 19 confirmed by CMS).
-They publish the facility but not the buyer, so those CON deals have no
-acquiring entity on the site.
+They publish the facility but not the buyer. (How to label the missing
+buyer is answered below.)
 
-- **Question:** keep these states at all? If yes, how should the site label
-  the missing buyer?
+- **Question:** keep these states at all?
 - **If no:** take them off the site.
 
-### 2. Does a same-owner control change count as a deal?
-*Raised 2026-10-09. Ask the week of 2026-10-12.*
-
-The first NY run (`scraper/con_ny.py`) flagged **ArchCare at Eger**
-(Staten Island, 378 beds, CCN 335332, PHHPC project 251167-E, approved
-2025-12-04). ArchCare (Catholic Health Care System, the Archdiocese of New
-York's health care network) went from passive to active parent of a home it
-already owned. There's no buyer, seller or price, but New York requires the
-same council approval as a sale.
-
-- **Recommendation:** hide these (dismiss), since the tracker follows
-  ownership changing hands.
-- **For now:** the deal stays in the feed as "detected".
-- **Also applies to:** any similar case from another state's CON source.
-
-### 3. Can the site show private individuals' names?
+### 2. Can the site show private individuals' names?
 *Raised 2026-10-12.*
 
 NY UCC filings against individual owners name the person (e.g. "Benjamin
@@ -53,7 +37,17 @@ public site.
   matched to the NY homes the person owns in CMS (`ucc_individual_matches`):
   816 of 845 match, 229 to one home (the card links to it), the rest list
   "Owner of X, Y, Z +N more" as possible homes, never one firm link; 29
-  unmatched say so. The names question is still open (Open, 3).
+  unmatched say so. The names question is still open (Open, 2).
+- **Same-owner control changes (ArchCare at Eger)?** (relayed 2026-10-12)
+  Don't hide them: show with a "Control change" tag and keep them out of
+  sale counts. Built in `pipeline/deal_labels.py` for every state; Eger reads
+  "ArchCare becomes active parent of Eger Health Care and Rehabilitation
+  Center".
+- **Labeling deals with no buyer?** (relayed 2026-10-12) "Buyer not
+  disclosed" as the buyer. Built narrower, for accuracy: only when the
+  source says the buyer is undisclosed or a state filing has no buyer field
+  (OK/MI/MS); a buyer the source describes shows the description ("a
+  national owner"), and leases get their own type.
 
 - **Do old loans count as deals?** (2026-10-09) Keep refinancing UCC
   filings, but as their own category, and don't show repeats of the same
