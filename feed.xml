@@ -4,7 +4,168 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-09T18:36:28.742440+00:00</updated>
+  <updated>2026-10-12T17:58:00.121062+00:00</updated>
+  <entry>
+    <id>urn:uuid:a341faca-8207-4cb4-b508-b3f819ae5d61</id>
+    <title>Ownership change: 101 W. State Street acquires from Genesis HealthCare</title>
+    <link href="https://www.mcknights.com/news/genesis-set-to-close-sale-seek-final-approval-tuesday/"/>
+    <updated>2026-10-12T17:46:14.185751+00:00</updated>
+    <summary>$996.00M; Source: McKnight's Long-Term Care News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:49b674a8-d246-44d0-84c9-37414a605650</id>
+    <title>Ownership change: 292 Applegarth Road Propco, LLC acquires from Cranbury RE, LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#cranbury-center-20260924"/>
+    <updated>2026-10-12T17:44:07.158316+00:00</updated>
+    <summary>Effective 2026-09-24; Facilities: Cranbury Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:29989205-af73-418f-9882-94267718f0f4</id>
+    <title>Ownership change: 84 Cold Hill Road Propco, LLC acquires from Holly Manor RE, LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#holly-manor-center-20260924"/>
+    <updated>2026-10-12T17:44:07.149242+00:00</updated>
+    <summary>Effective 2026-09-24; Facilities: Holly Manor Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5e0b15a0-2caa-483a-a1ac-fbf8a7b4df0c</id>
+    <title>Ownership change: 54 Sharp Street Propco, LLC acquires from Millville RE, LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#millville-center-20260924"/>
+    <updated>2026-10-12T17:44:07.139940+00:00</updated>
+    <summary>Effective 2026-09-24; Facilities: Millville Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:03fe8369-43d6-4003-b3fb-685fa27ab466</id>
+    <title>Ownership change: North Cape Center Propco, LLC acquires from North Cape RE, LLC (NJ)</title>
+    <link href="https://www.nj.gov/health/healthfacilities/certificate-need/real-estate-transfer-ownership#north-cape-center-20260924"/>
+    <updated>2026-10-12T17:44:07.130450+00:00</updated>
+    <summary>Effective 2026-09-24; Facilities: North Cape Center; Source: New Jersey DOH Long-Term Care Transfer of Ownership</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fe24935c-44e7-4dc2-8b47-46ce193b405a</id>
+    <title>Ownership change: AVENTUR, INC. acquires from THE GLEN RETIREMENT SYSTEM (LA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-aventur-inc-2026-05-01"/>
+    <updated>2026-10-12T17:44:07.121436+00:00</updated>
+    <summary>Effective 2026-05-01; Facilities: Village Health Care at The Glen; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9caaa3df-8abb-4704-a7ff-8b5d0a9b40bf</id>
+    <title>Ownership change: ISLE PA TENANT HOLDINGS LLC acquires from PA TENANT 3 HOLDINGS, LLC (PA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-isle-pa-tenant-holdings-llc-2026-03-26"/>
+    <updated>2026-10-12T17:44:07.112576+00:00</updated>
+    <summary>Effective 2026-03-26; Facilities: GREEN VALLEY SKILLED NURSING AND REHABILITATION CE; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:805a306a-89fe-485d-b180-8e15fc96907e</id>
+    <title>Ownership change: DICKSON SNF HOLDCO LLC acquires from GBD LLC (TN)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-dickson-snf-holdco-llc-2026-02-01"/>
+    <updated>2026-10-12T17:44:07.103339+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: DICKSON HEALTH AND REHAB; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:da9d523a-0434-4a7d-87c2-478ad92e36da</id>
+    <title>Ownership change: GALLAWAY SNF HOLDCO LLC (TN)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-gallaway-snf-holdco-llc-2026-02-01"/>
+    <updated>2026-10-12T17:44:07.094271+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: GALLAWAY HEALTH AND REHAB; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:00cac257-f595-4d80-9f3f-50bc63e932d6</id>
+    <title>Ownership change: ARCHES HEALTHCARE LLC (MO)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-arches-healthcare-llc-2026-02-01"/>
+    <updated>2026-10-12T17:44:07.084870+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: COUNTRY VILLA WELLNESS &amp; REHABILITATION; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e6aa4f5b-7064-4a24-9957-6ba44a79bd0e</id>
+    <title>Ownership change: MISSOURI ONE OPCO HOLDCO LLC acquires from CHESTNUT HOLDINGS GROUP LLC (MO)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-missouri-one-opco-holdco-llc-2026-02-01"/>
+    <updated>2026-10-12T17:44:07.075585+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: FOUNTAIN CARE AT SUNSET HILLS; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7187a496-758a-4386-9a04-6c52a84837dc</id>
+    <title>Ownership change: HC SNF OPERATIONS HOLDINGS LLC acquires from GREENWICH WOODS HOLDINGS LLC (CT)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-hc-snf-operations-holdings-llc-2026-02-01"/>
+    <updated>2026-10-12T17:44:07.065618+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: HAMDEN REHABILITATION &amp; HEALTHCARE CENTER; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:14744296-e446-43ea-bd25-d4ab0ded6f47</id>
+    <title>Ownership change: PREMIER LIVING SNF HOLDCO LLC (NC)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-premier-living-snf-holdco-llc-2026-01-26"/>
+    <updated>2026-10-12T17:44:07.019703+00:00</updated>
+    <summary>Effective 2026-01-26; Facilities: Premier Living and Rehab Center; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:abc5d810-089b-4dd0-ab0b-4f2c7cadfdd0</id>
+    <title>Ownership change: GSEW HOLDCO LLC acquires from SELECTIS HEALTH INC (GA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-gsew-holdco-llc-2026-01-15"/>
+    <updated>2026-10-12T17:44:07.009520+00:00</updated>
+    <summary>Effective 2026-01-15; Facilities: Woods at Sparta of Journey LLC, The; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:acbad1ad-7c01-4a6a-b0d2-1fe1302d83c6</id>
+    <title>Ownership change: LMOF V KINGSWOOD AIV LLC (MO)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-lmof-v-kingswood-aiv-llc-2026-01-01"/>
+    <updated>2026-10-12T17:44:06.999959+00:00</updated>
+    <summary>Effective 2026-01-01; Facilities: KINGSWOOD SENIOR LIVING; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7a8c059b-a096-4d03-99af-e108910c9aba</id>
+    <title>Ownership change: METCALF OPCO HOLDCO LLC (KY)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-metcalf-opco-holdco-llc-2026-01-01"/>
+    <updated>2026-10-12T17:44:06.990298+00:00</updated>
+    <summary>Effective 2026-01-01; Facilities: Metcalfe Nursing and Rehabilitation Center; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:95a07f5a-0846-4c90-b431-888939c3c433</id>
+    <title>Ownership change: CDR INVESTMENT GROUP, LLC (CA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-cdr-investment-group-llc-2025-12-31"/>
+    <updated>2026-10-12T17:44:06.980838+00:00</updated>
+    <summary>Effective 2025-12-31; Facilities: FREEDOM VILLAGE HEALTHCARE CENTER; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d68461de-4f6b-47e6-a401-675b29609f17</id>
+    <title>Ownership change: CONTINENTAL MERGER SUB LLC acquires from KINGSTON HEALTHCARE INC (OH)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-continental-merger-sub-llc-2025-12-16"/>
+    <updated>2026-10-12T17:44:06.969740+00:00</updated>
+    <summary>Effective 2025-12-16; Facilities: Kingston Health Center of Vermilion, Kingston of Ashland, Kingston Health Center of Sylvania, Kingston Health Center of Perrysburg; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a1825030-fc31-41fc-a082-fed1ec2efbf1</id>
+    <title>Ownership change: BAK OPCO HOLDINGS LLC (KY)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-bak-opco-holdings-llc-2025-12-08"/>
+    <updated>2026-10-12T17:44:06.957702+00:00</updated>
+    <summary>Effective 2025-12-08; Facilities: Mt. Sterling Health &amp; Rehab, LLC; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cb4fe510-3793-4a27-bd0e-c7af51e34a77</id>
+    <title>Ownership change: CASCADIA OREGON OPERATIONS LLC (OR)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-cascadia-oregon-operations-llc-2025-12-01"/>
+    <updated>2026-10-12T17:44:06.946807+00:00</updated>
+    <summary>Effective 2025-12-01; Facilities: Beaverton Post Acute Care of Cascadia; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a321dc76-b3d2-4c7c-90a3-77df87938f33</id>
+    <title>Ownership change: WEST HARBOR HEALTHCARE LLC acquires from HEALTH MANAGEMENT INC (CA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-west-harbor-healthcare-llc-2025-11-01"/>
+    <updated>2026-10-12T17:44:06.934854+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: Stonebrook Post Acute; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9c738db8-5895-4b60-bdb5-abdbcd44f5b9</id>
+    <title>Ownership change: MISSISSIPPI COMMCARE CORPORATION A NONPROFIT CORPORATION (MS)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-mississippi-commcare-corporation-a-nonprofit-corporation-2025-11-01"/>
+    <updated>2026-10-12T17:44:06.921879+00:00</updated>
+    <summary>Effective 2025-10-01; Facilities: BRANDON COMMUNITY CARE CENTER, CLEVELAND COMMUNITY CARE CENTER, Cleveland Community Care Center, MANHATTAN COMMUNITY CARE CENTER, RULEVILLE COMMUNITY CARE CENTER; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e2a90666-6b18-42f4-be79-7fad73d1da8f</id>
+    <title>Ownership change: ALABAMA SEVEN SNF OPCO HOLDINGS LLC (AL)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-alabama-seven-snf-opco-holdings-llc-2025-11-01"/>
+    <updated>2026-10-12T17:44:04.490889+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: Highlands Rehabilitation and Wellness Center, FLORENCE NURSING AND REHABILITATION CTR,  LLC, BIRMINGHAM NURSING AND REHABILITATION CTR LLC; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
   <entry>
     <id>urn:uuid:90adbce1-92cd-491a-a219-1a6493ff45a2</id>
     <title>Ownership change: Tprc acquires from The Pearl Nursing Center of Rochester (NY)</title>
@@ -193,166 +354,5 @@
     <link href="https://www.phila.gov/media/20260929151037/health-ltc-ownership-change-chapel-manor-202609.pdf"/>
     <updated>2026-10-08T15:11:09.905711+00:00</updated>
     <summary>Effective 2026-09-30; Facilities: Chapel Manor; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4c3f5ca5-4e25-4d12-bbf0-c98659158b20</id>
-    <title>Ownership change: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (OH)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e1c1ab12-b27f-40fe-9992-1c7d4edb2b43</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$27.00M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3695f66a-e176-4d49-b095-29520ed86b9a</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (MA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ff851b13-f140-4620-baab-6a70ec7988ed</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (PA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$53.00M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ac0448d5-57ee-426b-ac67-5a7371f4d80b</id>
-    <title>Financing: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (NH)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>$11.00M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0a013a42-3c8c-4d0e-ab52-7c526ad6cf78</id>
-    <title>Ownership change: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (AR)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:90ee2200-90a6-4842-86b4-41aea0eb8336</id>
-    <title>Ownership change: Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio (IN)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>Effective 2026-07-01; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:335c39ed-29f6-4e7d-a407-a9aff831b0a9</id>
-    <title>Ownership change: Vierra Communities (MD, VA)</title>
-    <link href="https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/"/>
-    <updated>2026-10-08T15:02:26.546371+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: Woodside Rehab and Nursing, Admiral Health and Rehab; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:66e9109f-a56c-42b7-853b-614c312dcf7f</id>
-    <title>Ownership change: Z Properties acquires from Mary Lee DePugh Nursing Home Association (FL)</title>
-    <link href="https://www.growthspotter.com/2026/10/07/z-properties-scales-back-depugh-plan-and-wins-board-support/"/>
-    <updated>2026-10-08T14:49:30.087076+00:00</updated>
-    <summary>Facilities: Gardens at DePugh; $5.70M; Source: Google Alerts — Nursing Home Acquisition</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9d980621-defe-4cd3-9862-b8f773fadaaf</id>
-    <title>UCC financing: CAMBRIDGE SIERRA HOLDINGS, LLC — WATERFALL CAPITAL INVESTMENTS, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:49:17.715458+00:00</updated>
-    <summary>Effective 2020-01-28; Facilities: CAMBRIDGE SIERRA HOLDINGS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f4b6568c-f182-4a1d-9ce1-a92962747825</id>
-    <title>UCC financing: BOLD QUAIL 3 OPERATIONS HOLDINGS, LLC — OXFORD FINANCE LLC, AS AGENT (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:49:12.935318+00:00</updated>
-    <summary>Effective 2023-04-28; Facilities: BOLD QUAIL 3 OPERATIONS HOLDINGS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9a5bf96b-b201-47ad-9ced-0bbcee9613ee</id>
-    <title>UCC acquisition financing: YUHCA HC LLC — CNH FINANCE FUND I, L.P. (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:49:10.981492+00:00</updated>
-    <summary>Effective 2021-07-02; Facilities: Yucaipa Hills Post Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b1195c30-deea-4231-9e92-c9cfbb99756b</id>
-    <title>UCC acquisition financing: XINGU RIVER HOLDINGS LLC — FORBRIGHT BANK (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:49:09.203540+00:00</updated>
-    <summary>Effective 2024-02-01; Facilities: THE BELLEFONTAINE HEALTHCARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:274c43f0-6ed4-4b5f-a232-4f02ea08a090</id>
-    <title>UCC acquisition financing: WINDSOR CYPRESS GARDENS HEALTHCARE, LLC — SEPULVEDA ASSOCIATES, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:49:04.410142+00:00</updated>
-    <summary>Effective 2019-09-03; Facilities: CITRUS GROVE POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e4593409-50b1-4468-9e1f-f179ddb97037</id>
-    <title>UCC acquisition financing: WILLOW CREEK POST ACUTE, LLC — WILLOW CREEK PROPERTY HOLDINGS, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:58.099378+00:00</updated>
-    <summary>Effective 2020-02-27; Facilities: WILLOW CREEK HEALTHCARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3038dc55-1cd2-43a8-9d0d-ee5fd425cd4d</id>
-    <title>UCC financing: WESTWOOD HEALTHCARE &amp; WELLNESS CENTRE, LP — THE PRIVATEBANK AND TRUST COMPANY (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:56.147075+00:00</updated>
-    <summary>Effective 2015-09-17; Facilities: WESTWOOD POST ACUTE CARE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3995ef3e-9b81-45e8-9f35-f56a1eee1ede</id>
-    <title>UCC acquisition financing: WESTLAKE OAKS HEALTHCARE, LLC — DR. LEEVIL, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:52.093657+00:00</updated>
-    <summary>Effective 2026-02-04; Facilities: Sherwood Oaks Post Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:09e8d2b5-eaae-49cf-899a-0f3ecb3a93f6</id>
-    <title>UCC financing: WEST PICO TERRACE HEALTHCARE &amp; WELLNESS CENTRE, LP — THE PRIVATEBANK AND TRUST COMPANY (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:47.154268+00:00</updated>
-    <summary>Effective 2015-09-17; Facilities: WEST PICO TERRACE HEALTHCARE &amp; WELLNESS CENTRE LP; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:122e1189-48e1-4282-b94d-12287fec87c6</id>
-    <title>UCC financing: WEST HOLLYWOOD HEALTHCARE &amp; WELLNESS CENTRE, LP — THE PRIVATEBANK AND TRUST COMPANY (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:42.680684+00:00</updated>
-    <summary>Effective 2015-09-17; Facilities: WEST HOLLYWOOD HEALTHCARE &amp; WELLNESS CENTRE, LP; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d633804e-416c-4197-ad0e-d3fc76ad709e</id>
-    <title>UCC financing: WALNUT CREEK COMMUNITY HEALTHCARE, LLC — TRUIST BANK, AS ADMINISTRATIVE AGENT (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:40.712147+00:00</updated>
-    <summary>Effective 2023-06-30; Facilities: ROSSMOOR POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:951d72b6-1bca-4cd0-9628-192f98fe61db</id>
-    <title>UCC acquisition financing: WAIMEA BAY HOLDINGS LLC — FORBRIGHT BANK, AS AGENT (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:38.866832+00:00</updated>
-    <summary>Effective 2023-06-05; Facilities: MEADOW CREEK POST-ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:455145bd-3bdb-4401-ba3b-020c469e5c92</id>
-    <title>UCC acquisition financing: VSC HBO, LLC — MED ONE CAPITAL FUNDING, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:37.698685+00:00</updated>
-    <summary>Effective 2021-01-15; Facilities: HEALTHBRIDGE CHILDREN'S HOSPITAL - ORANGE D/P SNF; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:80c122df-8cda-4b89-8fef-766ed5f60696</id>
-    <title>UCC acquisition financing: VISTA SKILLED LLC — VNB NEW YORK, LLC (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-08T14:48:36.635466+00:00</updated>
-    <summary>Effective 2022-08-18; Facilities: VISTA VIEW POST ACUTE; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
