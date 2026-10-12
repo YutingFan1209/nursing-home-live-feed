@@ -205,7 +205,8 @@ function EntityLink({ name, onPick }) {
 const headlineText = (d) => (d.headline || []).map(([t]) => t).join("");
 
 const buyerText = (d) =>
-  d.buyer || (d.buyer_disclosure === "described" ? `Not named; described as ${d.buyer_description}`
+  (d.buyer && d.buyer_disclosure === "cms" ? `${d.buyer} (named in CMS ownership data, not in the source)` : d.buyer)
+  || (d.buyer_disclosure === "described" ? `Not named; described as ${d.buyer_description}`
     : d.buyer_disclosure === "undisclosed" ? "Not disclosed" : d.buyer_disclosure === "not_named" ? "Not named in the source" : null);
 
 // One column list drives the CSV and the data dictionary on the methodology page
@@ -225,7 +226,7 @@ const CSV_COLUMNS = [
   ["source_url", d => d.source_url, "Link to the source document or search page."],
   ["source_title", d => d.source_title, "Title of the source document."],
   ["buyer", d => d.buyer, "Buyer as named in the source."],
-  ["buyer_disclosure", d => d.buyer_disclosure, "named; described (unnamed, but the source describes them); undisclosed (the source says so, or a state filing has no buyer field); not_named (the source doesn't say)."],
+  ["buyer_disclosure", d => d.buyer_disclosure, "named; described (unnamed, but the source describes them); undisclosed (the source says so, or a state filing has no buyer field); not_named (the source doesn't say); cms (the source doesn't name them, and CMS lists exactly one new owner)."],
   ["buyer_description", d => d.buyer_description, "How the source describes an unnamed buyer, e.g. 'a national REIT'."],
   ["seller", d => d.seller, "Seller as named in the source."],
   ["borrower", d => d.ucc_debtor, "UCC filings: the debtor named on the filing."],
@@ -236,7 +237,12 @@ const CSV_COLUMNS = [
   ["facilities", d => (d.facility_names || []).join("; "), "Facility names. For individual filings these are possible homes, not confirmed links."],
   ["match_type", d => d.match_type, "Individual filings: single_home, multi_home or unmatched. Others: ccn_matched or no_ccn."],
   ["ccns", d => (d.ccns || []).filter(Boolean).join(" "), "CMS Certification Numbers of matched facilities."],
+  ["ccn_match", d => d.ccn_match, "How the CCNs were found: cms_matcher (the pipeline's CMS matching) or exact_facility_name (a facility name identical to exactly one CMS facility in the state)."],
+  ["beds", d => d.beds, "CMS certified beds across the record's facilities; blank unless every facility is matched."],
   ["cms_confirmed_on", d => d.cms_confirmed_on, "Date CMS shows a new owner at a matched facility, if within 6 months of this record."],
+  ["cms_new_owner", d => d.cms_event?.owner, "The new owner CMS lists, when it lists exactly one."],
+  ["grouped_into", d => d.grouped_into, "If set, this record is another source for the deal with this ID, and shows on that deal's card."],
+  ["source_count", d => d.sources?.length, "Number of sources behind this record's card (including duplicates merged in the database)."],
   ["deal_value_m", d => d.deal_value_m, "Sale price in $ millions, as reported."],
   ["financing_amount_m", d => d.financing_amount_m, "Loan amount in $ millions, as reported."],
 ];
@@ -383,6 +389,7 @@ function keyFigure(deal) {
   if (deal.deal_value_m != null && deal.deal_type !== "control_change") return { value: fmtM(deal.deal_value_m), label: "price" };
   if (deal.financing_amount_m != null) return { value: fmtM(deal.financing_amount_m), label: "loan" };
   if (deal.facility_count > 1) return { value: deal.facility_count, label: "facilities" };
+  if (deal.beds) return { value: deal.beds.toLocaleString(), label: "beds" };
   return null;
 }
 
@@ -413,6 +420,40 @@ function SourceLink({ deal, searchForms }) {
   return <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}>{deal.source_title || deal.source_url} ↗</a>;
 }
 
+// Every source behind the card, plus the CMS change that confirms it, by date
+function Timeline({ deal }) {
+  const rows = (deal.sources || []).map(s => ({
+    date: s.date, key: s.id,
+    what: (SOURCE[s.source_type]?.name || s.source_name || "Source") + (s.merged ? " (merged duplicate)" : ""),
+    text: s.headline || s.source_title, url: s.source_url, record: s.merged || s.id === deal.id ? null : s.id,
+    current: s.id === deal.id,
+  }));
+  if (deal.cms_event && deal.source_type !== "chow") {
+    const e = deal.cms_event;
+    rows.push({ date: e.date, key: "cms", what: e.source,
+      text: e.owner ? `${shoutCase(e.owner)} listed as owner` : e.owner_count > 1 ? `${e.owner_count} new owners listed` : "New owner listed",
+      url: homeUrl(e.ccn) });
+  }
+  rows.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={dl}>Sources and timeline{deal.sources?.length > 1 ? ` · ${deal.sources.length} sources for this deal` : ""}</div>
+      <ol style={{ listStyle: "none", padding: 0, margin: "4px 0 0" }}>
+        {rows.map(r => (
+          <li key={r.key} style={{ display: "flex", gap: 10, fontSize: 13, color: "#3F4248", padding: "4px 0", flexWrap: "wrap" }}>
+            <span style={{ color: "#5F636A", minWidth: 84, fontVariantNumeric: "tabular-nums" }}>{r.date}</span>
+            <span style={{ flex: "1 1 260px" }}>
+              <strong style={{ fontWeight: 600 }}>{r.what}</strong>{r.current && " (this card)"}: {r.text && shoutCase(r.text)}
+              {r.url && <> · <a href={r.url} target="_blank" rel="noreferrer" style={{ ...lnk, fontSize: 13 }}>source ↗</a></>}
+              {r.record && <> · <a href={`?id=${r.record}`} style={{ ...lnk, fontSize: 13 }}>record</a></>}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, onShowFacility }) {
   const src = SOURCE[deal.source_type] || SOURCE.rss;
   const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
@@ -430,7 +471,8 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
       <div style={{ padding: "18px 20px", display: "flex", gap: 16 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, color: "#5F636A", marginBottom: 6 }}>
-            {[date, deal.states?.join(", "), src.label, deal.status === "expected" && "Pending"].filter(Boolean).join(" · ")}
+            {[date, deal.states?.join(", "), src.label, deal.status === "expected" && "Pending",
+              deal.sources?.length > 1 && `${deal.sources.length} sources`].filter(Boolean).join(" · ")}
           </div>
           {tag && (
             <div style={{ marginBottom: 6 }}>
@@ -481,6 +523,7 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
             )}
             {!individual && deal.facility_names?.length > 0 && <Field label="Facilities">{deal.facility_names.join(", ")}</Field>}
             {deal.facility_count && <Field label="Facility count">{deal.facility_count}</Field>}
+            {deal.beds && <Field label="Certified beds (CMS)">{deal.beds.toLocaleString()}</Field>}
             {deal.deal_type !== "control_change" && fmtM(deal.deal_value_m) && <Field label="Price">{fmtM(deal.deal_value_m)}</Field>}
             {fmtM(deal.financing_amount_m) && <Field label="Loan amount">{fmtM(deal.financing_amount_m)}</Field>}
             {deal.acquisition_date && <Field label={deal.status === "expected" ? "Expected / filing date" : "Effective date"}>{deal.acquisition_date}</Field>}
@@ -546,6 +589,8 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
               </div>
             </div>
           )}
+
+          {(deal.sources?.length > 1 || deal.cms_event) && <Timeline deal={deal} />}
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
             <div>
@@ -619,7 +664,8 @@ function Methodology({ chowDate, onBack }) {
       <h3 style={h}>Status</h3>
       <ul style={{ paddingLeft: 20 }}>
         <li style={li}><strong>Confirmed:</strong> a CMS change-of-ownership record; or CMS ownership data shows a new owner at
-          the facility within 6 months of the record; or, for financing, a UCC-1 statement on file with the state
+          the facility within 6 months of the record (checked again every time the data is published, so pending deals
+          become Confirmed once CMS catches up); or, for financing, a UCC-1 statement on file with the state
           (a record of the loan, not of a sale).</li>
         <li style={li}><strong>Expected:</strong> filed with the state or reported before closing. Not yet completed as far
           as we know; the expected date is shown when the source gives one.</li>
@@ -633,7 +679,23 @@ function Methodology({ chowDate, onBack }) {
       <h3 style={h}>Buyers</h3>
       <p style={p}>The buyer is shown as named in the source. When the source describes the buyer without naming them,
         the description is shown ("a national REIT"). <em>Buyer not disclosed</em> appears only when the source says the
-        buyer is undisclosed, or a state filing has no buyer field. Otherwise the record just doesn't name one.</p>
+        buyer is undisclosed, or a state filing has no buyer field. When the source names no buyer but CMS ownership data
+        lists exactly one new owner at the facility around the deal date, that owner is shown, marked "per CMS". If CMS
+        lists several new owners at once, none of them is called the buyer.</p>
+
+      <h3 style={h}>One card per deal</h3>
+      <p style={p}>The same deal often appears in several sources: a state filing before closing, news coverage, then the
+        CMS record. Records are shown as one card when they are the same kind of event within six months of each other and
+        either concern the same CMS facility (with no conflicting buyer), or name the same buyer and seller (with no
+        conflicting facility count), or name the same buyer, states and price. Names must match exactly, apart from case,
+        punctuation, legal suffixes and words like "Group" or "Holdings"; similar but different names stay separate. The
+        card lists every source by date under Details, and each source record keeps its own permalink and its own row in
+        the CSV.</p>
+
+      <h3 style={h}>Facilities and beds</h3>
+      <p style={p}>Records are matched to CMS facilities (CCNs) by the collection pipeline, or, for state filings and news,
+        when a facility name is identical to exactly one CMS facility in the same state. Bed counts are CMS certified beds,
+        summed across a record's facilities, and shown only when every facility in the record is matched.</p>
 
       <h3 style={h}>Filings against individual owners, and "possible homes"</h3>
       <p style={p}>New York UCC filings are also searched by the names of people listed as owners in CMS ownership data.
@@ -717,6 +779,8 @@ function CompanyPanel({ entity, deals, onEntity, onClose }) {
 
 function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity }) {
   return allDeals.filter(d => {
+    // A record grouped into another deal's card shows there, not on its own
+    if (d.grouped_into) return false;
     if (tab !== undefined && !inTab(d, tab)) return false;
     // Skilled-nursing-related records unless "Include senior living and other"
     if (!scope && d.facility_type !== "skilled_nursing") return false;
@@ -914,7 +978,7 @@ export default function App() {
   // not leases, control changes, refinancings or liens
   const stats = useMemo(() => {
     if (!allDeals.length) return null;
-    const shown = allDeals.filter(d => d.facility_type === "skilled_nursing" && countsAsDeal(d));
+    const shown = allDeals.filter(d => !d.grouped_into && d.facility_type === "skilled_nursing" && countsAsDeal(d));
     const cutoff90 = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
     return { total: shown.length, last90: shown.filter(d => d.acquisition_date && parseDay(d.acquisition_date) >= cutoff90).length };
   }, [allDeals]);
@@ -1003,12 +1067,18 @@ export default function App() {
           <section aria-label="Single record">
             <button type="button" onClick={() => go({})} style={{ ...linkBtn, color: "#23406F", fontSize: 14, marginBottom: 4 }}>← All records</button>
             {loading ? <div style={{ height: 104 }} />
-              : focused ? (
+              : focused ? (<>
+                {focused.grouped_into && (
+                  <p style={{ fontSize: 14, color: "#3F4248", margin: "4px 0 10px" }}>
+                    This record is one of several sources for the same deal.{" "}
+                    <a href={`?id=${focused.grouped_into}`} style={lnk}>See the deal's card</a>
+                  </p>
+                )}
                 <DealCard deal={focused} expanded={expanded.has(focused.id)} onToggle={toggleExpand}
                   searchForms={searchForms} onEntity={(n) => { go({}); pickEntity(n); }}
                   history={expanded.has(focused.id) ? historyFor(focused) : null}
                   onShowFacility={(c) => { go({}); showFacility(c); }} />
-              ) : <p style={{ fontSize: 15, color: "#5F636A", padding: "24px 0" }}>This record isn't in the current data. It may have been
+              </>) : <p style={{ fontSize: 15, color: "#5F636A", padding: "24px 0" }}>This record isn't in the current data. It may have been
                   removed as out of scope or merged with another record.</p>}
           </section>
         ) : (<>
@@ -1028,7 +1098,10 @@ export default function App() {
               More filters{moreCount > 0 && ` (${moreCount})`} {moreOpen ? "▴" : "▾"}
             </button>
             {total > 0 && (
-              <button type="button" onClick={() => downloadDeals(filtered, currentName.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, ""))}
+              <button type="button" onClick={() => downloadDeals(
+                  // each card's grouped records too, right after it
+                  filtered.flatMap(d => d.group_size > 1 ? [d, ...allDeals.filter(x => x.grouped_into === d.id)] : [d]),
+                  currentName.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, ""))}
                 style={{ ...btnGhost, marginLeft: "auto" }} title="Download the filtered records as CSV">
                 ↓ CSV
               </button>
