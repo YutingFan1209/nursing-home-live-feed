@@ -33,22 +33,27 @@ same council approval as a sale.
 - **For now:** the deal stays in the feed as "detected".
 - **Also applies to:** any similar case from another state's CON source.
 
-### 3. What are NY's UCC filings against individual owners?
-*Raised 2026-10-09.*
+### 3. Can the site show private individuals' names?
+*Raised 2026-10-12.*
 
-845 of NY's 943 live UCC deals are filed against a person (an owner found
-through the individual-owner search), not a facility or company: e.g.
-Jeffrey Rubin / Yardville National Bank, Robert Butler / a federal credit
-union. Many look like personal loans (credit unions, a storage company,
-farm-equipment lenders) rather than nursing home financing. They can't be
-split into acquisition vs refinancing, because there's no facility to
-check against CMS.
+NY UCC filings against individual owners name the person (e.g. "Benjamin
+Landa — UCC-1 financing"). Tyler agreed to show these filings in the main
+feed (below), but hasn't said whether the person's name should appear on a
+public site.
 
-- **Recommendation:** give them their own "owner's personal filing" group,
-  hidden by default, rather than calling them refinancings.
-- **For now:** they stay as plain "Financing", visible by default.
+- **For now:** names are shown. `SHOW_INDIVIDUAL_NAMES` in
+  `scripts/export_deals.py` (default `True`); `False` removes them from
+  `deals.json` entirely and the card reads "Individual owner".
 
 ## Answered
+
+- **NY UCC filings against individuals: main feed or a separate group?**
+  (2026-10-12) Main feed, with a different label to mark the difference.
+  Built: they appear in the Financing tab with an "Individual filing" tag;
+  matched to the NY homes the person owns in CMS (`ucc_individual_matches`):
+  816 of 845 match, 229 to one home (the card links to it), the rest list
+  "Owner of X, Y, Z +N more" as possible homes, never one firm link; 29
+  unmatched say so. The names question is still open (Open, 3).
 
 - **Do old loans count as deals?** (2026-10-09) Keep refinancing UCC
   filings, but as their own category, and don't show repeats of the same
