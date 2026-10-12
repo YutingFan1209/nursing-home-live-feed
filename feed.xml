@@ -4,7 +4,42 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-12T21:10:24.388005+00:00</updated>
+  <updated>2026-10-12T21:42:27.900616+00:00</updated>
+  <entry>
+    <id>urn:uuid:84695e99-9faa-42db-99c7-6e6ac04ef2c3</id>
+    <title>PSH Oahu LLC to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-12A"/>
+    <updated>2026-10-12T21:19:45.501156+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d5d2e9e6-4c1a-4328-9239-88335e07cf75</id>
+    <title>PSH KM LLC to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-13A"/>
+    <updated>2026-10-12T21:19:45.491257+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:38ffaf85-7b5b-4f57-8c01-6d86ddfc4903</id>
+    <title>PSH Pearl City LLC to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-14A"/>
+    <updated>2026-10-12T21:19:45.480127+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6e364e08-b620-41d4-80ab-2e4c5143e92a</id>
+    <title>Hale Ola Kino by Arcadia to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-15A"/>
+    <updated>2026-10-12T21:19:45.467434+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8579dbd3-0c8c-4380-8cc5-1123a7577870</id>
+    <title>Hale Nani Rehab &amp; Nursing Center LLC to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-24A"/>
+    <updated>2026-10-12T21:19:44.444545+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
   <entry>
     <id>urn:uuid:27f0dd41-fd9b-402b-8802-84ebd7bbc184</id>
     <title>Hawaii Health Systems Corporation-Oahu Region to acquire a facility in HI (HI)</title>
@@ -319,40 +354,5 @@
     <link href="https://www.phila.gov/media/20241114131600/Accelerate-Skilled-Nursing-and-Rehabilitation-Graduate-Operator-LLC.pdf"/>
     <updated>2026-10-08T15:31:27.796154+00:00</updated>
     <summary>Effective 2025-01-01; Facilities: Accelerate Skilled Nursing and Rehabilitation Philadelphia; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c013eae5-7b9b-4b34-b13a-9b0969bda736</id>
-    <title>YO Operating to acquire York Nursing and Rehabilitation Center (PA)</title>
-    <link href="https://www.phila.gov/media/20250605124503/YORK.NURSING.CHOW_.6.1.25.LICENSE.pdf"/>
-    <updated>2026-10-08T15:31:27.613882+00:00</updated>
-    <summary>Effective 2025-06-01; Facilities: York Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e6f15ea7-b01d-4e42-80c2-03ee72be3ba1</id>
-    <title>TH Operating to acquire Tucker House Nursing and Rehabilitation Center (PA)</title>
-    <link href="https://www.phila.gov/media/20250605124502/TUCKER.HOUSE_.CHOW_.LICENSE.6.1.25.pdf"/>
-    <updated>2026-10-08T15:31:27.422499+00:00</updated>
-    <summary>Effective 2025-06-01; Facilities: Tucker House Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:860d3dc5-d7d7-4a2d-b2cf-01643f65bf78</id>
-    <title>MA Operating acquires Maplewood Nursing and Rehabilitation Center from MAPLEWOOD OPERATING LLC (PA)</title>
-    <link href="https://www.phila.gov/media/20250605124500/MAPLEWOOD.CHOW_.LICENSE.6.1.25.pdf"/>
-    <updated>2026-10-08T15:31:27.216336+00:00</updated>
-    <summary>Effective 2025-06-01; Facilities: Maplewood Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6749becf-e5e2-4ada-8bd3-3e961f1f8a70</id>
-    <title>CL Operating acquires Cliveden Nursing and Rehabilitation Center (PA)</title>
-    <link href="https://www.phila.gov/media/20250605124504/CLIVEDEN.CHOW_.LICENSE.6.1.25.pdf"/>
-    <updated>2026-10-08T15:31:27.014148+00:00</updated>
-    <summary>Effective 2025-06-01; Facilities: Cliveden Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6353a6e5-035c-4831-af4a-8878ae8767f2</id>
-    <title>CP Operating acquires Care Pavilion Nursing and Rehabilitation Center from CARE PAVILION OPERATING LLC (PA)</title>
-    <link href="https://www.phila.gov/media/20250605124505/CARE.PAVILION.CHOW_.LICENSE.6.1.25.pdf"/>
-    <updated>2026-10-08T15:31:26.809201+00:00</updated>
-    <summary>Effective 2025-06-01; Facilities: Care Pavilion Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
   </entry>
 </feed>
