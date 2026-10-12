@@ -387,3 +387,13 @@ from pipeline.cms_confirm import same_facility_name
 ])
 def test_same_facility_name(a, b, same):
     assert same_facility_name(a, b) is same
+
+
+def test_personal_loans_from_consumer_lenders():
+    from pipeline.deal_labels import is_personal_loan
+    row = {**raw("individual_multi"), "individual_filing": True, "lender": "SHEFFIELD FINANCIAL, A DIVISION OF TRUIST BANK"}
+    assert is_personal_loan(row)
+    d = {**row, **label(row, None, [], today=TODAY)}
+    assert d["deal_type"] == "non_deal_lien" and "likely personal loan" in text(d["headline"])
+    assert not is_personal_loan({**row, "lender": "METROPOLITAN COMMERCIAL BANK"})
+    assert not is_personal_loan({**row, "individual_filing": False})

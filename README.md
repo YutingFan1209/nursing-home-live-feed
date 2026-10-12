@@ -125,6 +125,11 @@ Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh
 #    search tokens and derives deal types -- a raw psql export skips all of that)
 venv/bin/python3 scripts/export_deals.py /tmp/deals.json   # also writes /tmp/feed.xml
 
+# 1b. Compare with the live site; stops on a suspicious batch (new consumer
+#     loans, filings against people, mass status/type/facility changes).
+#     Review the report; --force only after you have
+venv/bin/python3 scripts/predeploy_check.py /tmp/deals.json
+
 # 2. Stash unrelated changes if they block the switch, then switch
 #    (git will show a diverged main.py etc. -- expected)
 git stash

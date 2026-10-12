@@ -61,12 +61,30 @@ _ACQ_FIN_RE = re.compile(
 _REFI_RE = re.compile(r"\brefinanc\w*|\bcash-out\b|\brefund(ing)?\b", re.I)
 
 
+# Consumer lenders: a filing from one against a person is a personal loan,
+# not nursing home financing (NY individual filings from credit unions,
+# Sheffield Financial, Snap-on tool credit, a storage company; the KY trial's
+# 306 were all like this). 2026-10-12.
+CONSUMER_LENDER_RE = re.compile(
+    r"credit union|\bF\.?C\.?U\b|federal credit|sheffield financial|republic finance|heights finance|"
+    r"\bdeere\b|kubota|harley|toyota|honda|nissan|ford motor credit|\bally (bank|financial)|santander consumer|"
+    r"synchrony|goodleap|sunrun|\bsolar\b|mosaic solar|rent.to.own|self.?storage|extra space storage|"
+    r"snap.?on|matco|mac tools|farm credit|agricultural credit|yamaha|polaris|bmw financial|"
+    r"1st franklin|world acceptance|onemain|lendmark|mariner finance|regional finance|security finance|"
+    r"tower loan|cnh industrial|caterpillar financial", re.I)
+
+
+def is_personal_loan(d: dict) -> bool:
+    return bool(d.get("individual_filing") and CONSUMER_LENDER_RE.search(d.get("lender") or ""))
+
+
 def transaction_type(d: dict) -> str:
     """deal_type with leases, control changes and news financing subtypes
-    split out. UCC types come from pipeline/ucc_category.py and pass through."""
+    split out. UCC types come from pipeline/ucc_category.py and pass through,
+    except a person's loan from a consumer lender, which is a non-deal lien."""
     dt = d.get("deal_type") or "ownership_change"
     if d.get("source_type") == "ucc":
-        return dt
+        return "non_deal_lien" if is_personal_loan(d) else dt
     text = _text(d)
     if dt == "ownership_change":
         if _CONTROL_RE.search(text) and not d.get("deal_value_m"):
@@ -306,7 +324,8 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
             subject = d.get("ucc_debtor") if show_individual_names else "Individual owner"
         else:
             subject = (facilities[:1] or d.get("operator_names") or [d.get("ucc_debtor") or "Borrower"])[0]
-        kind = {"amendment": "UCC-3 amendment", "non_deal_lien": "likely non-deal lien",
+        kind = {"amendment": "UCC-3 amendment",
+                "non_deal_lien": "likely personal loan" if is_personal_loan(d) else "likely non-deal lien",
                 "acquisition_financing": "acquisition financing", "refinancing": "refinancing"}.get(dt, "UCC-1 financing")
         return [[subject, ""], [f" — {kind}", "muted"]]
 
