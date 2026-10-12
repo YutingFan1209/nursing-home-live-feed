@@ -119,14 +119,15 @@ const DEAL_TYPE = {
 };
 
 const STATUS = {
-  confirmed: "Confirmed",
-  reported:  "Reported",
-  expected:  "Expected",
+  confirmed:   "Confirmed",
+  reported:    "Reported",
+  expected:    "Expected",
+  unconfirmed: "Unconfirmed",
 };
 
 const FACILITY_TYPE = {
-  skilled_nursing: "Skilled nursing (or includes a nursing home)",
-  senior_living:   "Other senior living (assisted/independent living, memory care)",
+  skilled_nursing: "Skilled nursing",
+  senior_living:   "Other senior living",
   hospital:        "Hospital",
   non_us:          "Outside the US",
   unknown:         "Not stated in the source",
@@ -216,7 +217,7 @@ const CSV_COLUMNS = [
   ["headline", d => headlineText(d), "The record's headline as shown on the site."],
   ["date", d => d.acquisition_date || d.created_at?.slice(0, 10), "Effective or filing date from the source; the date found if the source gives none."],
   ["found_date", d => d.found_date, "Date this tracker first found the record."],
-  ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, a state UCC filing, or CMS shows a new owner within 6 months), Expected (filed or reported before closing), or Reported (news or a company filing, not yet confirmed)."],
+  ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, a state UCC filing, or CMS shows a new owner within 6 months), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), or Reported (news or a company filing, not yet confirmed)."],
   ["status_detail", d => d.status_detail, "What the status rests on."],
   ["deal_type", d => d.deal_type, "ownership_change (a sale), control_change (control moves without a sale), lease, financing, acquisition_financing, refinancing, non_deal_lien, or amendment (UCC-3)."],
   ["facility_type", d => d.facility_type, "skilled_nursing (includes any record with a nursing home in it), senior_living, hospital, non_us, or unknown (the source doesn't say)."],
@@ -393,6 +394,19 @@ function keyFigure(deal) {
   return null;
 }
 
+// Long lists (11 opcos in one filing) show the first few and a toggle
+function NameList({ names, onPick, max = 4 }) {
+  const [all, setAll] = useState(false);
+  const shown = all ? names : names.slice(0, max);
+  return <>
+    {shown.map((n, i) => <span key={n}>{i > 0 && ", "}<EntityLink name={n} onPick={onPick} /></span>)}
+    {names.length > max && (
+      <button type="button" onClick={() => setAll(a => !a)} style={{ ...linkBtn, ...lnk, fontSize: 13, marginLeft: 6 }}>
+        {all ? "show fewer" : `+${names.length - max} more`}</button>
+    )}
+  </>;
+}
+
 function Field({ label, children }) {
   return <div><div style={dl}>{label}</div><div style={dv}>{children}</div></div>;
 }
@@ -464,14 +478,17 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
   const individual = deal.individual_filing;
   const desc = description(deal);
   const buyer = buyerText(deal);
-  const statusColor = deal.status === "confirmed" ? "#14543F" : deal.status === "expected" ? "#6B4A0B" : "#3F4248";
+  const statusColor = deal.status === "confirmed" ? "#14543F" : deal.status === "expected" ? "#6B4A0B"
+    : deal.status === "unconfirmed" ? "#8A3B12" : "#3F4248";
 
   return (
     <article id={`record-${deal.id}`} style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, marginBottom: 10 }}>
-      <div style={{ padding: "18px 20px", display: "flex", gap: 16 }}>
+      <div className="nh-card-row" style={{ padding: "18px 20px", display: "flex", gap: 16 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, color: "#5F636A", marginBottom: 6 }}>
-            {[date, deal.states?.join(", "), src.label, deal.status === "expected" && "Pending",
+            {[date, deal.states?.join(", "), src.label,
+              deal.status === "expected" && !date?.startsWith("Expected") && "Pending",
+              deal.status === "unconfirmed" && "Unconfirmed",
               deal.sources?.length > 1 && `${deal.sources.length} sources`].filter(Boolean).join(" · ")}
           </div>
           {tag && (
@@ -487,7 +504,7 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
             <div className="nh-clamp" style={{ fontSize: 14, color: "#3F4248", marginTop: 6 }}>{desc}</div>
           )}
         </div>
-        <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end",
+        <div className="nh-card-side" style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end",
           justifyContent: "space-between", textAlign: "right", maxWidth: 120 }}>
           {figure ? (
             <div>
@@ -519,7 +536,9 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
               <Field label="Lender"><EntityLink name={deal.lender} onPick={onEntity} />{deal.lender_category && <div style={{ fontSize: 12, color: "#5F636A" }}>{deal.lender_category}</div>}</Field>
             )}
             {!individual && deal.operator_names?.length > 0 && (
-              <Field label={deal.source_type === "ucc" ? "Linked CMS owner(s)" : "Operator(s)"}>{deal.operator_names.map((n, i) => <span key={n}>{i > 0 && ", "}<EntityLink name={n} onPick={onEntity} /></span>)}</Field>
+              <Field label={deal.source_type === "ucc" ? "Linked CMS owner(s)" : "Operator(s)"}>
+                <NameList names={deal.operator_names} onPick={onEntity} />
+              </Field>
             )}
             {!individual && deal.facility_names?.length > 0 && <Field label="Facilities">{deal.facility_names.join(", ")}</Field>}
             {deal.facility_count && <Field label="Facility count">{deal.facility_count}</Field>}
@@ -628,7 +647,7 @@ function TagLegend() {
   );
 }
 
-function Methodology({ chowDate, onBack }) {
+function Methodology({ chowDate, corrections, onBack }) {
   const h = { fontSize: 18, fontWeight: 600, margin: "28px 0 8px" };
   const p = { fontSize: 15, lineHeight: 1.65, color: "#3F4248", marginBottom: 10, maxWidth: 680 };
   const li = { ...p, marginBottom: 6 };
@@ -669,6 +688,8 @@ function Methodology({ chowDate, onBack }) {
           (a record of the loan, not of a sale).</li>
         <li style={li}><strong>Expected:</strong> filed with the state or reported before closing. Not yet completed as far
           as we know; the expected date is shown when the source gives one.</li>
+        <li style={li}><strong>Unconfirmed:</strong> filed or reported as pending more than six months ago, and still not
+          confirmed. The deal may not have closed, or CMS may not have caught up.</li>
         <li style={li}><strong>Reported:</strong> a news report or company filing that CMS data doesn't confirm yet.</li>
       </ul>
 
@@ -720,6 +741,28 @@ function Methodology({ chowDate, onBack }) {
         type or date. Each record links to its source; check it before citing. To report an error, open an issue at{" "}
         <a href={CORRECTIONS_URL} target="_blank" rel="noreferrer" style={lnk}>{CORRECTIONS_URL.replace("https://", "")}</a>{" "}
         with the record's permalink.</p>
+
+      <h3 style={h}>Corrections log</h3>
+      {corrections?.length ? (
+        <>
+          <p style={p}>Records corrected or removed after review, newest first.</p>
+          <ul style={{ paddingLeft: 20 }}>
+            {corrections.map((c, i) => (
+              <li key={i} style={{ ...li, fontSize: 14 }}>
+                <span style={{ color: "#5F636A", fontVariantNumeric: "tabular-nums" }}>{c.date}</span>{" · "}
+                {c.on_site ? <a href={`?id=${c.id}`} style={{ ...lnk, fontSize: 14 }}>{c.title}</a> : <em>{c.title}</em>}
+                {": "}{c.note.replace(/^(Corrected|Removed) \d{4}-\d{2}-\d{2}: /, (m, w) => `${w}: `)}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : <p style={p}>No corrections yet.</p>}
+
+      <h3 style={h}>Data versions</h3>
+      <p style={p}>Every published version of the data is kept in the site's public repository. To cite the data as it stood
+        on a given day, link that day's version of{" "}
+        <a href="https://github.com/YutingFan1209/nursing-home-live-feed/commits/gh-pages/deals.json" target="_blank" rel="noreferrer" style={lnk}>deals.json</a>
+        {" "}(each entry in that history is a fixed snapshot), along with the record's permalink.</p>
 
       <h3 style={h}>Data dictionary</h3>
       <p style={p}>Columns in the CSV download.{" "}
@@ -863,6 +906,7 @@ export default function App() {
   const [expanded, setExpanded]   = useState(() => new Set([new URLSearchParams(window.location.search).get("id")].filter(Boolean)));
   const [searchForms, setSearchForms] = useState({});
   const [freshness, setFreshness] = useState({});
+  const [corrections, setCorrections] = useState([]);
   const initial = useMemo(filtersFromUrl, []);
   const [state, setState]         = useState(initial.state);
   const [dateFrom, setDateFrom]   = useState(initial.dateFrom);
@@ -906,6 +950,7 @@ export default function App() {
         setAllDeals(deals);
         setSearchForms(data.ucc_search_forms || {});
         setFreshness(data.freshness || {});
+        setCorrections(data.corrections || []);
       })
       .catch(e => setLoadError(e.message))
       .finally(() => setLoading(false));
@@ -997,6 +1042,11 @@ export default function App() {
   };
 
   const focused = focusId ? allDeals.find(d => d.id === focusId) : null;
+  useEffect(() => {
+    const base = "Nursing Home Ownership Changes";
+    document.title = view === "methodology" ? `Methodology — ${base}`
+      : focused ? `${headlineText(focused)} — ${base}` : base;
+  }, [view, focused]);
   const deals = filtered.slice(offset, offset + LIMIT);
   const total = filtered.length;
 
@@ -1050,7 +1100,9 @@ export default function App() {
           <p style={{ fontSize: 14, color: "#5F636A", lineHeight: 1.6, maxWidth: 560 }}>
             Skilled nursing facility ownership changes from CMS ownership records,
             state pre-closing filings, UCC-1 financing statements, SEC filings and
-            trade press.
+            trade press.{" "}
+            <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}
+              style={{ color: "#23406F" }}>How this works</a>
           </p>
           {stats && (
             <p style={{ fontSize: 13, color: "#5F636A", marginTop: 10 }}>
@@ -1062,7 +1114,7 @@ export default function App() {
         </header>
 
         {view === "methodology" ? (
-          <Methodology chowDate={chowFreshness && freshness.chow_file_date} onBack={() => go({})} />
+          <Methodology chowDate={chowFreshness && freshness.chow_file_date} corrections={corrections} onBack={() => go({})} />
         ) : focusId ? (
           <section aria-label="Single record">
             <button type="button" onClick={() => go({})} style={{ ...linkBtn, color: "#23406F", fontSize: 14, marginBottom: 4 }}>← All records</button>
@@ -1263,6 +1315,13 @@ export default function App() {
         .nh-wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
         @media (max-width: 600px) { .nh-wrap { padding: 20px 16px; } }
         .nh-clamp { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (max-width: 520px) {
+          /* the figure and Details sit under the text, so the summary gets the width */
+          .nh-card-row { flex-direction: column; gap: 4px !important; }
+          .nh-card-side { flex-direction: row !important; align-items: center !important; max-width: none !important;
+            justify-content: space-between !important; text-align: left !important; }
+          .nh-card-side > div { display: flex; gap: 6px; align-items: baseline; }
+        }
         .nh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
         button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #23406F; outline-offset: 2px; }
         @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
