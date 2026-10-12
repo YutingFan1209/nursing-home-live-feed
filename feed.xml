@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-12T20:18:24.750884+00:00</updated>
+  <updated>2026-10-12T21:09:24.811460+00:00</updated>
+  <entry>
+    <id>urn:uuid:27f0dd41-fd9b-402b-8802-84ebd7bbc184</id>
+    <title>Hawaii Health Systems Corporation-Oahu Region to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-24-04A"/>
+    <updated>2026-10-12T21:08:36.655504+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a900a41f-94e7-46f2-b30d-ad7b496bb7a6</id>
+    <title>Freeport Nursing acquires Serenity Estates of Freeport from The Board of Supervisors of the County of Stephenson and State of Illinois (IL)</title>
+    <link href="https://hfsrb.illinois.gov/announcements/25-041-serenity-estates-of-freeport-f-k-a-stephenson-county-nurs.html"/>
+    <updated>2026-10-12T21:05:00.278945+00:00</updated>
+    <summary>Effective 2025-09-01; Facilities: Serenity Estates of Freeport, Stephenson County Nursing Center; $1.50M; Source: Illinois HFSRB Change of Ownership Projects</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1e4e7a0c-2325-4d6d-8039-4fb67b360569</id>
+    <title>Accolade Healthcare of Waterloo acquires Oak Hill Senior Living &amp; Rehabilitation Center from Monroe County, Illinois (IL)</title>
+    <link href="https://hfsrb.illinois.gov/announcements/25-031-oak-hill-senior-living-and-rehabilitation-center--waterlo.html"/>
+    <updated>2026-10-12T21:04:54.395827+00:00</updated>
+    <summary>Effective 2025-10-01; Facilities: Oak Hill Senior Living &amp; Rehabilitation Center; $2.84M; Source: Illinois HFSRB Change of Ownership Projects</summary>
+  </entry>
   <entry>
     <id>urn:uuid:a341faca-8207-4cb4-b508-b3f819ae5d61</id>
     <title>Genesis HealthCare to sell to 101 W State Street Holdings LLC</title>
@@ -168,7 +189,7 @@
   </entry>
   <entry>
     <id>urn:uuid:90adbce1-92cd-491a-a219-1a6493ff45a2</id>
-    <title>Tprc to acquire The Pearl Nursing Center of Rochester and 1 more from The Pearl Nursing Center of Rochester (NY)</title>
+    <title>Tprc to acquire The Pearl Nursing Center of Rochester from The Pearl Nursing Center of Rochester (NY)</title>
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-08-27/docs/agenda.pdf#project-252238"/>
     <updated>2026-10-09T18:14:35.807411+00:00</updated>
     <summary>Effective 2026-09-17; Facilities: The Pearl Nursing Center of Rochester, Astoria at Rochester Nursing and Rehabilitation Center; $9.50M; $8.14M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
@@ -182,7 +203,7 @@
   </entry>
   <entry>
     <id>urn:uuid:b0100efc-2825-4139-9d54-c096cc4b8d2d</id>
-    <title>Amsterdam SNF to acquire Wilkinson Residential Health Care Facility and 1 more from St. Mary's Healthcare (NY)</title>
+    <title>Amsterdam SNF to acquire Wilkinson Residential Health Care Facility from St. Mary's Healthcare (NY)</title>
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-06-10/docs/agenda.pdf#project-252210"/>
     <updated>2026-10-09T18:14:35.755312+00:00</updated>
     <summary>Effective 2026-06-24; Facilities: Wilkinson Residential Health Care Facility, Wilkinson Rehabilitation and Nursing Center; $13.60M; $13.10M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
@@ -203,14 +224,14 @@
   </entry>
   <entry>
     <id>urn:uuid:1aecafb8-8960-4cea-a3ab-92bffb50a680</id>
-    <title>378sywood acquires Woodbury Heights Nursing and Rehabilitation Center and 1 more from Cold Spring Acquisition (NY)</title>
+    <title>378sywood acquires Woodbury Heights Nursing and Rehabilitation Center from Cold Spring Acquisition (NY)</title>
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-01-22/docs/eprc_agenda.pdf#project-242307"/>
     <updated>2026-10-09T18:14:35.570057+00:00</updated>
     <summary>Effective 2026-02-19; Facilities: Woodbury Heights Nursing and Rehabilitation Center, Cold Springs Hills Center for Nursing and Rehabilitation; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
   <entry>
     <id>urn:uuid:a122d858-a452-4b53-ac14-262f83d58430</id>
-    <title>Maplewood Senior Care acquires Maplewood Nursing Home and 1 more from Maplewood Nursing Home (NY)</title>
+    <title>Maplewood Senior Care acquires Maplewood Nursing Home from Maplewood Nursing Home (NY)</title>
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2025-11-13/docs/agenda.pdf#project-252050"/>
     <updated>2026-10-09T18:14:35.466940+00:00</updated>
     <summary>Effective 2025-12-04; Facilities: Maplewood Nursing Home, The Maplewood Nursing Home; $22.50M; $21.00M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
@@ -224,7 +245,7 @@
   </entry>
   <entry>
     <id>urn:uuid:9ec87447-318f-4a20-837d-be925bda4d82</id>
-    <title>Kirkhaven SNF acquires Kirkhaven and 1 more from Genesee Valley Presbyterian Nursing Center (NY)</title>
+    <title>Kirkhaven SNF acquires Kirkhaven from Genesee Valley Presbyterian Nursing Center (NY)</title>
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2025-11-13/docs/agenda.pdf#project-241018"/>
     <updated>2026-10-09T18:14:35.274198+00:00</updated>
     <summary>Effective 2025-12-04; Facilities: Kirkhaven, Kirkhaven Nursing &amp; Rehab; $0.50M; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
@@ -252,7 +273,7 @@
   </entry>
   <entry>
     <id>urn:uuid:f4e6afe2-666c-45f4-ac81-b2663d2325dc</id>
-    <title>Logan Real Property acquires The Watermark at Logan Square and 1 more from SNR 21 Logan Square Owner (PA)</title>
+    <title>Logan Real Property acquires The Watermark at Logan Square from SNR 21 Logan Square Owner (PA)</title>
     <link href="https://www.phila.gov/media/20221110111710/notice-of-intent-springs-at-watermark.pdf"/>
     <updated>2026-10-08T15:31:29.872534+00:00</updated>
     <summary>Effective 2022-10-20; Facilities: The Watermark at Logan Square, The Springs at the Watermark; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
@@ -266,7 +287,7 @@
   </entry>
   <entry>
     <id>urn:uuid:8bd4dc06-8de3-42ca-ae14-f741ba5e71a3</id>
-    <title>East Falls Healthcare acquires East Falls Healthcare and 1 more from Tulip Special Care (PA)</title>
+    <title>East Falls Healthcare acquires East Falls Healthcare from Tulip Special Care (PA)</title>
     <link href="https://www.phila.gov/media/20240305091530/Notice-of-Intent-to-Acquire-Tulip-Special-Care.pdf"/>
     <updated>2026-10-08T15:31:29.353178+00:00</updated>
     <summary>Effective 2024-05-01; Facilities: East Falls Healthcare, AristaCare at East Falls; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
@@ -333,26 +354,5 @@
     <link href="https://www.phila.gov/media/20250605124505/CARE.PAVILION.CHOW_.LICENSE.6.1.25.pdf"/>
     <updated>2026-10-08T15:31:26.809201+00:00</updated>
     <summary>Effective 2025-06-01; Facilities: Care Pavilion Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:30f50d00-bf85-4877-aab8-c2a22d89db20</id>
-    <title>600 W Cheltenham Opco acquires Cheltenham Nursing and Rehabilitation Center from AHF/Montgomery (PA)</title>
-    <link href="https://www.phila.gov/media/20251001102202/health-longterm-care-ownership-change-cheltenham-nursing-and-rehab-center-20250905.pdf"/>
-    <updated>2026-10-08T15:31:26.643230+00:00</updated>
-    <summary>Effective 2025-10-01; Facilities: Cheltenham Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7a437cdf-3df1-4755-b066-2bc2e3c0286c</id>
-    <title>Joel Mayer Epstein acquires Care Pavilion Nursing and Rehabilitation Center and 4 more (PA)</title>
-    <link href="https://www.phila.gov/media/20251217165216/health-longterm-care-ownership-change-cliveden-nursing-and-rehabilitation-center-20251217.pdf"/>
-    <updated>2026-10-08T15:21:13.144973+00:00</updated>
-    <summary>Effective 2025-12-17; Facilities: Care Pavilion Nursing and Rehabilitation Center, Cliveden Nursing and Rehabilitation Center, Maplewood Nursing and Rehabilitation Center, Tucker House Nursing and Rehabilitation Center, York Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:835018c5-3d16-44e0-b2a9-9e10a0df2d8a</id>
-    <title>1104 Welsh Road Opco to acquire Chapel Manor from 1104 Welsh Road Operations (PA)</title>
-    <link href="https://www.phila.gov/media/20260929151037/health-ltc-ownership-change-chapel-manor-202609.pdf"/>
-    <updated>2026-10-08T15:11:09.905711+00:00</updated>
-    <summary>Effective 2026-09-30; Facilities: Chapel Manor; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
   </entry>
 </feed>
