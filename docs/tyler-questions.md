@@ -6,13 +6,17 @@ with the date and what was done about it.
 
 ## Open
 
-### 1. How should deals with no buyer be labelled?
-*Raised 2026-10-06.*
+### 1. Keep the OK, MI and MS CON sources, and how to label deals with no buyer?
+*Raised 2026-10-06. Approval question added 2026-10-12.*
 
-OK, MI and MS publish the facility but not the buyer, so those CON deals
-have no acquiring entity on the site.
+OK, MI and MS were built and put live before Tyler approved them (86 deals
+on the site as of 2026-10-12: OK 52, MI 22, MS 12; 19 confirmed by CMS).
+They publish the facility but not the buyer, so those CON deals have no
+acquiring entity on the site.
 
-- **Question:** how the site should label them.
+- **Question:** keep these states at all? If yes, how should the site label
+  the missing buyer?
+- **If no:** take them off the site.
 
 ### 2. Does a same-owner control change count as a deal?
 *Raised 2026-10-09. Ask the week of 2026-10-12.*
