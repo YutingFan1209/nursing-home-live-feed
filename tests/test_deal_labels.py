@@ -10,6 +10,10 @@ from pathlib import Path
 import pytest
 
 import scripts.export_deals as export
+from collections import defaultdict
+
+from pipeline.cms_confirm import CmsIndex, facility_key
+from pipeline.deal_groups import group, same_deal
 from pipeline.deal_labels import buyer_fields, facility_type, label, transaction_type
 from pipeline.individual_owners import first_last
 
@@ -24,9 +28,23 @@ def raw(name):
     return row
 
 
-def labeled(name, owner_starts=None):
+def fake_cms(events=None, facilities=None):
+    """A CmsIndex without the database. events: ccn -> [(date, owner, source)];
+    facilities: ccn -> (name, state, beds)."""
+    cms = CmsIndex.__new__(CmsIndex)
+    cms.events = defaultdict(list, events or {})
+    cms.facility = dict(facilities or {})
+    cms.by_name, cms.truncated = defaultdict(set), defaultdict(list)
+    for ccn, (fname, state, _) in cms.facility.items():
+        cms.by_name[(state, facility_key(fname))].add(ccn)
+        if len(fname) >= 50:
+            cms.truncated[state].append((facility_key(fname).rsplit(" ", 1)[0], ccn))
+    return cms
+
+
+def labeled(name, events=None):
     row = raw(name)
-    return {**row, **label(row, owner_starts or {}, export._resolved_facilities(row), today=TODAY)}
+    return {**row, **label(row, fake_cms(events), export._resolved_facilities(row), today=TODAY)}
 
 
 def text(headline):
@@ -75,18 +93,29 @@ def test_buyer_not_disclosed_only_when_the_source_says_so():
 def test_unnamed_buyer_without_description_is_not_called_undisclosed():
     # Selectis' GA sale: the article doesn't name the buyer and CMS still
     # lists Selectis as owner, so there's no name to show and no CMS confirmation
-    d = labeled("selectis_ga", owner_starts={"115622": {date(2020, 7, 1)}})
+    d = labeled("selectis_ga", {"115622": [(date(2020, 7, 1), "SELECTIS HEALTH INC", "CMS ownership data")]})
     assert d["buyer_disclosure"] == "not_named"
     assert "Buyer not disclosed" not in text(d["headline"])
     assert d["cms_confirmed_on"] is None and d["status"] == "reported"
 
 
-def test_cms_confirmation_needs_a_new_owner_near_the_deal_date():
+def test_cms_new_owner_confirms_and_names_the_buyer():
     # no deal date on this row, so the window is measured from when it was found (2026-10-08)
-    d = labeled("selectis_ga", owner_starts={"115622": {date(2026, 9, 1)}})
+    d = labeled("selectis_ga", {"115622": [(date(2026, 9, 1), "EASTMAN OPCO LLC", "CMS ownership data")]})
     assert d["cms_confirmed_on"] == "2026-09-01" and d["status"] == "confirmed"
-    far = labeled("selectis_ga", owner_starts={"115622": {date(2025, 12, 1)}})
+    assert d["buyer"] == "EASTMAN OPCO LLC" and d["buyer_disclosure"] == "cms"
+    assert "new owner per CMS: EASTMAN OPCO LLC" in text(d["headline"])
+    assert "EASTMAN OPCO LLC as owner" in d["status_detail"]
+    far = labeled("selectis_ga", {"115622": [(date(2025, 12, 1), "EASTMAN OPCO LLC", "CMS ownership data")]})
     assert far["cms_confirmed_on"] is None
+
+
+def test_several_new_cms_owners_confirm_without_naming_a_buyer():
+    # Oklahoma stock transfers: family trusts all become owners the same day
+    d = labeled("selectis_ga", {"115622": [(date(2026, 9, 1), "BGM ESTATE LLC", "CMS ownership data"),
+                                           (date(2026, 9, 1), "TIFFANY SEAY EXEMPT TR", "CMS ownership data")]})
+    assert d["status"] == "confirmed" and "2 new owners" in d["status_detail"]
+    assert d["buyer"] is None and d["buyer_disclosure"] == "not_named"
 
 
 def test_state_filing_without_buyer_field_is_undisclosed():
@@ -208,6 +237,59 @@ def test_no_headline_says_acquired():
 def test_sale_awaiting_court_approval_is_expected_not_reported():
     # the original Genesis summary: past tense, but approval still pending
     row = {**raw("genesis"), "summary": FIXTURES["genesis"]["summary"]}
-    d = {**row, **label(row, {}, [], today=TODAY)}
+    d = {**row, **label(row, None, [], today=TODAY)}
     assert d["status"] == "expected"
     assert "acquire" not in text(d["headline"]) or "to acquire" in text(d["headline"]) or "to sell" in text(d["headline"])
+
+
+# ── One card per transaction ──────────────────────────────────────────────
+
+def test_genesis_news_and_maine_filing_are_one_card():
+    deals = [labeled("genesis"), labeled("genesis_me_con")]
+    counts = group(deals, {})
+    assert counts["groups"] == 1
+    lead = next(d for d in deals if not d.get("grouped_into"))
+    assert {s["id"] for s in lead["sources"]} == {d["id"] for d in deals}
+
+
+def _deal(**kw):
+    base = {"id": kw.pop("id"), "deal_type": "ownership_change", "acquisition_date": "2025-10-31",
+            "created_at": "2025-11-01", "status": "expected", "headline": [["x", ""]]}
+    return {**base, **kw}
+
+
+def test_similar_but_different_buyers_stay_apart():
+    # Two propcos at the same facility: fuzzy scores put these at 90
+    a = _deal(id="a", buyer="North Mobile SNF Property Holdings", ccns=["015379"])
+    b = _deal(id="b", buyer="Mobile SNF Property Holdings", ccns=["015379"])
+    assert same_deal(a, b) is None
+
+
+def test_same_buyer_and_seller_with_different_facility_counts_stay_apart():
+    a = _deal(id="a", buyer="National HealthCare", seller="National Health Investors", facility_count=5)
+    b = _deal(id="b", buyer="National Healthcare", seller="National Health Investors", facility_count=35)
+    assert same_deal(a, b) is None
+    c = _deal(id="c", buyer="Saber Healthcare Group", seller="Ciena Healthcare", facility_count=None)
+    d = _deal(id="d", buyer="Saber Healthcare", seller="Ciena Healthcare", facility_count=18)
+    assert same_deal(c, d) == "same buyer and seller"
+
+
+def test_merged_rows_are_listed_as_sources():
+    deals = [labeled("eger")]
+    group(deals, {deals[0]["id"]: [{"id": "m1", "source_type": "rss", "headline": "earlier story"}]})
+    assert [s.get("merged") for s in deals[0]["sources"]] == [None, True]
+
+
+# ── Beds ──────────────────────────────────────────────────────────────────
+
+def test_beds_only_when_every_facility_is_matched():
+    cms = fake_cms(facilities={"1": ("A", "NY", 100), "2": ("B", "NY", 50)})
+    assert cms.beds(["1", "2"], facility_count=2) == 150
+    assert cms.beds(["1"], facility_count=34) is None  # PACS: one match out of 34 homes
+    assert cms.beds(["1"]) == 100
+
+
+def test_truncated_cms_name_still_matches_exactly():
+    cms = fake_cms(facilities={"335332": ("Archcare at Eger Health Care and Rehabilitation Ce", "NY", 378)})
+    assert cms.ccns_by_name(["ArchCare at Eger Healthcare and Rehabilitation Center"], ["NY"]) == ["335332"]
+    assert cms.ccns_by_name(["Eger Health Care Center"], ["NY"]) == []

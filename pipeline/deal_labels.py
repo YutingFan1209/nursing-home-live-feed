@@ -17,7 +17,6 @@ from datetime import date, timedelta
 from pipeline.normalizer import looks_non_us
 from pipeline.ucc_category import is_person
 
-CONFIRM_WINDOW = timedelta(days=183)
 
 
 def _text(d: dict) -> str:
@@ -140,7 +139,8 @@ def buyer_fields(d: dict) -> dict:
     """buyer: a name; buyer_description: how the source describes an unnamed
     buyer ("a national owner"); buyer_disclosure: 'named', 'described',
     'undisclosed' (the source says so, or a state filing has no buyer
-    field), or 'not_named' (the source just doesn't say)."""
+    field), 'not_named' (the source just doesn't say), or 'cms' (the
+    source doesn't name them; the name is CMS's new owner of record)."""
     buyer, seller = d.get("acquiring_entity"), d.get("seller_entity")
     desc = None
     if _looks_like_description(buyer):
@@ -150,6 +150,10 @@ def buyer_fields(d: dict) -> dict:
         seller = None
     if buyer:
         return {"buyer": buyer, "seller": seller, "buyer_description": None, "buyer_disclosure": "named"}
+    # The source doesn't name the buyer but CMS now lists the new owner
+    event = d.get("cms_event")
+    if event and event.get("owner") and d.get("source_type") != "chow":
+        return {"buyer": event["owner"], "seller": seller, "buyer_description": desc, "buyer_disclosure": "cms"}
     summary = d.get("summary") or ""
     if _UNDISCLOSED_RE.search(summary):
         return {"buyer": None, "seller": seller, "buyer_description": None, "buyer_disclosure": "undisclosed"}
@@ -177,22 +181,21 @@ _PENDING_RE = re.compile(
 _DONE_RE = re.compile(r"\b(completed|closed (on )?the|has acquired|finalized)\b", re.I)
 
 
-def cms_confirmed(d: dict, owner_starts: dict) -> str | None:
-    """Date CMS shows a new owner (direct owner start or CHOW) at one of the
-    deal's facilities within 6 months of the deal date, else None. A CMS
-    match on the facility alone isn't confirmation: Selectis' GA homes still
-    list Selectis as owner, so that sale isn't confirmed yet."""
+def cms_event(d: dict, cms) -> dict | None:
+    """The CMS ownership change confirming an ownership deal: a new direct
+    owner or a CHOW at one of its facilities within 6 months of the deal
+    date (pipeline/cms_confirm.py). A CMS match on the facility alone isn't
+    confirmation: Selectis' GA homes still list Selectis as owner, so that
+    sale isn't confirmed yet. CMS records confirm themselves."""
     if d.get("source_type") == "chow":
-        return d.get("acquisition_date") or (d.get("created_at") or "")[:10]
-    when = _day(d.get("acquisition_date")) or _day(d.get("created_at"))
-    if not when:
+        return {"date": d.get("acquisition_date") or (d.get("created_at") or "")[:10], "owner": d.get("acquiring_entity"),
+                "ccn": (d.get("ccns") or [None])[0], "source": "CMS change-of-ownership record", "facility": None}
+    if d.get("deal_type") != "ownership_change" or not cms:
         return None
-    starts = sorted(s for c in (d.get("ccns") or []) if c for s in owner_starts.get(c, ())
-                    if abs(s - when) <= CONFIRM_WINDOW)
-    return starts[0].isoformat() if starts else None
+    return cms.new_owner(d.get("ccns"), _day(d.get("acquisition_date")) or _day(d.get("created_at")))
 
 
-def status(d: dict, confirmed_on: str | None, today: date | None = None) -> dict:
+def status(d: dict, event: dict | None, today: date | None = None) -> dict:
     """confirmed / expected / reported, with a line for the Details panel."""
     today = today or date.today()
     src, when = d.get("source_type"), _day(d.get("acquisition_date"))
@@ -201,8 +204,12 @@ def status(d: dict, confirmed_on: str | None, today: date | None = None) -> dict
     if src == "ucc":
         return {"status": "confirmed", "status_detail": "Confirmed: UCC-1 financing statement on file with the state "
                 "(a record of the loan, not of a sale)"}
-    if confirmed_on and d.get("deal_type") == "ownership_change":
-        return {"status": "confirmed", "status_detail": f"Confirmed: CMS records show a new owner at this facility from {confirmed_on}"}
+    if event and d.get("deal_type") == "ownership_change":
+        where = f" of {event['facility']}" if event.get("facility") else " at this facility"
+        who = (f"{event['owner']} as owner" if event.get("owner")
+               else f"{event['owner_count']} new owners" if event.get("owner_count", 0) > 1 else "a new owner")
+        return {"status": "confirmed", "status_detail":
+                f"Confirmed: {event['source']} shows {who}{where} from {event['date']}"}
     future = when and when > today
     pending_words = _PENDING_RE.search(d.get("summary") or "") and not _DONE_RE.search(d.get("summary") or "")
     if src == "con" or future or pending_words:
@@ -283,6 +290,10 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
     if seller == buyer:
         seller = None
     place = target or f"facility{_in_states(d)}"
+    if buyer and b.get("buyer_disclosure") == "cms":
+        # Name from CMS, not the source: say so, and don't call it a sale
+        # (a stock transfer can give a facility new owners of record too)
+        return [[place, ""], [" — new owner per CMS: ", "muted"], [buyer, ""]]
     if buyer:
         verb = " to acquire " if expected else " acquires "
         if target:
@@ -305,11 +316,13 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
 
 # ── Everything, for one exported deal ────────────────────────────────────
 
-def label(d: dict, owner_starts: dict, facilities: list[str], today: date | None = None,
+def label(d: dict, cms, facilities: list[str], today: date | None = None,
           show_individual_names: bool = True) -> dict:
-    """Fields added to an exported deal. `facilities` is the facility list
-    the card shows (individual filings use their CMS owner matches)."""
+    """Fields added to an exported deal. `cms` is a pipeline.cms_confirm.CmsIndex
+    (None skips CMS confirmation); `facilities` is the facility list the card
+    shows (individual filings use their CMS owner matches)."""
     out = {"deal_type": transaction_type(d), "facility_type": facility_type(d)}
+    out["cms_event"] = cms_event({**d, **out}, cms)
     merged = {**d, **out}
     if out["deal_type"] in ("ownership_change", "lease", "control_change"):
         out.update(buyer_fields(merged))
@@ -319,10 +332,9 @@ def label(d: dict, owner_starts: dict, facilities: list[str], today: date | None
     if out["deal_type"] == "control_change":
         # No sale: no price, no buyer
         out.update({"buyer": None, "buyer_disclosure": None, "buyer_description": None})
+    out["cms_confirmed_on"] = out["cms_event"]["date"] if out["cms_event"] else None
     merged = {**d, **out}
-    confirmed_on = cms_confirmed(merged, owner_starts) if out["deal_type"] == "ownership_change" else None
-    out["cms_confirmed_on"] = confirmed_on
-    out.update(status(merged, confirmed_on, today))
+    out.update(status(merged, out["cms_event"], today))
     merged = {**d, **out}
     out["headline"] = headline(merged, facilities, show_individual_names)
     return out

@@ -19,7 +19,8 @@ pairs go to a review list instead.
 A merge keeps the more complete row, fills its blanks from the other,
 takes the earliest date (the first signal), unions states, operators and
 facilities, carries over CMS matches and UCC confirmation, and marks the
-other row dismissed. Nothing is deleted.
+other row dismissed with merged_into pointing at the kept row, so the site
+can still list its source. Nothing is deleted.
 """
 
 import json
@@ -153,7 +154,8 @@ def merge(keep: dict, drop: dict, conn) -> bool:
                 FROM cms_matches m WHERE deal_id = %s
                   AND NOT EXISTS (SELECT 1 FROM cms_matches k WHERE k.deal_id = %s AND k.ccn IS NOT DISTINCT FROM m.ccn)
             """, (keep["id"], drop["id"], keep["id"]))
-            cur.execute("UPDATE deals SET stage = 'dismissed', updated_at = NOW() WHERE id = %s", (drop["id"],))
+            cur.execute("UPDATE deals SET stage = 'dismissed', merged_into = %s, updated_at = NOW() WHERE id = %s",
+                        (keep["id"], drop["id"]))
             cur.execute("RELEASE SAVEPOINT same_sale")
         except Exception as e:
             if "unique" not in str(e).lower():

@@ -43,6 +43,8 @@ from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline.ucc_category import categorize, collapse_repeats
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
+from pipeline.cms_confirm import CmsIndex
+from pipeline.deal_groups import group
 
 # NY UCC filings against a person name a private individual. Tyler is
 # checking whether the public site should show those names (2026-10-12).
@@ -203,7 +205,7 @@ def _resolved_facilities(deal: dict) -> list[str]:
     return [] if names and names == ops else names
 
 
-def _add_labels(deal: dict, owner_starts: dict, homes: dict) -> None:
+def _add_labels(deal: dict, cms, homes: dict) -> None:
     """Labels from pipeline/deal_labels.py, plus where the record matched:
     match_type is single_home / multi_home / unmatched for NY filings
     against a person (ucc_individual_matches), else ccn_matched / no_ccn."""
@@ -220,9 +222,16 @@ def _add_labels(deal: dict, owner_starts: dict, homes: dict) -> None:
         deal["owner_line"] = individual_owners.owner_line(facilities)
         deal["facility_names"] = facilities or None
     else:
-        deal["match_type"] = "ccn_matched" if deal.get("ccns") else "no_ccn"
         facilities = _resolved_facilities(deal)
-    deal.update(label(deal, owner_starts, facilities, show_individual_names=SHOW_INDIVIDUAL_NAMES))
+        deal["ccn_match"] = "cms_matcher" if deal.get("ccns") else None
+        if not deal.get("ccns") and cms and deal["source_type"] != "ucc":
+            # A facility name equal to exactly one CMS facility in the state
+            deal["ccns"] = cms.ccns_by_name(facilities, deal.get("states")) or None
+            deal["ccn_match"] = "exact_facility_name" if deal["ccns"] else None
+        deal["match_type"] = "ccn_matched" if deal.get("ccns") else "no_ccn"
+        if cms and deal["source_type"] != "ucc":
+            deal["beds"] = cms.beds(deal.get("ccns"), deal.get("facility_count"))
+    deal.update(label(deal, cms, facilities, show_individual_names=SHOW_INDIVIDUAL_NAMES))
     deal["found_date"] = (deal.get("created_at") or "")[:10] or None
     if individual and not SHOW_INDIVIDUAL_NAMES:
         deal["ucc_debtor"] = None
@@ -350,8 +359,36 @@ def main():
         homes = {}
         for deal_id, ccn, provider, kind in cur.fetchall():
             homes.setdefault(deal_id, []).append((ccn, provider))
+        cms = CmsIndex(conn)
         for deal in deals:
-            _add_labels(deal, owner_starts, homes)
+            _add_labels(deal, cms, homes)
+
+        # Rows pipeline/same_sale.py merged away still count as sources of
+        # the deal they went into (following merges of merges)
+        cur.execute("""
+            SELECT d.id::text, d.merged_into::text, d.acquisition_date, d.created_at, s.source_type, s.name, a.url, a.title
+            FROM deals d JOIN articles a ON a.id = d.article_id LEFT JOIN sources s ON s.id = a.source_id
+            WHERE d.merged_into IS NOT NULL
+        """)
+        rows = cur.fetchall()
+        into = {r[0]: r[1] for r in rows}
+        live = {d["id"] for d in deals}
+        merged = {}
+        for did, target, acq, created, stype, sname, url, title in rows:
+            seen = set()
+            while target not in live and target in into and target not in seen:
+                seen.add(target)
+                target = into[target]
+            if target in live and not (url or "").startswith("ucc://"):
+                merged.setdefault(target, []).append({
+                    "id": did, "source_type": stype, "source_name": sname, "source_url": url, "source_title": title,
+                    "date": str(acq) if acq else created.date().isoformat(), "found_date": created.date().isoformat(),
+                    "status": None, "headline": title})
+        counts = group(deals, merged)
+        for deal in deals:
+            if deal.get("group_ccns") and deal["source_type"] != "ucc":
+                deal["beds"] = cms.beds(deal["group_ccns"], deal.get("facility_count"))
+        print(f"Grouped {counts['grouped_records']} records into {counts['groups']} multi-source deals")
 
     conn.close()
 
