@@ -46,10 +46,9 @@ from pipeline import individual_owners
 from pipeline.cms_confirm import CmsIndex
 from pipeline.deal_groups import group
 
-# NY UCC filings against a person name a private individual. Tyler is
-# checking whether the public site should show those names (2026-10-12).
-# False drops them from deals.json entirely -- hiding them only in the
-# frontend would still publish them in the JSON.
+# NY UCC filings against a person name a private individual. Tyler approved
+# showing the names (2026-10-12). False drops them from deals.json entirely
+# -- hiding them only in the frontend would still publish them in the JSON.
 SHOW_INDIVIDUAL_NAMES = True
 
 UCC_PORTAL_URLS = {

@@ -6,30 +6,15 @@ with the date and what was done about it.
 
 ## Open
 
-### 1. Keep the OK, MI and MS CON sources?
-*Raised 2026-10-06. Approval question added 2026-10-12.*
-
-OK, MI and MS were built and put live before Tyler approved them (86 deals
-on the site as of 2026-10-12: OK 52, MI 22, MS 12; 19 confirmed by CMS).
-They publish the facility but not the buyer. (How to label the missing
-buyer is answered below.)
-
-- **Question:** keep these states at all?
-- **If no:** take them off the site.
-
-### 2. Can the site show private individuals' names?
-*Raised 2026-10-12.*
-
-NY UCC filings against individual owners name the person (e.g. "Benjamin
-Landa — UCC-1 financing"). Tyler agreed to show these filings in the main
-feed (below), but hasn't said whether the person's name should appear on a
-public site.
-
-- **For now:** names are shown. `SHOW_INDIVIDUAL_NAMES` in
-  `scripts/export_deals.py` (default `True`); `False` removes them from
-  `deals.json` entirely and the card reads "Individual owner".
+Nothing open as of 2026-10-12.
 
 ## Answered
+
+- **Keep the OK, MI and MS CON sources?** (relayed 2026-10-12) Yes. They
+  stay live as built (86 deals as of 2026-10-12: OK 52, MI 22, MS 12); their
+  missing buyer reads "Buyer not disclosed".
+- **Can the site show private individuals' names?** (relayed 2026-10-12)
+  Yes. `SHOW_INDIVIDUAL_NAMES` in `scripts/export_deals.py` stays `True`.
 
 - **NY UCC filings against individuals: main feed or a separate group?**
   (2026-10-12) Main feed, with a different label to mark the difference.
