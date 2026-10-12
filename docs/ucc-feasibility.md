@@ -80,6 +80,23 @@ Weighted by nursing home count (CMS) and how easy the portal looked:
 5. Captcha states (**CT**, **IA**, **VA**, **WA**) and Incapsula states (**MA**, **NV**): only if Claude in Chrome or manual review is acceptable, same as OH today.
 6. Skip: **DE**, **KS**, **MN**, **ND**, **UT**, **MT**, **HI**, **DC** (paid per search, subscription-only, or login).
 
+## Real-search probes of the free tier (2026-10-12)
+
+One page load (and at most one search) per state in a real Chrome, before building anything. **None of the eight is automatable within this project's rules**, so nothing was built:
+
+| State | What the probe found | Verdict |
+|---|---|---|
+| **MD** | `egov.maryland.gov/robots.txt`: `Disallow: /` for all agents | Skip, same policy as ME |
+| **OK** | `okcc.online/robots.txt`: `Disallow: /` | Skip |
+| **AL** | `arc-sos.state.al.us/robots.txt`: `Disallow: /` | Skip |
+| **NC** | Search moved to `sosnc.gov/online_services/search/by_title/search_uniform_commercial_code`; the page says "Automated or scripted searches ... are not permitted" and points to the paid Data Subscription | Skip (bulk feed is paid; declined 2026-10-06) |
+| **SC** | Search is paid: $5 per search + $10 "Electronic Records Access" per search | Skip (no paid data) |
+| **IN** | Free "UCC Browse" at `bsd.sos.in.gov/PublicUCCSearch` (debtor and secured party), but every search returns "You must successfully complete the Captcha" | Manual only, like IL |
+| **MO** | "All customers must have an account to ... conduct any UCC searches" (`bsd.sos.mo.gov/LoginWelcome.aspx`) | Needs the user's own account; browser-session runs only |
+| **WI** | "A user can create a free account and begin searching" | Needs the user's own account; browser-session runs only |
+
+The 🟢 ratings above came from page loads only; a search page loading is not the same as searching being allowed. Remaining routes: the user's own logged-in browser sessions for MO and WI (as with PA's `scripts/pa_ucc_browser.py`), or manual searches.
+
 ## Lender search (2026-10-05)
 
 Searching by secured party for nursing home lenders, rather than by known borrower names, finds borrowers no name list contains. Pennsylvania's first run turned up 103 recent nursing home filings, 96 of them new to the tracker (`ucc/lender_search.py`). Of the states rated above, **FL, AZ, NC, OR and WV** also support a secured-party search, so lender search should be part of any adapter built for them. California's unified index covers secured parties too.
