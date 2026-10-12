@@ -385,3 +385,42 @@ def test_ucc_category_and_repeats():
     assert len(spruce) == 1 and spruce[0]["acquisition_date"] == "2022-05-02"
     assert spruce[0]["ucc_also_filed"] == ["2018-02-08"]
     assert len(out) == len(deals) - 1                                 # persons and NJ aren't collapsed
+
+
+# ── Illinois HFSRB change-of-ownership projects (2026-10-12) ──────────────
+
+from scraper.con_il import is_chow_text, is_ltc_title, list_projects, _project_year
+
+
+def test_il_project_list_and_filters():
+    page = ('<a href="/announcements/25-031-oak-hill-senior-living.html">25-031 Oak Hill Senior Living and '
+            'Rehabilitation Center, Waterloo</a><a href="/announcements/26-002-advocate-lutheran-general-hospital.html">'
+            '26-002 Advocate Lutheran General Hospital</a><a href="/announcements/E-031-24-premier.html">E-031-24 Premier '
+            'Cardiac Surgery Center</a>')
+    ps = list_projects(page)
+    assert [p["code"] for p in ps] == ["25-031", "26-002", "E-031-24"]
+    assert [is_ltc_title(p["title"]) for p in ps] == [True, False, False]
+    assert _project_year("25-031") == 2025 and _project_year("E-031-24") == 2024
+
+
+def test_il_sale_is_told_by_pre_and_post_transaction_owners():
+    assert is_chow_text("Exact Legal Name of Site Owner: County of Stephenson (Pre-transaction) "
+                        "Freeport Realty LLC (Post-transaction)")
+    assert not is_chow_text("Exact Legal Name of Site Owner: County of DuPage")
+
+
+# ── Hawaii SHPDA CON applications (2026-10-12) ────────────────────────────
+
+from scraper.con_hi import is_nursing_acquisition, parse_rows
+
+
+def test_hi_nursing_acquisitions_only():
+    page = ("<table><tr><td>24-04A</td><td>Hawaii Health Systems Corporation-Oahu Region: Acquisition of Skilled "
+            "Nursing Facility/Intermediate Care Facility services at 91-1204 Kealanani Avenue, Kapolei, Hawaii</td>"
+            "<td><a href='/shpda/files/shd2404a.pdf'>shd2404a</a></td></tr>"
+            "<tr><td>24-10A</td><td>PSH KM LLC: Addition of 140 SNF/ICF beds at 91-1360 Karayan Street</td><td></td></tr>"
+            "<tr><td>24-16A</td><td>Kimura Home Health LLC: Acquisition of home health agency services</td><td></td></tr></table>")
+    rows = parse_rows(page)
+    assert [r["number"] for r in rows] == ["24-04A", "24-10A", "24-16A"]
+    assert [is_nursing_acquisition(r) for r in rows] == [True, False, False]
+    assert rows[0]["applicant"] == "Hawaii Health Systems Corporation-Oahu Region" and rows[0]["decision_url"]

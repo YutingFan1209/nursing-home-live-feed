@@ -38,6 +38,8 @@ from scraper.con_pa import fetch_con_pa_deals, CON_PA_SOURCE_NAME, CON_PA_INDEX_
 from scraper.con_ca import fetch_con_ca_notices, CON_CA_SOURCE_NAME, CON_CA_INDEX_URL
 from scraper.con_phl import fetch_con_phl_notices, CON_PHL_SOURCE_NAME, CON_PHL_INDEX_URL
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
+from scraper.con_il import fetch_con_il_projects, CON_IL_SOURCE_NAME, CON_IL_INDEX_URL
+from scraper.con_hi import fetch_con_hi_deals, CON_HI_SOURCE_NAME, CON_HI_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
 from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
@@ -550,6 +552,35 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         for art in fetch_con_me_cases(lambda url: _article_exists(url, conn)):
             art["source_id"] = con_me_source_id
             new_articles.append(art)
+
+        # Illinois HFSRB: county-owned nursing home sales need a CON permit.
+        # Projects that turn out not to be sales are stored as skipped so
+        # their scanned applications aren't transcribed again
+        con_il_source_id = _ensure_source(
+            type("S", (), {"name": CON_IL_SOURCE_NAME,
+                           "url": CON_IL_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        il_projects, il_skipped = fetch_con_il_projects(lambda url: _article_exists(url, conn))
+        for art in il_skipped:
+            art["source_id"] = con_il_source_id
+            _mark_extraction_error(_store_article(art, conn), art["skip_reason"], conn)
+        conn.commit()
+        for art in il_projects:
+            art["source_id"] = con_il_source_id
+            new_articles.append(art)
+
+        # Hawaii SHPDA: nursing facility acquisitions need a CON (about one a year)
+        con_hi_source_id = _ensure_source(
+            type("S", (), {"name": CON_HI_SOURCE_NAME,
+                           "url": CON_HI_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for deal in fetch_con_hi_deals(lambda url: _article_exists(url, conn)):
+            deal["source_id"] = con_hi_source_id
+            new_articles.append(deal)
 
         con_mi_source_id = _ensure_source(
             type("S", (), {"name": CON_MI_SOURCE_NAME,

@@ -272,7 +272,10 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
 
 def _target(d: dict, facilities: list[str]) -> str | None:
     if facilities:
-        return facilities[0] + (f" and {len(facilities) - 1} more" if len(facilities) > 1 else "")
+        # One facility listed under its old and new names ("Serenity Estates of
+        # Freeport", "Stephenson County Nursing Center") is still one
+        more = len(facilities) - 1 if d.get("facility_count") != 1 else 0
+        return facilities[0] + (f" and {more} more" if more else "")
     n = d.get("facility_count")
     if not n:
         return None

@@ -331,7 +331,13 @@ def main():
                 a.url AS source_url, a.title AS source_title,
                 uf.detail_url AS ucc_detail_url,
                 uf.debtor_name AS ucc_debtor, uf.filing_type AS ucc_filing_type,
-                ARRAY_AGG(DISTINCT m.ccn) FILTER (WHERE m.ccn IS NOT NULL) AS ccns
+                -- Weak fuzzy facility-name matches on news and state filings are
+                -- mostly wrong homes (Golden Madera -> Bay Marina Post Acute,
+                -- Stephenson County -> Serenity Estates of Lena; 2026-10-12);
+                -- those records fall back to exact-name matching below
+                ARRAY_AGG(DISTINCT m.ccn) FILTER (WHERE m.ccn IS NOT NULL AND NOT (
+                    s.source_type IN ('con', 'rss', 'edgar') AND m.match_method = 'facility_name_fuzzy'
+                    AND m.match_score < 80)) AS ccns
             FROM deals d
             JOIN articles a ON a.id = d.article_id
             LEFT JOIN sources s ON s.id = a.source_id
