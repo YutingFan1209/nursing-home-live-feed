@@ -222,6 +222,11 @@ def _add_labels(deal: dict, cms, homes: dict) -> None:
         deal["facility_names"] = facilities or None
     else:
         facilities = _resolved_facilities(deal)
+        if cms and deal["source_type"] not in ("chow", "ucc") and deal.get("ccns"):
+            # The matcher's fuzzy name matches can land in other states (four UK
+            # homes matched US facilities in six states): keep only facilities
+            # in one of the record's states
+            deal["ccns"] = [c for c in deal["ccns"] if cms.facility.get(c, (None, None))[1] in (deal.get("states") or [])] or None
         deal["ccn_match"] = "cms_matcher" if deal.get("ccns") else None
         if not deal.get("ccns") and cms and deal["source_type"] != "ucc":
             # A facility name equal to exactly one CMS facility in the state
@@ -383,6 +388,17 @@ def main():
                     "id": did, "source_type": stype, "source_name": sname, "source_url": url, "source_title": title,
                     "date": str(acq) if acq else created.date().isoformat(), "found_date": created.date().isoformat(),
                     "status": None, "headline": title})
+        # Public corrections log: every correction note, newest first
+        cur.execute("""
+            SELECT n.created_at, n.deal_id::text, n.note, d.stage, a.title
+            FROM annotations n JOIN deals d ON d.id = n.deal_id JOIN articles a ON a.id = d.article_id
+            WHERE n.tag = 'correction' ORDER BY n.created_at DESC
+        """)
+        live_ids = {d["id"] for d in deals}
+        corrections = [{"date": c.date().isoformat(), "id": did, "note": note,
+                        "on_site": did in live_ids, "title": title}
+                       for c, did, note, stage, title in cur.fetchall()]
+
         counts = group(deals, merged)
         for deal in deals:
             if deal.get("group_ccns") and deal["source_type"] != "ucc":
@@ -404,7 +420,8 @@ def main():
 
     out_path = sys.argv[1] if len(sys.argv) > 1 else "/tmp/deals.json"
     with open(out_path, "w") as f:
-        json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms, "freshness": freshness}, f, default=str)
+        json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms, "freshness": freshness,
+                   "corrections": corrections}, f, default=str)
 
     feed_path = os.path.join(os.path.dirname(os.path.abspath(out_path)), "feed.xml")
     write_atom_feed(deals, feed_path, freshness["exported_at"])

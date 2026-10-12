@@ -238,7 +238,7 @@ def test_sale_awaiting_court_approval_is_expected_not_reported():
     # the original Genesis summary: past tense, but approval still pending
     row = {**raw("genesis"), "summary": FIXTURES["genesis"]["summary"]}
     d = {**row, **label(row, None, [], today=TODAY)}
-    assert d["status"] == "expected"
+    assert d["status"] in ("expected", "unconfirmed")
     assert "acquire" not in text(d["headline"]) or "to acquire" in text(d["headline"]) or "to sell" in text(d["headline"])
 
 
@@ -293,3 +293,13 @@ def test_truncated_cms_name_still_matches_exactly():
     cms = fake_cms(facilities={"335332": ("Archcare at Eger Health Care and Rehabilitation Ce", "NY", 378)})
     assert cms.ccns_by_name(["ArchCare at Eger Healthcare and Rehabilitation Center"], ["NY"]) == ["335332"]
     assert cms.ccns_by_name(["Eger Health Care Center"], ["NY"]) == []
+
+
+# ── Overdue pending records ───────────────────────────────────────────────
+
+def test_long_pending_filing_turns_unconfirmed():
+    d = labeled("eger")  # PHHPC approval 2025-12-04, ten months before TODAY
+    assert d["status"] == "unconfirmed"
+    assert "over 6 months ago" in d["status_detail"] and "new owner" not in d["status_detail"]
+    recent = labeled("rhinebeck")  # reported pending, found 2026
+    assert recent["status"] == "expected"

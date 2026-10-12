@@ -195,8 +195,12 @@ def cms_event(d: dict, cms) -> dict | None:
     return cms.new_owner(d.get("ccns"), _day(d.get("acquisition_date")) or _day(d.get("created_at")))
 
 
+STALE_AFTER = timedelta(days=183)
+
+
 def status(d: dict, event: dict | None, today: date | None = None) -> dict:
-    """confirmed / expected / reported, with a line for the Details panel."""
+    """confirmed / expected / unconfirmed (expected, but over 6 months on) /
+    reported, with a line for the Details panel."""
     today = today or date.today()
     src, when = d.get("source_type"), _day(d.get("acquisition_date"))
     if src == "chow":
@@ -214,6 +218,20 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
     pending_words = _PENDING_RE.search(d.get("summary") or "") and not _DONE_RE.search(d.get("summary") or "")
     if src == "con" or future or pending_words:
         what = "State filing made before closing" if src == "con" else "Reported as pending"
+        # Still pending long after the filing or report: don't keep calling
+        # it expected (ArchCare at Eger, filed December 2025)
+        since = when or _day(d.get("created_at"))
+        if since and today - since > STALE_AFTER:
+            if d.get("deal_type") != "ownership_change":
+                # a lease or control change doesn't show up as a new CMS owner
+                check = "this tracker hasn't seen a record of its completion"
+            elif d.get("ccns"):
+                check = "CMS shows no new owner at this facility since"
+            else:
+                check = "it isn't matched to a CMS facility, so completion can't be checked"
+            return {"status": "unconfirmed", "status_detail":
+                    f"Unconfirmed: {what.lower()} on {since.isoformat()}, over 6 months ago; {check}. "
+                    "It may not have closed, or the records may not have caught up."}
         tail = (f"; expected to close {when.isoformat()}" if future
                 else "; completion not yet confirmed by CMS")
         return {"status": "expected", "status_detail": f"Expected: {what}{tail}"}

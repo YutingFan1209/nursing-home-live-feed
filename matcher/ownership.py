@@ -115,6 +115,14 @@ def _fetch_candidates(deal: dict, conn) -> list[dict]:
             cols = [desc[0] for desc in cur.description]
             return [dict(zip(cols, row)) for row in cur.fetchall()]
 
+        if not states:
+            # A news deal with no US state can't be checked against a
+            # facility's state, and a nationwide fuzzy search matched four
+            # UK care homes to US facilities in six states -- which then
+            # merged the UK deal into a Michigan filing (2026-10-12). Match
+            # nothing rather than guess.
+            return []
+
         acq_date = deal.get("acquisition_date")
         date_from, date_to = _date_window(acq_date)
 
@@ -122,26 +130,16 @@ def _fetch_candidates(deal: dict, conn) -> list[dict]:
         HIGH_VOLUME_STATES = {"CA", "TX", "FL", "NY", "PA", "OH", "IL"}
         limit = 5000 if any(s in HIGH_VOLUME_STATES for s in states) else 2000
 
-        if states:
-            cur.execute("""
-                SELECT ccn, provider_name, owner_name, owner_type,
-                       provider_state, ownership_start_date
-                FROM cms_ownership_records
-                WHERE provider_state = ANY(%s)
-                  AND (ownership_start_date IS NULL
-                       OR ownership_start_date BETWEEN %s AND %s)
-                ORDER BY ownership_start_date DESC
-                LIMIT %s
-            """, (states, date_from, date_to, limit))
-        else:
-            cur.execute("""
-                SELECT ccn, provider_name, owner_name, owner_type,
-                       provider_state, ownership_start_date
-                FROM cms_ownership_records
-                WHERE ownership_start_date BETWEEN %s AND %s
-                ORDER BY ownership_start_date DESC
-                LIMIT %s
-            """, (date_from, date_to, limit))
+        cur.execute("""
+            SELECT ccn, provider_name, owner_name, owner_type,
+                   provider_state, ownership_start_date
+            FROM cms_ownership_records
+            WHERE provider_state = ANY(%s)
+              AND (ownership_start_date IS NULL
+                   OR ownership_start_date BETWEEN %s AND %s)
+            ORDER BY ownership_start_date DESC
+            LIMIT %s
+        """, (states, date_from, date_to, limit))
 
         cols = [desc[0] for desc in cur.description]
         return [dict(zip(cols, row)) for row in cur.fetchall()]
