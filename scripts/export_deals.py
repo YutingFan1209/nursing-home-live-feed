@@ -328,7 +328,7 @@ def main():
                 d.operator_names, d.facility_names, d.created_at,
                 d.lender, d.ucc_confirmed, d.stage, d.summary,
                 s.source_type, s.name AS source_name,
-                a.url AS source_url, a.title AS source_title,
+                a.url AS source_url, a.title AS source_title, a.published_at::date::text AS published_at,
                 uf.detail_url AS ucc_detail_url,
                 uf.debtor_name AS ucc_debtor, uf.filing_type AS ucc_filing_type,
                 -- Weak fuzzy facility-name matches on news and state filings are
@@ -347,7 +347,7 @@ def main():
                 AND uf.filing_number = split_part(a.url, '/', 4)
                 AND s.source_type = 'ucc'
             WHERE d.stage NOT IN ('dismissed')
-            GROUP BY d.id, a.url, a.title, s.source_type, s.name, uf.detail_url, uf.debtor_name, uf.filing_type
+            GROUP BY d.id, a.url, a.title, a.published_at, s.source_type, s.name, uf.detail_url, uf.debtor_name, uf.filing_type
             ORDER BY COALESCE(d.acquisition_date, d.created_at::date) DESC, d.created_at DESC
         """)
         cols = [c[0] for c in cur.description]

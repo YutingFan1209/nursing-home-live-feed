@@ -220,7 +220,8 @@ def cms_event(d: dict, cms) -> dict | None:
                 "ccn": (d.get("ccns") or [None])[0], "source": "CMS change-of-ownership record", "facility": None}
     if d.get("deal_type") != "ownership_change" or not cms:
         return None
-    return cms.new_owner(d.get("ccns"), _day(d.get("acquisition_date")) or _day(d.get("created_at")))
+    return cms.new_owner(d.get("ccns"), _day(d.get("acquisition_date")) or _day(d.get("published_at"))
+                         or _day(d.get("created_at")))
 
 
 STALE_AFTER = timedelta(days=183)
@@ -248,7 +249,9 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
         what = "State filing made before closing" if src == "con" else "Reported as pending"
         # Still pending long after the filing or report: don't keep calling
         # it expected (ArchCare at Eger, filed December 2025)
-        since = when or _day(d.get("created_at"))
+        # no deal date: measure from the source's publication date, not the
+        # day this tracker happened to find it
+        since = when or _day(d.get("published_at")) or _day(d.get("created_at"))
         if since and today - since > STALE_AFTER:
             if d.get("deal_type") != "ownership_change":
                 # a lease or control change doesn't show up as a new CMS owner
@@ -295,7 +298,8 @@ _DBA_RE = re.compile(r"\bd/b/a ([A-Z][\w&'.-]*(?: [A-Z][\w&'.-]*)*)")
 def headline(d: dict, facilities: list[str], show_individual_names: bool = True) -> list[list[str]]:
     dt, b = d["deal_type"], d
     target = _target(d, facilities)
-    expected = d.get("status") == "expected"
+    # Unconfirmed is still pending as far as anyone has recorded: same wording
+    expected = d.get("status") in ("expected", "unconfirmed")
 
     if d.get("source_type") == "ucc":
         if d.get("individual_filing"):

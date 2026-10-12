@@ -83,16 +83,21 @@ def fetch_con_hi_deals(is_known) -> list[dict]:
         if row["year"] < FIRST_YEAR or not is_nursing_acquisition(row) or is_known(url):
             continue
         place = re.search(r"\b(?:at|located at)\s+(.*)$", row["project"])
+        # The decision PDF is a scan; its upload path dates it (/files/2024/07/)
+        posted = re.search(r"/files/(\d{4})/(\d{2})/", row["decision_url"] or "")
+        published = (datetime(int(posted.group(1)), int(posted.group(2)), 1, tzinfo=timezone.utc) if posted
+                     else datetime(row["year"], 1, 1, tzinfo=timezone.utc))
         summary = (
             f"Hawaii SHPDA Certificate of Need application {row['number']}: {row['applicant']}, "
             f"{row['project'][0].lower() + row['project'][1:]}. SHPDA's list names the applicant (the buyer) "
             f"and the facility's address{', ' + place.group(1) if place else ''}; it gives no seller or price."
-            + (" A decision has been issued." if row["decision_url"] else " No decision posted yet.")
+            + (f" SHPDA's decision was posted {published:%B %Y}." if posted
+               else " A decision has been issued." if row["decision_url"] else " No decision posted yet.")
         )
         deals.append({
             "url": url,
             "title": f"[HI CON] {row['number']} {row['applicant']}: {row['project'][:120]}",
-            "published_at": datetime(row["year"], 1, 1, tzinfo=timezone.utc),
+            "published_at": published,
             "raw_text": summary + (f"\n\nDecision: {row['decision_url']}" if row["decision_url"] else ""),
             "source_type": "con",
             "pre_extracted": True,

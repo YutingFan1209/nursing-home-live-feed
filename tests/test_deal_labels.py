@@ -301,6 +301,11 @@ def test_long_pending_filing_turns_unconfirmed():
     d = labeled("eger")  # PHHPC approval 2025-12-04, ten months before TODAY
     assert d["status"] == "unconfirmed"
     assert "over 6 months ago" in d["status_detail"] and "new owner" not in d["status_detail"]
+    il = {"source_type": "con", "deal_type": "ownership_change", "acquiring_entity": "Freeport Nursing",
+          "seller_entity": "Stephenson County", "facility_count": 1, "states": ["IL"],
+          "facility_names": ["Stephenson County Nursing Center"], "acquisition_date": "2025-09-01"}
+    out = label(il, None, il["facility_names"], today=TODAY)
+    assert out["status"] == "unconfirmed" and "to acquire" in text(out["headline"])
     recent = labeled("rhinebeck")  # reported pending, found 2026
     assert recent["status"] == "expected"
 
