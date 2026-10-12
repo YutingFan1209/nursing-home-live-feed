@@ -349,3 +349,16 @@ def test_will_operate_is_not_pending_and_took_over_is_done():
     assert done["status"] == "reported"
     took = status(_news("Prestige took over operations of four homes on June 30, 2026. A fifth remains pending."), None, TODAY)
     assert took["status"] == "reported"
+
+
+def test_more_rewritten_phrasing():
+    assert transaction_type(_news("Diversified Healthcare Trust entered a 15-year triple net lease with Ensign's "
+                                  "subsidiaries for seven Colorado skilled nursing facilities.")) == "lease"
+    assert transaction_type(_news("Sabra signed letters of intent to transfer operations of 22 Avamere-leased "
+                                  "properties to Cascadia under lease arrangements with Sabra.")) == "lease"
+    from pipeline.deal_labels import status
+    assert status(_news("American Healthcare REIT closed its acquisition of six communities; the remaining two "
+                        "are pending."), None, TODAY)["status"] == "reported"
+    d = buyer_fields(_news("A community in West Virginia changed hands; a publicly traded REIT that already owns a "
+                           "nearby community submitted the winning bid."))
+    assert d["buyer_description"] == "a publicly traded REIT that already owns a nearby community"

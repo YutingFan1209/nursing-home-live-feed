@@ -38,12 +38,12 @@ def _day(s):
 _LEASE_RE = re.compile(
     r"\[MI CON\] [\d-]+ NEW [^:]*LEASE"
     r"|\[MS CON\] CHOW \(Lease\)"
-    r"|\b(executed|arranged|signed|entered into) an? (new )?[\w -]{0,30}\blease\b"
+    r"|\b(executed|arranged|signed|entered|entered into) an? (new )?[\w -]{0,30}\blease\b"
     r"|\bnew lease (commenced|began|started|took effect)\b",
     re.I)
 # A new operator taking over under the landlord's lease: PACS taking over 32
 # Omega-owned Florida homes "on Omega's master lease" is not a purchase
-_OPS_TRANSFER_RE = re.compile(r"\b(takeover|took over|take over|transition\w*) (of |the )?operations?\b", re.I)
+_OPS_TRANSFER_RE = re.compile(r"\b(takeover|took over|take over|transition\w*|transfer\w*) (of |the )?operations?\b", re.I)
 _LEASE_WORD_RE = re.compile(r"\b(lease|leases|rent)\b", re.I)
 _SALE_RE = re.compile(r"\b(acquir\w*|purchas\w*|bought|sold|sale of|ACQ)\b", re.I)
 
@@ -136,7 +136,7 @@ _DESC_AFTER_RE = re.compile(
     r"\b(?:sold to|sale \w+ to|to|acquired by|purchased by|bought by|(?i:the buyer was|buyer was))\s+((?:an?|the)\s+[^,;.]{2,110}?)" + _STOP)
 # "A private real estate investment group, using a New York-based operator, acquired"
 _DESC_SUBJECT_RE = re.compile(
-    r"^((?:An?|The)\s+[^,;.]{2,80}?)(?:,[^,;.]{0,80},)?\s+(?:acquired|purchased|bought|is acquiring|is entering|has acquired)\b")
+    r"(?:^|[;.] )((?:An?|The|a)\s+[^,;.]{2,80}?)(?:,[^,;.]{0,80},)?\s+(?:acquired|purchased|bought|is acquiring|is entering|has acquired|submitted the winning bid)\b")
 _NOT_A_DESC_RE = re.compile(r"^(an?|the)\s+(undisclosed|buyer|purchaser|acquirer|portfolio|facility|price|sale|deal|transaction|\d)", re.I)
 _UNNAMED_RE = re.compile(r"^(an?|the)\s+(unnamed|unidentified)\s+", re.I)
 
@@ -205,7 +205,7 @@ _PENDING_RE = re.compile(
     # a sale awaiting a court or regulator: "final court approval expected October 14"
     r"(court |final |regulatory )?approval (is |was )?expected|expected .{0,40}approval|awaiting .{0,40}approval|"
     r"subject to .{0,40}approval|asked to (give final approval|approve|confirm))\b", re.I)
-_DONE_RE = re.compile(r"\b(completed|closed (on )?the|closed on|has acquired|finalized|took over|closed sale|"
+_DONE_RE = re.compile(r"\b(completed|closed (on )?the|closed on|closed (its|their)|has acquired|finalized|took over|closed sale|"
                       r"(sale|deal|transaction) (that )?closed)\b", re.I)
 
 
