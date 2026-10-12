@@ -854,10 +854,12 @@ function CompanyPanel({ entity, deals, onEntity, onClose }) {
   );
 }
 
-function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity }) {
+function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity, since }) {
   return allDeals.filter(d => {
     // A record grouped into another deal's card shows there, not on its own
     if (d.grouped_into) return false;
+    // "New since your last visit": found by the tracker after that time
+    if (since && !(d.created_at && d.created_at > since)) return false;
     if (tab !== undefined && !inTab(d, tab)) return false;
     // Skilled-nursing-related records unless "Include senior living and other"
     if (!scope && d.facility_type !== "skilled_nursing") return false;
@@ -880,6 +882,7 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
         ...(d.operator_names || []),
         ...(d.facility_names || []),
         ...(d.ccns || []),
+        d._facilityText,
       ].filter(Boolean).join(" ").toLowerCase();
       if (!haystack.includes(q)) return false;
     }
@@ -887,11 +890,29 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
   });
 }
 
+// When this browser last visited, for "N new since your last visit". A visit
+// is a session: the stored time only moves on after 6 hours away, so
+// reloading doesn't reset it. Browser storage can be missing; then the line
+// just doesn't show.
+const VISIT_KEY = "nh-visits";
+function readLastVisit() {
+  try {
+    const now = new Date().toISOString();
+    const v = JSON.parse(localStorage.getItem(VISIT_KEY) || "{}");
+    if (!v.current || Date.now() - new Date(v.current).getTime() > 6 * 3600 * 1000) {
+      v.last = v.current || null;
+      v.current = now;
+    }
+    localStorage.setItem(VISIT_KEY, JSON.stringify(v));
+    return v.last;
+  } catch { return null; }
+}
+
 // Filters live in the URL (shareable/bookmarkable) and can be saved as
 // named views in this browser, each remembering when it was last opened so
 // it can show how many deals are new since then.
 const FILTER_PARAMS = { state: "state", dateFrom: "from", dateTo: "to", search: "q", sourceType: "source", ccnStatus: "ccn",
-  tab: "tab", refi: "refi", noLiens: "noliens", scope: "scope", entity: "entity" };
+  tab: "tab", refi: "refi", noLiens: "noliens", scope: "scope", entity: "entity", since: "since" };
 const SAVED_VIEWS_KEY = "nh-saved-views";
 
 // Links and saved views from before the tabs carry a deal type ("type=...")
@@ -928,6 +949,7 @@ function viewName(f) {
     f.refi && "With refinancings",
     f.noLiens && "No non-deal liens",
     f.scope && "Incl. senior living & other",
+    f.since && `New since ${f.since.slice(0, 10)}`,
     f.ccnStatus && (f.ccnStatus === "matched" ? "CCN matched" : "No CCN"),
     (f.dateFrom || f.dateTo) && `${f.dateFrom || "…"} – ${f.dateTo || "…"}`,
   ].filter(Boolean).join(" · ");
@@ -952,6 +974,8 @@ export default function App() {
   const [refi, setRefi]           = useState(initial.refi);
   const [noLiens, setNoLiens]     = useState(initial.noLiens);
   const [scope, setScope]         = useState(initial.scope);
+  const [since, setSince]         = useState(initial.since);
+  const lastVisit = useMemo(readLastVisit, []);
   const [entity, setEntity]       = useState(initial.entity);
   // ?id=<record> opens one record (a permalink); ?view=methodology the methodology page
   const [focusId, setFocusId]     = useState(() => new URLSearchParams(window.location.search).get("id") || "");
@@ -988,13 +1012,18 @@ export default function App() {
         setFreshness(data.freshness || {});
         setCorrections(data.corrections || []);
         setFacilities(data.facilities || {});
+        // Search also finds records by their CMS facilities' names and cities
+        const fac = data.facilities || {};
+        for (const d of deals) {
+          d._facilityText = (d.ccns || []).map(c => fac[c] ? `${fac[c].name} ${fac[c].city || ""}` : "").join(" ");
+        }
       })
       .catch(e => setLoadError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
-  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity };
-  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity];
+  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity, since };
+  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity, since];
 
   useEffect(() => {
     if (focusId || view || facilityCcn) return;  // those pages own the URL
@@ -1103,10 +1132,29 @@ export default function App() {
   const deals = filtered.slice(offset, offset + LIMIT);
   const total = filtered.length;
 
+  const newSinceVisit = useMemo(() => lastVisit
+    ? allDeals.filter(d => !d.grouped_into && d.facility_type === "skilled_nursing" && d.created_at > lastVisit).length : 0,
+    [allDeals, lastVisit]);
+
+  // Facility pages whose name or city matches the search, most records first
+  const facilityMatches = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (q.length < 3 || !Object.keys(facilities).length) return [];
+    const counts = {};
+    for (const d of allDeals) {
+      if (d.grouped_into) continue;
+      for (const c of new Set([...(d.ccns || []), ...(d.possible_homes || []).map(h => h.ccn)])) counts[c] = (counts[c] || 0) + 1;
+    }
+    return Object.entries(facilities)
+      .filter(([, f]) => `${f.name} ${f.city || ""}`.toLowerCase().includes(q))
+      .map(([ccn]) => [ccn, counts[ccn] || 0])
+      .sort((a, b) => b[1] - a[1]).slice(0, 6);
+  }, [search, facilities, allDeals]);
+
   // Clears filters but stays on the current tab
   function clearAll() {
     setState(""); setDateFrom(""); setDateTo("");
-    setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setNoLiens(""); setScope(""); setEntity(""); setOffset(0);
+    setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setNoLiens(""); setScope(""); setEntity(""); setSince(""); setOffset(0);
   }
 
   function toggleExpand(id) {
@@ -1118,7 +1166,7 @@ export default function App() {
     });
   }
 
-  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || noLiens || scope || entity;
+  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || noLiens || scope || entity || since;
   const moreCount = [sourceType, ccnStatus, dateFrom || dateTo, scope].filter(Boolean).length;
 
   // Opening a company view replaces the other filters -- it's a profile,
@@ -1129,6 +1177,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  const fmtDay = iso => iso && new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
   const fmtStamp = iso => iso && new Date(iso).toLocaleString(undefined,
     { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   const chowFreshness = freshness.chow_file_date &&
@@ -1157,6 +1206,13 @@ export default function App() {
               <span title="Sales and financings of skilled nursing facilities; leases, control changes, refinancings and non-deal liens aren't counted">
                 {stats.total.toLocaleString()} deals</span> · {stats.last90.toLocaleString()} in the last 90 days
               {freshness.pipeline_ran_at && <> · <span title={chowFreshness || undefined}>sources checked {fmtStamp(freshness.pipeline_ran_at)}</span></>}
+            </p>
+          )}
+          {newSinceVisit > 0 && !since && !view && !focusId && !facilityCcn && (
+            <p style={{ fontSize: 14, color: "#1F2328", marginTop: 6 }}>
+              <strong>{newSinceVisit.toLocaleString()} new</strong> since your last visit ({fmtDay(lastVisit)}) ·{" "}
+              <button type="button" onClick={() => { setSince(lastVisit); setOffset(0); }}
+                style={{ ...linkBtn, ...lnk, textDecoration: "underline", minHeight: 0, verticalAlign: "baseline" }}>Show them</button>
             </p>
           )}
         </header>
@@ -1269,6 +1325,26 @@ export default function App() {
               <input type="checkbox" checked={!!noLiens} onChange={resetPage(setNoLiens)} style={checkBox} />
               Hide non-deal liens
             </label>
+          </div>
+        )}
+
+        {since && (
+          <p style={{ fontSize: 14, color: "#3F4248", margin: "0 0 10px" }}>
+            Showing records found since {fmtDay(since)} ·{" "}
+            <button type="button" onClick={() => { setSince(""); setOffset(0); }}
+              style={{ ...linkBtn, ...lnk, textDecoration: "underline", minHeight: 0, verticalAlign: "baseline" }}>Show all</button>
+          </p>
+        )}
+
+        {facilityMatches.length > 0 && (
+          <div style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, padding: "8px 16px", marginBottom: 12 }}>
+            <div style={{ ...dl, marginTop: 6 }}>Facilities matching “{search}”</div>
+            {facilityMatches.map(([ccn, n]) => (
+              <div key={ccn} style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <FacilityLink ccn={ccn} facilities={facilities} />
+                <span style={{ fontSize: 13, color: "#5F636A" }}>{facilities[ccn]?.state} · {n} record{n === 1 ? "" : "s"}</span>
+              </div>
+            ))}
           </div>
         )}
 
