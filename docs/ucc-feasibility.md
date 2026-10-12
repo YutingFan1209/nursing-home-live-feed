@@ -97,6 +97,10 @@ One page load (and at most one search) per state in a real Chrome, before buildi
 
 The 🟢 ratings above came from page loads only; a search page loading is not the same as searching being allowed. Remaining routes: the user's own logged-in browser sessions for MO and WI (as with PA's `scripts/pa_ucc_browser.py`), or manual searches.
 
+## Individual-owner search outside NY (2026-10-12)
+
+Tried KY: its form takes an individual's last and first name, so `ucc/ky_playwright.py` can search the 553 people CMS lists in KY ownership or control roles. One run found 306 new filings, **every one a consumer loan** (Republic Finance, Heights Finance, Deere & Company, Sheffield Financial, farm credit associations, rent-to-own, GoodLeap solar) to people who share a name with a KY owner or administrator: KY's search returns everyone with the name, statewide. All 306 dismissed before publishing; the search is off (`main.py`, `ky_individual_names = None`). NY's individual track works because its matches go through reviewed lenders and NY-only owner roles; a KY version would need a lender filter (healthcare/RE lenders only) before it's worth retrying.
+
 ## Lender search (2026-10-05)
 
 Searching by secured party for nursing home lenders, rather than by known borrower names, finds borrowers no name list contains. Pennsylvania's first run turned up 103 recent nursing home filings, 96 of them new to the tracker (`ucc/lender_search.py`). Of the states rated above, **FL, AZ, NC, OR and WV** also support a secured-party search, so lender search should be part of any adapter built for them. California's unified index covers secured parties too.

@@ -620,9 +620,9 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
                 : deal.match_type === "single_home" ? "Home owned by this person" : "Possible homes"}</div>
               <div style={{ ...dv, marginBottom: 4 }}>
                 {deal.match_type === "multi_home"
-                  ? "This person owns or controls each of these NY homes in CMS records. The filing doesn't say which, if any, it concerns."
+                  ? `This person owns or controls each of these ${deal.ucc_state} homes in CMS records. The filing doesn't say which, if any, it concerns.`
                   : deal.match_type === "single_home"
-                  ? "The only NY home this person owns or controls in CMS records. The filing itself doesn't name a home."
+                  ? `The only ${deal.ucc_state} home this person owns or controls in CMS records. The filing itself doesn't name a home.`
                   : "Filed against an individual; no matching home in CMS ownership records."}
               </div>
               {(deal.possible_homes || []).map(h => (
@@ -753,9 +753,10 @@ function Methodology({ chowDate, corrections, onBack }) {
         concerns it, including filings against an owner for whom it is only a possible home.</p>
 
       <h3 style={h}>Filings against individual owners, and "possible homes"</h3>
-      <p style={p}>New York UCC filings are also searched by the names of people listed as owners in CMS ownership data.
-        A filing against a person doesn't say which nursing home, if any, it concerns; many are personal loans. We match
-        the person's name to the New York homes they own or control in CMS records. If there is exactly one, the record
+      <p style={p}>In New York (and Ohio, when its search can run), UCC filings are also searched by the names
+        of people listed as owners in CMS ownership data. A filing against a person doesn't say which nursing home, if any,
+        it concerns; many are personal loans. We match the person's name to the homes in that state they own or control
+        in CMS records. If there is exactly one, the record
         links to it. If there are several, they are listed as <em>possible homes</em>: none of them is a confirmed link.
         Matching is by first and last name, so a different person with the same name can be matched by mistake.</p>
 

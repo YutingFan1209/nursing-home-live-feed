@@ -1,7 +1,7 @@
 """
 Match UCC filings against a person to the homes that person owns (NY, and
-since 2026-10-12 KY and OH, the states whose UCC search includes CMS
-individual owners).
+OH, the states whose UCC search includes CMS individual owners; KY was
+tried 2026-10-12 and turned off -- see main.py).
 
 NY's UCC search includes CMS individual owners (Tyler's methodology), so
 about 850 NY filings name a person as debtor. The filing says nothing about
@@ -46,7 +46,7 @@ def first_last(name: str) -> str:
 
 
 # States whose UCC search includes CMS individual owners (main.INDIVIDUAL_UCC_STATES)
-STATES = ("NY", "KY", "OH")
+STATES = ("NY", "OH")
 
 
 def cms_owner_index(conn, state: str = "NY") -> dict:

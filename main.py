@@ -68,7 +68,7 @@ config = get_config()
 # year of agenda PDFs (~200 MB, ~3 min); later runs only new ones
 ENABLE_CON_NY = True
 # States whose UCC search includes CMS individual owners by name
-INDIVIDUAL_UCC_STATES = ("NY", "KY", "OH")
+INDIVIDUAL_UCC_STATES = ("NY", "OH")
 
 
 # ── Structured logging ────────────────────────────────────────
@@ -744,7 +744,12 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
                 conn, get_chow_operator_names("CA") + _get_known_operator_names(conn, "CA"))
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
         oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
-        ky_individual_names = _get_cms_individual_owner_names(conn, "KY") if wanted is None or "KY" in wanted else None
+        # KY individual-owner search: OFF. Tried 2026-10-12: all 306 filings it
+        # found were consumer loans (Republic Finance, Deere, Sheffield,
+        # farm credit) to people sharing a name with a KY owner or
+        # administrator -- KY's search returns everyone with that name.
+        # All dismissed. ky_playwright.py keeps the individual mode.
+        ky_individual_names = None
         # FL: the registry's own daily data files, not a name search
         # (ucc/fl_download.py); runs here because it saves its last day read
         fl_filings = None
