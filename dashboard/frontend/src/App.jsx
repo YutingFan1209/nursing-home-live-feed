@@ -434,6 +434,66 @@ function SourceLink({ deal, searchForms }) {
   return <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}>{deal.source_title || deal.source_url} ↗</a>;
 }
 
+// A facility's page on this site (?ccn=), named when CMS details are known
+function FacilityLink({ ccn, facilities, name }) {
+  const f = facilities?.[ccn];
+  const label = smartCase(f?.name || name || `CCN ${ccn}`);
+  return (
+    <a href={`?ccn=${ccn}`} style={lnkBlock}>
+      {label}{f?.city ? `, ${smartCase(f.city)}` : ""} <span style={{ color: "#5F636A", marginLeft: 4 }}>({ccn})</span>
+    </a>
+  );
+}
+
+function FacilityPage({ ccn, facilities, allDeals, onBack }) {
+  const f = facilities[ccn];
+  const records = allDeals
+    .filter(d => (d.ccns || []).includes(ccn) || (d.possible_homes || []).some(h => h.ccn === ccn))
+    .sort((a, b) => (b.acquisition_date || b.created_at || "").localeCompare(a.acquisition_date || a.created_at || ""));
+  const possible = (d) => d.individual_filing && d.match_type === "multi_home";
+  return (
+    <article style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, padding: "18px 20px 24px" }}>
+      <button type="button" onClick={onBack} style={{ ...linkBtn, color: "#23406F", fontSize: 14 }}>← All records</button>
+      <h2 style={{ fontSize: 22, fontWeight: 700, margin: "6px 0 4px" }}>{f ? smartCase(f.name) : `CCN ${ccn}`}</h2>
+      <p style={{ fontSize: 14, color: "#5F636A", marginBottom: 14 }}>
+        {[f?.city && `${smartCase(f.city)}, ${f.state}`, `CMS Certification Number ${ccn}`,
+          f?.beds && `${f.beds.toLocaleString()} certified beds`].filter(Boolean).join(" · ")}
+        {homeUrl(ccn) && <> · <a href={homeUrl(ccn)} target="_blank" rel="noreferrer" style={{ ...lnk, fontSize: 14 }}>CMS facility profile ↗</a></>}
+      </p>
+
+      <h3 style={{ fontSize: 16, fontWeight: 600, margin: "10px 0 6px" }}>Direct owners in CMS ownership data</h3>
+      {f?.owners?.length ? (
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {f.owners.map(([owner, start], i) => (
+            <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "#3F4248", padding: "3px 0" }}>
+              <span style={{ color: "#5F636A", minWidth: 96, fontVariantNumeric: "tabular-nums" }}>{start ? `since ${start}` : "—"}</span>
+              <span>{shoutCase(owner)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : <p style={{ fontSize: 14, color: "#5F636A" }}>{f ? "CMS lists no direct owners for this facility (common for nonprofits)." : "No CMS details on file for this facility."}</p>}
+
+      <h3 style={{ fontSize: 16, fontWeight: 600, margin: "18px 0 6px" }}>Records in this tracker ({records.length})</h3>
+      <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        {records.map(d => {
+          const tag = cardTag(d);
+          return (
+            <li key={d.id} style={{ display: "flex", gap: 10, padding: "2px 0", flexWrap: "wrap", alignItems: "center", borderTop: "1px solid #F0EEE8" }}>
+              <span style={{ color: "#5F636A", minWidth: 96, fontSize: 13, fontVariantNumeric: "tabular-nums" }}>
+                {d.acquisition_date || d.created_at?.slice(0, 10)}</span>
+              <span style={{ fontSize: 13, color: "#5F636A", minWidth: 92 }}>{SOURCE[d.source_type]?.label}</span>
+              <a href={`?id=${d.id}`} style={{ ...lnkBlock, flex: "1 1 260px", color: "#1F2328", fontSize: 14 }}>
+                {headlineText(d).replace(/[A-Z][A-Z .,&'-]{3,}/g, m => shoutCase(m))}</a>
+              {possible(d) ? <span style={{ fontSize: 12, color: "#4B2D6B" }}>possible home (owner has {d.possible_homes.length})</span>
+                : tag && <span style={{ fontSize: 12, fontWeight: 600, color: tag.fg, background: tag.bg, padding: "2px 8px", borderRadius: 4 }}>{tag.label}</span>}
+            </li>
+          );
+        })}
+      </ol>
+    </article>
+  );
+}
+
 // Every source behind the card, plus the CMS change that confirms it, by date
 function Timeline({ deal }) {
   const rows = (deal.sources || []).map(s => ({
@@ -468,7 +528,7 @@ function Timeline({ deal }) {
   );
 }
 
-function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, onShowFacility }) {
+function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities }) {
   const src = SOURCE[deal.source_type] || SOURCE.rss;
   const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
   const ccns = deal.ccns?.filter(Boolean) || [];
@@ -566,45 +626,17 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
                   : "Filed against an individual; no matching home in CMS ownership records."}
               </div>
               {(deal.possible_homes || []).map(h => (
-                <div key={h.ccn} style={dv}>
-                  {homeUrl(h.ccn) ? <a href={homeUrl(h.ccn)} target="_blank" rel="noreferrer" style={lnkBlock}>{smartCase(h.name)} ({h.ccn}) ↗</a>
-                    : `${smartCase(h.name)} (${h.ccn})`}
-                </div>
+                <div key={h.ccn} style={dv}><FacilityLink ccn={h.ccn} facilities={facilities} name={h.name} /></div>
               ))}
             </div>
           )}
 
           {!individual && ccns.length > 0 && (
             <div style={{ marginBottom: 12 }}>
-              <div style={dl}>CMS Certification Number(s)</div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
-                {ccns.map(ccn => (
-                  homeUrl(ccn)
-                    ? <a key={ccn} href={homeUrl(ccn)} target="_blank" rel="noreferrer"
-                        style={{ ...lnkBlock, fontFamily: "monospace", padding: "0 4px" }}>{ccn} ↗</a>
-                    : <span key={ccn} style={{ fontSize: 13, fontFamily: "monospace" }}>{ccn}</span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {history?.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={dl}>Facility history — other records for the same CCN{ccns.length > 1 ? "s" : ""}</div>
-              <div style={{ marginTop: 4 }}>
-                {history.slice(0, 8).map(h => (
-                  <div key={h.id} style={{ display: "flex", gap: 10, fontSize: 13, color: "#3F4248", alignItems: "center" }}>
-                    <span style={{ color: "#5F636A", minWidth: 84, fontVariantNumeric: "tabular-nums" }}>
-                      {h.acquisition_date || h.created_at?.slice(0, 10)}</span>
-                    <a href={`?id=${h.id}`} style={{ ...lnkBlock, color: "#3F4248", fontSize: 13 }}>
-                      {(h.headline || []).map(([t, style]) => style ? t : shoutCase(t)).join("")}</a>
-                  </div>
-                ))}
-                {ccns.length === 1 && (
-                  <button type="button" onClick={() => onShowFacility(ccns[0])} style={{ ...btnGhost, fontSize: 13, marginTop: 6 }}>
-                    Show all {history.length + 1} records for CCN {ccns[0]}
-                  </button>
-                )}
+              <div style={dl}>Facilities in CMS records{history?.length > 0 ? ` · ${history.length} other record${history.length > 1 ? "s" : ""} in this tracker` : ""}</div>
+              <div style={{ display: "flex", gap: "0 14px", flexWrap: "wrap", marginTop: 2 }}>
+                {ccns.slice(0, 12).map(ccn => <FacilityLink key={ccn} ccn={ccn} facilities={facilities} />)}
+                {ccns.length > 12 && <span style={{ ...dv, alignSelf: "center" }}>+{ccns.length - 12} more</span>}
               </div>
             </div>
           )}
@@ -716,7 +748,9 @@ function Methodology({ chowDate, corrections, onBack }) {
       <h3 style={h}>Facilities and beds</h3>
       <p style={p}>Records are matched to CMS facilities (CCNs) by the collection pipeline, or, for state filings and news,
         when a facility name is identical to exactly one CMS facility in the same state. Bed counts are CMS certified beds,
-        summed across a record's facilities, and shown only when every facility in the record is matched.</p>
+        summed across a record's facilities, and shown only when every facility in the record is matched. Each matched
+        facility has its own page listing its direct owners in CMS ownership data and every record in this tracker that
+        concerns it, including filings against an owner for whom it is only a possible home.</p>
 
       <h3 style={h}>Filings against individual owners, and "possible homes"</h3>
       <p style={p}>New York UCC filings are also searched by the names of people listed as owners in CMS ownership data.
@@ -922,6 +956,8 @@ export default function App() {
   // ?id=<record> opens one record (a permalink); ?view=methodology the methodology page
   const [focusId, setFocusId]     = useState(() => new URLSearchParams(window.location.search).get("id") || "");
   const [view, setView]           = useState(() => new URLSearchParams(window.location.search).get("view") || "");
+  const [facilityCcn, setFacilityCcn] = useState(() => new URLSearchParams(window.location.search).get("ccn") || "");
+  const [facilities, setFacilities] = useState({});
   const [savedViews, setSavedViews] = useState(loadSavedViews);
   const [offset, setOffset]       = useState(0);
   const [parade, setParade]       = useState(false);
@@ -951,6 +987,7 @@ export default function App() {
         setSearchForms(data.ucc_search_forms || {});
         setFreshness(data.freshness || {});
         setCorrections(data.corrections || []);
+        setFacilities(data.facilities || {});
       })
       .catch(e => setLoadError(e.message))
       .finally(() => setLoading(false));
@@ -960,26 +997,41 @@ export default function App() {
   const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity];
 
   useEffect(() => {
-    if (focusId || view) return;  // those pages own the URL
+    if (focusId || view || facilityCcn) return;  // those pages own the URL
     const params = new URLSearchParams();
     for (const [k, p] of Object.entries(FILTER_PARAMS)) if (currentFilters[k]) params.set(p, currentFilters[k]);
     const qs = params.toString();
     window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
-  }, [...filterDeps, focusId, view]);
+  }, [...filterDeps, focusId, view, facilityCcn]);
 
   // Record and methodology pages are real history entries, so Back works
   useEffect(() => {
     const onPop = () => {
       const p = new URLSearchParams(window.location.search);
-      setFocusId(p.get("id") || ""); setView(p.get("view") || "");
+      setFocusId(p.get("id") || ""); setView(p.get("view") || ""); setFacilityCcn(p.get("ccn") || "");
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+  // Links to ?id= / ?ccn= / ?view= stay inside the app instead of reloading
+  // the page (and the 7 MB data file); modified clicks still open new tabs
+  useEffect(() => {
+    const onClick = (e) => {
+      const a = e.target.closest?.("a[href^='?']");
+      if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const p = Object.fromEntries(new URLSearchParams(a.getAttribute("href")));
+      if (!(p.id || p.ccn || p.view)) return;
+      e.preventDefault();
+      go(p);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   function go(params) {
     const qs = new URLSearchParams(params).toString();
     window.history.pushState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
-    setFocusId(params.id || ""); setView(params.view || "");
+    setFocusId(params.id || ""); setView(params.view || ""); setFacilityCcn(params.ccn || "");
     if (params.id) setExpanded(prev => new Set([...prev, params.id]));
     window.scrollTo({ top: 0 });
   }
@@ -1045,8 +1097,9 @@ export default function App() {
   useEffect(() => {
     const base = "Nursing Home Ownership Changes";
     document.title = view === "methodology" ? `Methodology — ${base}`
+      : facilityCcn ? `${smartCase(facilities[facilityCcn]?.name || `CCN ${facilityCcn}`)} — ${base}`
       : focused ? `${headlineText(focused)} — ${base}` : base;
-  }, [view, focused]);
+  }, [view, focused, facilityCcn, facilities]);
   const deals = filtered.slice(offset, offset + LIMIT);
   const total = filtered.length;
 
@@ -1076,11 +1129,6 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function showFacility(ccn) {
-    clearAll();
-    setSearch(ccn);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
   const fmtStamp = iso => iso && new Date(iso).toLocaleString(undefined,
     { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   const chowFreshness = freshness.chow_file_date &&
@@ -1115,6 +1163,9 @@ export default function App() {
 
         {view === "methodology" ? (
           <Methodology chowDate={chowFreshness && freshness.chow_file_date} corrections={corrections} onBack={() => go({})} />
+        ) : facilityCcn ? (
+          loading ? <div style={{ height: 104 }} />
+            : <FacilityPage ccn={facilityCcn} facilities={facilities} allDeals={allDeals} onBack={() => go({})} />
         ) : focusId ? (
           <section aria-label="Single record">
             <button type="button" onClick={() => go({})} style={{ ...linkBtn, color: "#23406F", fontSize: 14, marginBottom: 4 }}>← All records</button>
@@ -1129,7 +1180,7 @@ export default function App() {
                 <DealCard deal={focused} expanded={expanded.has(focused.id)} onToggle={toggleExpand}
                   searchForms={searchForms} onEntity={(n) => { go({}); pickEntity(n); }}
                   history={expanded.has(focused.id) ? historyFor(focused) : null}
-                  onShowFacility={(c) => { go({}); showFacility(c); }} />
+                  facilities={facilities} />
               </>) : <p style={{ fontSize: 15, color: "#5F636A", padding: "24px 0" }}>This record isn't in the current data. It may have been
                   removed as out of scope or merged with another record.</p>}
           </section>
@@ -1269,7 +1320,7 @@ export default function App() {
               searchForms={searchForms}
               onEntity={pickEntity}
               history={expanded.has(deal.id) ? historyFor(deal) : null}
-              onShowFacility={showFacility} />
+              facilities={facilities} />
           ))
         )}
 
