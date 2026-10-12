@@ -42,9 +42,13 @@ def normalize_entity_name(name: str) -> str:
     Clean up a raw legal entity name into a readable display name.
 
     Examples:
-      620 HEATHWOOD DRIVE OPCO LLC  ->  620 Heathwood Drive Opco
+      620 HEATHWOOD DRIVE OPCO LLC  ->  620 Heathwood Drive Opco LLC
       CASCADIA HEALTHCARE INC       ->  Cascadia Healthcare
       Welltower Inc.                ->  Welltower
+
+    A name that starts with a street number keeps its legal suffixes:
+    without them "101 W State Street Holdings LLC" or "6530 Democracy Blvd
+    LLC" reads as an address, not a company.
     """
     if not name:
         return name
@@ -58,12 +62,9 @@ def normalize_entity_name(name: str) -> str:
     # Strip trailing punctuation and commas
     cleaned = cleaned.rstrip('.,;')
 
-    # Remove legal suffixes
-    for suffix in LEGAL_SUFFIXES:
-        cleaned = re.sub(suffix, '', cleaned, flags=re.IGNORECASE).strip()
-        cleaned = cleaned.rstrip('.,;').strip()
+    # Remove legal suffixes, except from street-number names
     if not re.match(r'\d', cleaned):
-        for suffix in OPCO_SUFFIXES:
+        for suffix in LEGAL_SUFFIXES + OPCO_SUFFIXES:
             cleaned = re.sub(suffix, '', cleaned, flags=re.IGNORECASE).strip()
             cleaned = cleaned.rstrip('.,;').strip()
 
@@ -94,8 +95,11 @@ def _smart_title_case(text: str) -> str:
     words = text.split()
     result = []
     for i, word in enumerate(words):
+        # Legal suffixes kept on street-number names stay upper case
+        if word.upper().strip('.,') in ('LLC', 'LP', 'LLP', 'PLLC'):
+            result.append(word.upper())
         # Keep abbreviations uppercase (2-3 chars like LLC, SNF, NH)
-        if len(word) <= 3 and word.isalpha():
+        elif len(word) <= 3 and word.isalpha():
             result.append(word.upper() if i == 0 else word.lower()
                          if word.lower() in LOWERCASE_WORDS else word.capitalize())
         elif i == 0:
@@ -116,15 +120,46 @@ US_STATE_CODES = frozenset("""
 """.split())
 
 
+# A deal Claude gives no US state for, whose summary places it abroad. The
+# prompt says to skip non-US deals, but some got through with an empty
+# states list (UK care homes, a German portfolio, an Ontario community).
+NON_US_PLACE_RE = re.compile(
+    r"\b(Germany|German|United Kingdom|UK|U\.K\.|Britain|(?<!New )England|Scotland|Wales|Ireland|"
+    r"Canada|Canadian|Ontario|Quebec|British Columbia|Alberta|Australia|Australian|New Zealand|"
+    r"Malaysia|Malaysian|Singapore|India|Japan|China|France|Spain|Italy|Netherlands|Belgium|"
+    r"Sweden|Norway|Denmark|Finland)\b"
+)
+
+
+# Foreign company forms. "Limited Partnership" is a US form, so a bare
+# "Limited" only counts at the end of the name (LNT Care Developments
+# Holdings Limited, Chantry Retirement Homes Limited).
+NON_US_ENTITY_RE = re.compile(r"\b(Limited|Ltd\.?|plc|GmbH|Sdn\.? Bhd\.?|Pty\.?)$", re.I)
+
+
+def looks_non_us(deal: dict) -> bool:
+    """No US state, and the summary names a foreign country or province or
+    a party is a foreign company form. EDGAR deals have no summary, so the
+    party names are the only clue there (CareTrust's UK purchase from LNT)."""
+    if deal.get('states'):
+        return False
+    parties = [deal.get('acquiring_entity'), deal.get('seller_entity')]
+    return (bool(NON_US_PLACE_RE.search(deal.get('rationale') or deal.get('summary') or ''))
+            or any(p and NON_US_ENTITY_RE.search(p.strip().rstrip(',')) for p in parties))
+
+
 def normalize_deal(deal: dict) -> dict:
     """Apply name normalization to all entity fields in a deal dict, and
-    drop non-US state codes. A deal whose states were all non-US gets
-    _non_us_only so the caller can dismiss it."""
+    drop non-US state codes. A deal whose states were all non-US, or that
+    has no state and a summary placing it abroad, gets _non_us_only so the
+    caller can dismiss it."""
     if deal.get('states'):
         us = [s.upper() for s in deal['states'] if s and s.upper() in US_STATE_CODES]
         if not us:
             deal['_non_us_only'] = True
         deal['states'] = us
+    elif looks_non_us(deal):
+        deal['_non_us_only'] = True
     if deal.get('acquiring_entity'):
         deal['acquiring_entity'] = normalize_entity_name(deal['acquiring_entity'])
     if deal.get('seller_entity'):

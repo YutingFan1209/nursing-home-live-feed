@@ -55,6 +55,10 @@ Do NOT extract a deal whose acquired asset is:
 - a hospice-only or home-health-only provider with no SNF/AL/memory-care facilities involved
 - anything outside healthcare entirely (real estate, retail, fitness, etc. mentioned only in
   passing or by a shared address/developer)
+- a PACE program (Program of All-Inclusive Care for the Elderly) or adult day center
+Only extract deals whose facilities are in the United States. Skip a deal whose facilities are all
+in another country (UK care homes, German or Canadian portfolios, etc.), even if the buyer is a US
+company.
 If unsure whether the asset qualifies, exclude it rather than guess.
 
 Staleness — only extract a deal if the article is reporting it as current news (an announcement,
@@ -93,6 +97,9 @@ exclude those deals too.
 Rules:
 - Split broker/lender announcements from acquisition deals (they are separate deals)
 - If the acquirer is described as "unnamed" or "undisclosed", use null for acquiring_entity
+- Use a party's full legal name when the article gives it. Some buyers are entities named after a
+  street address ("101 W State Street Holdings LLC"); keep the LLC/Holdings part so the name doesn't
+  read as an address
 - Roundups and broker/lender announcements often keep the parties anonymous ("a regional operator",
   "a national owner"). Still fill every field the text does give (lender, financing_amount_m,
   deal_value_m, states, facility_count), and make the rationale say what happened with its numbers:

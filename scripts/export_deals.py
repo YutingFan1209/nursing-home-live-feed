@@ -171,13 +171,19 @@ def _ucc_fields(deal: dict, debtor: str | None, filing_type: str | None) -> dict
     }
 
 
+REFINANCING_RE = re.compile(r"\brefinanc", re.I)
+
+
 def _news_deal_type(deal: dict) -> str:
     """News extraction pulls parties and amounts but no deal type, and
     stored article titles are often a snippet rather than the headline, so
     keyword-matching them misfires. Only call it financing when the
-    extracted fields say so: a loan amount with no buyer and no price."""
+    extracted fields say so: a loan amount with no buyer and no price.
+    Claude's summary (not the title) is reliable enough to split off
+    refinancings ("closed a $53M cash-out refinancing", "to refinance
+    existing 2019 bonds"), which the site hides by default like UCC ones."""
     if deal.get("financing_amount_m") and not deal.get("deal_value_m") and not deal.get("acquiring_entity"):
-        return "financing"
+        return "refinancing" if REFINANCING_RE.search(deal.get("summary") or "") else "financing"
     return "ownership_change"
 
 

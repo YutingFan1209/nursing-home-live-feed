@@ -14,6 +14,8 @@ everyone:
     contains an AL/MC term.
 """
 
+import re
+
 AL_MC_TERMS = {
     "assisted living", "memory care", "independent living",
     "senior living community", "life plan community", "ccrc", "retirement",
@@ -40,8 +42,25 @@ def _has_al_mc_term(facility_names: list[str]) -> bool:
     )
 
 
+# PACE (Program of All-Inclusive Care for the Elderly) is a day-center and
+# home-care program, not a facility -- One Senior Care / PACE North got in as
+# an acquisition. Upper-case "PACE" only, so "Pace" as a surname doesn't match.
+PACE_NAME_RE = re.compile(r"\bPACE\b")
+
+
+def is_pace(deal: dict) -> bool:
+    names = [deal.get("acquiring_entity"), deal.get("seller_entity"),
+             *(deal.get("operator_names") or []), *(deal.get("facility_names") or [])]
+    summary = deal.get("rationale") or deal.get("summary") or ""
+    return any(n and PACE_NAME_RE.search(n) for n in names) or bool(
+        re.search(r"\bPACE\b|Program of All-Inclusive Care|all-inclusive care program", summary))
+
+
 def is_out_of_scope(deal: dict) -> bool:
-    """True if this deal looks like assisted living / memory care, not SNF."""
+    """True if this deal looks like assisted living / memory care or a PACE
+    program, not SNF."""
+    if is_pace(deal):
+        return True
     facility_names = deal.get("facility_names") or []
     names_to_check = list(deal.get("operator_names") or [])
     if deal.get("acquiring_entity"):

@@ -172,6 +172,56 @@ def test_news_deal_type_financing_only_from_extracted_fields():
     assert _news_deal_type({"source_title": "Bridge Logistics refinances"}) == "ownership_change"
 
 
+def test_news_refinancing_split_from_summary():
+    assert _news_deal_type({"financing_amount_m": 53, "lender": "CIBC",
+        "summary": "CIBC closed a $53M cash-out refinancing for a 9-facility portfolio"}) == "refinancing"
+    assert _news_deal_type({"financing_amount_m": 32.45,
+        "summary": "Ziegler closed a placement to refinance existing 2019 bonds"}) == "refinancing"
+    assert _news_deal_type({"financing_amount_m": 11, "lender": "CIBC",
+        "summary": "CIBC closed an $11M commercial mortgage for a skilled nursing facility"}) == "financing"
+
+
+# ── Data-quality guards (2026-10-12) ──────────────────────────
+# Non-US deals with no state, PACE programs, and street-number buyer names
+# showing up in the feed.
+
+from pipeline.al_mc_scope import is_out_of_scope
+from pipeline.normalizer import normalize_deal, normalize_entity_name
+
+
+def test_street_number_names_keep_legal_suffix():
+    assert normalize_entity_name("101 W State Street Holdings LLC") == "101 W State Street Holdings LLC"
+    assert normalize_entity_name("620 HEATHWOOD DRIVE OPCO LLC") == "620 Heathwood Drive Opco LLC"
+    assert normalize_entity_name("CASCADIA HEALTHCARE INC") == "Cascadia Healthcare"
+
+
+def test_stateless_foreign_deal_is_flagged_non_us():
+    uk = normalize_deal({"acquiring_entity": "CareTrust", "states": [],
+                         "rationale": "CareTrust acquired three UK care homes for $34 million"})
+    assert uk.get("_non_us_only")
+    us = normalize_deal({"acquiring_entity": "Sienna", "states": ["OH"],
+                         "rationale": "Canadian operator Sienna acquired an Ohio SNF"})
+    assert not us.get("_non_us_only")
+    unknown = normalize_deal({"acquiring_entity": "Welltower", "states": [],
+                              "rationale": "Welltower acquired 41 skilled nursing facilities"})
+    assert not unknown.get("_non_us_only")
+    new_england = normalize_deal({"acquiring_entity": "Athena", "states": [],
+                                  "rationale": "Athena acquired four New England nursing homes"})
+    assert not new_england.get("_non_us_only")
+    lnt = normalize_deal({"acquiring_entity": "CareTrust", "states": [],
+                          "seller_entity": "LNT Care Developments Holdings Limited"})
+    assert lnt.get("_non_us_only")
+    us_lp = normalize_deal({"acquiring_entity": "KTLA Properties Limited Partnership", "states": []})
+    assert not us_lp.get("_non_us_only")
+
+
+def test_pace_program_is_out_of_scope():
+    assert is_out_of_scope({"acquiring_entity": "One Senior Care", "seller_entity": "PACE North",
+                            "rationale": "expanding its all-inclusive care program"})
+    assert not is_out_of_scope({"acquiring_entity": "Pace Healthcare Group", "facility_names": ["Oak Manor"],
+                                "rationale": "acquired a 120-bed SNF"})
+
+
 # ── Run health (2026-09-23) ───────────────────────────────────
 # Failures used to be logged and forgotten; runs that lost whole sources
 # still exited 0.
