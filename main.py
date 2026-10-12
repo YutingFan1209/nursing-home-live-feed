@@ -45,6 +45,7 @@ from scraper.con_md import fetch_con_md_cases, CON_MD_SOURCE_NAME, CON_MD_INDEX_
 from scraper.con_nj import fetch_con_nj, CON_NJ_SOURCE_NAME, CON_NJ_OPERATOR_URL
 from scraper.con_ny import fetch_con_ny_projects, project_number as _con_ny_project, CON_NY_SOURCE_NAME, CON_NY_INDEX_URL
 from pipeline.source_health import log_source_health
+from pipeline import individual_owners
 from scraper.ucc import fetch_ucc_filings
 from ucc.lender_search import LENDER_TERMS
 from pipeline.extractor import extract_deals
@@ -313,6 +314,9 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
         rechecked = recheck_pending(conn)
         conn.commit()
         logger.info(f"Re-checked {rechecked} pending deals")
+
+        # NY UCC filings against a person -> the NY homes they own in CMS
+        individual_owners.refresh(conn)
 
         # Step 4 — Send digest
         if not no_alerts:

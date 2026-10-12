@@ -106,6 +106,11 @@ Rules:
   the kind of deal (sale, lease, refinancing, new loan), the lender or broker, the amount, beds, and
   how the parties are described, e.g. "CIBC closed a $53M cash-out refinancing for a 9-facility,
   930-bed Pennsylvania SNF portfolio owned by a regional operator."
+- The rationale feeds the site's labels, so say plainly: whether it's a sale, a lease, or control
+  passing without a sale (a parent becoming the active parent, a member substitution, a new
+  manager); whether a loan finances an acquisition or refinances; whether the deal is pending or
+  closed; and, if the buyer isn't named, how the article describes them ("a national REIT") or that
+  it calls the buyer undisclosed
 - Include parent company names (e.g. "Welltower" even if the actual seller was "an affiliate of Welltower")
 - States should be 2-letter codes only: ["VA", "CO", "AL"]
 - deal_value_m and financing_amount_m must be numbers, not strings

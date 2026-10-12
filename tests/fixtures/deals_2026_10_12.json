@@ -1,0 +1,624 @@
+{
+ "genesis": {
+  "id": "a341faca-8207-4cb4-b508-b3f819ae5d61",
+  "acquiring_entity": "101 W State Street Holdings LLC",
+  "seller_entity": "Genesis HealthCare",
+  "states": [],
+  "facility_count": null,
+  "deal_value_m": "996.00",
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [
+   "Genesis HealthCare"
+  ],
+  "facility_names": [],
+  "created_at": "2026-10-12T17:46:14.185751+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "101 W. State Street acquired Genesis HealthCare, once among the nation's largest skilled nursing providers, for $996 million through a bankruptcy sale process, with final court approval expected October 14, 2026.",
+  "source_type": "rss",
+  "source_name": "McKnight's Long-Term Care News",
+  "source_url": "https://www.mcknights.com/news/genesis-set-to-close-sale-seek-final-approval-tuesday/",
+  "source_title": "Genesis set to close sale, seek final approval Tuesday",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "101 W State Street Holdings LLC acquired from Genesis HealthCare",
+   "tag": ""
+  }
+ },
+ "genesis_me_con": {
+  "id": "d02c8194-198b-4837-8624-c4412cd444df",
+  "acquiring_entity": "101 W State Street Holdings LLC",
+  "seller_entity": "Genesis Healthcare",
+  "states": [
+   "ME"
+  ],
+  "facility_count": 11,
+  "deal_value_m": "343.00",
+  "financing_amount_m": null,
+  "acquisition_date": "2026-06-30",
+  "operator_names": [
+   "23 Cedar Ridge Road Opco",
+   "2 Footbridge Road Opco",
+   "33 Roger Street Opco",
+   "27 Cool Street Opco",
+   "117 Bennoch Road Opco",
+   "67 Pine Point Road Opco",
+   "3 Brazier Lane Opco",
+   "119 Livermore Falls Road Opco",
+   "22 Northbrook Drive Opco",
+   "300 Spring Street Opco",
+   "105 Mechanic Street Opco"
+  ],
+  "facility_names": [
+   "Cedar Ridge Center",
+   "Harbor Hills Center",
+   "Marshwood Center",
+   "Oak Grove Center",
+   "Orono Commons",
+   "Pine Point Center",
+   "River Ridge Center",
+   "Sandy River Center",
+   "Sedgewood Commons",
+   "Springbrook Center",
+   "Windward Gardens"
+  ],
+  "created_at": "2026-09-30T16:06:41.718559+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": null,
+  "source_type": "con",
+  "source_name": "Maine DHHS Certificate of Need Reviews",
+  "source_url": "https://www.maine.gov/dhhs/sites/maine.gov.dhhs/files/inline-files/NewGen%20-%20Maine%20CON%20LOI%20%283.19.26%29.pdf",
+  "source_title": "[ME CON] WSSH/Genesis Facilities: Acquisition of Control",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "101 W State Street Holdings LLC acquired from Genesis HealthCare",
+   "tag": ""
+  }
+ },
+ "razorback": {
+  "id": "0a013a42-3c8c-4d0e-ab52-7c526ad6cf78",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "AR"
+  ],
+  "facility_count": 2,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [],
+  "created_at": "2026-10-08T15:02:26.546371+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Evans Senior Investments executed a new lease for Project Razorback, a 2-facility, 255-bed skilled nursing portfolio in Arkansas, securing a year-one annual rent of $3M ($980 per bed per month).",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+  "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Buyer not disclosed \u00b7 2 facilities in AR",
+   "tag": ""
+  }
+ },
+ "selectis_ga": {
+  "id": "27893485-9506-4426-b005-a7cea6004467",
+  "acquiring_entity": null,
+  "seller_entity": "Selectis Health",
+  "states": [
+   "GA"
+  ],
+  "facility_count": 2,
+  "deal_value_m": "15.70",
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [
+   "Glen Eagle Healthcare and Rehab",
+   "Eastman Healthcare & Rehab"
+  ],
+  "created_at": "2026-10-08T14:24:36.130535+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "confirmed",
+  "summary": "Selectis Health sold its remaining two skilled nursing and long-term care facilities in central Georgia (Abbeville and Eastman) with a combined licensed capacity of 201 beds for approximately $78,000 per bed.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://skillednursingnews.com/2026/06/skilled-nursing-dealbook-ensign-expands-in-iowa-selectis-health-sells-remaining-georgia-facilities-for-15-7m/",
+  "source_title": "Skilled Nursing Dealbook: Ensign Expands in Iowa; Selectis Health Sells Remaining Georgia Facilities for $15.7M",
+  "ccns": [
+   "115622"
+  ],
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Buyer not disclosed acquired from Selectis Health",
+   "tag": "CMS confirmed"
+  }
+ },
+ "blueprint_oh": {
+  "id": "4c3f5ca5-4e25-4d12-bbf0-c98659158b20",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "OH"
+  ],
+  "facility_count": 5,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [],
+  "created_at": "2026-10-08T15:02:26.546371+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Blueprint advised on the sale of a 5-facility, 420-bed skilled nursing portfolio in northeastern Ohio, acquired by a national owner and a new operator entering the Ohio market.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+  "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Buyer not disclosed \u00b7 5 facilities in OH",
+   "tag": ""
+  }
+ },
+ "rhinebeck": {
+  "id": "6b6a97b7-4571-4a54-a10e-3a0314a84428",
+  "acquiring_entity": null,
+  "seller_entity": "ArchCare",
+  "states": [
+   "NY"
+  ],
+  "facility_count": 1,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [
+   "ArchCare"
+  ],
+  "facility_names": [
+   "Ferncliff Nursing Home"
+  ],
+  "created_at": "2026-10-08T14:21:45.351716+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "ArchCare, a nonprofit Catholic healthcare system affiliated with the Archdiocese of New York, plans to sell its 196-bed skilled nursing facility in Rhinebeck, New York, to an undisclosed buyer in a transaction that could take up to two years pending regulatory approval.",
+  "source_type": "rss",
+  "source_name": "Skilled Nursing News",
+  "source_url": "https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-two-hospital-systems-selling-nursing-homes-including-a-99-bed-facility-in-missouri/",
+  "source_title": "Skilled Nursing Dealbook: Two Hospital Systems Selling Their Nursing Homes, Including a 99-Bed Facility in Missouri",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Buyer not disclosed acquired from ArchCare",
+   "tag": ""
+  }
+ },
+ "eger": {
+  "id": "8257e72b-c311-467a-aa40-3debc16c17fe",
+  "acquiring_entity": "Catholic Health Care System",
+  "seller_entity": null,
+  "states": [
+   "NY"
+  ],
+  "facility_count": 1,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2025-12-04",
+  "operator_names": [
+   "ArchCare",
+   "Catholic Health Care System"
+  ],
+  "facility_names": [
+   "Eger Health Care and Rehabilitation Center",
+   "ArchCare at Eger Healthcare and Rehabilitation Center"
+  ],
+  "created_at": "2026-10-09T18:14:35.376426+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Catholic Health Care System d/b/a ArchCare is transitioning from passive parent to active parent/co-operator of Eger Health Care and Rehabilitation Center, a 378-bed nursing home in Staten Island. No purchase price is involved; the facility will operate as ArchCare at Eger Healthcare and Rehabilitation Center upon PHHPC approval.",
+  "source_type": "con",
+  "source_name": "New York PHHPC Nursing Home Establishment Approvals",
+  "source_url": "https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2025-11-13/docs/agenda.pdf#project-251167",
+  "source_title": "[NY PHHPC] Project 251167-E: nursing home establishment (Richmond County)",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Catholic Health Care System acquired Eger Health Care and Rehabilitation Center and 1 more",
+   "tag": ""
+  }
+ },
+ "pgim_acoya": {
+  "id": "fd9f37e5-00bd-498e-8de4-e670ed081c5d",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "AZ",
+   "NY"
+  ],
+  "facility_count": 2,
+  "deal_value_m": null,
+  "financing_amount_m": "144.00",
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [
+   "Acoya Shea",
+   "The Ambassador of Scarsdale"
+  ],
+  "created_at": "2026-10-08T14:19:59.388911+00:00",
+  "lender": "PGIM",
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "PGIM provided two loans totaling $144M for the acquisition of Acoya Shea in Phoenix and The Ambassador of Scarsdale in Westchester, New York.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://seniorhousingnews.com/2026/09/08/senior-living-dealbook-agewell-retains-management-of-two-communities-pgim-provides-144m-for-acquisition/",
+  "source_title": "Senior Living Dealbook: AgeWell Retains Management of Two Communities; PGIM Provides $144M for Acquisition",
+  "ccns": null,
+  "deal_type": "financing",
+  "_before_site": {
+   "headline": "PGIM financed Acoya Shea and 1 more",
+   "tag": "General financing"
+  }
+ },
+ "cambridge_ky": {
+  "id": "6171f6f3-26d9-48be-883c-f92aee5a1f55",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "KY"
+  ],
+  "facility_count": 1,
+  "deal_value_m": null,
+  "financing_amount_m": "21.50",
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [],
+  "created_at": "2026-10-07T17:52:31.034486+00:00",
+  "lender": "Cambridge Realty Capital",
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Cambridge Realty Capital arranged $21.5 million in bridge-to-HUD acquisition financing for a 108-bed skilled nursing facility in Kentucky. A regional commercial bank provided the first mortgage loan to an undisclosed borrower.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://seniorshousingbusiness.com/cambridge-arranges-21-5m-bridge-to-hud-financing-for-kentucky-skilled-nursing-facility/",
+  "source_title": "Cambridge Arranges $21.5M Bridge-to-HUD Financing for Kentucky Skilled Nursing Facility",
+  "ccns": null,
+  "deal_type": "financing",
+  "_before_site": {
+   "headline": "Cambridge Realty Capital financed a facility in KY",
+   "tag": "General financing"
+  }
+ },
+ "lourdes": {
+  "id": "79f35755-ae9c-4ac9-8ca1-a3cf71248d0a",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [],
+  "facility_count": 1,
+  "deal_value_m": null,
+  "financing_amount_m": "32.45",
+  "acquisition_date": null,
+  "operator_names": [
+   "Dominican Health Care"
+  ],
+  "facility_names": [
+   "Lourdes Senior Community"
+  ],
+  "created_at": "2026-10-08T14:24:22.114818+00:00",
+  "lender": "WesBanco",
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Ziegler closed a $32.5M tax-exempt direct placement refinancing for Lourdes Senior Community, a not-for-profit CCRC operated by Dominican Health Care Corporation, to refinance existing 2019 bonds and finance construction of a new 60-unit independent living building.",
+  "source_type": "rss",
+  "source_name": "Google Alerts \u2014 Nursing Home Acquisition",
+  "source_url": "https://www.streetinsider.com/PRNewswire/ZIEGLER+CLOSES+%2432%2C453%2C000+FINANCING+FOR+LOURDES+SENIOR+COMMUNITY/27135689.html",
+  "source_title": "ZIEGLER CLOSES $32,453,000 FINANCING FOR LOURDES SENIOR COMMUNITY",
+  "ccns": null,
+  "deal_type": "refinancing",
+  "_before_site": {
+   "headline": "WesBanco refinanced Lourdes Senior Community",
+   "tag": ""
+  }
+ },
+ "cibc_53m": {
+  "id": "ff851b13-f140-4620-baab-6a70ec7988ed",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "PA"
+  ],
+  "facility_count": 9,
+  "deal_value_m": null,
+  "financing_amount_m": "53.00",
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [],
+  "created_at": "2026-10-08T15:02:26.546371+00:00",
+  "lender": "CIBC",
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "CIBC closed a $53M cash-out refinancing for a 9-facility, 930-bed skilled nursing portfolio in Pennsylvania owned by a regional operator.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+  "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+  "ccns": null,
+  "deal_type": "refinancing",
+  "_before_site": {
+   "headline": "CIBC refinanced 9 facilities in PA",
+   "tag": ""
+  }
+ },
+ "blueprint_dayton": {
+  "id": "438cd252-c2c9-4811-8df2-54106b89d7be",
+  "acquiring_entity": "regional owner/operator",
+  "seller_entity": null,
+  "states": [
+   "OH"
+  ],
+  "facility_count": 1,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [],
+  "facility_names": [],
+  "created_at": "2026-10-07T17:53:38.052837+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Blueprint advised on the sale of a 40-unit assisted living and 75-bed skilled nursing campus near Dayton, Ohio, to a regional Ohio owner/operator with an established presence in the state.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://skillednursingnews.com/2026/08/skilled-nursing-dealbook-170-5m-in-financing-closed-for-7-skilled-nursing-facilities-and-portfolios/",
+  "source_title": "Skilled Nursing Dealbook: $170.5M in Financing Closed For 7 Skilled Nursing Facilities and Portfolios",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Regional Owner/Operator acquired a facility in OH",
+   "tag": ""
+  }
+ },
+ "blueprint_reit": {
+  "id": "81e7f021-8478-4ea2-8dc9-56a5088b0294",
+  "acquiring_entity": "Ohio-based provider",
+  "seller_entity": "public",
+  "states": [
+   "OH"
+  ],
+  "facility_count": 3,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2026-06-30",
+  "operator_names": [],
+  "facility_names": [],
+  "created_at": "2026-10-07T17:53:38.052837+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Blueprint completed the sale of 3 Ohio SNF and long-term care facilities (nearly 250 beds) on behalf of a public REIT to an Ohio-based provider seeking to expand its footprint, closing June 30, 2026.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://skillednursingnews.com/2026/08/skilled-nursing-dealbook-170-5m-in-financing-closed-for-7-skilled-nursing-facilities-and-portfolios/",
+  "source_title": "Skilled Nursing Dealbook: $170.5M in Financing Closed For 7 Skilled Nursing Facilities and Portfolios",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Ohio-based provider acquired from Public",
+   "tag": ""
+  }
+ },
+ "strawberry_marshall": {
+  "id": "f8a552b8-d24f-4a17-99a0-1e82e5359349",
+  "acquiring_entity": "Strawberry Fields",
+  "seller_entity": null,
+  "states": [
+   "MO"
+  ],
+  "facility_count": 3,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": null,
+  "operator_names": [
+   "American Medical Administrators",
+   "Reliant Care Group"
+  ],
+  "facility_names": [],
+  "created_at": "2026-10-08T14:25:01.821326+00:00",
+  "lender": null,
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": "Strawberry Fields REIT acquired a hospital campus in Marshall, Missouri, comprising a 60-bed hospital, 99-bed skilled nursing facility, and medical office building. The campus was added to an existing Master Lease with an affiliate of American Medical Administrators (formerly Reliant Care Group), bringing the Company's total healthcare facilities in Missouri to 21.",
+  "source_type": "rss",
+  "source_name": "Google Alerts (Gmail)",
+  "source_url": "https://www.quiverquant.com/news/Strawberry+Fields+REIT+Acquires+Marshall%2C+Missouri+Hospital+Campus%2C+Expands+Missouri+Portfolio",
+  "source_title": "Strawberry Fields REIT Acquires Marshall, Missouri Hospital Campus, Expands Missouri Portfolio | STRW Stock News",
+  "ccns": null,
+  "deal_type": "ownership_change",
+  "_before_site": {
+   "headline": "Strawberry Fields acquired 3 facilities in MO",
+   "tag": ""
+  }
+ },
+ "individual_multi": {
+  "id": "edb11c2f-f9aa-4e60-91bb-d3ca7c1cfa59",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "NY"
+  ],
+  "facility_count": null,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2026-03-30",
+  "operator_names": [
+   "BENJAMIN LANDA"
+  ],
+  "facility_names": [
+   "BROOKHAVEN REHAB & HEALTH CARE CENTER L L C",
+   "EASTCHESTER REHABILITATION AND HEALTH CARE CENTER",
+   "GARDEN CARE CENTER",
+   "GOLDEN GATE REHABILITATION & HEALTH CARE CENTER",
+   "PARKVIEW CARE AND REHABILITATION CENTER, INC",
+   "PINNACLE MULTICARE NURSING AND REHAB CENTER",
+   "PREMIER NSG & REHAB CENTER OF FAR ROCKAWAY",
+   "ROCKVILLE SKILLED NURSING & REHAB CENTER, L L C",
+   "SPRING CREEK REHABILITATION & NURSING CARE CENTER",
+   "THE FIVE TOWNS PREMIER REHAB & NURSING CENTER",
+   "THE HAMPTONS CENTER FOR REHABILITATION AND NURSING"
+  ],
+  "created_at": "2026-06-18T13:31:50.848369+00:00",
+  "lender": "METROPOLITAN COMMERCIAL BANK",
+  "ucc_confirmed": false,
+  "stage": "confirmed",
+  "summary": null,
+  "source_type": "ucc",
+  "source_name": "State UCC-1 Filings",
+  "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
+  "source_title": "NY UCC-1 filing #NYX-fcc8f85a680cb936 \u2014 search this number on the state portal",
+  "ccns": [
+   "335074",
+   "335125",
+   "335165",
+   "335214",
+   "335502",
+   "335581",
+   "335582",
+   "335634",
+   "335694",
+   "335718",
+   "335747",
+   "335817",
+   "335850"
+  ],
+  "ucc_filing_number": "NYX-fcc8f85a680cb936",
+  "ucc_state": "NY",
+  "ucc_debtor": "BENJAMIN LANDA",
+  "ucc_filing_type": "UCC-1",
+  "lender_category": "Healthcare RE / HUD lender",
+  "deal_type": "financing",
+  "_homes": [
+   [
+    "335139",
+    "Forest Hills Care Center"
+   ],
+   [
+    "335502",
+    "Golden Gate Rehabilitation & Health Care Center"
+   ],
+   [
+    "335165",
+    "Premier Nursing and Rehab Center of Far Rockaway"
+   ],
+   [
+    "335737",
+    "West Lawrence Care Center. LLC"
+   ]
+  ],
+  "_before_site": {
+   "headline": "Benjamin Landa \u2014 UCC-1 financing",
+   "tag": "Individual filing",
+   "note": "card said \"Owner of <first facility_names>\" from fuzzy CMS matches"
+  }
+ },
+ "individual_single": {
+  "id": "a75e902b-b220-4b74-aa95-07ee719434bb",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "NY"
+  ],
+  "facility_count": null,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2026-06-04",
+  "operator_names": [
+   "ZACHARY FISHER"
+  ],
+  "facility_names": [
+   "MONTGOMERY NURSING AND REHABILITATION CENTER"
+  ],
+  "created_at": "2026-06-18T13:31:50.848369+00:00",
+  "lender": "EMPOWER FEDERAL CREDIT UNION",
+  "ucc_confirmed": false,
+  "stage": "confirmed",
+  "summary": null,
+  "source_type": "ucc",
+  "source_name": "State UCC-1 Filings",
+  "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
+  "source_title": "NY UCC-1 filing #NYX-a92a30704d9509dc \u2014 search this number on the state portal",
+  "ccns": [
+   "335396"
+  ],
+  "ucc_filing_number": "NYX-a92a30704d9509dc",
+  "ucc_state": "NY",
+  "ucc_debtor": "ZACHARY FISHER",
+  "ucc_filing_type": "UCC-1",
+  "lender_category": "Equipment / non-deal lien",
+  "deal_type": "non_deal_lien",
+  "_homes": [
+   [
+    "335396",
+    "MONTGOMERY NURSING AND REHABILITATION CENTER"
+   ]
+  ],
+  "_before_site": {
+   "headline": "Zachary Fisher \u2014 likely non-deal lien",
+   "tag": "Individual filing",
+   "note": "card said \"Owner of <first facility_names>\" from fuzzy CMS matches"
+  }
+ },
+ "individual_unmatched": {
+  "id": "6f7fcec6-d3ca-4b25-863f-ca6d79dff2a4",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "NY"
+  ],
+  "facility_count": null,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2026-04-01",
+  "operator_names": [
+   "ROBERT BUTLER"
+  ],
+  "facility_names": [
+   "BETHEL HEALTH CARE CENTER"
+  ],
+  "created_at": "2026-06-18T13:31:50.848369+00:00",
+  "lender": "AMERICU CREDIT UNION",
+  "ucc_confirmed": false,
+  "stage": "detected",
+  "summary": null,
+  "source_type": "ucc",
+  "source_name": "State UCC-1 Filings",
+  "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
+  "source_title": "NY UCC-1 filing #NYX-4b69ed94bbb63a15 \u2014 search this number on the state portal",
+  "ccns": null,
+  "ucc_filing_number": "NYX-4b69ed94bbb63a15",
+  "ucc_state": "NY",
+  "ucc_debtor": "ROBERT BUTLER",
+  "ucc_filing_type": "UCC-1",
+  "lender_category": "Equipment / non-deal lien",
+  "deal_type": "non_deal_lien",
+  "_homes": [],
+  "_before_site": {
+   "headline": "Robert Butler \u2014 likely non-deal lien",
+   "tag": "Individual filing",
+   "note": "card said \"Owner of Bethel Health Care Center\" (a fuzzy match; his only CMS record is a CT owner)"
+  }
+ }
+}

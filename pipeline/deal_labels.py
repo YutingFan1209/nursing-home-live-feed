@@ -1,0 +1,329 @@
+"""
+Labels for the public feed: what kind of event a record is, what kind of
+facility, whether the buyer is known, how sure we are it happened, and the
+headline. Applied when deals.json is written (scripts/export_deals.py), like
+pipeline/ucc_category.py, so nothing is stored and the rules can be retuned.
+
+The feed is read by researchers and legislators, so the rules lean toward
+saying less: a label is only applied when the source text supports it.
+
+All text rules read the deal's summary (Claude's one-line rationale, written
+from the article) and the source title, never the raw article.
+"""
+
+import re
+from datetime import date, timedelta
+
+from pipeline.normalizer import looks_non_us
+from pipeline.ucc_category import is_person
+
+CONFIRM_WINDOW = timedelta(days=183)
+
+
+def _text(d: dict) -> str:
+    return " ".join(filter(None, [d.get("summary"), d.get("source_title")]))
+
+
+def _day(s):
+    try:
+        return date.fromisoformat(str(s)[:10]) if s else None
+    except ValueError:
+        return None
+
+
+# ── Transaction type ─────────────────────────────────────────────────────
+# A lease moves operations without a sale. Only when the transaction itself
+# is the lease: MI CON "NEW 36-MTH LEASE", MS CON "CHOW (Lease)", news
+# "executed a new lease". "ACQ 99 BED NH BY X [10-YR LEASE]" and "acquiring
+# operations through lease arrangements" are purchases and stay sales.
+_LEASE_RE = re.compile(
+    r"\[MI CON\] [\d-]+ NEW [^:]*LEASE"
+    r"|\[MS CON\] CHOW \(Lease\)"
+    r"|\b(executed|arranged|signed|entered into) an? (new )?[\w -]{0,30}\blease\b",
+    re.I)
+_SALE_RE = re.compile(r"\b(acquir\w*|purchas\w*|bought|sold|sale of|ACQ)\b", re.I)
+
+# Control passes without a sale: ArchCare going from passive to active parent
+# of Eger. Not "Acquisition of Control", which is Maine's term for any sale.
+_CONTROL_RE = re.compile(
+    r"\bpassive parent\b|\bactive parent\b|\bno purchase price\b|\bmember substitution\b"
+    r"|\bwithout (a|any) (sale|purchase)\b|\b(internal|corporate) reorganization\b"
+    # a new manager isn't a new owner (Trustwell "assumed management of")
+    r"|\b(assumed|assumes|assuming|took over|takes over) (the )?management\b", re.I)
+
+_ACQ_FIN_RE = re.compile(
+    r"\bacquisition financing\b|\bfor the (acquisition|purchase) of\b|\bto (acquire|purchase)\b"
+    r"|\bfinanc\w* the (acquisition|purchase)\b|\bbridge-to-HUD acquisition\b", re.I)
+_REFI_RE = re.compile(r"\brefinanc\w*|\bcash-out\b|\brefund(ing)?\b", re.I)
+
+
+def transaction_type(d: dict) -> str:
+    """deal_type with leases, control changes and news financing subtypes
+    split out. UCC types come from pipeline/ucc_category.py and pass through."""
+    dt = d.get("deal_type") or "ownership_change"
+    if d.get("source_type") == "ucc":
+        return dt
+    text = _text(d)
+    if dt == "ownership_change":
+        if _CONTROL_RE.search(text) and not d.get("deal_value_m"):
+            return "control_change"
+        if _LEASE_RE.search(text) and not (d.get("source_type") in ("rss", "edgar") and _SALE_RE.search(d.get("summary") or "")):
+            return "lease"
+        return dt
+    if dt in ("financing", "refinancing", "acquisition_financing"):
+        # "for the acquisition of" wins over "refinancing" in the same line
+        if _ACQ_FIN_RE.search(d.get("summary") or ""):
+            return "acquisition_financing"
+        if _REFI_RE.search(d.get("summary") or ""):
+            return "refinancing"
+        return "financing"
+    return dt
+
+
+# ── Facility type ────────────────────────────────────────────────────────
+_SNF_RE = re.compile(
+    r"skilled nursing|\bSNFs?\b|nursing (home|facilit|center|centre|cent|and rehab|& rehab)"
+    r"|post-acute|long-term care|\bRHCF\b|rehabilitation (center|centre|and nursing|& nursing)"
+    r"|health (care|and rehabilitation) center|\bcare center\b|convalescent|nursing\b", re.I)
+_SENIOR_RE = re.compile(
+    r"assisted living|memory care|independent living|senior living|senior housing|seniors housing"
+    r"|\bCCRC\b|continuing care retirement|life plan|retirement communit|supportive living|\bunits?\b", re.I)
+_HOSPITAL_RE = re.compile(r"\bhospital\b|\bmedical center\b", re.I)
+
+FACILITY_TYPES = ("skilled_nursing", "senior_living", "hospital", "non_us", "unknown")
+
+
+def facility_type(d: dict) -> str:
+    """skilled_nursing covers any record with a nursing home in it (a CCRC's
+    SNF beds, a hospital campus with an SNF). CMS, UCC and state CON records
+    are all nursing-facility sources; news is read from its own words."""
+    if d.get("source_type") in ("chow", "ucc", "con"):
+        return "skilled_nursing"
+    if looks_non_us(d):
+        return "non_us"
+    text = " ".join([_text(d), *(d.get("facility_names") or [])])
+    if _SNF_RE.search(text):
+        return "skilled_nursing"
+    if _SENIOR_RE.search(text):
+        return "senior_living"
+    if _HOSPITAL_RE.search(text):
+        return "hospital"
+    return "unknown"
+
+
+# ── Buyer ────────────────────────────────────────────────────────────────
+_UNDISCLOSED_RE = re.compile(
+    r"\b(undisclosed|unnamed|unidentified) (buyer|purchaser|acquirer)\b"
+    r"|\bbuyer (was|is|were|has) not (been )?(disclosed|named|identified)\b"
+    r"|\bdid not (disclose|name|identify) the (buyer|purchaser)\b", re.I)
+# "acquired by a national owner and a new operator entering the Ohio market"
+_STOP = (r"(?=,|;|\.|\s(?:in|for|at|from|with|whose|who|that|which|as|on|to|after|"
+         r"entering|seeking|marking|partnering|expanding|making|continuing|while)\b|$)")
+_DESC_AFTER_RE = re.compile(
+    r"\b(?:sold to|sale \w+ to|to|acquired by|purchased by|bought by|Buyer was)\s+((?:an?|the)\s+[^,;.]{2,110}?)" + _STOP)
+_DESC_SUBJECT_RE = re.compile(
+    r"^((?:An?|The)\s+[^,;.]{2,80}?)\s+(?:acquired|purchased|bought|is acquiring|is entering|has acquired)\b")
+_NOT_A_DESC_RE = re.compile(r"^(an?|the)\s+(buyer|purchaser|portfolio|facility|price|sale|deal|transaction|\d)", re.I)
+# Extraction sometimes puts a description in the name field: "regional
+# owner/operator", "Ohio-based provider", seller "public"
+# Lower-case first word, "X-based ...", or a lone adjective like "public".
+# Case-sensitive on purpose: "National Healthcare Properties" is a company.
+_DESC_AS_NAME_RE = re.compile(
+    r"^[a-z]|^[A-Z][a-z]+-based [a-z]|^(Regional|National|Local|Public|Private|Nonprofit)( [a-z][\w/-]*)*$")
+
+
+def _looks_like_description(name: str | None) -> bool:
+    return bool(name) and bool(_DESC_AS_NAME_RE.match(name.strip()))
+
+
+def buyer_fields(d: dict) -> dict:
+    """buyer: a name; buyer_description: how the source describes an unnamed
+    buyer ("a national owner"); buyer_disclosure: 'named', 'described',
+    'undisclosed' (the source says so, or a state filing has no buyer
+    field), or 'not_named' (the source just doesn't say)."""
+    buyer, seller = d.get("acquiring_entity"), d.get("seller_entity")
+    desc = None
+    if _looks_like_description(buyer):
+        desc, buyer = buyer, None
+        desc = desc if re.match(r"(?i)an?\b|the\b", desc) else ("an " if desc[0].lower() in "aeiou" else "a ") + desc
+    if _looks_like_description(seller):
+        seller = None
+    if buyer:
+        return {"buyer": buyer, "seller": seller, "buyer_description": None, "buyer_disclosure": "named"}
+    summary = d.get("summary") or ""
+    if _UNDISCLOSED_RE.search(summary):
+        return {"buyer": None, "seller": seller, "buyer_description": None, "buyer_disclosure": "undisclosed"}
+    if not desc:
+        m = _DESC_AFTER_RE.search(summary) or _DESC_SUBJECT_RE.search(summary)
+        if m and not _NOT_A_DESC_RE.match(m.group(1)):
+            desc = m.group(1).strip()
+            desc = desc[0].lower() + desc[1:]
+    if desc:
+        return {"buyer": None, "seller": seller, "buyer_description": desc, "buyer_disclosure": "described"}
+    if d.get("source_type") in ("con", "chow"):
+        return {"buyer": None, "seller": seller, "buyer_description": None, "buyer_disclosure": "undisclosed"}
+    return {"buyer": None, "seller": seller, "buyer_description": None, "buyer_disclosure": "not_named"}
+
+
+# ── Status ───────────────────────────────────────────────────────────────
+_PENDING_RE = re.compile(
+    r"\b(plans? to|agreed to|agrees to|will (acquire|sell|purchase|operate|lease)|to acquire|to sell|is acquiring|"
+    r"are acquiring|is selling|is purchasing|expected to (close|be completed)|entered into an agreement|"
+    r"signed a (definitive |non-binding )?(agreement|MOU|LOI)|under contract|pending|upon .{0,30}approval|"
+    r"is transitioning|projected to close)\b", re.I)
+_DONE_RE = re.compile(r"\b(completed|closed (on )?the|has acquired|finalized)\b", re.I)
+
+
+def cms_confirmed(d: dict, owner_starts: dict) -> str | None:
+    """Date CMS shows a new owner (direct owner start or CHOW) at one of the
+    deal's facilities within 6 months of the deal date, else None. A CMS
+    match on the facility alone isn't confirmation: Selectis' GA homes still
+    list Selectis as owner, so that sale isn't confirmed yet."""
+    if d.get("source_type") == "chow":
+        return d.get("acquisition_date") or (d.get("created_at") or "")[:10]
+    when = _day(d.get("acquisition_date")) or _day(d.get("created_at"))
+    if not when:
+        return None
+    starts = sorted(s for c in (d.get("ccns") or []) if c for s in owner_starts.get(c, ())
+                    if abs(s - when) <= CONFIRM_WINDOW)
+    return starts[0].isoformat() if starts else None
+
+
+def status(d: dict, confirmed_on: str | None, today: date | None = None) -> dict:
+    """confirmed / expected / reported, with a line for the Details panel."""
+    today = today or date.today()
+    src, when = d.get("source_type"), _day(d.get("acquisition_date"))
+    if src == "chow":
+        return {"status": "confirmed", "status_detail": "Confirmed: CMS change-of-ownership record"}
+    if src == "ucc":
+        return {"status": "confirmed", "status_detail": "Confirmed: UCC-1 financing statement on file with the state "
+                "(a record of the loan, not of a sale)"}
+    if confirmed_on and d.get("deal_type") == "ownership_change":
+        return {"status": "confirmed", "status_detail": f"Confirmed: CMS records show a new owner at this facility from {confirmed_on}"}
+    future = when and when > today
+    pending_words = _PENDING_RE.search(d.get("summary") or "") and not _DONE_RE.search(d.get("summary") or "")
+    if src == "con" or future or pending_words:
+        what = "State filing made before closing" if src == "con" else "Reported as pending"
+        tail = (f"; expected to close {when.isoformat()}" if future
+                else "; completion not yet confirmed by CMS")
+        return {"status": "expected", "status_detail": f"Expected: {what}{tail}"}
+    return {"status": "reported", "status_detail": "Reported: news or company filing, not yet confirmed by CMS"}
+
+
+# ── Headline ─────────────────────────────────────────────────────────────
+# A headline is a list of [text, style] segments; style '' (plain), 'muted',
+# or 'undisclosed' (gray italics). The frontend only renders them.
+
+def _target(d: dict, facilities: list[str]) -> str | None:
+    if facilities:
+        return facilities[0] + (f" and {len(facilities) - 1} more" if len(facilities) > 1 else "")
+    n = d.get("facility_count")
+    if not n:
+        return None
+    count = "a facility" if n == 1 else f"{n} facilities"
+    return f"{count} in {', '.join(d['states'])}" if d.get("states") else count
+
+
+def _in_states(d):
+    return f" in {', '.join(d['states'])}" if d.get("states") else ""
+
+
+_ROLE_RE = re.compile(r"\bto (active parent|sole member|active member|sole parent|co-operator|operator|parent)\b"
+                      r"|\b(?:assumed|assumes|took over|takes over) (management)\b", re.I)
+_DBA_RE = re.compile(r"\bd/b/a ([A-Z][\w&'.-]*(?: [A-Z][\w&'.-]*)*)")
+
+
+def headline(d: dict, facilities: list[str], show_individual_names: bool = True) -> list[list[str]]:
+    dt, b = d["deal_type"], d
+    target = _target(d, facilities)
+    expected = d.get("status") == "expected"
+
+    if d.get("source_type") == "ucc":
+        if d.get("individual_filing"):
+            subject = d.get("ucc_debtor") if show_individual_names else "Individual owner"
+        else:
+            subject = (facilities[:1] or d.get("operator_names") or [d.get("ucc_debtor") or "Borrower"])[0]
+        kind = {"amendment": "UCC-3 amendment", "non_deal_lien": "likely non-deal lien",
+                "acquisition_financing": "acquisition financing", "refinancing": "refinancing"}.get(dt, "UCC-1 financing")
+        return [[subject, ""], [f" — {kind}", "muted"]]
+
+    if dt == "control_change":
+        entity = b.get("buyer") or (d.get("operator_names") or [None])[0]
+        dba = _DBA_RE.search(d.get("summary") or "")
+        entity = dba.group(1) if dba else entity
+        role = _ROLE_RE.search(d.get("summary") or "")
+        facility = facilities[0] if facilities else target or "facility"
+        if entity and role:
+            what = "manager" if role.group(2) else role.group(1).lower()
+            return [[entity, ""], [f" becomes {what} of ", "muted"], [facility, ""]]
+        return [["Control change at ", "muted"], [facility, ""], *([[f" ({entity})", "muted"]] if entity else [])]
+
+    if dt == "lease":
+        place = target or f"facility{_in_states(d)}"
+        if b.get("buyer"):
+            return [[b["buyer"], ""], [" to lease " if expected else " leases ", "muted"], [place, ""]]
+        return [["New lease" if not expected else "Pending lease", "muted"], [": ", "muted"], [place, ""]]
+
+    if dt in ("financing", "acquisition_financing", "refinancing"):
+        lender = d.get("lender") if d.get("lender") and not d["lender"].startswith("Not available") else None
+        subject = target or " / ".join(filter(None, [b.get("buyer"), b.get("seller")]))
+        verb = {"acquisition_financing": "finances acquisition of", "refinancing": "refinances"}.get(dt, "finances")
+        if lender and subject:
+            return [[lender, ""], [f" {verb} ", "muted"], [subject, ""]]
+        noun = {"acquisition_financing": "acquisition financing", "refinancing": "refinancing"}.get(dt, "financing")
+        if lender:
+            return [[lender, ""], [f" — {noun}{_in_states(d)}", "muted"]]
+        return [[subject, ""], [f" — {noun}", "muted"]] if subject else [[f"Facility {noun}{_in_states(d)}", "muted"]]
+
+    # Ownership change
+    buyer, seller = b.get("buyer"), b.get("seller")
+    if seller == buyer:
+        seller = None
+    place = target or f"facility{_in_states(d)}"
+    if buyer:
+        verb = " to acquire " if expected else " acquires "
+        if target:
+            out = [[buyer, ""], [verb, "muted"], [target, ""]]
+            return out + ([[" from ", "muted"], [seller, ""]] if seller else [])
+        if seller:
+            return [[seller, ""], [" to sell to " if expected else " sells to ", "muted"], [buyer, ""]]
+        return [[buyer, ""], [f" — new owner{_in_states(d)}", "muted"]]
+    if seller:
+        out = [[seller, ""], [" to sell " if expected else " sells ", "muted"], [target or "facility", ""]]
+    else:
+        out = [["Pending sale of " if expected else "Sale of ", "muted"], [place, ""]]
+    disclosure = b.get("buyer_disclosure")
+    if disclosure == "described":
+        return out + [[" to ", "muted"], [b["buyer_description"], ""]]
+    if disclosure == "undisclosed":
+        return out + [[" · ", "muted"], ["Buyer not disclosed", "undisclosed"]]
+    return out
+
+
+# ── Everything, for one exported deal ────────────────────────────────────
+
+def label(d: dict, owner_starts: dict, facilities: list[str], today: date | None = None,
+          show_individual_names: bool = True) -> dict:
+    """Fields added to an exported deal. `facilities` is the facility list
+    the card shows (individual filings use their CMS owner matches)."""
+    out = {"deal_type": transaction_type(d), "facility_type": facility_type(d)}
+    merged = {**d, **out}
+    if out["deal_type"] in ("ownership_change", "lease", "control_change"):
+        out.update(buyer_fields(merged))
+    else:
+        out.update({"buyer": d.get("acquiring_entity"), "seller": d.get("seller_entity"),
+                    "buyer_description": None, "buyer_disclosure": None})
+    if out["deal_type"] == "control_change":
+        # No sale: no price, no buyer
+        out.update({"buyer": None, "buyer_disclosure": None, "buyer_description": None})
+    merged = {**d, **out}
+    confirmed_on = cms_confirmed(merged, owner_starts) if out["deal_type"] == "ownership_change" else None
+    out["cms_confirmed_on"] = confirmed_on
+    out.update(status(merged, confirmed_on, today))
+    merged = {**d, **out}
+    out["headline"] = headline(merged, facilities, show_individual_names)
+    return out
+
+
+def is_individual_filing(d: dict) -> bool:
+    return d.get("source_type") == "ucc" and d.get("ucc_state") == "NY" and is_person(d.get("ucc_debtor"))

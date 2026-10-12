@@ -41,6 +41,13 @@ import requests
 from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline.ucc_category import categorize, collapse_repeats
+from pipeline.deal_labels import label, is_individual_filing
+
+# NY UCC filings against a person name a private individual. Tyler is
+# checking whether the public site should show those names (2026-10-12).
+# False drops them from deals.json entirely -- hiding them only in the
+# frontend would still publish them in the JSON.
+SHOW_INDIVIDUAL_NAMES = True
 
 UCC_PORTAL_URLS = {
     "NY": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
@@ -187,21 +194,47 @@ def _news_deal_type(deal: dict) -> str:
     return "ownership_change"
 
 
+def _resolved_facilities(deal: dict) -> list[str]:
+    """UCC deals seeded from a person's name get facility_names equal to
+    operator_names (main.py's NEW_SIGNAL builder) -- that's the person, not
+    a facility."""
+    names, ops = deal.get("facility_names") or [], deal.get("operator_names") or []
+    return [] if names and names == ops else names
+
+
+def _add_labels(deal: dict, owner_starts: dict, homes: dict) -> None:
+    """Labels from pipeline/deal_labels.py, plus where the record matched:
+    match_type is single_home / multi_home / unmatched for NY filings
+    against a person (ucc_individual_matches), else ccn_matched / no_ccn."""
+    individual = is_individual_filing(deal)
+    deal["individual_filing"] = individual
+    if individual:
+        matched = homes.get(deal["id"], [])
+        deal["possible_homes"] = [{"ccn": c, "name": n} for c, n in matched]
+        # The CMS matcher's fuzzy facility matches for these are noise; only
+        # the owner matches count
+        deal["ccns"] = [c for c, _ in matched] or None
+        deal["match_type"] = "unmatched" if not matched else "single_home" if len(matched) == 1 else "multi_home"
+        facilities = [n for _, n in matched]
+        deal["facility_names"] = facilities or None
+    else:
+        deal["match_type"] = "ccn_matched" if deal.get("ccns") else "no_ccn"
+        facilities = _resolved_facilities(deal)
+    deal.update(label(deal, owner_starts, facilities, show_individual_names=SHOW_INDIVIDUAL_NAMES))
+    deal["found_date"] = (deal.get("created_at") or "")[:10] or None
+    if individual and not SHOW_INDIVIDUAL_NAMES:
+        deal["ucc_debtor"] = None
+        deal["operator_names"] = None
+        deal["source_title"] = f"{deal.get('ucc_state')} UCC-1 filing #{deal.get('ucc_filing_number')}"
+
+
 SITE_URL = "https://yutingfan1209.github.io/nursing-home-live-feed/"
 FEED_SIZE = 50
 
 
 def _feed_title(d: dict) -> str:
     states = f" ({', '.join(d['states'])})" if d.get("states") else ""
-    if d["source_type"] == "ucc":
-        subject = d.get("ucc_debtor") or (d.get("facility_names") or ["?"])[0]
-        lender = d.get("lender") or ""
-        via = "" if not lender or lender.startswith("Not available") else f" — {lender}"
-        kind = "UCC acquisition financing" if d.get("deal_type") == "acquisition_financing" else "UCC financing"
-        return f"{kind}: {subject}{via}{states}"
-    parties = " acquires from ".join(p for p in (d.get("acquiring_entity"), d.get("seller_entity")) if p)
-    kind = "Financing" if d.get("deal_type") == "financing" else "Ownership change"
-    return f"{kind}: {parties or d.get('source_title') or 'deal reported'}{states}"
+    return "".join(text for text, _ in d["headline"]) + states
 
 
 def write_atom_feed(deals: list[dict], path: str, updated: str) -> None:
@@ -209,8 +242,10 @@ def write_atom_feed(deals: list[dict], path: str, updated: str) -> None:
     follow the site in a feed reader. Static hosting can't send per-view
     email alerts; this is the closest thing. Ordered by when a deal was
     found (created_at), not its effective date, and skips non-deal liens and
-    refinancings (the site's default view hides refinancings too)."""
-    recent = sorted((d for d in deals if d.get("deal_type") not in ("non_deal_lien", "refinancing")),
+    refinancings and anything that isn't skilled-nursing related, like the
+    site's default view."""
+    recent = sorted((d for d in deals if d.get("deal_type") not in ("non_deal_lien", "refinancing")
+                     and d.get("facility_type") == "skilled_nursing"),
                     key=lambda d: d.get("created_at") or "", reverse=True)[:FEED_SIZE]
     entries = []
     for d in recent:
@@ -308,6 +343,13 @@ def main():
             owner_starts.setdefault(ccn, set()).add(start)
         categorize(deals, owner_starts)
         deals = collapse_repeats(deals)
+
+        cur.execute("SELECT deal_id::text, ccn, provider_name FROM ucc_individual_matches ORDER BY provider_name")
+        homes = {}
+        for deal_id, ccn, provider in cur.fetchall():
+            homes.setdefault(deal_id, []).append((ccn, provider))
+        for deal in deals:
+            _add_labels(deal, owner_starts, homes)
 
     conn.close()
 
