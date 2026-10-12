@@ -115,26 +115,59 @@ def test_control_change_rule_is_not_state_specific():
 
 # ── 3. Individual UCC filings ─────────────────────────────────────────────
 
-@pytest.mark.parametrize("name,match_type", [
-    ("individual_multi", "multi_home"), ("individual_single", "single_home"), ("individual_unmatched", "unmatched")])
-def test_individual_filing_match_types(name, match_type):
+def individual(name):
     row = raw(name)
-    homes = {row["id"]: [tuple(h) for h in FIXTURES[name]["_homes"]]}
-    export._add_labels(row, {}, homes)
-    assert row["individual_filing"] and row["match_type"] == match_type
-    assert len(row["possible_homes"]) == len(FIXTURES[name]["_homes"])
-    if match_type == "unmatched":
-        # the old fuzzy facility match (Bethel Health Care Center) is gone
-        assert not row["facility_names"] and not row["ccns"]
+    export._add_labels(row, {}, {row["id"]: [tuple(h) for h in FIXTURES[name]["_homes"]]})
+    return row
+
+
+def in_default_financing_view(d):
+    """The frontend's default Financing tab (App.jsx filterDeals + inTab):
+    not an ownership event, not a refinancing, skilled-nursing related."""
+    return (d["deal_type"] not in ("ownership_change", "control_change", "lease")
+            and d["deal_type"] != "refinancing" and d["facility_type"] == "skilled_nursing")
+
+
+def test_single_home_owner_links_to_that_home():
+    d = individual("individual_single")
+    assert d["match_type"] == "single_home"
+    assert d["possible_homes"] == [{"ccn": "335396", "name": "MONTGOMERY NURSING AND REHABILITATION CENTER"}]
+    assert d["owner_line"] == "Owner of Montgomery Nursing and Rehabilitation Center"
+
+
+@pytest.mark.parametrize("name,n", [("individual_multi", 4), ("individual_11_homes", 11), ("individual_33_homes", 33)])
+def test_multi_home_owner_lists_possible_homes(name, n):
+    d = individual(name)
+    assert d["match_type"] == "multi_home" and len(d["possible_homes"]) == n
+    # every candidate kept, none presented as the one home
+    assert sorted(h["ccn"] for h in d["possible_homes"]) == sorted(c for c, _ in FIXTURES[name]["_homes"])
+    assert d["owner_line"].startswith("Owner of ")
+    assert d["owner_line"].count(",") == 2
+    if n > 3:
+        assert d["owner_line"].endswith(f" +{n - 3} more")
+
+
+def test_unmatched_filing_has_no_home():
+    d = individual("individual_unmatched")
+    assert d["match_type"] == "unmatched" and d["possible_homes"] == []
+    assert d["owner_line"] == "Filed against an individual; no matching home in CMS ownership records."
+    # the old fuzzy facility match (Bethel Health Care Center) is gone
+    assert not d["facility_names"] and not d["ccns"]
+
+
+@pytest.mark.parametrize("name", ["individual_single", "individual_multi", "individual_11_homes",
+                                  "individual_33_homes", "individual_unmatched"])
+def test_individual_filings_show_in_financing_with_the_tag(name):
+    d = individual(name)
+    assert d["individual_filing"] and in_default_financing_view(d)
 
 
 def test_individual_names_can_be_withheld(monkeypatch):
     monkeypatch.setattr(export, "SHOW_INDIVIDUAL_NAMES", False)
-    row = raw("individual_single")
-    export._add_labels(row, {}, {row["id"]: [tuple(h) for h in FIXTURES["individual_single"]["_homes"]]})
-    assert row["ucc_debtor"] is None and row["operator_names"] is None
-    assert "ZACHARY" not in json.dumps(row).upper()
-    assert text(row["headline"]).startswith("Individual owner")
+    d = individual("individual_single")
+    assert d["ucc_debtor"] is None and d["operator_names"] is None
+    assert "ZACHARY" not in json.dumps(d).upper()
+    assert text(d["headline"]).startswith("Individual owner")
 
 
 def test_first_last_name_matching():

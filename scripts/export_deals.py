@@ -42,6 +42,7 @@ from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline.ucc_category import categorize, collapse_repeats
 from pipeline.deal_labels import label, is_individual_filing
+from pipeline import individual_owners
 
 # NY UCC filings against a person name a private individual. Tyler is
 # checking whether the public site should show those names (2026-10-12).
@@ -214,8 +215,9 @@ def _add_labels(deal: dict, owner_starts: dict, homes: dict) -> None:
         # The CMS matcher's fuzzy facility matches for these are noise; only
         # the owner matches count
         deal["ccns"] = [c for c, _ in matched] or None
-        deal["match_type"] = "unmatched" if not matched else "single_home" if len(matched) == 1 else "multi_home"
+        deal["match_type"] = individual_owners.match_type(len(matched))
         facilities = [n for _, n in matched]
+        deal["owner_line"] = individual_owners.owner_line(facilities)
         deal["facility_names"] = facilities or None
     else:
         deal["match_type"] = "ccn_matched" if deal.get("ccns") else "no_ccn"
@@ -344,9 +346,9 @@ def main():
         categorize(deals, owner_starts)
         deals = collapse_repeats(deals)
 
-        cur.execute("SELECT deal_id::text, ccn, provider_name FROM ucc_individual_matches ORDER BY provider_name")
+        cur.execute("SELECT deal_id::text, ccn, provider_name, match_type FROM ucc_individual_matches ORDER BY provider_name")
         homes = {}
-        for deal_id, ccn, provider in cur.fetchall():
+        for deal_id, ccn, provider, kind in cur.fetchall():
             homes.setdefault(deal_id, []).append((ccn, provider))
         for deal in deals:
             _add_labels(deal, owner_starts, homes)

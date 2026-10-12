@@ -620,5 +620,347 @@
    "tag": "Individual filing",
    "note": "card said \"Owner of Bethel Health Care Center\" (a fuzzy match; his only CMS record is a CT owner)"
   }
+ },
+ "individual_33_homes": {
+  "id": "a7e0ced1-aa7a-4b31-9c6e-cabfe8ea4551",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "NY"
+  ],
+  "facility_count": null,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2003-01-27",
+  "operator_names": [
+   "KENNETH ROZENBERG"
+  ],
+  "facility_names": [
+   "BRONX CENTER FOR REHABILITATION & HEALTH CARE",
+   "BROOKLYN CENTER FOR REHAB AND RESIDENTIAL HEALTH CARE",
+   "BUFFALO CENTER FOR REHABILITATION AND NURSING",
+   "BUSHWICK CENTER FOR REHABILITATION AND HEALTH CARE",
+   "CARTHAGE CENTER FOR REHABILITATION AND NURSING",
+   "CORNING CENTER FOR REHABILITATION AND HEALTHCARE",
+   "ELLICOTT CENTER FOR REHABILITATION AND NURSING",
+   "ESSEX CENTER FOR REHABILITATION AND HEALTHCARE",
+   "FULTON CENTER FOR REHABILITATION AND HEALTHCARE",
+   "GLENS FALLS CENTER FOR REHABILITATION AND NURSING",
+   "GRANVILLE CENTER FOR REHABILITATION AND NURSING",
+   "HOLLISWOOD CTR FOR REHABILITATION AND HEALTHCARE",
+   "HOPE CENTER FOR H I V AND NURSING CARE",
+   "LUXOR NURSING AND REHABILITATION AT MILLS POND",
+   "LUXOR NURSING AND REHABILITATION AT SAYVILLE",
+   "NEW PALTZ CENTER FOR REHABILITATION AND NURSING",
+   "ONONDAGA CENTER FOR REHABILITATION AND NURSING",
+   "RICHMOND CTR FOR REHAB AND SPECIALTY HEALTHCARE",
+   "ROCHESTER CENTER FOR REHABILITATION AND NURSING",
+   "SCHENECTADY CENTER FOR REHABILITATION AND NURSING",
+   "SLATE VALLEY CENTER FOR REHABILITATION AND NURSING",
+   "STEUBEN CENTER FOR REHABILITATION AND HEALTHCARE",
+   "TRIBORO CENTER FOR REHABILITATION AND NURSING",
+   "TROY CENTER FOR REHABILITATION AND NURSING",
+   "UNIVERSITY CENTER FOR REHABILITATION AND NURSING",
+   "WASHINGTON CENTER FOR REHAB AND HEALTHCARE",
+   "WILLIAMSBRIDGE CENTER FOR REHABILITATION AND NRSG"
+  ],
+  "created_at": "2026-06-18T13:31:50.848369+00:00",
+  "lender": "FIRST FEDERAL LEASING",
+  "ucc_confirmed": true,
+  "stage": "confirmed",
+  "summary": null,
+  "source_type": "ucc",
+  "source_name": "State UCC-1 Filings",
+  "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
+  "source_title": "NY UCC-1 filing #NYX-4a09440f33b9cfa8 \u2014 search this number on the state portal",
+  "ccns": [
+   "335014",
+   "335044",
+   "335048",
+   "335061",
+   "335091",
+   "335178",
+   "335188",
+   "335201",
+   "335280",
+   "335306",
+   "335309",
+   "335325",
+   "335330",
+   "335331",
+   "335412",
+   "335413",
+   "335437",
+   "335445",
+   "335470",
+   "335478",
+   "335503",
+   "335506",
+   "335548",
+   "335549",
+   "335556",
+   "335579",
+   "335638",
+   "335703",
+   "335711",
+   "335725",
+   "335735",
+   "335739",
+   "335761",
+   "335772",
+   "335794"
+  ],
+  "ucc_filing_number": "NYX-4a09440f33b9cfa8",
+  "ucc_state": "NY",
+  "ucc_debtor": "KENNETH ROZENBERG",
+  "ucc_filing_type": "UCC-1",
+  "lender_category": "Equipment / non-deal lien",
+  "deal_type": "non_deal_lien",
+  "_homes": [
+   [
+    "335201",
+    "Beth Abraham Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335470",
+    "Boro Park Center for Rehabilitation and Healthcare"
+   ],
+   [
+    "335506",
+    "Bronx Center For Rehabilitation & Health Care"
+   ],
+   [
+    "335178",
+    "Brooklyn Center for Rehabilitation and Residential"
+   ],
+   [
+    "335638",
+    "Buffalo Center For Rehabilitation And Nursing"
+   ],
+   [
+    "335703",
+    "Bushwick Center for Rehabilitation and Health Care"
+   ],
+   [
+    "335579",
+    "CARTHAGE CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335412",
+    "COOPERSTOWN CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335330",
+    "Corning Center for Rehabilitation and Healthcare"
+   ],
+   [
+    "335437",
+    "ELLICOTT CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335478",
+    "ESSEX CENTER FOR REHABILITATION AND HEALTHCARE"
+   ],
+   [
+    "335044",
+    "Far Rockaway Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335091",
+    "FULTON CENTER FOR REHABILITATION AND HEALTHCARE"
+   ],
+   [
+    "335306",
+    "GLENS FALLS CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335331",
+    "Granville Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335503",
+    "Holliswood Center for Rehabilitation and Healthcar"
+   ],
+   [
+    "335725",
+    "Hope Center for HIV and Nursing Care"
+   ],
+   [
+    "335739",
+    "Luxor Nursing & Rehabilitation at Mills Pond"
+   ],
+   [
+    "335188",
+    "New Paltz Center For Rehabilitation And Nursing"
+   ],
+   [
+    "335794",
+    "ONEIDA CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335548",
+    "Onondaga Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335772",
+    "Richmond Center for Rehabilitation and Specialty H"
+   ],
+   [
+    "335556",
+    "Rochester Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335761",
+    "Sayville Nursing And Rehabilitation Center"
+   ],
+   [
+    "335014",
+    "SCHENECTADY CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335711",
+    "SLATE VALLEY CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335309",
+    "Steuben Center for Rehabilitation and Healthcare"
+   ],
+   [
+    "335445",
+    "Triboro Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335280",
+    "TROY CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335061",
+    "University Center for Rehabilitation and Nursing"
+   ],
+   [
+    "335549",
+    "WARREN CENTER FOR REHABILITATION AND NURSING"
+   ],
+   [
+    "335413",
+    "WASHINGTON CENTER FOR REHAB AND HEALTHCARE"
+   ],
+   [
+    "335048",
+    "Williamsbridge Center for Rehabilitation and Nursi"
+   ]
+  ],
+  "_before_site": {
+   "headline": "Kenneth Rozenberg \u2014 UCC-1 financing",
+   "tag": "Individual filing",
+   "note": "card said \"Owner of <first 3 fuzzy facility_names> and N more\""
+  }
+ },
+ "individual_11_homes": {
+  "id": "1911a349-13f4-450e-b0d3-4b48b894b4eb",
+  "acquiring_entity": null,
+  "seller_entity": null,
+  "states": [
+   "NY"
+  ],
+  "facility_count": null,
+  "deal_value_m": null,
+  "financing_amount_m": null,
+  "acquisition_date": "2022-03-01",
+  "operator_names": [
+   "LEOPOLD FRIEDMAN"
+  ],
+  "facility_names": [
+   "BRONX GARDENS REHABILITATION AND NURSING CENTER",
+   "DOWNTOWN BROOKLYN NURSING & REHABILITATION CENTER",
+   "HUDSON POINTE AT RIVERDALE CTR FOR NURSING & REHAB",
+   "LONG BEACH NURSING AND REHABILITATION CENTER",
+   "MARGARET TIETZ CENTER FOR NURSING CARE INC",
+   "NEW RIVERDALE REHAB AND NURSING",
+   "PENINSULA NURSING AND REHABILITATION CENTER",
+   "PRESTIGE NURSING CARE & REHAB CENTER",
+   "THE PLAZA REHAB AND NURSING CENTER",
+   "UPPER EAST SIDE REHABILITATION AND NURSING CENTER",
+   "YONKERS GARDENS CENTER FOR NURSING AND REHAB"
+  ],
+  "created_at": "2026-06-18T13:31:50.848369+00:00",
+  "lender": "NHDF OPIS-FL LENDER LLC",
+  "ucc_confirmed": false,
+  "stage": "confirmed",
+  "summary": null,
+  "source_type": "ucc",
+  "source_name": "State UCC-1 Filings",
+  "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch",
+  "source_title": "NY UCC-1 filing #NYX-796f03460c45b6a0 \u2014 search this number on the state portal",
+  "ccns": [
+   "335028",
+   "335096",
+   "335187",
+   "335232",
+   "335336",
+   "335387",
+   "335432",
+   "335462",
+   "335515",
+   "335625",
+   "335775"
+  ],
+  "ucc_filing_number": "NYX-796f03460c45b6a0",
+  "ucc_state": "NY",
+  "ucc_debtor": "LEOPOLD FRIEDMAN",
+  "ucc_filing_type": "UCC-1",
+  "lender_category": null,
+  "deal_type": "financing",
+  "_homes": [
+   [
+    "335775",
+    "Bronx Gardens Rehabilitation and Nursing Center"
+   ],
+   [
+    "335625",
+    "Downtown Brooklyn Nursing & Rehabilitation Center"
+   ],
+   [
+    "335187",
+    "Hudson Pointe at Riverdale Center for Nursing and"
+   ],
+   [
+    "335432",
+    "Long Beach Nursing and Rehabilitation Center"
+   ],
+   [
+    "335336",
+    "Margaret Tietz Center for Nursing Care Inc"
+   ],
+   [
+    "335096",
+    "New Riverdale Rehab and Nursing"
+   ],
+   [
+    "335387",
+    "Peninsula Nursing And Rehabilitation Center"
+   ],
+   [
+    "335028",
+    "Prestige Nursing Care & Rehab Center"
+   ],
+   [
+    "335462",
+    "The Plaza Rehab and Nursing Center"
+   ],
+   [
+    "335232",
+    "Upper East Side Rehabilitation And Nursing Center"
+   ],
+   [
+    "335515",
+    "YONKERS GARDENS CENTER FOR NURSING AND REHAB"
+   ]
+  ],
+  "_before_site": {
+   "headline": "Leopold Friedman \u2014 UCC-1 financing",
+   "tag": "Individual filing",
+   "note": "card said \"Owner of <first 3 fuzzy facility_names> and N more\""
+  }
  }
 }

@@ -357,11 +357,8 @@ function OwnerOf({ deal }) {
     const url = homeUrl(homes[0].ccn);
     return <>Owner of {url ? <a href={url} target="_blank" rel="noreferrer" style={lnk}>{smartCase(homes[0].name)} ↗</a> : smartCase(homes[0].name)}</>;
   }
-  if (homes.length > 1) {
-    const names = homes.slice(0, 3).map(h => smartCase(h.name)).join(", ");
-    return <>Owner of {names}{homes.length > 3 && ` and ${homes.length - 3} more`}</>;
-  }
-  return <>Filed against a CMS individual owner; no home identified</>;
+  // "Owner of X, Y, Z +8 more", or the unmatched line, from the export
+  return <>{shoutCase(deal.owner_line || "")}</>;
 }
 
 // One clamped line under the headline; the full text is under Details.
@@ -504,7 +501,7 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, on
                   ? "This person owns or controls each of these NY homes in CMS records. The filing doesn't say which, if any, it concerns."
                   : deal.match_type === "single_home"
                   ? "The only NY home this person owns or controls in CMS records. The filing itself doesn't name a home."
-                  : "No NY home found for this name in CMS ownership records."}
+                  : "Filed against an individual; no matching home in CMS ownership records."}
               </div>
               {(deal.possible_homes || []).map(h => (
                 <div key={h.ccn} style={dv}>

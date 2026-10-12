@@ -12,6 +12,19 @@ CREATE TABLE IF NOT EXISTS ucc_individual_matches (
     provider_name  text,
     owner_name     text NOT NULL,   -- CMS form, "LAST, FIRST"
     owner_role     text,
+    match_type     text NOT NULL CHECK (match_type IN ('single_home', 'multi_home')),
     matched_at     timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (deal_id, ccn)
 );
+
+-- Added after the table first shipped (2026-10-12): the filing's marker on
+-- each of its rows. Unmatched filings have no rows.
+ALTER TABLE ucc_individual_matches ADD COLUMN IF NOT EXISTS match_type text;
+UPDATE ucc_individual_matches m SET match_type = CASE WHEN n = 1 THEN 'single_home' ELSE 'multi_home' END
+FROM (SELECT deal_id, count(*) n FROM ucc_individual_matches GROUP BY deal_id) c
+WHERE c.deal_id = m.deal_id AND m.match_type IS NULL;
+ALTER TABLE ucc_individual_matches ALTER COLUMN match_type SET NOT NULL;
+DO $$ BEGIN
+  ALTER TABLE ucc_individual_matches ADD CONSTRAINT ucc_individual_matches_match_type_check
+    CHECK (match_type IN ('single_home', 'multi_home'));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

@@ -17,6 +17,7 @@ another state (Robert Butler, CT) is not a match.
 import logging
 from collections import defaultdict
 
+from pipeline.normalizer import _smart_title_case
 from pipeline.ucc_category import is_person
 
 logger = logging.getLogger(__name__)
@@ -77,6 +78,23 @@ def person_filings(conn) -> list[tuple]:
         return out
 
 
+def match_type(n_homes: int) -> str:
+    return "unmatched" if not n_homes else "single_home" if n_homes == 1 else "multi_home"
+
+
+UNMATCHED_LINE = "Filed against an individual; no matching home in CMS ownership records."
+
+
+def owner_line(home_names: list[str]) -> str:
+    """The card's one line for a filing against a person. Several homes are
+    all only possible: "Owner of X, Y, Z +8 more"."""
+    if not home_names:
+        return UNMATCHED_LINE
+    # CMS provider names are ALL CAPS
+    shown = ", ".join(_smart_title_case(n) if n.isupper() else n for n in home_names[:3])
+    return f"Owner of {shown}" + (f" +{len(home_names) - 3} more" if len(home_names) > 3 else "")
+
+
 def refresh(conn) -> dict:
     """Rebuild ucc_individual_matches for every live NY person filing.
     Returns counts: filings, matched, single_home, multi_home, unmatched."""
@@ -85,13 +103,14 @@ def refresh(conn) -> dict:
     rows, counts = [], {"filings": len(filings), "single_home": 0, "multi_home": 0, "unmatched": 0}
     for deal_id, debtor in filings:
         homes = index.get(first_last(debtor), {})
-        counts["unmatched" if not homes else "single_home" if len(homes) == 1 else "multi_home"] += 1
-        rows += [(deal_id, ccn, prov, owner, role) for ccn, (prov, owner, role) in homes.items()]
+        kind = match_type(len(homes))
+        counts[kind] += 1
+        rows += [(deal_id, ccn, prov, owner, role, kind) for ccn, (prov, owner, role) in homes.items()]
     counts["matched"] = counts["single_home"] + counts["multi_home"]
     with conn.cursor() as cur:
         cur.execute("DELETE FROM ucc_individual_matches")
-        cur.executemany("""INSERT INTO ucc_individual_matches (deal_id, ccn, provider_name, owner_name, owner_role)
-                           VALUES (%s, %s, %s, %s, %s)""", rows)
+        cur.executemany("""INSERT INTO ucc_individual_matches (deal_id, ccn, provider_name, owner_name, owner_role, match_type)
+                           VALUES (%s, %s, %s, %s, %s, %s)""", rows)
     conn.commit()
     logger.info("NY individual UCC filings: %(filings)d, matched %(matched)d "
                 "(%(single_home)d single-home, %(multi_home)d multi-home), unmatched %(unmatched)d", counts)
