@@ -712,6 +712,10 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
             {(deal.sources?.length > 1 || deal.cms_event) && <Timeline deal={deal} />}
             <Row label="Record ID"><code style={{ fontSize: 12 }}>{deal.id}</code></Row>
             <Row label="Cite this record"><CopyLink id={deal.id} /></Row>
+            <Row label="Something wrong?">
+              <a href={issueUrl(`Correction: ${deal.id.slice(0, 8)}`, `Record: ${permalink(deal.id)}\n\nWhat's wrong:\n\nSource showing the correct information:\n`, "correction")}
+                target="_blank" rel="noreferrer" style={{ ...lnk, display: "inline-flex", alignItems: "center", minHeight: 32 }}>Report an error with this record ↗</a>
+            </Row>
           </Section>
         </div>
       )}
@@ -722,6 +726,171 @@ const entityNames = (d) => [d.buyer, d.seller, d.ucc_debtor, lenderKnown(d) ? d.
 
 
 const CORRECTIONS_URL = "https://github.com/YutingFan1209/nursing-home-live-feed/issues";
+
+// Tile-grid US map (one square per state, laid out roughly where the state
+// sits): shading = records in the current tab and filters, click filters
+// the list to that state. Restored from the Oct 5 version (07d919bf).
+const TILE_POS = {
+  AK:[0,0],ME:[11,0],VT:[10,1],NH:[11,1],WA:[1,2],ID:[2,2],MT:[3,2],ND:[4,2],MN:[5,2],IL:[6,2],WI:[7,2],MI:[8,2],NY:[9,2],RI:[10,2],MA:[11,2],
+  OR:[1,3],NV:[2,3],WY:[3,3],SD:[4,3],IA:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],
+  CA:[1,4],UT:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],VA:[8,4],MD:[9,4],DE:[10,4],
+  AZ:[2,5],NM:[3,5],KS:[4,5],AR:[5,5],TN:[6,5],NC:[7,5],SC:[8,5],DC:[9,5],
+  OK:[4,6],LA:[5,6],MS:[6,6],AL:[7,6],GA:[8,6],HI:[0,7],TX:[4,7],FL:[9,7],
+};
+const STATE_NAMES = {AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",DC:"District of Columbia",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+// Light to dark green; counts are very skewed (NY has hundreds of UCC
+// filings), so buckets are quantiles of the states that have any records.
+// Text on the two darkest shades is white, the rest dark: 4.5:1 or better.
+const MAP_SHADES = ["#E2EFEA", "#B7D6CA", "#7FB3A0", "#2E6F5E", "#14432F"];
+
+function mapBuckets(counts) {
+  const vals = Object.values(counts).filter(v => v > 0).sort((a, b) => a - b);
+  if (!vals.length) return [];
+  return [0.2, 0.4, 0.6, 0.8].map(q => vals[Math.min(vals.length - 1, Math.floor(q * vals.length))]);
+}
+
+function StatesMap({ counts, selected, onPick, what }) {
+  const [hover, setHover] = useState(null);
+  const cuts = mapBuckets(counts);
+  const shade = (n) => MAP_SHADES[cuts.filter(c => n > c).length];
+  const shown = hover || selected;
+  const n = shown ? (counts[shown] || 0) : null;
+  return (
+    <div style={{ maxWidth: 520 }}>
+      <div style={{ fontSize: 13, color: "#3F4248", minHeight: 20, marginBottom: 8 }}>
+        {shown
+          ? <><strong>{STATE_NAMES[shown]}</strong> · {n.toLocaleString()} record{n === 1 ? "" : "s"}{shown === selected && !hover ? " (filtered)" : ""}</>
+          : <span style={{ color: "#5F636A" }}>{what} by state. Hover for the count; click to filter the list.</span>}
+      </div>
+      <div role="group" aria-label={`${what} by state`}
+        style={{ display: "grid", gridTemplateColumns: "repeat(12, minmax(0, 1fr))", gap: 3 }}
+        onMouseLeave={() => setHover(null)}>
+        {Object.entries(TILE_POS).map(([s, [c, r]]) => {
+          const v = counts[s] || 0;
+          const bg = v ? shade(v) : "#F0EEE8";
+          const dark = v && MAP_SHADES.indexOf(bg) >= 3;
+          return (
+            <button key={s} type="button" aria-label={`${STATE_NAMES[s]}: ${v} records`} aria-pressed={selected === s}
+              disabled={!v}
+              onMouseEnter={() => setHover(s)} onFocus={() => setHover(s)} onBlur={() => setHover(null)}
+              onClick={() => onPick(selected === s ? "" : s)}
+              style={{ gridColumn: c + 1, gridRow: r + 1, aspectRatio: "1", padding: 0,
+                border: selected === s ? "2px solid #1F2328" : "1px solid transparent",
+                borderRadius: 4, background: bg, cursor: v ? "pointer" : "default",
+                color: dark ? "#fff" : (v ? "#1F2328" : "#8A8D93"),
+                fontSize: 11, fontWeight: 600, lineHeight: 1, font: "inherit" }}>
+              <span style={{ fontSize: 11, fontWeight: 600 }}>{s}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 12, color: "#5F636A" }}>
+        <span>Fewer</span>
+        {MAP_SHADES.map(c => <span key={c} style={{ width: 16, height: 10, borderRadius: 2, background: c }} />)}
+        <span>More</span>
+        <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ width: 10, height: 10, borderRadius: 2, background: "#F0EEE8", border: "1px solid #E3E0D8" }} /> None
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// "in 3 days" / "2 hours ago"
+function relTime(iso, now) {
+  if (!iso) return null;
+  const t = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? parseDay(iso).getTime() : new Date(iso).getTime();
+  const diff = t - now, abs = Math.abs(diff);
+  const [n, unit] = abs < 3600e3 ? [Math.max(1, Math.round(abs / 60e3)), "minute"]
+    : abs < 86400e3 ? [Math.round(abs / 3600e3), "hour"] : [Math.round(abs / 86400e3), "day"];
+  const s = `${n} ${unit}${n === 1 ? "" : "s"}`;
+  return diff >= 0 ? `in ${s}` : `${s} ago`;
+}
+
+const FRESH_GROUPS = [["chow", "CMS"], ["con", "State CON"], ["ucc", "State UCC-1"], ["edgar", "SEC EDGAR"], ["rss", "News"]];
+
+// When each source was last checked and when the next check is due. The
+// collection runs by hand, so "due" is when a source's last check goes
+// stale, not a scheduled run. Times tick live.
+function SourceSchedule({ freshness }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 60e3); return () => clearInterval(t); }, []);
+  const rows = freshness.sources || [];
+  if (!rows.length) return <p style={{ fontSize: 13, color: "#5F636A" }}>The refresh schedule appears after the next data update.</p>;
+  const cell = { padding: "6px 8px", borderBottom: "1px solid #F0EEE8", fontSize: 13, verticalAlign: "top" };
+  return (
+    <div>
+      <p style={{ fontSize: 13, color: "#3F4248", marginBottom: 8, maxWidth: 640 }}>
+        Sources are checked by hand, not on a fixed schedule. <strong>Next check due</strong> is when a source's last check
+        goes stale given how often it publishes; for the CMS files it's when the next file is expected.
+      </p>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 520 }}>
+          <thead><tr>{["Source", "Publishes", "Last checked", "Next check due"].map(h =>
+            <th key={h} style={{ ...cell, textAlign: "left", color: "#5F636A", fontWeight: 600, borderBottom: "1px solid #C9C5BB" }}>{h}</th>)}</tr></thead>
+          <tbody>
+            {FRESH_GROUPS.flatMap(([type, label]) => rows.filter(r => r.type === type).map(r => {
+              const due = r.next_due && (/^\d{4}-\d{2}-\d{2}$/.test(r.next_due) ? parseDay(r.next_due).getTime() : new Date(r.next_due).getTime());
+              const overdue = due && due < now;
+              return (
+                <tr key={r.name}>
+                  <td style={cell}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><SourceDot type={type} />{r.name}</span>
+                    {type === "ucc" && freshness.ucc_last_new_filing && (
+                      <div style={{ color: "#5F636A", fontSize: 12, marginTop: 2 }}>
+                        Last new filing: {Object.entries(freshness.ucc_last_new_filing)
+                          .map(([st, ts]) => `${st} ${relTime(ts, now)}`).join(" · ")}
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ ...cell, color: "#3F4248" }}>{r.cadence}</td>
+                  <td style={{ ...cell, color: "#3F4248", whiteSpace: "nowrap" }} title={r.last_checked || ""}>
+                    {r.last_checked ? relTime(r.last_checked, now) : <em style={{ color: "#8A2D2D" }}>Never recorded</em>}</td>
+                  <td style={{ ...cell, whiteSpace: "nowrap", fontWeight: overdue ? 600 : 400, color: overdue ? "#8A2D2D" : "#3F4248" }}
+                    title={r.next_due || ""}>
+                    {r.next_due ? (overdue ? `Overdue (${relTime(r.next_due, now).replace(" ago", "")})` : relTime(r.next_due, now)) : "—"}</td>
+                </tr>
+              );
+            }))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Feedback goes to GitHub issues, prefilled; no data is collected on this site
+const issueUrl = (title, body, label) =>
+  `${CORRECTIONS_URL}/new?${new URLSearchParams({ title, body, ...(label ? { labels: label } : {}) })}`;
+
+function FeedbackSection() {
+  const items = [
+    ["Report an error", "A wrong party, date, status or facility on a record.",
+      issueUrl("Correction: ", "Record link (copy it from the record's Details):\n\nWhat's wrong:\n\nSource showing the correct information:\n", "correction")],
+    ["Suggest a source", "A state filing system, dataset or publication we should check.",
+      issueUrl("Source suggestion: ", "Source (name and link):\n\nWhat it covers (states, kind of record):\n", "source")],
+    ["Tell us how you use it", "What you're researching, what's missing, what's confusing.",
+      issueUrl("Feedback: ", "How I use the tracker:\n\nWhat would make it more useful:\n", "feedback")],
+  ];
+  return (
+    <section aria-labelledby="nh-feedback" style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10,
+      padding: "14px 18px", marginTop: 28 }}>
+      <h2 id="nh-feedback" style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Help improve this tracker</h2>
+      <p style={{ fontSize: 14, color: "#3F4248", marginBottom: 8, maxWidth: 640 }}>
+        Researchers, journalists and policy staff use these records. If something is wrong, missing or unclear, please say so.
+        Each link opens a short form in the project's public GitHub issue tracker (a free GitHub account is needed).
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "4px 16px" }}>
+        {items.map(([title, desc, url]) => (
+          <div key={title}>
+            <a href={url} target="_blank" rel="noreferrer" style={{ ...lnkBlock, fontWeight: 600 }}>{title} ↗</a>
+            <div style={{ fontSize: 13, color: "#5F636A" }}>{desc}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function Methodology({ chowDate, corrections, onBack }) {
   const h = { fontSize: 18, fontWeight: 600, margin: "28px 0 8px" };
@@ -1046,6 +1215,7 @@ export default function App() {
   const [offset, setOffset]       = useState(0);
   const [parade, setParade]       = useState(false);
   // Open on load when a link already carries one of the tucked-away filters
+  const [panel, setPanel]         = useState("");  // "map" | "schedule" under the count line
   const [moreOpen, setMoreOpen]   = useState(!!(initial.sourceType || initial.ccnStatus || initial.dateFrom || initial.dateTo || initial.scope));
   const LIMIT = 20;
 
@@ -1156,6 +1326,13 @@ export default function App() {
     [allDeals, ...filterDeps]
   );
   const filtered = useMemo(() => filteredAnyTab.filter(d => inTab(d, tab)), [filteredAnyTab, tab]);
+  // Map shading: this tab and these filters, any state
+  const stateCounts = useMemo(() => {
+    if (panel !== "map") return {};
+    const c = {};
+    for (const d of filterDeals(allDeals, { ...currentFilters, state: "" })) for (const s of new Set(d.states || [])) c[s] = (c[s] || 0) + 1;
+    return c;
+  }, [panel, allDeals, ...filterDeps]);
   const tabCounts = useMemo(() => Object.fromEntries(TABS.map(t => [t.key, filteredAnyTab.filter(d => inTab(d, t.key)).length])),
     [filteredAnyTab]);
 
@@ -1269,6 +1446,25 @@ export default function App() {
                 {freshness.pipeline_ran_at && <span title={chowFreshness || undefined}> · updated {fmtDay(freshness.pipeline_ran_at)}</span>}
               </span>
               <SourceLegend />
+            </div>
+          )}
+          {stats && !view && !focusId && !facilityCcn && (
+            <div style={{ marginTop: 4 }}>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                {[["map", "Map by state"], ["schedule", "Source refresh schedule"]].map(([k, label]) => (
+                  <button key={k} type="button" aria-expanded={panel === k} aria-controls={`nh-panel-${k}`}
+                    onClick={() => setPanel(p => p === k ? "" : k)}
+                    style={{ ...linkBtn, color: "#23406F", fontSize: 13 }}>{label} {panel === k ? "▴" : "▾"}</button>
+                ))}
+              </div>
+              {panel && (
+                <div id={`nh-panel-${panel}`} style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, padding: "14px 16px", marginTop: 4 }}>
+                  {panel === "map"
+                    ? <StatesMap counts={stateCounts} selected={state} what={tab === "financing" ? "Financing records" : "Ownership changes"}
+                        onPick={(s) => { setState(s); setOffset(0); }} />
+                    : <SourceSchedule freshness={freshness} />}
+                </div>
+              )}
             </div>
           )}
           {newSinceVisit > 0 && !since && !view && !focusId && !facilityCcn && (
@@ -1477,6 +1673,8 @@ export default function App() {
         )}
 
         </>)}
+
+        {!view && <FeedbackSection />}
 
         <footer style={{ marginTop: 48, fontSize: 12, color: "#5F636A",
           borderTop: "1px solid #E3E0D8", paddingTop: 20, lineHeight: 1.8 }}>

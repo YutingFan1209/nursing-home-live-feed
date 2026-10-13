@@ -127,6 +127,63 @@ def _chow_file_date() -> str | None:
         return None
 
 
+# How often each source publishes, and how long a check stays current before
+# the next one is due. Runs are manual (no cron), so the site shows when each
+# check is due rather than a scheduled run. Intervals follow each source's
+# cadence: PA's licence notices are a rolling window and MS's weekly tables
+# drop items 30 days after completion, so those two are weekly.
+SOURCE_SCHEDULE = {
+    "chow":  ("Quarterly file", None),
+    "cms_ownership": ("Monthly file", None),
+    "ucc":   ("Filed daily", 7),
+    "edgar": ("Filed as events happen", 7),
+    "rss":   ("Published daily", 1),
+    "con":   ("Posted as filed", 14),
+}
+CON_SCHEDULE = {
+    "Mississippi": ("Weekly reports", 7),
+    "Pennsylvania": ("Rolling notice window", 7),
+    "Michigan": ("Monthly reports", 30),
+    "Oklahoma": ("Monthly notice", 30),
+    "New York": ("Committee agendas, about monthly", 14),
+    "Hawaii": ("Posted as filed", 30),
+}
+
+
+def _source_freshness(cur, chow_file_date: str | None) -> dict:
+    """Last check of every active source, when the next is due, and for
+    UCC the last new filing found in each state (all states share one
+    source row, and run separately)."""
+    from datetime import date, timedelta
+    cur.execute("SELECT name, source_type, last_fetched_at FROM sources WHERE active ORDER BY source_type, name")
+    rows = []
+    for name, stype, last in cur.fetchall():
+        cadence, every = SOURCE_SCHEDULE.get(stype, ("", None))
+        if stype == "con":
+            cadence, every = next((v for k, v in CON_SCHEDULE.items() if name.startswith(k)), (cadence, every))
+        due = (last + timedelta(days=every)).isoformat() if last and every else None
+        if name == "CMS SNF Change of Ownership" and chow_file_date:
+            # CMS posts the CHOW file quarterly; the next is due ~3 months on
+            due = (date.fromisoformat(chow_file_date) + timedelta(days=91)).isoformat()
+        rows.append({"name": name, "type": stype, "cadence": cadence,
+                     "last_checked": last.isoformat() if last else None, "next_due": due})
+    # The CMS Ownership file reloads when the stored copy is 25+ days old
+    cur.execute("SELECT MAX(cms_refreshed_at) FROM cms_ownership_records")
+    loaded = cur.fetchone()[0]
+    for r in rows:
+        if r["name"] == "CMS Nursing Home Ownership Changes":
+            r["cadence"] = "Monthly file"
+            r["file_loaded"] = loaded.isoformat() if loaded else None
+            r["next_due"] = (loaded + timedelta(days=25)).isoformat() if loaded else None
+    cur.execute("""
+        SELECT d.states[1], MAX(d.created_at)
+        FROM deals d JOIN articles a ON a.id = d.article_id JOIN sources s ON s.id = a.source_id
+        WHERE s.source_type = 'ucc' AND d.states[1] IS NOT NULL
+        GROUP BY 1 ORDER BY 2 DESC""")
+    ucc = {st: ts.isoformat() for st, ts in cur.fetchall()}
+    return {"sources": rows, "ucc_last_new_filing": ucc}
+
+
 def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | None):
     """source_url for a UCC deal is 'ucc://STATE/FILING_NUMBER' -- parse
     it and swap in a real, clickable URL: detail_url (a genuine per-filing
@@ -372,6 +429,8 @@ def main():
 
         cur.execute("SELECT MAX(last_fetched_at) FROM sources")
         pipeline_ran_at = cur.fetchone()[0]
+        chow_file_date = _chow_file_date()
+        source_freshness = _source_freshness(cur, chow_file_date)
 
         # Fuzzy facility-name matches count only when the names agree once
         # generic words are set aside (pipeline/cms_confirm.same_facility_name):
@@ -471,7 +530,8 @@ def main():
     freshness = {
         "exported_at": datetime.now(timezone.utc).isoformat(),
         "pipeline_ran_at": pipeline_ran_at.isoformat() if pipeline_ran_at else None,
-        "chow_file_date": _chow_file_date(),
+        "chow_file_date": chow_file_date,
+        **source_freshness,
     }
 
     ucc_search_forms = {}
