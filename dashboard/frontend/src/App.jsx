@@ -1,13 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { SOURCE_LABEL, SOURCE_COLOR, STATUS_LABEL, STATUS_COLOR, displayStatus, primaryDate, otherDate,
+  publication, statusMeaning, howCollected } from "./derive.js";
 
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL || "https://www.medicare.gov/care-compare/details/nursing-home";
 const DATA_URL = import.meta.env.BASE_URL + "deals.json";
-
-// Calendar-date comparison, not elapsed hours — a deal from yesterday
-// afternoon shouldn't still read "Today" this morning just because it's
-// under 24h old.
-const localDateStr = (date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 // A bare "YYYY-MM-DD" is a calendar date. new Date() reads it as UTC
 // midnight, which in US time zones is the previous evening, so every
@@ -15,29 +11,6 @@ const localDateStr = (date) =>
 const parseDay = (v) => {
   const m = typeof v === "string" && /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
   return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
-};
-
-const fmtDate = (v) => {
-  if (!v) return null;
-  const d = parseDay(v);
-  const now = new Date();
-  const dStr = localDateStr(d);
-  const todayStr = localDateStr(now);
-  if (dStr === todayStr) return "Today";
-
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (dStr === localDateStr(yesterday)) return "Yesterday";
-
-  const diffDays = Math.round((new Date(todayStr) - new Date(dStr)) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) {
-    const inDays = -diffDays;
-    if (inDays === 1) return "Tomorrow";
-    if (inDays < 7) return `In ${inDays} days`;
-    return `Expected ${d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
-  }
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
 const fmtM = (v) => v != null ? `$${Number(v).toFixed(1)}M` : null;
@@ -99,11 +72,11 @@ function withDisplayCase(deal) {
 }
 
 const SOURCE = {
-  chow:  { label: "CMS record",     name: "CMS change-of-ownership data", tip: "CMS Provider Enrollment and ownership data — federal records of a completed change of ownership" },
-  edgar: { label: "SEC Filing",     name: "SEC EDGAR 8-K", tip: "SEC EDGAR 8-K — a publicly traded company's own filing" },
+  chow:  { label: "CMS",     name: "CMS change-of-ownership data", tip: "CMS Provider Enrollment and ownership data — federal records of a completed change of ownership" },
+  edgar: { label: "SEC EDGAR",     name: "SEC EDGAR 8-K", tip: "SEC EDGAR 8-K — a publicly traded company's own filing" },
   rss:   { label: "News",           name: "News report", tip: "Trade press or news article" },
-  ucc:   { label: "UCC Filing",     name: "State UCC-1 filing", tip: "State UCC-1 financing statement — a record of a loan, not of a sale" },
-  con:   { label: "State filing",   name: "State certificate-of-need / change-of-ownership filing", tip: "State certificate-of-need or change-of-ownership notice — filed before the deal closes" },
+  ucc:   { label: "State UCC-1",     name: "State UCC-1 filing", tip: "State UCC-1 financing statement — a record of a loan, not of a sale" },
+  con:   { label: "State CON",   name: "State certificate-of-need / change-of-ownership filing", tip: "State certificate-of-need or change-of-ownership notice — filed before the deal closes" },
 };
 
 // deal_type comes from scripts/export_deals.py (pipeline/deal_labels.py)
@@ -141,8 +114,6 @@ const TABS = [
   { key: "financing", label: "Financing" },
 ];
 const inTab = (d, tab) => tab === "financing" ? !OWNERSHIP_TYPES.has(d.deal_type) : OWNERSHIP_TYPES.has(d.deal_type);
-// Leases and control changes aren't sales: out of the deal counts
-const countsAsDeal = (d) => !["control_change", "lease", "refinancing", "non_deal_lien", "amendment"].includes(d.deal_type);
 
 // Card tags, one per card at most, only for exceptions. Text on fill is 4.5:1 or better.
 const TAGS = {
@@ -197,18 +168,13 @@ function EntityLink({ name, onPick }) {
   if (!name || !onPick) return <span>{name}</span>;
   return (
     <button type="button" onClick={() => onPick(name)} title={`All records involving ${name}`}
-      style={{ ...linkBtn, color: "#1F2328", textDecoration: "underline dotted", textUnderlineOffset: 3 }}>
+      style={{ ...linkBtn, minHeight: 32, color: "#1F2328", textDecoration: "underline dotted", textUnderlineOffset: 3 }}>
       {name}
     </button>
   );
 }
 
 const headlineText = (d) => (d.headline || []).map(([t]) => t).join("");
-
-const buyerText = (d) =>
-  (d.buyer && d.buyer_disclosure === "cms" ? `${d.buyer} (named in CMS ownership data, not in the source)` : d.buyer)
-  || (d.buyer_disclosure === "described" ? `Not named; described as ${d.buyer_description}`
-    : d.buyer_disclosure === "undisclosed" ? "Not disclosed" : d.buyer_disclosure === "not_named" ? "Not named in the source" : null);
 
 // One column list drives the CSV and the data dictionary on the methodology page
 const CSV_COLUMNS = [
@@ -246,6 +212,11 @@ const CSV_COLUMNS = [
   ["source_count", d => d.sources?.length, "Number of sources behind this record's card (including duplicates merged in the database)."],
   ["deal_value_m", d => d.deal_value_m, "Sale price in $ millions, as reported."],
   ["financing_amount_m", d => d.financing_amount_m, "Loan amount in $ millions, as reported."],
+  ["display_status", d => STATUS_LABEL[displayStatus(d)], "Status as shown on the site: the status column, except UCC-1 filings show On file (a record of the loan, not of a sale)."],
+  ["date_role", d => primaryDate(d).role, "What primary_date is: Effective (CMS records), Expected close (news of a pending deal that gives a closing date), Filed (state filings and notices, UCC-1s, SEC filings), Decision posted (Hawaii's list, which dates only the decision), or Reported (news, publication date)."],
+  ["primary_date", d => primaryDate(d).date, "The date shown on the card, as described by date_role. The date column keeps the source's own date field."],
+  ["source_label", d => SOURCE_LABEL[d.source_type] || d.source_type, "Short source type: CMS, State CON, State UCC-1, SEC EDGAR or News."],
+  ["publication", d => d.source_type === "rss" ? publication(d) : null, "News only: the publication, from the source URL's domain."],
 ];
 
 function downloadCsv(rows, name) {
@@ -332,7 +303,7 @@ function UccSource({ deal, searchForm }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
       <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}>
-        {deal.source_title || deal.source_url} ↗
+        {deal.ucc_state} UCC-1 filing #{deal.ucc_filing_number} ↗
       </a>
       {deal.ucc_state === "PA" && (
         <button type="button" onClick={copy} style={{ ...btnGhost, fontSize: 12, padding: "0 12px" }}>
@@ -343,56 +314,9 @@ function UccSource({ deal, searchForm }) {
   );
 }
 
-const muted = { color: "#5F636A", fontWeight: 400 };
-
-// Names in headlines arrive as the source wrote them; only shouting (ALL
-// CAPS from CMS and UCC portals) is recased, never a lower-case description
+// Names arrive as the source wrote them; only shouting (ALL CAPS from CMS
+// and UCC portals) is recased, never a lower-case description
 const shoutCase = (t) => /[a-z]/.test(t) ? t : smartCase(t);
-
-// The headline arrives as [text, style] segments (pipeline/deal_labels.py)
-function Headline({ deal }) {
-  return (deal.headline || []).map(([text, style], i) =>
-    style === "muted" ? <span key={i} style={muted}>{text}</span>
-    : style === "undisclosed" ? <span key={i} style={{ ...muted, fontStyle: "italic" }}>{text}</span>
-    : <span key={i}>{shoutCase(text)}</span>);
-}
-
-// Never present a multi-home owner's filing as tied to one home
-function OwnerOf({ deal }) {
-  const homes = deal.possible_homes || [];
-  if (homes.length === 1) {
-    const url = homeUrl(homes[0].ccn);
-    return <>Owner of {url ? <a href={url} target="_blank" rel="noreferrer" style={lnk}>{smartCase(homes[0].name)} ↗</a> : smartCase(homes[0].name)}</>;
-  }
-  // "Owner of X, Y, Z +8 more", or the unmatched line, from the export
-  return <>{shoutCase(deal.owner_line || "")}</>;
-}
-
-// One clamped line under the headline; the full text is under Details.
-function description(deal) {
-  if (deal.individual_filing) return <OwnerOf deal={deal} />;
-  if (deal.summary && ["rss", "edgar", "con"].includes(deal.source_type)) return <>{deal.summary}</>;
-  if (deal.source_type === "ucc") {
-    if (deal.lender?.startsWith("Not available")) return <>Lender not disclosed (NJ's free search doesn't return it)</>;
-    return lenderKnown(deal) ? <>Lender: {deal.lender}{deal.lender_category && ` · ${deal.lender_category}`}</> : null;
-  }
-  const facilities = deal.facility_names || [];
-  return facilities.length > 1 ? <>{facilities.join(", ")}</> : null;
-}
-
-// One figure on the right: amount, else facility count. deals.json has no
-// bed counts. Control changes carry no price.
-function keyFigure(deal) {
-  if (deal.individual_filing) {
-    const n = deal.possible_homes?.length || 0;
-    return n > 1 ? { value: n, label: "possible homes" } : null;
-  }
-  if (deal.deal_value_m != null && deal.deal_type !== "control_change") return { value: fmtM(deal.deal_value_m), label: "price" };
-  if (deal.financing_amount_m != null) return { value: fmtM(deal.financing_amount_m), label: "loan" };
-  if (deal.facility_count > 1) return { value: deal.facility_count, label: "facilities" };
-  if (deal.beds) return { value: deal.beds.toLocaleString(), label: "beds" };
-  return null;
-}
 
 // Long lists (11 opcos in one filing) show the first few and a toggle
 function NameList({ names, onPick, max = 4 }) {
@@ -431,7 +355,7 @@ function SourceLink({ deal, searchForms }) {
   }
   if (deal.ucc_filing_number) return <UccSource deal={deal} searchForm={searchForms?.[deal.ucc_state]} />;
   if (!deal.source_url) return <span>No link available</span>;
-  return <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}>{deal.source_title || deal.source_url} ↗</a>;
+  return <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}>{publication(deal) || deal.source_url} ↗</a>;
 }
 
 // A facility's page on this site (?ccn=), named when CMS details are known
@@ -439,8 +363,8 @@ function FacilityLink({ ccn, facilities, name }) {
   const f = facilities?.[ccn];
   const label = smartCase(f?.name || name || `CCN ${ccn}`);
   return (
-    <a href={`?ccn=${ccn}`} style={lnkBlock}>
-      {label}{f?.city ? `, ${smartCase(f.city)}` : ""} <span style={{ color: "#5F636A", marginLeft: 4 }}>({ccn})</span>
+    <a href={`?ccn=${ccn}`} style={{ ...lnkBlock, minHeight: 32, display: "inline" }}>
+      {label}{f?.city ? `, ${smartCase(f.city)}` : ""} <span style={{ color: "#5F636A", marginLeft: 4, whiteSpace: "nowrap" }}>({ccn})</span>
     </a>
   );
 }
@@ -499,7 +423,7 @@ function Timeline({ deal }) {
   const rows = (deal.sources || []).map(s => ({
     date: s.date, key: s.id,
     what: (SOURCE[s.source_type]?.name || s.source_name || "Source") + (s.merged ? " (merged duplicate)" : ""),
-    text: s.headline || s.source_title, url: s.source_url, record: s.merged || s.id === deal.id ? null : s.id,
+    text: s.headline || publication(s), url: s.source_url, record: s.merged || s.id === deal.id ? null : s.id,
     current: s.id === deal.id,
   }));
   if (deal.cms_event && deal.source_type !== "chow") {
@@ -528,156 +452,276 @@ function Timeline({ deal }) {
   );
 }
 
-function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities }) {
-  const src = SOURCE[deal.source_type] || SOURCE.rss;
-  const date = fmtDate(deal.acquisition_date) || fmtDate(deal.created_at);
-  const ccns = deal.ccns?.filter(Boolean) || [];
-  const tag = cardTag(deal);
-  const figure = keyFigure(deal);
+// "Sep 25, 2026" -- the card's dates are absolute, each labeled by its role
+const fmtFull = (v) => v ? parseDay(v).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
+
+const isPersonalLoan = (d) => d.deal_type === "non_deal_lien" && /personal loan/.test(headlineText(d));
+// Transaction type for the meta row
+const typeLabel = (d) => d.individual_filing ? "Individual filing"
+  : isPersonalLoan(d) ? "Likely personal loan"
+  : d.deal_type === "ownership_change" ? "Ownership change"
+  : DEAL_TYPE[d.deal_type]?.label || d.deal_type;
+
+const FINANCING_TYPES = new Set(["financing", "acquisition_financing", "refinancing", "non_deal_lien", "amendment"]);
+
+// Missing values are never filled in; this says why there is none
+const missingBuyer = (d) => d.buyer_disclosure === "undisclosed" ? "Undisclosed"
+  : d.buyer_disclosure === "not_named" ? "Not named in source"
+  : d.buyer_disclosure === "described" && d.buyer_description ? d.buyer_description
+  : "Not reported";
+
+const firstPlus = (names) => names.length > 1 ? `${names[0]} +${names.length - 1}` : names[0];
+const joinNote = (...parts) => parts.filter(Boolean).join(" · ") || null;
+const bedsNote = (n) => n ? `${Number(n).toLocaleString()} beds` : null;
+
+// The four columns of a collapsed card: who, counterparty, where, when.
+// Each is { label, value, missing, note, ccn }.
+function cardColumns(d, facilities) {
+  const ucc = d.source_type === "ucc";
+  const financing = ucc || FINANCING_TYPES.has(d.deal_type);
+  const states = (d.states || []).join(", ");
+  const ccns = (d.ccns || []).filter(Boolean);
+  const price = d.deal_type === "ownership_change" ? fmtM(d.deal_value_m) : null;
+  const cols = [];
+
+  // 1. Buyer / Lender / Operator
+  if (financing) {
+    const nj = d.lender?.startsWith("Not available");
+    cols.push(lenderKnown(d)
+      ? { label: "Lender", value: d.lender, note: fmtM(d.financing_amount_m) }
+      : { label: "Lender", value: nj ? "Not returned by NJ's search" : "Not reported", missing: true, note: fmtM(d.financing_amount_m) });
+  } else if (d.deal_type === "lease" || d.deal_type === "control_change") {
+    const op = d.buyer || (d.deal_type === "control_change" ? d.operator_names?.[0] : null);
+    cols.push(op ? { label: "Operator", value: op } : { label: "Operator", value: missingBuyer(d), missing: true });
+  } else if (d.buyer) {
+    cols.push({ label: "Buyer", value: d.buyer, note: d.buyer_disclosure === "cms" ? "Per CMS, not the source" : null });
+  } else {
+    cols.push({ label: "Buyer", value: missingBuyer(d), missing: true });
+  }
+
+  // 2. Seller / Borrower / Landlord / Prior operator
+  if (d.individual_filing) {
+    cols.push(d.ucc_debtor ? { label: "Filed against (individual)", value: d.ucc_debtor }
+      : { label: "Filed against (individual)", value: "Name not shown", missing: true });
+  } else if (ucc) {
+    cols.push(d.ucc_debtor ? { label: "Borrower", value: d.ucc_debtor } : { label: "Borrower", value: "Not reported", missing: true });
+  } else if (financing) {
+    const ops = d.operator_names || [];
+    cols.push(ops.length ? { label: "Borrower", value: firstPlus(ops), note: "Named as operator in source" }
+      : { label: "Borrower", value: "Not reported", missing: true });
+  } else {
+    const label = d.deal_type === "lease" ? "Landlord or prior operator"
+      : d.deal_type === "control_change" ? "Prior operator" : "Seller";
+    const seller = d.seller && d.seller !== d.buyer ? d.seller : null;
+    cols.push(seller ? { label, value: seller } : { label, value: "Not reported", missing: true });
+  }
+
+  // 3. Facility / Facilities / Possible homes
+  const one = (ccn, name) => {
+    const f = facilities?.[ccn];
+    // the name the source uses; CMS's legal name is under Details
+    return { value: smartCase(name || f?.name), note: joinNote(f?.state || states, bedsNote(f?.beds || d.beds), price) };
+  };
+  if (d.individual_filing || (ucc && ccns.length)) {
+    const homes = d.individual_filing ? (d.possible_homes || []) : ccns.map(c => ({ ccn: c, name: facilities?.[c]?.name || `CCN ${c}` }));
+    if (homes.length === 1) cols.push({ label: d.individual_filing ? "Home" : "Facility", ...one(homes[0].ccn, homes[0].name), ccn: homes[0].ccn });
+    else if (homes.length > 1) cols.push({ label: `Possible homes (${homes.length})`, value: firstPlus(homes.map(h => smartCase(h.name))), note: states });
+    else cols.push({ label: "Possible homes", value: "None found in CMS records", missing: true, note: states });
+  } else if (ucc) {
+    cols.push({ label: "Facility", value: "Not matched to a CMS facility", missing: true, note: states });
+  } else {
+    const names = d.facility_names || [];
+    const count = d.facility_count || names.length || null;
+    if (count === 1 && names.length) cols.push({ label: "Facility", ...one(ccns.length === 1 ? ccns[0] : null, names[0]) });
+    else if (count === 1) cols.push({ label: "Facility", value: "Not named in source", missing: true, note: joinNote(states, price) });
+    else if (count > 1) cols.push({ label: "Facilities", value: count.toLocaleString(), note: joinNote(states, price) });
+    else cols.push({ label: "Facilities", value: "Not reported", missing: true, note: joinNote(states, price) });
+  }
+
+  // 4. Role-labeled date
+  const p = primaryDate(d);
+  cols.push({ label: p.role, value: fmtFull(p.date) || "Not reported", missing: !p.date,
+    note: d.found_date ? `Found ${fmtFull(d.found_date)}` : null });
+  return cols;
+}
+
+function Column({ col }) {
+  const value = col.missing
+    ? <span style={{ color: "#5F636A", fontStyle: "italic", fontWeight: 400 }}>{col.value}</span>
+    : col.ccn ? <a href={`?ccn=${col.ccn}`} style={{ color: "#1F2328", textDecoration: "underline", textUnderlineOffset: 3,
+        display: "inline-flex", alignItems: "center", minHeight: 32 }}>{col.value}</a>
+    : shoutCase(col.value);
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontSize: 12, color: "#5F636A", marginBottom: 2 }}>{col.label}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: "#1F2328", lineHeight: 1.35, overflowWrap: "anywhere" }}>{value}</div>
+      {col.note && <div style={{ fontSize: 12, color: "#5F636A", marginTop: 2 }}>{col.note}</div>}
+    </div>
+  );
+}
+
+function SourceDot({ type }) {
+  return <span aria-hidden="true" style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%",
+    background: SOURCE_COLOR[type] || "#5F636A", flexShrink: 0 }} />;
+}
+
+function SourceLegend() {
+  return (
+    <span style={{ display: "inline-flex", gap: "0 12px", flexWrap: "wrap", alignItems: "center" }}>
+      {Object.keys(SOURCE_LABEL).map(k => (
+        <span key={k} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><SourceDot type={k} />{SOURCE_LABEL[k]}</span>
+      ))}
+    </span>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <section style={{ minWidth: 0 }}>
+      <h3 style={{ ...dl, fontSize: 12, marginBottom: 8 }}>{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+// label / value rows inside a Details section
+function Row({ label, children }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(96px, 38%) 1fr", gap: 10, fontSize: 14, padding: "3px 0", alignItems: "baseline" }}>
+      <div style={{ color: "#5F636A" }}>{label}</div>
+      <div style={{ color: "#1F2328", minWidth: 0, overflowWrap: "anywhere" }}>{children}</div>
+    </div>
+  );
+}
+
+const missingText = (t) => <span style={{ color: "#5F636A", fontStyle: "italic" }}>{t}</span>;
+
+function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness }) {
   const detailsId = `details-${deal.id}`;
   const individual = deal.individual_filing;
-  const desc = description(deal);
-  const buyer = buyerText(deal);
-  const statusColor = deal.status === "confirmed" ? "#14543F" : deal.status === "expected" ? "#6B4A0B"
-    : deal.status === "unconfirmed" ? "#8A3B12" : "#3F4248";
+  const ccns = deal.ccns?.filter(Boolean) || [];
+  const status = displayStatus(deal);
+  const cols = cardColumns(deal, facilities);
+  const other = otherDate(deal);
+  const pub = publication(deal);
+  const names = deal.facility_names || [];
 
   return (
     <article id={`record-${deal.id}`} style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, marginBottom: 10 }}>
-      <div className="nh-card-row" style={{ padding: "18px 20px", display: "flex", gap: 16 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, color: "#5F636A", marginBottom: 6 }}>
-            {[date, deal.states?.join(", "), src.label,
-              deal.status === "expected" && !date?.startsWith("Expected") && "Pending",
-              deal.status === "unconfirmed" && "Unconfirmed",
-              deal.sources?.length > 1 && `${deal.sources.length} sources`].filter(Boolean).join(" · ")}
-          </div>
-          {tag && (
-            <div style={{ marginBottom: 6 }}>
-              <span title={tag.tip} style={{ display: "inline-block", fontSize: 12, fontWeight: 600,
-                color: tag.fg, background: tag.bg, padding: "2px 8px", borderRadius: 4 }}>{tag.label}</span>
-            </div>
-          )}
-          <h2 style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.35, color: "#1F2328", margin: 0, overflowWrap: "anywhere" }}>
-            <Headline deal={deal} />
-          </h2>
-          {desc && (
-            <div className="nh-clamp" style={{ fontSize: 14, color: "#3F4248", marginTop: 6 }}>{desc}</div>
-          )}
+      <div style={{ padding: "12px 18px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 13, color: "#3F4248", minHeight: 32 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }} title={SOURCE[deal.source_type]?.tip}>
+            <SourceDot type={deal.source_type} />{SOURCE_LABEL[deal.source_type] || deal.source_type}
+          </span>
+          <span aria-hidden="true" style={{ color: "#8A8D93" }}>·</span>
+          <span>{typeLabel(deal)}</span>
+          <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 14 }}>
+            <span style={{ fontWeight: 600, color: STATUS_COLOR[status] }}>{STATUS_LABEL[status] || status}</span>
+            <button type="button" onClick={() => onToggle(deal.id)} aria-expanded={expanded} aria-controls={detailsId}
+              style={{ ...linkBtn, minHeight: 32, color: "#23406F", fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>
+              {expanded ? "Hide details" : "Details"}
+            </button>
+          </span>
         </div>
-        <div className="nh-card-side" style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end",
-          justifyContent: "space-between", textAlign: "right", maxWidth: 120 }}>
-          {figure ? (
-            <div>
-              <div style={{ fontSize: 17, fontWeight: 600, color: "#1F2328", fontVariantNumeric: "tabular-nums" }}>{figure.value}</div>
-              <div style={{ fontSize: 12, color: "#5F636A" }}>{figure.label}</div>
-            </div>
-          ) : <span />}
-          <button type="button" onClick={() => onToggle(deal.id)} aria-expanded={expanded} aria-controls={detailsId}
-            style={{ ...linkBtn, color: "#5F636A", fontSize: 13, textDecoration: "underline", textUnderlineOffset: 3 }}>
-            {expanded ? "Hide details" : "Details"}
-          </button>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px 16px", marginTop: 8 }}>
+          {cols.map((c, i) => <Column key={i} col={c} />)}
         </div>
       </div>
 
       {expanded && (
-        <div id={detailsId} style={{ borderTop: "1px solid #E3E0D8", padding: "16px 20px", background: "#FAFAF8", borderRadius: "0 0 10px 10px" }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: statusColor, marginBottom: 10 }}>{deal.status_detail}</p>
+        <div id={detailsId} className="nh-details" style={{ borderTop: "1px solid #E3E0D8", padding: "16px 18px",
+          background: "#FAFAF8", borderRadius: "0 0 10px 10px" }}>
+          <Section title="Transaction overview">
+            <Row label="Type">{DEAL_TYPE[deal.deal_type]?.label || deal.deal_type}{individual && " · filed against an individual"}
+              {isPersonalLoan(deal) && " (likely personal loan)"}</Row>
+            {cols.slice(0, 2).map((c, i) => (
+              <Row key={i} label={c.label}>
+                {c.missing ? missingText(c.value)
+                  : <EntityLink name={c.value} onPick={entityNames(deal).includes(c.value) ? onEntity : null} />}
+                {c.note && <span style={{ color: "#5F636A" }}> · {c.note}</span>}
+              </Row>
+            ))}
+            {!individual && deal.operator_names?.length > 0 && deal.source_type === "ucc" && (
+              <Row label="Linked CMS owner(s)"><NameList names={deal.operator_names} onPick={onEntity} /></Row>
+            )}
+            {!individual && (names.length > 0 || deal.facility_count) && (
+              <Row label={deal.facility_count === 1 ? "Facility" : "Facilities"}>
+                {names.length ? names.join(", ") : missingText("Names aren't in the source")}
+                {deal.facility_count > names.length && names.length > 0 && <span style={{ color: "#5F636A" }}> (source names {names.length} of {deal.facility_count})</span>}
+                {deal.facility_count > 1 && !names.length && <span style={{ color: "#5F636A" }}> · {deal.facility_count} facilities</span>}
+              </Row>
+            )}
+            {individual && (
+              <Row label={deal.match_type === "multi_home" ? "Possible homes" : deal.match_type === "single_home" ? "Home" : "Possible homes"}>
+                <div style={{ color: "#3F4248", marginBottom: 2 }}>
+                  {deal.match_type === "multi_home"
+                    ? `This person owns or controls each of these ${deal.ucc_state || ""} homes in CMS records. The filing doesn't say which, if any, it concerns.`
+                    : deal.match_type === "single_home"
+                    ? `The only ${deal.ucc_state || ""} home this person owns or controls in CMS records. The filing itself doesn't name a home.`
+                    : "No matching home in CMS ownership records."}
+                </div>
+                {(deal.possible_homes || []).map(h => <div key={h.ccn} style={{ padding: "4px 0" }}><FacilityLink ccn={h.ccn} facilities={facilities} name={h.name} /></div>)}
+              </Row>
+            )}
+            {!individual && ccns.length > 0 && (
+              <Row label={deal.source_type === "ucc" && ccns.length > 1 ? "Possible homes (CMS)" : "CMS facilities"}>
+                {ccns.slice(0, 12).map(ccn => <div key={ccn} style={{ padding: "4px 0" }}><FacilityLink ccn={ccn} facilities={facilities} /></div>)}
+                {ccns.length > 12 && <div>+{ccns.length - 12} more</div>}
+                {history?.length > 0 && <div style={{ color: "#5F636A", fontSize: 13 }}>{history.length} other record{history.length > 1 ? "s" : ""} in this tracker at {ccns.length > 1 ? "these facilities" : "this facility"}</div>}
+              </Row>
+            )}
+            <Row label="Location">{deal.states?.length ? deal.states.join(", ") : missingText("Not reported")}</Row>
+            {deal.beds && <Row label="Certified beds (CMS)">{deal.beds.toLocaleString()}</Row>}
+            {deal.deal_type !== "control_change" && fmtM(deal.deal_value_m) && <Row label="Price">{fmtM(deal.deal_value_m)}</Row>}
+            {fmtM(deal.financing_amount_m) && <Row label="Loan amount">{fmtM(deal.financing_amount_m)}</Row>}
+            <Row label="Facility type">{FACILITY_TYPE[deal.facility_type] || deal.facility_type}</Row>
+            {(() => { const p = primaryDate(deal); return <Row label={p.role}>{p.date ? fmtFull(p.date) : missingText("Not reported")}</Row>; })()}
+            {other && <Row label={other.role}>{fmtFull(other.date)}</Row>}
+            {deal.published_at && primaryDate(deal).date !== deal.published_at.slice(0, 10) && <Row label="Published">{fmtFull(deal.published_at)}</Row>}
+            <Row label="Found by tracker">{deal.found_date ? fmtFull(deal.found_date) : missingText("Not recorded")}</Row>
+            {deal.ucc_also_filed?.length > 0 && <Row label="Same loan also filed">{deal.ucc_also_filed.join(", ")}</Row>}
+          </Section>
+
+          <Section title="Verification">
+            <Row label="Status"><span style={{ fontWeight: 600, color: STATUS_COLOR[status] }}>{STATUS_LABEL[status]}</span></Row>
+            <p style={{ fontSize: 14, color: "#1F2328", margin: "2px 0 4px" }}>{statusMeaning(deal)}</p>
+            {deal.status_detail && status !== "on_file" && <p style={{ fontSize: 13, color: "#5F636A", marginBottom: 6 }}>{deal.status_detail}</p>}
+            <Row label="Source type">{SOURCE[deal.source_type]?.name || deal.source_type}</Row>
+            <Row label="CMS match">
+              {ccns.length || deal.possible_homes?.length
+                ? (individual && deal.match_type === "multi_home" ? `Possible homes only (${deal.possible_homes.length})`
+                  : `Matched to ${ccns.length || deal.possible_homes.length} CMS facilit${(ccns.length || deal.possible_homes.length) > 1 ? "ies" : "y"}`)
+                : "Not matched to a CMS facility"}
+              {deal.cms_confirmed_on && `; CMS shows a new owner from ${fmtFull(deal.cms_confirmed_on)}`}
+              {chowFreshness && <div style={{ color: "#5F636A", fontSize: 13 }}>{chowFreshness}</div>}
+            </Row>
+            {deal.source_type !== "ucc" && deal.ucc_confirmed && <Row label="Corroboration">Matches a state UCC-1 financing statement</Row>}
+          </Section>
+
           {deal.summary && (
-            <p style={{ fontSize: 14, lineHeight: 1.55, color: "#3F4248", marginBottom: 14 }}>{deal.summary}</p>
-          )}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14, marginBottom: 14 }}>
-            <Field label="Type">{DEAL_TYPE[deal.deal_type]?.label || deal.deal_type}</Field>
-            {buyer && <Field label="Buyer">{deal.buyer ? <EntityLink name={deal.buyer} onPick={onEntity} /> : buyer}</Field>}
-            {deal.seller && <Field label="Seller"><EntityLink name={deal.seller} onPick={onEntity} /></Field>}
-            {deal.ucc_debtor && (
-              <Field label={`Borrower (debtor)${individual ? " — individual" : ""}`}><EntityLink name={deal.ucc_debtor} onPick={onEntity} /></Field>
-            )}
-            {lenderKnown(deal) && (
-              <Field label="Lender"><EntityLink name={deal.lender} onPick={onEntity} />{deal.lender_category && <div style={{ fontSize: 12, color: "#5F636A" }}>{deal.lender_category}</div>}</Field>
-            )}
-            {!individual && deal.operator_names?.length > 0 && (
-              <Field label={deal.source_type === "ucc" ? "Linked CMS owner(s)" : "Operator(s)"}>
-                <NameList names={deal.operator_names} onPick={onEntity} />
-              </Field>
-            )}
-            {!individual && deal.facility_names?.length > 0 && <Field label="Facilities">{deal.facility_names.join(", ")}</Field>}
-            {deal.facility_count && <Field label="Facility count">{deal.facility_count}</Field>}
-            {deal.beds && <Field label="Certified beds (CMS)">{deal.beds.toLocaleString()}</Field>}
-            {deal.deal_type !== "control_change" && fmtM(deal.deal_value_m) && <Field label="Price">{fmtM(deal.deal_value_m)}</Field>}
-            {fmtM(deal.financing_amount_m) && <Field label="Loan amount">{fmtM(deal.financing_amount_m)}</Field>}
-            {deal.acquisition_date && <Field label={deal.status === "expected" ? "Expected / filing date" : "Effective date"}>{deal.acquisition_date}</Field>}
-            <Field label="First found by this tracker">{deal.found_date || "—"}</Field>
-            <Field label="Facility type">{FACILITY_TYPE[deal.facility_type] || deal.facility_type}</Field>
-            {deal.ucc_also_filed?.length > 0 && <Field label="Same loan also filed">{deal.ucc_also_filed.join(", ")}</Field>}
-            {deal.source_type !== "ucc" && deal.ucc_confirmed && (
-              <Field label="Corroboration">Matches a state UCC-1 financing statement</Field>
-            )}
-          </div>
-
-          {individual && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={dl}>{deal.match_type === "multi_home" ? `${deal.possible_homes.length} possible homes`
-                : deal.match_type === "single_home" ? "Home owned by this person" : "Possible homes"}</div>
-              <div style={{ ...dv, marginBottom: 4 }}>
-                {deal.match_type === "multi_home"
-                  ? `This person owns or controls each of these ${deal.ucc_state} homes in CMS records. The filing doesn't say which, if any, it concerns.`
-                  : deal.match_type === "single_home"
-                  ? `The only ${deal.ucc_state} home this person owns or controls in CMS records. The filing itself doesn't name a home.`
-                  : "Filed against an individual; no matching home in CMS ownership records."}
-              </div>
-              {(deal.possible_homes || []).map(h => (
-                <div key={h.ccn} style={dv}><FacilityLink ccn={h.ccn} facilities={facilities} name={h.name} /></div>
-              ))}
-            </div>
+            <Section title="Narrative context">
+              <p style={{ fontSize: 14, lineHeight: 1.55, color: "#3F4248" }}>{deal.summary}</p>
+            </Section>
           )}
 
-          {!individual && ccns.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <div style={dl}>Facilities in CMS records{history?.length > 0 ? ` · ${history.length} other record${history.length > 1 ? "s" : ""} in this tracker` : ""}</div>
-              <div style={{ display: "flex", gap: "0 14px", flexWrap: "wrap", marginTop: 2 }}>
-                {ccns.slice(0, 12).map(ccn => <FacilityLink key={ccn} ccn={ccn} facilities={facilities} />)}
-                {ccns.length > 12 && <span style={{ ...dv, alignSelf: "center" }}>+{ccns.length - 12} more</span>}
-              </div>
-            </div>
-          )}
-
-          {(deal.sources?.length > 1 || deal.cms_event) && <Timeline deal={deal} />}
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-            <div>
-              <div style={dl}>Source · {deal.source_name || src.name}</div>
-              <SourceLink deal={deal} searchForms={searchForms} />
-            </div>
-            <div>
-              <div style={dl}>Cite this record</div>
-              <CopyLink id={deal.id} />
-            </div>
-          </div>
+          <Section title="Source documentation">
+            <Row label="Original source"><SourceLink deal={deal} searchForms={searchForms} /></Row>
+            {deal.source_type === "rss" && pub && <Row label="Publication">{pub}</Row>}
+            <Row label="How collected">{howCollected(deal)}</Row>
+            <Row label="Sources">{deal.sources?.length || 1}</Row>
+            {(deal.sources?.length > 1 || deal.cms_event) && <Timeline deal={deal} />}
+            <Row label="Record ID"><code style={{ fontSize: 12 }}>{deal.id}</code></Row>
+            <Row label="Cite this record"><CopyLink id={deal.id} /></Row>
+          </Section>
         </div>
       )}
     </article>
   );
 }
+const entityNames = (d) => [d.buyer, d.seller, d.ucc_debtor, lenderKnown(d) ? d.lender : null, ...(d.operator_names || [])].filter(Boolean);
+
 
 const CORRECTIONS_URL = "https://github.com/YutingFan1209/nursing-home-live-feed/issues";
-
-function TagChip({ tag }) {
-  return <span style={{ display: "inline-block", fontSize: 12, fontWeight: 600, color: tag.fg, background: tag.bg,
-    padding: "2px 8px", borderRadius: 4, whiteSpace: "nowrap" }}>{tag.label}</span>;
-}
-
-function TagLegend() {
-  return (
-    <dl style={{ display: "grid", gridTemplateColumns: "max-content 1fr", gap: "8px 12px", alignItems: "baseline", margin: 0 }}>
-      {Object.values(TAGS).map(t => (
-        <div key={t.label} style={{ display: "contents" }}>
-          <dt><TagChip tag={t} /></dt>
-          <dd style={{ margin: 0, fontSize: 15, lineHeight: 1.5, color: "#3F4248" }}>{t.tip}.</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
 
 function Methodology({ chowDate, corrections, onBack }) {
   const h = { fontSize: 18, fontWeight: 600, margin: "28px 0 8px" };
@@ -716,8 +760,9 @@ function Methodology({ chowDate, corrections, onBack }) {
       <ul style={{ paddingLeft: 20 }}>
         <li style={li}><strong>Confirmed:</strong> a CMS change-of-ownership record; or CMS ownership data shows a new owner at
           the facility within 6 months of the record (checked again every time the data is published, so pending deals
-          become Confirmed once CMS catches up); or, for financing, a UCC-1 statement on file with the state
-          (a record of the loan, not of a sale).</li>
+          become Confirmed once CMS catches up).</li>
+        <li style={li}><strong>On file:</strong> a UCC-1 financing statement on file with the state. It is a record of a
+          loan, not evidence that a sale happened.</li>
         <li style={li}><strong>Expected:</strong> filed with the state or reported before closing. Not yet completed as far
           as we know; the expected date is shown when the source gives one.</li>
         <li style={li}><strong>Unconfirmed:</strong> filed or reported as pending more than six months ago, and still not
@@ -725,9 +770,22 @@ function Methodology({ chowDate, corrections, onBack }) {
         <li style={li}><strong>Reported:</strong> a news report or company filing that CMS data doesn't confirm yet.</li>
       </ul>
 
-      <h3 style={h}>Tags</h3>
-      <p style={p}>A card carries at most one tag, and only for these exceptions:</p>
-      <TagLegend />
+      <h3 style={h}>Reading a card</h3>
+      <p style={p}>Each card shows its source and transaction type, its status, and four columns: the buyer (or lender,
+        or new operator), the other party (seller, borrower, landlord or prior operator), the facility or facilities, and
+        a date labeled by what it is:</p>
+      <ul style={{ paddingLeft: 20 }}>
+        <li style={li}><strong>Effective:</strong> the date a CMS record gives for the change.</li>
+        <li style={li}><strong>Expected close:</strong> the closing date a news report gives for a pending deal.</li>
+        <li style={li}><strong>Filed:</strong> the date of a state filing or notice, a UCC-1 statement or an SEC filing.
+          When a state filing also gives an expected closing date, it is under Details.</li>
+        <li style={li}><strong>Reported:</strong> the date a news report was published.</li>
+      </ul>
+      <p style={p}>"Found" is the day this tracker first found the record. A missing name is never filled in:
+        <em> Undisclosed</em> means the source says it isn't disclosed, <em>Not named in source</em> that the source
+        doesn't name them, and <em>Not reported</em> that the source doesn't give it. For a filing against a person,
+        <em> Possible homes</em> are the homes that person owns in CMS records; none of them is a confirmed link.</p>
+      <p style={p}>Sources: <SourceLegend /></p>
 
       <h3 style={h}>Buyers</h3>
       <p style={p}>The buyer is shown as named in the source. When the source describes the buyer without naming them,
@@ -868,9 +926,10 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
     if (!refi && d.deal_type === "refinancing") return false;
     if (noLiens && d.deal_type === "non_deal_lien") return false;
     if (state && !(d.states || []).includes(state)) return false;
-    const effectiveDate = d.acquisition_date || d.created_at;
-    if (dateFrom && effectiveDate && effectiveDate < dateFrom) return false;
-    if (dateTo && effectiveDate && effectiveDate > dateTo + "T99") return false;
+    // the date the card shows (Effective, Expected close, Filed, Reported)
+    const shownDate = d._date;
+    if (dateFrom && shownDate && shownDate < dateFrom) return false;
+    if (dateTo && shownDate && shownDate > dateTo) return false;
     if (sourceType && d.source_type !== sourceType) return false;
     if (entity && dealRoles(d, entity).length === 0) return false;
     const hasCcn = (d.ccns || []).filter(Boolean).length > 0;
@@ -1003,11 +1062,10 @@ export default function App() {
     fetch(DATA_URL + "?t=" + Date.now())
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
-        const deals = (data.deals || data || []).map(withDisplayCase).sort((a, b) => {
-          const da = a.acquisition_date || a.created_at || "";
-          const db = b.acquisition_date || b.created_at || "";
-          return db.localeCompare(da);
-        });
+        // Newest first by the date each card shows (primaryDate)
+        const deals = (data.deals || data || []).map(withDisplayCase)
+          .map(d => ({ ...d, _date: primaryDate(d).date || d.created_at?.slice(0, 10) || "" }))
+          .sort((a, b) => b._date.localeCompare(a._date));
         setAllDeals(deals);
         setSearchForms(data.ucc_search_forms || {});
         setFreshness(data.freshness || {});
@@ -1101,13 +1159,15 @@ export default function App() {
   const tabCounts = useMemo(() => Object.fromEntries(TABS.map(t => [t.key, filteredAnyTab.filter(d => inTab(d, t.key)).length])),
     [filteredAnyTab]);
 
-  // Summary line: deals in the default view -- skilled-nursing related, and
-  // not leases, control changes, refinancings or liens
+  // Count line: every record in the data, and what the default view leaves
+  // out (refinancings; senior living, hospitals and unspecified facilities;
+  // records shown inside another deal's card). The three add up exactly.
   const stats = useMemo(() => {
     if (!allDeals.length) return null;
-    const shown = allDeals.filter(d => !d.grouped_into && d.facility_type === "skilled_nursing" && countsAsDeal(d));
-    const cutoff90 = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-    return { total: shown.length, last90: shown.filter(d => d.acquisition_date && parseDay(d.acquisition_date) >= cutoff90).length };
+    const refi = allDeals.filter(d => !d.grouped_into && d.deal_type === "refinancing").length;
+    const other = allDeals.filter(d => !d.grouped_into && d.deal_type !== "refinancing" && d.facility_type !== "skilled_nursing").length;
+    const grouped = allDeals.filter(d => d.grouped_into).length;
+    return { total: allDeals.length, refi, other, grouped };
   }, [allDeals]);
 
   const byCcn = useMemo(() => {
@@ -1188,26 +1248,28 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F4F3EF", color: "#1F2328",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      fontFamily: "'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       <div className="nh-wrap">
         <header style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>
             Nursing Home Ownership Changes
           </h1>
-          <p style={{ fontSize: 14, color: "#5F636A", lineHeight: 1.6, maxWidth: 560 }}>
-            Skilled nursing facility ownership changes from CMS ownership records,
-            state pre-closing filings, UCC-1 financing statements, SEC filings and
-            trade press.{" "}
+          <p style={{ fontSize: 14, color: "#5F636A", lineHeight: 1.6 }}>
+            US nursing home ownership changes and financings, from CMS records, state filings, UCC-1s, SEC filings and news.{" "}
             <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}
               style={{ color: "#23406F" }}>How this works</a>
           </p>
           {stats && (
-            <p style={{ fontSize: 13, color: "#5F636A", marginTop: 10 }}>
-              <span title="Sales and financings of skilled nursing facilities; leases, control changes, refinancings and non-deal liens aren't counted">
-                {stats.total.toLocaleString()} deals</span> · {stats.last90.toLocaleString()} in the last 90 days
-              {freshness.pipeline_ran_at && <> · <span title={chowFreshness || undefined}>sources checked {fmtStamp(freshness.pipeline_ran_at)}</span></>}
-            </p>
+            <div style={{ fontSize: 13, color: "#5F636A", marginTop: 10, display: "flex", gap: "4px 16px", flexWrap: "wrap", alignItems: "center" }}>
+              <span>
+                {stats.total.toLocaleString()} records · {stats.refi.toLocaleString()} refinancings
+                {stats.other > 0 && ` and ${stats.other} senior living or other records`} hidden by default
+                {stats.grouped > 0 && <span title="Shown in the Details of the deal they're grouped with"> · {stats.grouped} shown inside another card</span>}
+                {freshness.pipeline_ran_at && <span title={chowFreshness || undefined}> · updated {fmtDay(freshness.pipeline_ran_at)}</span>}
+              </span>
+              <SourceLegend />
+            </div>
           )}
           {newSinceVisit > 0 && !since && !view && !focusId && !facilityCcn && (
             <p style={{ fontSize: 14, color: "#1F2328", marginTop: 6 }}>
@@ -1237,7 +1299,7 @@ export default function App() {
                 <DealCard deal={focused} expanded={expanded.has(focused.id)} onToggle={toggleExpand}
                   searchForms={searchForms} onEntity={(n) => { go({}); pickEntity(n); }}
                   history={expanded.has(focused.id) ? historyFor(focused) : null}
-                  facilities={facilities} />
+                  facilities={facilities} chowFreshness={chowFreshness} />
               </>) : <p style={{ fontSize: 15, color: "#5F636A", padding: "24px 0" }}>This record isn't in the current data. It may have been
                   removed as out of scope or merged with another record.</p>}
           </section>
@@ -1397,7 +1459,7 @@ export default function App() {
               searchForms={searchForms}
               onEntity={pickEntity}
               history={expanded.has(deal.id) ? historyFor(deal) : null}
-              facilities={facilities} />
+              facilities={facilities} chowFreshness={chowFreshness} />
           ))
         )}
 
@@ -1418,17 +1480,13 @@ export default function App() {
 
         <footer style={{ marginTop: 48, fontSize: 12, color: "#5F636A",
           borderTop: "1px solid #E3E0D8", paddingTop: 20, lineHeight: 1.8 }}>
-          <div style={{ display: "flex", gap: "6px 10px", flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
-            <span>Tags:</span>
-            {Object.values(TAGS).map(t => <span key={t.label} title={t.tip}><TagChip tag={t} /></span>)}
-          </div>
           Data from CMS ownership and change-of-ownership data, state certificate-of-need
           notices, state UCC-1 filings, SEC EDGAR 8-K filings and trade press. News and UCC
           records are extracted automatically and may contain errors.
           {chowFreshness && ` ${chowFreshness}.`}
           <div style={{ display: "flex", gap: "0 16px", flexWrap: "wrap" }}>
             <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}
-              style={{ ...lnkBlock, fontSize: 13, color: "#23406F" }}>Methodology, tags &amp; corrections</a>
+              style={{ ...lnkBlock, fontSize: 13, color: "#23406F" }}>Methodology &amp; corrections</a>
             <a href={import.meta.env.BASE_URL + "feed.xml"} style={{ ...lnkBlock, fontSize: 13, color: "#5F636A" }}>Subscribe (Atom feed)</a>
           </div>
         </footer>
@@ -1440,16 +1498,9 @@ export default function App() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { background: #F4F3EF; }
         select option { background: #fff; color: #1F2328; }
-        .nh-wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
+        .nh-wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px; }
         @media (max-width: 600px) { .nh-wrap { padding: 20px 16px; } }
-        .nh-clamp { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        @media (max-width: 520px) {
-          /* the figure and Details sit under the text, so the summary gets the width */
-          .nh-card-row { flex-direction: column; gap: 4px !important; }
-          .nh-card-side { flex-direction: row !important; align-items: center !important; max-width: none !important;
-            justify-content: space-between !important; text-align: left !important; }
-          .nh-card-side > div { display: flex; gap: 6px; align-items: baseline; }
-        }
+        .nh-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px 28px; }
         .nh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
         button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #23406F; outline-offset: 2px; }
         @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
