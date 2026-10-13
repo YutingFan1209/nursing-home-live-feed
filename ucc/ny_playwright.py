@@ -17,7 +17,7 @@ works reliably instead. See search_ny_batch_cdp().
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from ucc.base import UCCFiling
-from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
+from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp, page_target_id, run_tab_workers
 from datetime import datetime
 import logging
 import time
@@ -179,27 +179,31 @@ def search_ny(search_term: str, is_individual: bool = False) -> list[UCCFiling]:
     return results
 
 
-def _search_chunk_cdp(cdp_url: str, terms: list[tuple[str, bool]]) -> list[UCCFiling]:
+def _search_chunk_cdp(cdp_url: str, terms: list[tuple[str, bool]], out: list, tab: dict) -> None:
     """Run one worker's share of (name, is_individual) terms serially
     against a single page (tab) it opens once and reuses -- called from a
-    ThreadPoolExecutor worker thread. Each thread gets its own
+    run_tab_workers thread. Each thread gets its own
     sync_playwright()/connect_over_cdp() connection and page (Playwright's
     sync API requires objects stay within the thread that created them),
     but all threads attach to the SAME running Chrome and share its first
     browser context -- meaning they all share the already-solved
     Cloudflare Turnstile clearance cookie, so only the very first page
-    load across all threads needs to actually pass the challenge."""
-    results = []
+    load across all threads needs to actually pass the challenge.
+    Results go into `out` as they come, so a stuck tab can't lose them."""
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(cdp_url)
         context = browser.contexts[0] if browser.contexts else browser.new_context()
         page = context.new_page()
+        tab["id"] = page_target_id(context, page)
         for name, is_individual in terms:
             filings = _search_one(page, name, is_individual=is_individual)
             logger.info("NY UCC %s (%s, cdp) → %d filings", name, "individual" if is_individual else "org", len(filings))
-            results.extend(filings)
-        page.close()
-    return results
+            out.extend(filings)
+        tab["searched"] = time.time()
+        try:
+            page.close()
+        except Exception as e:
+            logger.warning("NY UCC tab didn't close cleanly: %s", e)
 
 
 def search_ny_batch_cdp(
@@ -238,17 +242,11 @@ def search_ny_batch_cdp(
     if not terms:
         return []
 
-    from concurrent.futures import ThreadPoolExecutor, as_completed
     chunks = [terms[i::max_workers] for i in range(max_workers)]
     chunks = [c for c in chunks if c]
     logger.info("NY UCC: %d terms split across %d workers", len(terms), len(chunks))
-
-    all_results = []
-    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
-        futures = [executor.submit(_search_chunk_cdp, cdp_url, chunk) for chunk in chunks]
-        for future in as_completed(futures):
-            all_results.extend(future.result())
-    return all_results
+    port = int(cdp_url.rsplit(":", 1)[1])
+    return run_tab_workers(lambda chunk, out, tab: _search_chunk_cdp(cdp_url, chunk, out, tab), chunks, "NY UCC", port=port)
 
 
 def search_ny_batch(

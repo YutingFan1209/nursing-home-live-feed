@@ -105,3 +105,80 @@ def ensure_chrome_cdp(
     if not cdp_has_open_page(port):
         logger.info("Chrome has zero open tabs -- opening a keep-alive blank tab")
         cdp_open_blank_tab(port)
+
+
+# ── Tab workers that can't hang the run ──────────────────────────────────
+# 2026-10-13: a NY run finished all 2,529 searches, then sat for 10 minutes
+# because two workers' page.close() never returned: their tabs still held a
+# Cloudflare Turnstile frame. Nothing commits until the UCC step returns, so
+# the whole state's results were stuck. Closing the two tabs over Chrome's
+# HTTP endpoint released them. run_tab_workers does that automatically.
+
+def page_target_id(context, page) -> str | None:
+    """Chrome's id for a Playwright page, so another thread can close the
+    tab over HTTP (Playwright objects are tied to their own thread)."""
+    try:
+        cdp = context.new_cdp_session(page)
+        tid = cdp.send("Target.getTargetInfo")["targetInfo"]["targetId"]
+        cdp.detach()
+        return tid
+    except Exception as e:
+        logger.warning(f"Couldn't read the tab's target id ({e}); a stuck close can't be forced")
+        return None
+
+
+def close_target(target_id: str, port: int = 9222) -> bool:
+    try:
+        urllib.request.urlopen(f"http://localhost:{port}/json/close/{target_id}", timeout=5).read()
+        return True
+    except Exception as e:
+        logger.warning(f"Couldn't close tab {target_id}: {e}")
+        return False
+
+
+def run_tab_workers(work, chunks: list, label: str, port: int = 9222, close_grace: float = 60.0) -> list:
+    """Run work(chunk, out, tab) for each chunk in its own daemon thread and
+    return every worker's results. A worker appends results to `out` as it
+    goes, sets tab["id"] (page_target_id) once its tab is open, and sets
+    tab["searched"] (time.time()) when its searches are done, before it
+    closes the tab. A worker still running close_grace seconds after its
+    searches finished is stuck closing: its tab is closed over HTTP, and if
+    that doesn't release it either, its results are kept and the thread is
+    left behind (daemon threads don't block the process from exiting). A
+    worker that raises loses nothing it had already appended."""
+    import threading
+    import time as _time
+    outs = [[] for _ in chunks]
+    tabs = [{} for _ in chunks]
+    errors = [None] * len(chunks)
+
+    def run(i):
+        try:
+            work(chunks[i], outs[i], tabs[i])
+        except Exception as e:
+            errors[i] = e
+
+    threads = [threading.Thread(target=run, args=(i,), daemon=True, name=f"{label}-tab-{i}") for i in range(len(chunks))]
+    for t in threads:
+        t.start()
+    forced = set()
+    while any(t.is_alive() for t in threads):
+        _time.sleep(2)
+        now = _time.time()
+        for i, t in enumerate(threads):
+            searched = tabs[i].get("searched")
+            if not t.is_alive() or not searched or now - searched < close_grace:
+                continue
+            if i not in forced:
+                forced.add(i)
+                logger.warning(f"{label}: tab {i} finished searching but didn't close in {close_grace:.0f}s; closing it over CDP")
+                if tabs[i].get("id"):
+                    close_target(tabs[i]["id"], port)
+            elif now - searched >= 2 * close_grace:
+                logger.error(f"{label}: tab {i} still stuck after a forced close; keeping its {len(outs[i])} results and moving on")
+                threads[i] = None
+        threads = [t for t in threads if t is not None]
+    for i, e in enumerate(errors):
+        if e:
+            logger.error(f"{label}: tab {i} failed ({e}); keeping its {len(outs[i])} results")
+    return [r for out in outs for r in out]

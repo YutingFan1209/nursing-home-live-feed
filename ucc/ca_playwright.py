@@ -25,10 +25,11 @@ import json
 import logging
 import re
 import threading
+import time
 from datetime import datetime, date
 from playwright.sync_api import sync_playwright
 from ucc.base import UCCFiling
-from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp
+from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp, page_target_id, run_tab_workers
 from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
@@ -153,23 +154,24 @@ def _search_one(page, search_term: str) -> list[UCCFiling]:
     return results
 
 
-def _search_chunk(cdp_url: str, terms: list[str], blocked: threading.Event) -> list[UCCFiling]:
+def _search_chunk(cdp_url: str, terms: list[str], blocked: threading.Event, out: list, tab: dict) -> None:
     """One worker's share of terms, run serially in its own tab after one
     real page load (for Incapsula's session cookie). Stops as soon as any
-    worker has been blocked."""
+    worker has been blocked. Results go into `out` as they come (see
+    chrome_cdp.run_tab_workers)."""
     global LAST_SEARCHED
-    results = []
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(cdp_url)
         context = browser.contexts[0] if browser.contexts else browser.new_context()
         page = context.new_page()
+        tab["id"] = page_target_id(context, page)
         page.goto(SEARCH_URL, timeout=30000)
         page.wait_for_timeout(3000)
         for term in terms:
             if blocked.is_set():
                 break
             try:
-                results.extend(_search_one(page, term))
+                out.extend(_search_one(page, term))
                 LAST_SEARCHED += 1
             except CABlocked as e:
                 blocked.set()
@@ -180,8 +182,11 @@ def _search_chunk(cdp_url: str, terms: list[str], blocked: threading.Event) -> l
                 logger.error("CA search failed for %r: %s", term, e)
                 health.failed("UCC CA searches", f"{term}: {e}")
             page.wait_for_timeout(SEARCH_DELAY_MS)
-        page.close()
-    return results
+        tab["searched"] = time.time()
+        try:
+            page.close()
+        except Exception as e:
+            logger.warning("CA UCC tab didn't close cleanly: %s", e)
 
 
 def search_ca_batch(search_terms: list[str], cdp_url: str = CDP_URL, max_workers: int = 1) -> list[UCCFiling]:
@@ -197,15 +202,10 @@ def search_ca_batch(search_terms: list[str], cdp_url: str = CDP_URL, max_workers
     if not search_terms:
         return []
     ensure_chrome_cdp(cdp_url)
-    from concurrent.futures import ThreadPoolExecutor, as_completed
     blocked = threading.Event()
     chunks = [c for c in (search_terms[i::max_workers] for i in range(max_workers)) if c]
-    all_results = []
-    with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
-        futures = [executor.submit(_search_chunk, cdp_url, chunk, blocked) for chunk in chunks]
-        for future in as_completed(futures):
-            all_results.extend(future.result())
-    return all_results
+    port = int(cdp_url.rsplit(":", 1)[1])
+    return run_tab_workers(lambda chunk, out, tab: _search_chunk(cdp_url, chunk, blocked, out, tab), chunks, "CA UCC", port=port)
 
 
 def search_ca(search_term: str) -> list[UCCFiling]:

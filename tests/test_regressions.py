@@ -424,3 +424,29 @@ def test_hi_nursing_acquisitions_only():
     assert [r["number"] for r in rows] == ["24-04A", "24-10A", "24-16A"]
     assert [is_nursing_acquisition(r) for r in rows] == [True, False, False]
     assert rows[0]["applicant"] == "Hawaii Health Systems Corporation-Oahu Region" and rows[0]["decision_url"]
+
+
+def test_stuck_tab_close_doesnt_hang_the_ucc_run(monkeypatch):
+    """2026-10-13: NY finished all its searches, then hung for 10 minutes
+    on two tabs' page.close() (a Turnstile frame was still on them).
+    A stuck tab is closed over CDP, then left behind with its results kept;
+    a worker that raises keeps what it already found."""
+    import threading
+    import time
+    import ucc.chrome_cdp as cdp
+    closed = []
+    monkeypatch.setattr(cdp, "close_target", lambda tid, port=9222: closed.append(tid) or True)
+    never = threading.Event()
+
+    def work(chunk, out, tab):
+        tab["id"] = f"T-{chunk}"
+        out.extend([chunk, chunk])
+        tab["searched"] = time.time()
+        if chunk == "stuck":
+            never.wait()
+        if chunk == "fails":
+            raise RuntimeError("navigation interrupted")
+
+    results = cdp.run_tab_workers(work, ["ok", "stuck", "fails"], "TEST", close_grace=0.5)
+    assert sorted(results) == ["fails", "fails", "ok", "ok", "stuck", "stuck"]
+    assert closed == ["T-stuck"]
