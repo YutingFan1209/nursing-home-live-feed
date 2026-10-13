@@ -17,8 +17,12 @@ class Config:
     anthropic_api_key: str = field(
         default_factory=lambda: os.environ.get("ANTHROPIC_API_KEY", "")
     )
-    claude_model: str = "claude-sonnet-4-5"
-    claude_max_tokens: int = 4000         # roundup articles can return 10+ deals
+    claude_model: str = "claude-sonnet-5-5"
+    # Sonnet 5.5 thinks by default (adaptive); effort sets how much. The
+    # thinking counts toward max_tokens, and its tokenizer counts ~30% more
+    # tokens for the same text than Sonnet 4.5 did
+    claude_effort: str = "medium"
+    claude_max_tokens: int = 8000         # roundup articles can return 10+ deals
     # Article text kept for extraction. Was 10,000 at fetch and 8,000 at
     # extraction -- long dealbook roundups lost their later deals entirely.
     article_max_chars: int = 30000

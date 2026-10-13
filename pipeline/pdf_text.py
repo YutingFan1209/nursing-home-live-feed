@@ -53,6 +53,7 @@ def transcribe_pdf(content: bytes, label: str = "") -> str:
         response = client.messages.create(
             model=config.claude_model,
             max_tokens=16000,
+            output_config={"effort": "low"},   # verbatim copying needs little thinking
             messages=[{
                 "role": "user",
                 "content": [

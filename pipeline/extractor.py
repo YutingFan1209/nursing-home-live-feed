@@ -96,6 +96,9 @@ exclude those deals too.
 
 Rules:
 - Split broker/lender announcements from acquisition deals (they are separate deals)
+- One announcement covering acquisitions in several states is one deal per state (e.g. "7 facilities in
+  Colorado, 9 in Florida and 4 in Washington" is three deals), each with its own facility_count and
+  facility_names. A single portfolio sale whose state breakdown the article doesn't give stays one deal
 - If the acquirer is described as "unnamed" or "undisclosed", use null for acquiring_entity
 - Use a party's full legal name when the article gives it. Some buyers are entities named after a
   street address ("101 W State Street Holdings LLC"); keep the LLC/Holdings part so the name doesn't
@@ -200,13 +203,18 @@ def _call_claude_with_retry(article_text: str, article_url: str, published_date_
     response = client.messages.create(
         model=config.claude_model,
         max_tokens=config.claude_max_tokens,
+        output_config={"effort": config.claude_effort},
         messages=[{
             "role": "user",
             "content": EXTRACTION_PROMPT.format(article_text=article_text, published_date=published_date_str)
         }]
     )
+    if response.stop_reason == "refusal":
+        logger.warning(f"Extraction refused for {article_url}")
+        return []
 
-    raw = response.content[0].text.strip()
+    # The reply can start with thinking blocks; the JSON is in the text block
+    raw = "".join(b.text for b in response.content if b.type == "text").strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
 
     deals = json.loads(raw)
