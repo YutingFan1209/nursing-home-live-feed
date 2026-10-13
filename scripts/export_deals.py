@@ -448,15 +448,25 @@ def main():
             names = (facs or []) + (ops or []) + ([buyer] if buyer else [])
             if not any(same_facility_name(n, provider or "") for n in names):
                 weak.add((deal_id, ccn))
-        strong = {}
-        cur.execute("""SELECT deal_id::text, ccn FROM cms_matches
-                       WHERE match_method <> 'facility_name_fuzzy' AND ccn IS NOT NULL""")
-        for deal_id, ccn in cur.fetchall():
-            strong.setdefault(deal_id, set()).add(ccn)
+        strong, exact, fuzzy = {}, {}, set()
+        cur.execute("""SELECT deal_id::text, ccn, match_method FROM cms_matches WHERE ccn IS NOT NULL""")
+        for deal_id, ccn, method in cur.fetchall():
+            if method != "facility_name_fuzzy":
+                strong.setdefault(deal_id, set()).add(ccn)
+            if "fuzzy" in method:
+                fuzzy.add((deal_id, ccn))
+            else:
+                exact.setdefault(deal_id, set()).add(ccn)
         dropped = 0
         for deal in deals:
             if deal.get("ccns") and deal["source_type"] != "chow":
                 keep = [c for c in deal["ccns"] if (deal["id"], c) not in weak or c in strong.get(deal["id"], ())]
+                # A record matched exactly (its debtor or CHOW buyer is the
+                # facility) is about that facility: a fuzzy name match can't
+                # add another (Apple Valley Care Center had picked up Apple
+                # Valley Post-Acute Rehab in Sebastopol, 2026-10-13)
+                if exact.get(deal["id"]):
+                    keep = [c for c in keep if c in exact[deal["id"]] or (deal["id"], c) not in fuzzy]
                 dropped += len(deal["ccns"]) - len(keep)
                 deal["ccns"] = keep or None
         print(f"Dropped {dropped} fuzzy facility matches whose names don't agree")
