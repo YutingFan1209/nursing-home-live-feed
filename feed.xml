@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-13T17:24:59.326421+00:00</updated>
+  <updated>2026-10-13T18:06:48.319621+00:00</updated>
+  <entry>
+    <id>urn:uuid:5f492f4b-6c39-4e9d-a22c-28ed2a03e02e</id>
+    <title>Huntsville SNF Property Holdings to acquire Regency Health Care and Rehabilitation Center from Huntsville Investors (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2027/CO2027-002%20Regency%20Health%20Care%20and%20Rehabilitation%20089-N0010%20-%20CHOW%20App%2010.1.2026.pdf"/>
+    <updated>2026-10-13T18:06:38.905774+00:00</updated>
+    <summary>Effective 2026-11-01; Facilities: Regency Health Care and Rehabilitation Center; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
   <entry>
     <id>urn:uuid:7af6e911-05cc-41d2-b5a1-427b486ca413</id>
     <title>MOLLY M AHERN — UCC-1 financing (NY)</title>
@@ -347,12 +354,5 @@
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2025-11-13/docs/agenda.pdf#project-231002"/>
     <updated>2026-10-09T18:14:35.141662+00:00</updated>
     <summary>Effective 2025-12-04; Facilities: Sands Point Center for Health and Rehabilitation; $53.00M; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bca2aac8-1c61-4b2d-b997-a25931d165c5</id>
-    <title>Somerton Acquisition acquires Somerton Nursing and Rehabilitation Center from SC Rehab &amp; Nursing Center (PA)</title>
-    <link href="https://www.phila.gov/media/20220131121343/Notice-to-the-City-of-Philadelphia-pursuant-to-Ordinance-section-6-409.pdf"/>
-    <updated>2026-10-08T15:31:30.369722+00:00</updated>
-    <summary>Effective 2022-01-31; Facilities: Somerton Nursing and Rehabilitation Center; Source: Philadelphia Notices of Long-Term Care Ownership Changes</summary>
   </entry>
 </feed>
