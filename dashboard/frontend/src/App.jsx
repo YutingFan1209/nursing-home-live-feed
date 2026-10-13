@@ -713,8 +713,8 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
             <Row label="Record ID"><code style={{ fontSize: 12 }}>{deal.id}</code></Row>
             <Row label="Cite this record"><CopyLink id={deal.id} /></Row>
             <Row label="Something wrong?">
-              <a href={issueUrl(`Correction: ${deal.id.slice(0, 8)}`, `Record: ${permalink(deal.id)}\n\nWhat's wrong:\n\nSource showing the correct information:\n`, "correction")}
-                target="_blank" rel="noreferrer" style={{ ...lnk, display: "inline-flex", alignItems: "center", minHeight: 32 }}>Report an error with this record ↗</a>
+              <a href={mailUrl(`Correction: record ${deal.id.slice(0, 8)}`, `Record: ${permalink(deal.id)}\n\nWhat's wrong:\n\nSource showing the correct information:\n`)}
+                style={{ ...lnk, display: "inline-flex", alignItems: "center", minHeight: 32 }}>Report an error with this record</a>
             </Row>
           </Section>
         </div>
@@ -725,7 +725,8 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
 const entityNames = (d) => [d.buyer, d.seller, d.ucc_debtor, lenderKnown(d) ? d.lender : null, ...(d.operator_names || [])].filter(Boolean);
 
 
-const CORRECTIONS_URL = "https://github.com/YutingFan1209/nursing-home-live-feed/issues";
+// Public project inbox for corrections and feedback (email, so no account is needed)
+const FEEDBACK_EMAIL = "nhlivefeed@gmail.com";
 
 // Tile-grid US map (one square per state, laid out roughly where the state
 // sits): shading = records in the current tab and filters, click filters
@@ -859,18 +860,20 @@ function SourceSchedule({ freshness }) {
   );
 }
 
-// Feedback goes to GitHub issues, prefilled; no data is collected on this site
-const issueUrl = (title, body, label) =>
-  `${CORRECTIONS_URL}/new?${new URLSearchParams({ title, body, ...(label ? { labels: label } : {}) })}`;
+// Feedback opens the reader's email app with a prefilled subject and template;
+// no data is collected on this site. encodeURIComponent, not URLSearchParams:
+// mail apps show URLSearchParams' "+" as literal plus signs.
+const mailUrl = (subject, body) =>
+  `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
 function FeedbackSection() {
   const items = [
     ["Report an error", "A wrong party, date, status or facility on a record.",
-      issueUrl("Correction: ", "Record link (copy it from the record's Details):\n\nWhat's wrong:\n\nSource showing the correct information:\n", "correction")],
+      mailUrl("Correction", "Record link (copy it from the record's Details):\n\nWhat's wrong:\n\nSource showing the correct information:\n")],
     ["Suggest a source", "A state filing system, dataset or publication we should check.",
-      issueUrl("Source suggestion: ", "Source (name and link):\n\nWhat it covers (states, kind of record):\n", "source")],
+      mailUrl("Source suggestion", "Source (name and link):\n\nWhat it covers (states, kind of record):\n")],
     ["Tell us how you use it", "What you're researching, what's missing, what's confusing.",
-      issueUrl("Feedback: ", "How I use the tracker:\n\nWhat would make it more useful:\n", "feedback")],
+      mailUrl("Feedback", "How I use the tracker:\n\nWhat would make it more useful:\n")],
   ];
   return (
     <section aria-labelledby="nh-feedback" style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10,
@@ -878,12 +881,13 @@ function FeedbackSection() {
       <h2 id="nh-feedback" style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Help improve this tracker</h2>
       <p style={{ fontSize: 14, color: "#3F4248", marginBottom: 8, maxWidth: 640 }}>
         Researchers, journalists and policy staff use these records. If something is wrong, missing or unclear, please say so.
-        Each link opens a short form in the project's public GitHub issue tracker (a free GitHub account is needed).
+        Each link opens an email to the project with a short template filled in. No account is needed. If your email app doesn't open, write to{" "}
+        <a href={`mailto:${FEEDBACK_EMAIL}`} style={lnk}>{FEEDBACK_EMAIL}</a>.
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "4px 16px" }}>
         {items.map(([title, desc, url]) => (
           <div key={title}>
-            <a href={url} target="_blank" rel="noreferrer" style={{ ...lnkBlock, fontWeight: 600 }}>{title} ↗</a>
+            <a href={url} style={{ ...lnkBlock, fontWeight: 600 }}>{title}</a>
             <div style={{ fontSize: 13, color: "#5F636A" }}>{desc}</div>
           </div>
         ))}
@@ -1000,9 +1004,8 @@ function Methodology({ chowDate, corrections, onBack }) {
 
       <h3 style={h}>Errors and corrections</h3>
       <p style={p}>News and UCC records are extracted and classified automatically and may contain errors: a wrong party,
-        type or date. Each record links to its source; check it before citing. To report an error, open an issue at{" "}
-        <a href={CORRECTIONS_URL} target="_blank" rel="noreferrer" style={lnk}>{CORRECTIONS_URL.replace("https://", "")}</a>{" "}
-        with the record's permalink.</p>
+        type or date. Each record links to its source; check it before citing. To report an error, use "Report an error with this record" in the record's Details, or email{" "}
+        <a href={`mailto:${FEEDBACK_EMAIL}`} style={lnk}>{FEEDBACK_EMAIL}</a> with the record's permalink.</p>
 
       <h3 style={h}>Corrections log</h3>
       {corrections?.length ? (
