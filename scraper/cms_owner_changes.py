@@ -72,8 +72,8 @@ _NOT_A_BUYER = re.compile(r"\bTRUST\b|\bTR\b|\bESTATE OF\b|EMPLOYEE STOCK|\bESOP
 def ensure_source(conn) -> str:
     with conn.cursor() as cur:
         cur.execute("""
-            INSERT INTO sources (name, url, source_type)
-            VALUES (%s, %s, 'chow')
+            INSERT INTO sources (name, url, source_type, last_fetched_at)
+            VALUES (%s, %s, 'chow', NOW())
             ON CONFLICT (url) DO UPDATE SET last_fetched_at = NOW()
             RETURNING id
         """, (SOURCE_NAME, SOURCE_URL))

@@ -278,8 +278,8 @@ def get_chow_source_id(conn) -> str:
     """Ensure the CHOW source exists in the sources table and return its ID."""
     with conn.cursor() as cur:
         cur.execute("""
-            INSERT INTO sources (name, url, source_type)
-            VALUES (%s, %s, 'chow')
+            INSERT INTO sources (name, url, source_type, last_fetched_at)
+            VALUES (%s, %s, 'chow', NOW())
             ON CONFLICT (url) DO UPDATE SET last_fetched_at = NOW()
             RETURNING id
         """, (CHOW_SOURCE_NAME, CHOW_SOURCE_URL))

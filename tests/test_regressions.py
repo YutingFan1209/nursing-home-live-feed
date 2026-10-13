@@ -450,3 +450,42 @@ def test_stuck_tab_close_doesnt_hang_the_ucc_run(monkeypatch):
     results = cdp.run_tab_workers(work, ["ok", "stuck", "fails"], "TEST", close_grace=0.5)
     assert sorted(results) == ["fails", "fails", "ok", "ok", "stuck", "stuck"]
     assert closed == ["T-stuck"]
+
+
+def test_match_rows_for_one_owner_in_several_roles_are_stored_once():
+    """CMS lists a person once per role; cms_matches has no role column, so
+    those came out as identical rows (17,348 of them, 2026-10-13)."""
+    import main
+    stored = []
+
+    class Cur:
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+        def execute(self, *a): pass
+
+    class Conn:
+        def cursor(self): return Cur()
+
+    import psycopg2.extras
+    orig = psycopg2.extras.execute_values
+    psycopg2.extras.execute_values = lambda cur, sql, rows: stored.extend(rows)
+    try:
+        m = {"ccn": "055919", "provider_name": "X", "owner_name": "JOHNSON, MARC", "owner_type": "Individual",
+             "provider_state": "CA", "ownership_start_date": None, "match_score": 90,
+             "match_method": "facility_name_fuzzy", "matched_on_field": "facility_names"}
+        main._store_cms_matches("d1", [m, dict(m), {**m, "owner_name": "LANE, JOANNE"}], Conn())
+    finally:
+        psycopg2.extras.execute_values = orig
+    assert len(stored) == 2
+
+
+def test_a_new_source_records_its_first_check():
+    """Illinois CON ran once and showed 'Never recorded': the first insert
+    of a source row didn't set last_fetched_at (2026-10-13)."""
+    import inspect
+    import main
+    import scraper.chow
+    import scraper.cms_owner_changes
+    for fn in (main._ensure_source, scraper.chow.get_chow_source_id, scraper.cms_owner_changes.ensure_source):
+        sql = inspect.getsource(fn)
+        assert "last_fetched_at)" in sql and "NOW())" in sql, fn.__name__

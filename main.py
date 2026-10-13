@@ -1534,8 +1534,8 @@ def _sync_inactive_sources(conn):
 def _ensure_source(source, conn) -> str:
     with conn.cursor() as cur:
         cur.execute("""
-            INSERT INTO sources (name, url, source_type)
-            VALUES (%s, %s, %s)
+            INSERT INTO sources (name, url, source_type, last_fetched_at)
+            VALUES (%s, %s, %s, NOW())
             ON CONFLICT (url) DO UPDATE SET last_fetched_at = NOW()
             RETURNING id
         """, (source.name, source.url, source.source_type))
@@ -1637,18 +1637,24 @@ def _store_cms_matches(deal_id, matches: list[dict], conn):
         cur.execute("""
             DELETE FROM cms_matches WHERE deal_id = %s AND match_method NOT LIKE 'ucc_debtor%%'
         """, (deal_id,))
+        # CMS lists one person once per role (officer, director, managing
+        # employee...), and this table doesn't keep the role, so those rows
+        # come out identical: keep one of each (17,351 copies on 2026-10-13)
+        rows = {}
+        for m in matches:
+            row = (deal_id, m["ccn"], m["provider_name"], m["owner_name"],
+                   m["owner_type"], m["provider_state"], m.get("ownership_start_date"),
+                   m["match_score"], m["match_method"], m["matched_on_field"])
+            rows.setdefault(row, None)
+        if not rows:
+            return
         psycopg2.extras.execute_values(cur, """
             INSERT INTO cms_matches
                 (deal_id, ccn, provider_name, owner_name, owner_type,
                  provider_state, ownership_start_date, match_score,
                  match_method, matched_on_field)
             VALUES %s
-        """, [
-            (deal_id, m["ccn"], m["provider_name"], m["owner_name"],
-             m["owner_type"], m["provider_state"], m.get("ownership_start_date"),
-             m["match_score"], m["match_method"], m["matched_on_field"])
-            for m in matches
-        ])
+        """, list(rows))
 
 
 def _update_deal_stage(deal_id, stage: str, confidence, recheck_after, conn):
