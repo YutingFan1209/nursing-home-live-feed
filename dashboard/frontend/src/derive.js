@@ -7,8 +7,9 @@
 export const SOURCE_LABEL = {
   chow: "CMS", con: "State CON", ucc: "State UCC-1", edgar: "SEC EDGAR", rss: "News",
 };
+// CSS variables from src/tokens.css
 export const SOURCE_COLOR = {
-  chow: "#2E6F5E", con: "#1F7A8C", ucc: "#6B4E9B", edgar: "#2F5D9E", rss: "#B9722A",
+  chow: "var(--source-chow)", con: "var(--source-con)", ucc: "var(--source-ucc)", edgar: "var(--source-edgar)", rss: "var(--source-rss)",
 };
 
 // Text colors on white, all 4.5:1 or better
@@ -16,7 +17,8 @@ export const STATUS_LABEL = {
   confirmed: "Confirmed", expected: "Expected", reported: "Reported", unconfirmed: "Unconfirmed", on_file: "On file",
 };
 export const STATUS_COLOR = {
-  confirmed: "#14543F", expected: "#7A4A06", reported: "#4A4E55", unconfirmed: "#8A2D2D", on_file: "#23406F",
+  confirmed: "var(--status-confirmed)", expected: "var(--status-expected)", reported: "var(--status-reported)",
+  unconfirmed: "var(--status-unconfirmed)", on_file: "var(--status-on-file)",
 };
 
 // A UCC-1 is "confirmed" in the export only in the sense that it's on file:

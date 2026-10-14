@@ -1,0 +1,894 @@
+{
+ "deals": [
+  {
+   "id": "40bb281b-1bcf-46db-a9e3-9eb13138cd30",
+   "acquiring_entity": "Cascadia Healthcare",
+   "seller_entity": "Sapphire Health Services",
+   "states": [
+    "OR"
+   ],
+   "facility_count": 11,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": "2026-12-01",
+   "operator_names": [
+    "Sapphire Health Services"
+   ],
+   "facility_names": [],
+   "created_at": "2026-10-08T14:18:33.982890+00:00",
+   "lender": null,
+   "ucc_confirmed": false,
+   "stage": "detected",
+   "summary": "Cascadia Healthcare plans to acquire 11 facilities from Sapphire Health Services, a Salem, Oregon-based operator. The deal is pending and expected to close Dec. 1; the facilities were previously part of Avamere Living's portfolio. No price was disclosed.",
+   "source_type": "rss",
+   "source_name": "Google Alerts (Gmail)",
+   "source_url": "https://skillednursingnews.com/2026/09/cascadia-healthcare-expanding-oregon-footprint-with-acquisition-of-sapphire-healths-nursing-home-portfolio/",
+   "source_title": "In July, Avamere exited the skilled nursing business as Sabra Health Care",
+   "published_at": "2026-10-01",
+   "ccns": null,
+   "deal_type": "ownership_change",
+   "individual_filing": false,
+   "ccn_match": null,
+   "match_type": "no_ccn",
+   "beds": null,
+   "facility_type": "skilled_nursing",
+   "cms_event": null,
+   "buyer": "Cascadia Healthcare",
+   "seller": "Sapphire Health Services",
+   "buyer_description": null,
+   "buyer_disclosure": "named",
+   "cms_confirmed_on": null,
+   "status": "expected",
+   "status_detail": "Expected: Reported as pending; expected to close 2026-12-01",
+   "headline": [
+    [
+     "Cascadia Healthcare",
+     ""
+    ],
+    [
+     " to acquire ",
+     "muted"
+    ],
+    [
+     "11 facilities in OR",
+     ""
+    ],
+    [
+     " from ",
+     "muted"
+    ],
+    [
+     "Sapphire Health Services",
+     ""
+    ]
+   ],
+   "found_date": "2026-10-08",
+   "sources": [
+    {
+     "id": "40bb281b-1bcf-46db-a9e3-9eb13138cd30",
+     "source_type": "rss",
+     "source_name": "Google Alerts (Gmail)",
+     "source_url": "https://skillednursingnews.com/2026/09/cascadia-healthcare-expanding-oregon-footprint-with-acquisition-of-sapphire-healths-nursing-home-portfolio/",
+     "source_title": "In July, Avamere exited the skilled nursing business as Sabra Health Care",
+     "date": "2026-12-01",
+     "found_date": "2026-10-08",
+     "status": "expected",
+     "headline": "Cascadia Healthcare to acquire 11 facilities in OR from Sapphire Health Services"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "84695e99-9faa-42db-99c7-6e6ac04ef2c3",
+   "acquiring_entity": "PSH Oahu LLC",
+   "seller_entity": null,
+   "states": [
+    "HI"
+   ],
+   "facility_count": 1,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": null,
+   "operator_names": [],
+   "facility_names": [],
+   "created_at": "2026-10-12T21:19:45.501156+00:00",
+   "lender": null,
+   "ucc_confirmed": false,
+   "stage": "detected",
+   "summary": "Hawaii SHPDA Certificate of Need application 22-12A: PSH Oahu LLC, acquisition of 82 bed Skilled Nursing Facility/Intermediate Care Facility services at 1808 South Beretania Street, Honolulu, Hawaii. SHPDA's list names the applicant (the buyer) and the facility's address, 1808 South Beretania Street, Honolulu, Hawaii; it gives no seller or price. SHPDA's decision was posted November 2022.",
+   "source_type": "con",
+   "source_name": "Hawaii SHPDA Certificate of Need Applications",
+   "source_url": "https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-12A",
+   "source_title": "[HI CON] 22-12A PSH Oahu LLC: Acquisition of 82 bed Skilled Nursing Facility/Intermediate Care Facility services at 1808 South Beretania Street, Honol",
+   "published_at": "2022-11-01",
+   "ccns": null,
+   "deal_type": "ownership_change",
+   "individual_filing": false,
+   "ccn_match": null,
+   "match_type": "no_ccn",
+   "beds": null,
+   "facility_type": "skilled_nursing",
+   "cms_event": null,
+   "buyer": "PSH Oahu LLC",
+   "seller": null,
+   "buyer_description": null,
+   "buyer_disclosure": "named",
+   "cms_confirmed_on": null,
+   "status": "unconfirmed",
+   "status_detail": "Unconfirmed: state filing made before closing on 2022-11-01, over 6 months ago; it isn't matched to a CMS facility, so completion can't be checked. It may not have closed, or the records may not have caught up.",
+   "headline": [
+    [
+     "PSH Oahu LLC",
+     ""
+    ],
+    [
+     " to acquire ",
+     "muted"
+    ],
+    [
+     "a facility in HI",
+     ""
+    ]
+   ],
+   "found_date": "2026-10-12",
+   "sources": [
+    {
+     "id": "84695e99-9faa-42db-99c7-6e6ac04ef2c3",
+     "source_type": "con",
+     "source_name": "Hawaii SHPDA Certificate of Need Applications",
+     "source_url": "https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-22-12A",
+     "source_title": "[HI CON] 22-12A PSH Oahu LLC: Acquisition of 82 bed Skilled Nursing Facility/Intermediate Care Facility services at 1808 South Beretania Street, Honol",
+     "date": "2026-10-12",
+     "found_date": "2026-10-12",
+     "status": "unconfirmed",
+     "headline": "PSH Oahu LLC to acquire a facility in HI"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "0a013a42-3c8c-4d0e-ab52-7c526ad6cf78",
+   "acquiring_entity": null,
+   "seller_entity": null,
+   "states": [
+    "AR"
+   ],
+   "facility_count": 2,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": null,
+   "operator_names": [],
+   "facility_names": [],
+   "created_at": "2026-10-08T15:02:26.546371+00:00",
+   "lender": null,
+   "ucc_confirmed": false,
+   "stage": "detected",
+   "summary": "A regional landlord, represented by Evans Senior Investments, executed a new lease with an unnamed operator, replacing the prior operator, for Project Razorback, a two-facility, 255-bed skilled nursing portfolio in Arkansas. Year-one annual rent is $3 million ($980 per bed per month).",
+   "source_type": "rss",
+   "source_name": "Google Alerts (Gmail)",
+   "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+   "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+   "published_at": "2026-07-28",
+   "ccns": null,
+   "deal_type": "lease",
+   "individual_filing": false,
+   "ccn_match": null,
+   "match_type": "no_ccn",
+   "beds": null,
+   "facility_type": "skilled_nursing",
+   "cms_event": null,
+   "buyer": null,
+   "seller": null,
+   "buyer_description": null,
+   "buyer_disclosure": "not_named",
+   "cms_confirmed_on": null,
+   "status": "reported",
+   "status_detail": "Reported: news or company filing, not yet confirmed by CMS",
+   "headline": [
+    [
+     "New lease",
+     "muted"
+    ],
+    [
+     ": ",
+     "muted"
+    ],
+    [
+     "2 facilities in AR",
+     ""
+    ]
+   ],
+   "found_date": "2026-10-08",
+   "sources": [
+    {
+     "id": "0a013a42-3c8c-4d0e-ab52-7c526ad6cf78",
+     "source_type": "rss",
+     "source_name": "Google Alerts (Gmail)",
+     "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+     "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+     "date": "2026-10-08",
+     "found_date": "2026-10-08",
+     "status": "reported",
+     "headline": "New lease: 2 facilities in AR"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "6b6a97b7-4571-4a54-a10e-3a0314a84428",
+   "acquiring_entity": null,
+   "seller_entity": "ArchCare",
+   "states": [
+    "NY"
+   ],
+   "facility_count": 1,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": null,
+   "operator_names": [
+    "ArchCare"
+   ],
+   "facility_names": [
+    "Ferncliff Nursing Home"
+   ],
+   "created_at": "2026-10-08T14:21:45.351716+00:00",
+   "lender": null,
+   "ucc_confirmed": false,
+   "stage": "detected",
+   "summary": "ArchCare, a nonprofit Catholic health care system affiliated with the Archdiocese of New York, plans to sell Ferncliff Nursing Home in Rhinebeck, New York (196 operating beds, 309 licensed) to an undisclosed buyer; the pending sale requires New York State Department of Health approval and could take up to two years.",
+   "source_type": "rss",
+   "source_name": "Skilled Nursing News",
+   "source_url": "https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-two-hospital-systems-selling-nursing-homes-including-a-99-bed-facility-in-missouri/",
+   "source_title": "Skilled Nursing Dealbook: Two Hospital Systems Selling Their Nursing Homes, Including a 99-Bed Facility in Missouri",
+   "published_at": "2026-10-02",
+   "ccns": [
+    "335405"
+   ],
+   "deal_type": "ownership_change",
+   "individual_filing": false,
+   "ccn_match": "cms_matcher",
+   "match_type": "ccn_matched",
+   "beds": 309,
+   "facility_type": "skilled_nursing",
+   "cms_event": null,
+   "buyer": null,
+   "seller": "ArchCare",
+   "buyer_description": null,
+   "buyer_disclosure": "undisclosed",
+   "cms_confirmed_on": null,
+   "status": "expected",
+   "status_detail": "Expected: Reported as pending; completion not yet confirmed by CMS",
+   "headline": [
+    [
+     "ArchCare",
+     ""
+    ],
+    [
+     " to sell ",
+     "muted"
+    ],
+    [
+     "Ferncliff Nursing Home",
+     ""
+    ],
+    [
+     " \u00b7 ",
+     "muted"
+    ],
+    [
+     "Buyer not disclosed",
+     "undisclosed"
+    ]
+   ],
+   "found_date": "2026-10-08",
+   "sources": [
+    {
+     "id": "6b6a97b7-4571-4a54-a10e-3a0314a84428",
+     "source_type": "rss",
+     "source_name": "Skilled Nursing News",
+     "source_url": "https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-two-hospital-systems-selling-nursing-homes-including-a-99-bed-facility-in-missouri/",
+     "source_title": "Skilled Nursing Dealbook: Two Hospital Systems Selling Their Nursing Homes, Including a 99-Bed Facility in Missouri",
+     "date": "2026-10-08",
+     "found_date": "2026-10-08",
+     "status": "expected",
+     "headline": "ArchCare to sell Ferncliff Nursing Home \u00b7 Buyer not disclosed"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "fd9f37e5-00bd-498e-8de4-e670ed081c5d",
+   "acquiring_entity": null,
+   "seller_entity": null,
+   "states": [
+    "AZ",
+    "NY"
+   ],
+   "facility_count": 2,
+   "deal_value_m": null,
+   "financing_amount_m": "144.00",
+   "acquisition_date": null,
+   "operator_names": [],
+   "facility_names": [
+    "Acoya Shea",
+    "The Ambassador of Scarsdale"
+   ],
+   "created_at": "2026-10-08T14:19:59.388911+00:00",
+   "lender": "PGIM",
+   "ucc_confirmed": false,
+   "stage": "detected",
+   "summary": "PGIM's real estate investment group provided two loans totaling $144 million to finance the acquisition of two senior living communities, Acoya Shea in Phoenix, Arizona, and The Ambassador of Scarsdale in Westchester, New York; the borrower and seller were not named.",
+   "source_type": "rss",
+   "source_name": "Google Alerts (Gmail)",
+   "source_url": "https://seniorhousingnews.com/2026/09/08/senior-living-dealbook-agewell-retains-management-of-two-communities-pgim-provides-144m-for-acquisition/",
+   "source_title": "Senior Living Dealbook: AgeWell Retains Management of Two Communities; PGIM Provides $144M for Acquisition",
+   "published_at": "2026-09-09",
+   "ccns": null,
+   "deal_type": "acquisition_financing",
+   "individual_filing": false,
+   "ccn_match": null,
+   "match_type": "no_ccn",
+   "beds": null,
+   "facility_type": "senior_living",
+   "cms_event": null,
+   "buyer": null,
+   "seller": null,
+   "buyer_description": null,
+   "buyer_disclosure": null,
+   "cms_confirmed_on": null,
+   "status": "reported",
+   "status_detail": "Reported: news or company filing, not yet confirmed by CMS",
+   "headline": [
+    [
+     "PGIM",
+     ""
+    ],
+    [
+     " finances acquisition of ",
+     "muted"
+    ],
+    [
+     "Acoya Shea and 1 more",
+     ""
+    ]
+   ],
+   "found_date": "2026-10-08",
+   "sources": [
+    {
+     "id": "fd9f37e5-00bd-498e-8de4-e670ed081c5d",
+     "source_type": "rss",
+     "source_name": "Google Alerts (Gmail)",
+     "source_url": "https://seniorhousingnews.com/2026/09/08/senior-living-dealbook-agewell-retains-management-of-two-communities-pgim-provides-144m-for-acquisition/",
+     "source_title": "Senior Living Dealbook: AgeWell Retains Management of Two Communities; PGIM Provides $144M for Acquisition",
+     "date": "2026-10-08",
+     "found_date": "2026-10-08",
+     "status": "reported",
+     "headline": "PGIM finances acquisition of Acoya Shea and 1 more"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "a5ebee98-0068-4440-a9a4-0d89aeab5f9e",
+   "acquiring_entity": null,
+   "seller_entity": null,
+   "states": [
+    "NY"
+   ],
+   "facility_count": null,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": "2026-09-25",
+   "operator_names": [
+    "ALEX SAMPLE EXAMPLE"
+   ],
+   "facility_names": [
+    "Coler Rehabilitation and Nursing Care Center",
+    "Dr Susan Smith Mckinney Nursing and Rehabilitation",
+    "Henry J. Carter Skilled Nursing Facility",
+    "New Gouverneur Hospital SNF",
+    "Sea View Hospital Rehabilitation Center and Home"
+   ],
+   "created_at": "2026-10-02T16:23:29.586823+00:00",
+   "lender": "HONEST FUNDING LLC",
+   "ucc_confirmed": true,
+   "stage": "detected",
+   "summary": null,
+   "source_type": "ucc",
+   "source_name": "State UCC-1 Filings",
+   "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4218098",
+   "source_title": "NY UCC-1 filing #20260925130862-8",
+   "published_at": "2026-09-25",
+   "ccns": [
+    "335063",
+    "335805",
+    "335092",
+    "335461",
+    "335108"
+   ],
+   "ucc_filing_number": "20260925130862-8",
+   "ucc_state": "NY",
+   "ucc_debtor": "ALEX SAMPLE EXAMPLE",
+   "ucc_filing_type": "UCC-1",
+   "lender_category": null,
+   "deal_type": "financing",
+   "individual_filing": true,
+   "possible_homes": [
+    {
+     "ccn": "335063",
+     "name": "Coler Rehabilitation and Nursing Care Center"
+    },
+    {
+     "ccn": "335805",
+     "name": "Dr Susan Smith Mckinney Nursing and Rehabilitation"
+    },
+    {
+     "ccn": "335092",
+     "name": "Henry J. Carter Skilled Nursing Facility"
+    },
+    {
+     "ccn": "335461",
+     "name": "New Gouverneur Hospital SNF"
+    },
+    {
+     "ccn": "335108",
+     "name": "Sea View Hospital Rehabilitation Center and Home"
+    }
+   ],
+   "match_type": "multi_home",
+   "owner_line": "Owner of Coler Rehabilitation and Nursing Care Center, Dr Susan Smith Mckinney Nursing and Rehabilitation, Henry J. Carter Skilled Nursing Facility +2 more",
+   "facility_type": "skilled_nursing",
+   "cms_event": null,
+   "buyer": null,
+   "seller": null,
+   "buyer_description": null,
+   "buyer_disclosure": null,
+   "cms_confirmed_on": null,
+   "status": "confirmed",
+   "status_detail": "Confirmed: UCC-1 financing statement on file with the state (a record of the loan, not of a sale)",
+   "headline": [
+    [
+     "ALEX SAMPLE EXAMPLE",
+     ""
+    ],
+    [
+     " \u2014 UCC-1 financing",
+     "muted"
+    ]
+   ],
+   "found_date": "2026-10-02",
+   "sources": [
+    {
+     "id": "a5ebee98-0068-4440-a9a4-0d89aeab5f9e",
+     "source_type": "ucc",
+     "source_name": "State UCC-1 Filings",
+     "source_url": "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4218098",
+     "source_title": "NY UCC-1 filing #20260925130862-8",
+     "date": "2026-09-25",
+     "found_date": "2026-10-02",
+     "status": "confirmed",
+     "headline": "ALEX SAMPLE EXAMPLE \u2014 UCC-1 financing"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "335c39ed-29f6-4e7d-a407-a9aff831b0a9",
+   "acquiring_entity": "Vierra Communities",
+   "seller_entity": null,
+   "states": [
+    "MD",
+    "VA"
+   ],
+   "facility_count": 2,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": "2026-07-01",
+   "operator_names": [
+    "Vierra Communities"
+   ],
+   "facility_names": [
+    "Woodside Rehab and Nursing",
+    "Admiral Health and Rehab"
+   ],
+   "created_at": "2026-10-08T15:02:26.546371+00:00",
+   "lender": null,
+   "ucc_confirmed": false,
+   "stage": "detected",
+   "summary": "Vierra Communities assumed operations of Woodside Rehab and Nursing (92 beds) and Admiral Health and Rehab (240 beds) in the Washington, D.C., area, effective July 1, 2026. This was control passing without a sale: the Vucich family has long owned both facilities, which third-party operators had run for several years.",
+   "source_type": "rss",
+   "source_name": "Google Alerts (Gmail)",
+   "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+   "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+   "published_at": "2026-07-28",
+   "ccns": [
+    "215060"
+   ],
+   "deal_type": "control_change",
+   "individual_filing": false,
+   "ccn_match": "exact_facility_name",
+   "match_type": "ccn_matched",
+   "beds": null,
+   "facility_type": "skilled_nursing",
+   "cms_event": null,
+   "buyer": null,
+   "seller": null,
+   "buyer_description": null,
+   "buyer_disclosure": null,
+   "cms_confirmed_on": null,
+   "status": "reported",
+   "status_detail": "Reported: news or company filing, not yet confirmed by CMS",
+   "headline": [
+    [
+     "Control change at ",
+     "muted"
+    ],
+    [
+     "Woodside Rehab and Nursing",
+     ""
+    ],
+    [
+     " (Vierra Communities)",
+     "muted"
+    ]
+   ],
+   "found_date": "2026-10-08",
+   "sources": [
+    {
+     "id": "335c39ed-29f6-4e7d-a407-a9aff831b0a9",
+     "source_type": "rss",
+     "source_name": "Google Alerts (Gmail)",
+     "source_url": "https://skillednursingnews.com/2026/07/skilled-nursing-dealbook-four-facilities-get-27m-in-financing-5-facility-portfolio-changes-hands-in-ohio/",
+     "source_title": "Skilled Nursing Dealbook: 13 Facilities in Pennsylvania Get $80M in Financing; 5-Facility Portfolio Changes Hands in Ohio",
+     "date": "2026-07-01",
+     "found_date": "2026-10-08",
+     "status": "reported",
+     "headline": "Control change at Woodside Rehab and Nursing (Vierra Communities)"
+    }
+   ],
+   "group_size": 1
+  },
+  {
+   "id": "fe24935c-44e7-4dc2-8b47-46ce193b405a",
+   "acquiring_entity": "AVENTUR, INC.",
+   "seller_entity": "THE GLEN RETIREMENT SYSTEM",
+   "states": [
+    "LA"
+   ],
+   "facility_count": 1,
+   "deal_value_m": null,
+   "financing_amount_m": null,
+   "acquisition_date": "2026-05-01",
+   "operator_names": [
+    "AVENTUR, INC."
+   ],
+   "facility_names": [
+    "Village Health Care at The Glen"
+   ],
+   "created_at": "2026-10-12T17:44:07.121436+00:00",
+   "lender": null,
+   "ucc_confirmed": false,
+   "stage": "confirmed",
+   "summary": "CMS Ownership file lists AVENTUR, INC. as a new owner of 1 facility since 2026-05-01; prior owner THE GLEN RETIREMENT SYSTEM no longer listed.",
+   "source_type": "chow",
+   "source_name": "CMS Nursing Home Ownership Changes",
+   "source_url": "https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-aventur-inc-2026-05-01",
+   "source_title": "[CMS Ownership] AVENTUR, INC. became owner of 1 facility (LA)",
+   "published_at": "2026-05-01",
+   "ccns": [
+    "195533"
+   ],
+   "deal_type": "ownership_change",
+   "individual_filing": false,
+   "ccn_match": "cms_matcher",
+   "match_type": "ccn_matched",
+   "beds": 126,
+   "facility_type": "skilled_nursing",
+   "cms_event": {
+    "date": "2026-05-01",
+    "owner": "AVENTUR, INC.",
+    "ccn": "195533",
+    "source": "CMS change-of-ownership record",
+    "facility": null
+   },
+   "buyer": "AVENTUR, INC.",
+   "seller": "THE GLEN RETIREMENT SYSTEM",
+   "buyer_description": null,
+   "buyer_disclosure": "named",
+   "cms_confirmed_on": "2026-05-01",
+   "status": "confirmed",
+   "status_detail": "Confirmed: CMS change-of-ownership record",
+   "headline": [
+    [
+     "AVENTUR, INC.",
+     ""
+    ],
+    [
+     " acquires ",
+     "muted"
+    ],
+    [
+     "Village Health Care at The Glen",
+     ""
+    ],
+    [
+     " from ",
+     "muted"
+    ],
+    [
+     "THE GLEN RETIREMENT SYSTEM",
+     ""
+    ]
+   ],
+   "found_date": "2026-10-12",
+   "sources": [
+    {
+     "id": "fe24935c-44e7-4dc2-8b47-46ce193b405a",
+     "source_type": "chow",
+     "source_name": "CMS Nursing Home Ownership Changes",
+     "source_url": "https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-aventur-inc-2026-05-01",
+     "source_title": "[CMS Ownership] AVENTUR, INC. became owner of 1 facility (LA)",
+     "date": "2026-05-01",
+     "found_date": "2026-10-12",
+     "status": "confirmed",
+     "headline": "AVENTUR, INC. acquires Village Health Care at The Glen from THE GLEN RETIREMENT SYSTEM"
+    }
+   ],
+   "group_size": 1
+  }
+ ],
+ "total": 8,
+ "ucc_search_forms": {},
+ "freshness": {
+  "exported_at": "2026-10-14T17:31:09.752323+00:00",
+  "pipeline_ran_at": "2026-10-14T17:29:51.146261+00:00",
+  "chow_file_date": "2026-07-17",
+  "sources": [
+   {
+    "name": "CMS Nursing Home Ownership Changes",
+    "type": "chow",
+    "cadence": "Monthly file",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-11-06T17:43:25.537848+00:00",
+    "file_loaded": "2026-10-12T17:43:25.537848+00:00"
+   },
+   {
+    "name": "CMS SNF Change of Ownership",
+    "type": "chow",
+    "cadence": "Quarterly file",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-16"
+   },
+   {
+    "name": "Alabama SHPDA Change of Ownership Notices",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-28T16:26:43.261718+00:00"
+   },
+   {
+    "name": "California OHCA Material Change Transaction Notices",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:05.417430+00:00",
+    "next_due": "2026-10-28T16:27:05.417430+00:00"
+   },
+   {
+    "name": "Hawaii SHPDA Certificate of Need Applications",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-11-13T16:27:08.165233+00:00"
+   },
+   {
+    "name": "Illinois HFSRB Change of Ownership Projects",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:05.947074+00:00",
+    "next_due": "2026-10-28T16:27:05.947074+00:00"
+   },
+   {
+    "name": "Maine DHHS Certificate of Need Reviews",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:05.947074+00:00",
+    "next_due": "2026-10-28T16:27:05.947074+00:00"
+   },
+   {
+    "name": "Maryland MHCC Nursing Home Acquisition Applications",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-10-28T16:27:08.165233+00:00"
+   },
+   {
+    "name": "Michigan MDHHS Certificate of Need Activity Reports",
+    "type": "con",
+    "cadence": "Monthly reports",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-11-13T16:27:08.165233+00:00"
+   },
+   {
+    "name": "Mississippi MSDH CON Weekly Reports",
+    "type": "con",
+    "cadence": "Weekly reports",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-10-21T16:27:08.165233+00:00"
+   },
+   {
+    "name": "New Jersey DOH Long-Term Care Transfer of Ownership",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-10-28T16:27:08.165233+00:00"
+   },
+   {
+    "name": "New York PHHPC Nursing Home Establishment Approvals",
+    "type": "con",
+    "cadence": "Committee agendas, about monthly",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-10-28T16:27:08.165233+00:00"
+   },
+   {
+    "name": "North Carolina DHSR CON Exemptions",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:08.165233+00:00",
+    "next_due": "2026-10-28T16:27:08.165233+00:00"
+   },
+   {
+    "name": "Oklahoma OSDH Certificate of Need Notice",
+    "type": "con",
+    "cadence": "Monthly notice",
+    "last_checked": "2026-10-14T16:27:05.947074+00:00",
+    "next_due": "2026-11-13T16:27:05.947074+00:00"
+   },
+   {
+    "name": "Pennsylvania DOH Nursing Home Licence Applications",
+    "type": "con",
+    "cadence": "Rolling notice window",
+    "last_checked": "2026-10-14T16:27:05.947074+00:00",
+    "next_due": "2026-10-21T16:27:05.947074+00:00"
+   },
+   {
+    "name": "Philadelphia Notices of Long-Term Care Ownership Changes",
+    "type": "con",
+    "cadence": "Posted as filed",
+    "last_checked": "2026-10-14T16:27:05.947074+00:00",
+    "next_due": "2026-10-28T16:27:05.947074+00:00"
+   },
+   {
+    "name": "SEC EDGAR Full-Text Search",
+    "type": "edgar",
+    "cadence": "Filed as events happen",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-21T16:26:43.261718+00:00"
+   },
+   {
+    "name": "Google Alerts (Gmail)",
+    "type": "rss",
+    "cadence": "Published daily",
+    "last_checked": "2026-10-14T16:27:20.690714+00:00",
+    "next_due": "2026-10-15T16:27:20.690714+00:00"
+   },
+   {
+    "name": "Google Alerts \u2014 Nursing Home Acquisition",
+    "type": "rss",
+    "cadence": "Published daily",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-15T16:26:43.261718+00:00"
+   },
+   {
+    "name": "McKnight's Long-Term Care News",
+    "type": "rss",
+    "cadence": "Published daily",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-15T16:26:43.261718+00:00"
+   },
+   {
+    "name": "Senior Housing News",
+    "type": "rss",
+    "cadence": "Published daily",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-15T16:26:43.261718+00:00"
+   },
+   {
+    "name": "Skilled Nursing News",
+    "type": "rss",
+    "cadence": "Published daily",
+    "last_checked": "2026-10-14T16:26:43.261718+00:00",
+    "next_due": "2026-10-15T16:26:43.261718+00:00"
+   },
+   {
+    "name": "State UCC-1 Filings",
+    "type": "ucc",
+    "cadence": "Filed daily",
+    "last_checked": "2026-10-14T17:29:51.146261+00:00",
+    "next_due": "2026-10-21T17:29:51.146261+00:00"
+   }
+  ],
+  "ucc_last_new_filing": {
+   "CA": "2026-10-14T17:30:24.360895+00:00",
+   "KY": "2026-10-14T16:39:24.112220+00:00",
+   "OH": "2026-10-14T16:09:54.932604+00:00",
+   "NY": "2026-10-13T16:54:24.928733+00:00",
+   "PA": "2026-10-06T15:47:26.265547+00:00",
+   "OR": "2026-10-05T20:57:20.087564+00:00",
+   "FL": "2026-10-05T20:25:28.935023+00:00",
+   "NJ": "2026-10-02T15:21:41.836470+00:00"
+  }
+ },
+ "corrections": [],
+ "facilities": {
+  "335108": {
+   "name": "Sea View Hospital Rehabilitation Center and Home",
+   "city": "STATEN ISLAND",
+   "state": "NY",
+   "beds": 304,
+   "owners": []
+  },
+  "335063": {
+   "name": "Coler Rehabilitation and Nursing Care Center",
+   "city": "ROOSEVELT ISLAND",
+   "state": "NY",
+   "beds": 815,
+   "owners": []
+  },
+  "335092": {
+   "name": "Henry J. Carter Skilled Nursing Facility",
+   "city": "MANHATTAN",
+   "state": "NY",
+   "beds": 164,
+   "owners": []
+  },
+  "335461": {
+   "name": "New Gouverneur Hospital SNF",
+   "city": "NEW YORK",
+   "state": "NY",
+   "beds": 295,
+   "owners": []
+  },
+  "195533": {
+   "name": "Village Health Care at The Glen",
+   "city": "Shreveport",
+   "state": "LA",
+   "beds": 126,
+   "owners": [
+    [
+     "AVENTUR, INC.",
+     "2026-05-01"
+    ],
+    [
+     "THE GLEN RETIREMENT SYSTEM",
+     "1966-01-01"
+    ]
+   ]
+  },
+  "335805": {
+   "name": "Dr Susan Smith Mckinney Nursing and Rehabilitation",
+   "city": "BROOKLYN",
+   "state": "NY",
+   "beds": 320,
+   "owners": []
+  },
+  "215060": {
+   "name": "Woodside Rehab & Nursing",
+   "city": "SILVER SPRING",
+   "state": "MD",
+   "beds": 92,
+   "owners": [
+    [
+     "WOMACK, STEVEN",
+     "2016-11-01"
+    ]
+   ]
+  },
+  "335405": {
+   "name": "Ferncliff Nursing Home Co Inc",
+   "city": "RHINEBECK",
+   "state": "NY",
+   "beds": 309,
+   "owners": []
+  }
+ }
+}

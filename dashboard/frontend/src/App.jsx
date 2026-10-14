@@ -1,4 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import * as Collapsible from "@radix-ui/react-collapsible";
+import * as Tabs from "@radix-ui/react-tabs";
 import { SOURCE_LABEL, SOURCE_COLOR, STATUS_LABEL, STATUS_COLOR, displayStatus, primaryDate, otherDate,
   publication, statusMeaning, howCollected } from "./derive.js";
 
@@ -57,7 +59,7 @@ function smartCase(text) {
   }).join("");
 }
 
-function withDisplayCase(deal) {
+export function withDisplayCase(deal) {
   return {
     ...deal,
     acquiring_entity: smartCase(deal.acquiring_entity),
@@ -113,6 +115,8 @@ const TABS = [
   { key: "", label: "Ownership changes" },
   { key: "financing", label: "Financing" },
 ];
+// Radix Tabs needs a non-empty value; the URL keeps "" for the default tab
+const tabValue = (key) => key || "ownership";
 const inTab = (d, tab) => tab === "financing" ? !OWNERSHIP_TYPES.has(d.deal_type) : OWNERSHIP_TYPES.has(d.deal_type);
 
 // Card tags, one per card at most, only for exceptions. Text on fill is 4.5:1 or better.
@@ -547,22 +551,22 @@ function cardColumns(d, facilities) {
 
 function Column({ col }) {
   const value = col.missing
-    ? <span style={{ color: "#5F636A", fontStyle: "italic", fontWeight: 400 }}>{col.value}</span>
-    : col.ccn ? <a href={`?ccn=${col.ccn}`} style={{ color: "#1F2328", textDecoration: "underline", textUnderlineOffset: 3,
+    ? <span style={{ color: "var(--color-text-muted)", fontStyle: "italic", fontWeight: 400 }}>{col.value}</span>
+    : col.ccn ? <a href={`?ccn=${col.ccn}`} style={{ color: "var(--color-text)", textDecoration: "underline", textUnderlineOffset: 3,
         display: "inline-flex", alignItems: "center", minHeight: 32 }}>{col.value}</a>
     : shoutCase(col.value);
   return (
     <div style={{ minWidth: 0 }}>
-      <div style={{ fontSize: 12, color: "#5F636A", marginBottom: 2 }}>{col.label}</div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: "#1F2328", lineHeight: 1.35, overflowWrap: "anywhere" }}>{value}</div>
-      {col.note && <div style={{ fontSize: 12, color: "#5F636A", marginTop: 2 }}>{col.note}</div>}
+      <div style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", marginBottom: 2 }}>{col.label}</div>
+      <div style={{ fontSize: "var(--font-size-base)", fontWeight: 600, color: "var(--color-text)", lineHeight: 1.35, overflowWrap: "anywhere" }}>{value}</div>
+      {col.note && <div style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", marginTop: 2 }}>{col.note}</div>}
     </div>
   );
 }
 
 function SourceDot({ type }) {
   return <span aria-hidden="true" style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%",
-    background: SOURCE_COLOR[type] || "#5F636A", flexShrink: 0 }} />;
+    background: SOURCE_COLOR[type] || "var(--color-text-muted)", flexShrink: 0 }} />;
 }
 
 function SourceLegend() {
@@ -578,7 +582,7 @@ function SourceLegend() {
 function Section({ title, children }) {
   return (
     <section style={{ minWidth: 0 }}>
-      <h3 style={{ ...dl, fontSize: 12, marginBottom: 8 }}>{title}</h3>
+      <h3 style={{ ...dl, fontSize: "var(--font-size-xs)", marginBottom: "var(--space-2)" }}>{title}</h3>
       {children}
     </section>
   );
@@ -587,16 +591,16 @@ function Section({ title, children }) {
 // label / value rows inside a Details section
 function Row({ label, children }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(96px, 38%) 1fr", gap: 10, fontSize: 14, padding: "3px 0", alignItems: "baseline" }}>
-      <div style={{ color: "#5F636A" }}>{label}</div>
-      <div style={{ color: "#1F2328", minWidth: 0, overflowWrap: "anywhere" }}>{children}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(96px, 38%) 1fr", gap: 10, fontSize: "var(--font-size-md)", padding: "3px 0", alignItems: "baseline" }}>
+      <div style={{ color: "var(--color-text-muted)" }}>{label}</div>
+      <div style={{ color: "var(--color-text)", minWidth: 0, overflowWrap: "anywhere" }}>{children}</div>
     </div>
   );
 }
 
-const missingText = (t) => <span style={{ color: "#5F636A", fontStyle: "italic" }}>{t}</span>;
+const missingText = (t) => <span style={{ color: "var(--color-text-muted)", fontStyle: "italic" }}>{t}</span>;
 
-function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness }) {
+export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness }) {
   const detailsId = `details-${deal.id}`;
   const individual = deal.individual_filing;
   const ccns = deal.ccns?.filter(Boolean) || [];
@@ -606,7 +610,9 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
   const names = deal.facility_names || [];
 
   return (
-    <article id={`record-${deal.id}`} style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, marginBottom: 10 }}>
+    <article id={`record-${deal.id}`} style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)",
+      borderRadius: "var(--radius-lg)", marginBottom: 10 }}>
+      <h2 className="nh-sr">{headlineText(deal) || DEAL_TYPE[deal.deal_type]?.label || "Record"}</h2>
       <div style={{ padding: "12px 18px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 13, color: "#3F4248", minHeight: 32 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }} title={SOURCE[deal.source_type]?.tip}>
@@ -628,8 +634,8 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
       </div>
 
       {expanded && (
-        <div id={detailsId} className="nh-details" style={{ borderTop: "1px solid #E3E0D8", padding: "16px 18px",
-          background: "#FAFAF8", borderRadius: "0 0 10px 10px" }}>
+        <div id={detailsId} className="nh-details" style={{ borderTop: "1px solid var(--color-border)", padding: "16px 18px",
+          background: "var(--color-surface-subtle)", borderRadius: "0 0 var(--radius-lg) var(--radius-lg)" }}>
           <Section title="Transaction overview">
             <Row label="Type">{DEAL_TYPE[deal.deal_type]?.label || deal.deal_type}{individual && " · filed against an individual"}
               {isPersonalLoan(deal) && " (likely personal loan)"}</Row>
@@ -1217,6 +1223,7 @@ export default function App() {
   // Open on load when a link already carries one of the tucked-away filters
   const [aboutOpen, setAboutOpen] = useState(false);  // "About this data" under the count line
   const [panel, setPanel]         = useState("");  // "map" | "schedule" inside About this data
+  const aboutBtn = useRef(null), aboutPanel = useRef(null), moreBtn = useRef(null), morePanel = useRef(null);
   const [moreOpen, setMoreOpen]   = useState(!!(initial.sourceType || initial.ccnStatus || initial.dateFrom || initial.dateTo || initial.scope));
   const LIMIT = 20;
 
@@ -1398,6 +1405,23 @@ export default function App() {
     setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setNoLiens(""); setScope(""); setEntity(""); setSince(""); setOffset(0);
   }
 
+  // Escape closes "More filters" or "About this data" (the one holding focus,
+  // else whichever is open, More filters first) and puts focus back on its button
+  useEffect(() => {
+    if (!moreOpen && !aboutOpen) return;
+    const onKey = (e) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      const within = (...els) => els.some(el => el?.contains(document.activeElement));
+      const closeMore = () => { setMoreOpen(false); moreBtn.current?.focus(); };
+      const closeAbout = () => { setAboutOpen(false); aboutBtn.current?.focus(); };
+      if (aboutOpen && within(aboutBtn.current, aboutPanel.current)) closeAbout();
+      else if (moreOpen) closeMore();
+      else closeAbout();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [moreOpen, aboutOpen]);
+
   function toggleExpand(id) {
     setExpanded(prev => {
       const next = new Set(prev);
@@ -1438,6 +1462,7 @@ export default function App() {
           <p style={{ fontSize: 14, color: "#5F636A", lineHeight: 1.6 }}>
             US nursing home ownership changes and financings, from CMS records, state filings, UCC-1s, SEC filings and news.
           </p>
+          <Collapsible.Root open={aboutOpen} onOpenChange={setAboutOpen}>
           <div style={{ fontSize: 13, color: "#5F636A", marginTop: 4, display: "flex", gap: "0 16px", flexWrap: "wrap", alignItems: "center" }}>
             {stats && (
               <span title={breakdown}>
@@ -1445,11 +1470,12 @@ export default function App() {
                 {freshness.pipeline_ran_at && <span title={chowFreshness || undefined}> · updated {fmtDay(freshness.pipeline_ran_at)}</span>}
               </span>
             )}
-            <button type="button" aria-expanded={aboutOpen} aria-controls="nh-about" onClick={() => setAboutOpen(o => !o)}
-              style={{ ...linkBtn, minHeight: 32, color: "#23406F", fontSize: 13 }}>About this data {aboutOpen ? "▴" : "▾"}</button>
+            <Collapsible.Trigger asChild>
+              <button ref={aboutBtn} type="button" style={{ ...linkBtn, minHeight: 32, color: "#23406F", fontSize: 13 }}>About this data {aboutOpen ? "▴" : "▾"}</button>
+            </Collapsible.Trigger>
           </div>
-          {aboutOpen && (
-            <div id="nh-about" style={{ fontSize: 13, color: "#5F636A", marginTop: 2 }}>
+          <Collapsible.Content asChild>
+            <div ref={aboutPanel} style={{ fontSize: 13, color: "#5F636A", marginTop: 2 }}>
               {stats && (
                 <p>
                   {stats.refi.toLocaleString()} refinancings
@@ -1475,8 +1501,11 @@ export default function App() {
                 </div>
               )}
             </div>
-          )}
+          </Collapsible.Content>
+          </Collapsible.Root>
         </header>
+
+        <main>
 
         {view === "methodology" ? (
           <Methodology chowDate={chowFreshness && freshness.chow_file_date} corrections={corrections} onBack={() => go({})} />
@@ -1513,7 +1542,7 @@ export default function App() {
               <option value="">All states</option>
               {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <button type="button" onClick={() => setMoreOpen(o => !o)} aria-expanded={moreOpen} aria-controls="nh-more"
+            <button ref={moreBtn} type="button" onClick={() => setMoreOpen(o => !o)} aria-expanded={moreOpen} aria-controls="nh-more"
               style={{ ...linkBtn, color: "#23406F", fontSize: 14, padding: "0 6px" }}>
               More filters{moreCount > 0 && ` (${moreCount})`} {moreOpen ? "▴" : "▾"}
             </button>
@@ -1528,7 +1557,7 @@ export default function App() {
             )}
           </div>
           {moreOpen && (
-            <div id="nh-more" style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end",
+            <div id="nh-more" ref={morePanel} style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end",
               borderTop: "1px solid #E3E0D8", marginTop: 12, paddingTop: 12 }}>
               <label style={fieldLabel}>Source
                 <select value={sourceType} onChange={resetPage(setSourceType)} style={ctl}>
@@ -1569,24 +1598,27 @@ export default function App() {
           </p>
         )}
 
+        <Tabs.Root value={tabValue(tab)} onValueChange={v => { setTab(TABS.find(t => tabValue(t.key) === v).key); setOffset(0); }}>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0 16px", borderBottom: "1px solid #E3E0D8", marginBottom: 12 }}>
-          <div role="tablist" aria-label="Record type" style={{ display: "flex", gap: 4 }}>
+          <Tabs.List aria-label="Record type" style={{ display: "flex", gap: 4 }}>
             {TABS.map(t => {
               const active = tab === t.key;
               return (
-                <button key={t.key || "ownership"} type="button" role="tab" aria-selected={active}
-                  onClick={() => { setTab(t.key); setOffset(0); }}
+                <Tabs.Trigger key={tabValue(t.key)} value={tabValue(t.key)}
                   style={{ font: "inherit", fontSize: 15, minHeight: 44, padding: "0 14px", background: "none", border: "none", cursor: "pointer", fontWeight: active ? 600 : 400,
                     color: active ? "#1F2328" : "#5F636A", marginBottom: -1,
                     borderBottom: `2px solid ${active ? "#1F2328" : "transparent"}` }}>
                   {t.label} <span style={{ color: "#5F636A", fontWeight: 400 }}>{tabCounts[t.key]?.toLocaleString()}</span>
-                </button>
+                </Tabs.Trigger>
               );
             })}
-          </div>
+          </Tabs.List>
           {stats && <span style={{ fontSize: 13, color: "#5F636A", marginLeft: "auto", padding: "6px 0" }}><SourceLegend /></span>}
         </div>
 
+        {TABS.map(t => (
+        <Tabs.Content key={tabValue(t.key)} value={tabValue(t.key)}>
+        {tab === t.key && (<>
         {tab === "financing" && (
           <div style={{ display: "flex", gap: "0 20px", flexWrap: "wrap", marginBottom: 8 }}>
             <label style={checkLabel}>
@@ -1684,10 +1716,15 @@ export default function App() {
               style={{ ...btnGhost, opacity: offset + LIMIT >= total ? 0.4 : 1 }}>Older →</button>
           </div>
         )}
+        </>)}
+        </Tabs.Content>
+        ))}
+        </Tabs.Root>
 
         </>)}
 
         {!view && <FeedbackSection />}
+        </main>
 
         <footer style={{ marginTop: 48, fontSize: 12, color: "#5F636A",
           borderTop: "1px solid #E3E0D8", paddingTop: 20, lineHeight: 1.8 }}>
@@ -1705,37 +1742,23 @@ export default function App() {
 
       {parade && <HouseParade onDone={endParade} />}
 
-      <style>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #F4F3EF; }
-        select option { background: #fff; color: #1F2328; }
-        .nh-wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px; }
-        @media (max-width: 600px) { .nh-wrap { padding: 20px 16px; } }
-        .nh-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px 28px; }
-        .nh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #23406F; outline-offset: 2px; }
-        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
-        @keyframes nh-float { 0%{transform:translateY(0) rotate(0)} 100%{transform:translateY(-115vh) rotate(20deg)} }
-        @keyframes nh-pop { 0%{transform:translate(-50%,-50%) scale(0.85)} 100%{transform:translate(-50%,-50%) scale(1)} }
-        @media (prefers-reduced-motion: reduce) { .nh-house { display: none; } }
-        input::placeholder { color: #6B6F76; }
-      `}</style>
     </div>
   );
 }
 
-const dl = { fontSize: 11, color: "#5F636A", textTransform: "uppercase",
+const dl = { fontSize: "var(--font-size-2xs)", color: "var(--color-text-muted)", textTransform: "uppercase",
   letterSpacing: "0.06em", marginBottom: 3, fontWeight: 600 };
-const dv = { fontSize: 14, color: "#3F4248", lineHeight: 1.5 };
-const lnk = { fontSize: 14, color: "#23406F" };
-const lnkBlock = { ...lnk, display: "inline-flex", alignItems: "center", minHeight: 44 };
+const dv = { fontSize: "var(--font-size-md)", color: "var(--color-text-secondary)", lineHeight: 1.5 };
+const lnk = { fontSize: "var(--font-size-md)", color: "var(--color-link)" };
+const lnkBlock = { ...lnk, display: "inline-flex", alignItems: "center", minHeight: "var(--touch-target)" };
 // Text-styled button that still has a 44px touch target
-const linkBtn = { display: "inline-flex", alignItems: "center", minHeight: 44, padding: 0, background: "none",
+const linkBtn = { display: "inline-flex", alignItems: "center", minHeight: "var(--touch-target)", padding: 0, background: "none",
   border: "none", cursor: "pointer", font: "inherit", textAlign: "left" };
-const ctl = { font: "inherit", fontSize: 15, minHeight: 44, background: "#fff", border: "1px solid #C9C5BB", color: "#1F2328",
-  borderRadius: 8, padding: "0 12px" };
-const fieldLabel = { display: "flex", flexDirection: "column", gap: 4, fontSize: 13, color: "#5F636A" };
-const checkLabel = { display: "inline-flex", alignItems: "center", gap: 8, minHeight: 44, fontSize: 14, color: "#3F4248", cursor: "pointer" };
+const ctl = { font: "inherit", fontSize: "var(--font-size-base)", minHeight: "var(--touch-target)", background: "var(--color-surface)",
+  border: "1px solid var(--color-border-strong)", color: "var(--color-text)", borderRadius: "var(--radius-md)", padding: "0 var(--space-3)" };
+const fieldLabel = { display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "var(--font-size-sm)", color: "var(--color-text-muted)" };
+const checkLabel = { display: "inline-flex", alignItems: "center", gap: "var(--space-2)", minHeight: "var(--touch-target)",
+  fontSize: "var(--font-size-md)", color: "var(--color-text-secondary)", cursor: "pointer" };
 const checkBox = { width: 18, height: 18 };
-const btnGhost = { font: "inherit", fontSize: 14, minHeight: 44, background: "#fff", color: "#3F4248",
-  border: "1px solid #C9C5BB", borderRadius: 8, padding: "0 14px", cursor: "pointer" };
+const btnGhost = { font: "inherit", fontSize: "var(--font-size-md)", minHeight: "var(--touch-target)", background: "var(--color-surface)",
+  color: "var(--color-text-secondary)", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-md)", padding: "0 14px", cursor: "pointer" };

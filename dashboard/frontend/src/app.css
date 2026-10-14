@@ -1,0 +1,15 @@
+/* Global styles for the live feed (were an inline <style> in App.jsx); shared
+   with Storybook (.storybook/preview.js) so stories render like the site. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--color-bg); }
+select option { background: var(--color-surface); color: var(--color-text); }
+.nh-wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px; }
+@media (max-width: 600px) { .nh-wrap { padding: 20px 16px; } }
+.nh-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px 28px; }
+.nh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--color-link); outline-offset: 2px; }
+@keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+@keyframes nh-float { 0%{transform:translateY(0) rotate(0)} 100%{transform:translateY(-115vh) rotate(20deg)} }
+@keyframes nh-pop { 0%{transform:translate(-50%,-50%) scale(0.85)} 100%{transform:translate(-50%,-50%) scale(1)} }
+@media (prefers-reduced-motion: reduce) { .nh-house { display: none; } }
+input::placeholder { color: var(--color-placeholder); }

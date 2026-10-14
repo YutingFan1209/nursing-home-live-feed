@@ -1,0 +1,68 @@
+/* Design tokens for the live feed: the values the app already used, named.
+   Components move to these as they're touched (inline styles can use
+   "var(--token)"); a value not yet here is still a literal in App.jsx.
+   Moving a value here must not change a pixel: tests/visual.spec.js
+   compares screenshots taken before the change. */
+:root {
+  /* Surfaces */
+  --color-bg: #F4F3EF;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #FAFAF8;   /* open Details panel */
+  --color-surface-muted: #F0EEE8;    /* skeletons, chips */
+
+  /* Text */
+  --color-text: #1F2328;
+  --color-text-secondary: #3F4248;
+  --color-text-muted: #5F636A;       /* labels, notes, missing values */
+  --color-text-faint: #8A8D93;       /* separators */
+  --color-placeholder: #6B6F76;
+  --color-link: #23406F;             /* also the focus ring */
+
+  /* Lines */
+  --color-border: #E3E0D8;
+  --color-border-strong: #C9C5BB;    /* form controls, ghost buttons */
+
+  /* Source dots (src/derive.js SOURCE_COLOR) */
+  --source-chow: #2E6F5E;
+  --source-con: #1F7A8C;
+  --source-ucc: #6B4E9B;
+  --source-edgar: #2F5D9E;
+  --source-rss: #B9722A;
+
+  /* Status text (src/derive.js STATUS_COLOR) */
+  --status-confirmed: #14543F;
+  --status-expected: #7A4A06;
+  --status-reported: #4A4E55;
+  --status-unconfirmed: #8A2D2D;
+  --status-on-file: #23406F;
+
+  /* Type */
+  --font-sans: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-2xs: 11px;   /* section eyebrows */
+  --font-size-xs: 12px;    /* column labels, notes */
+  --font-size-sm: 13px;    /* card meta, count line */
+  --font-size-md: 14px;    /* body, Details rows */
+  --font-size-base: 15px;  /* card values, controls, tabs */
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 24px;   /* page title */
+  --font-size-4xl: 28px;
+
+  /* Space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --touch-target: 44px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;    /* controls, buttons */
+  --radius-lg: 10px;   /* cards, panels */
+  --radius-xl: 12px;
+  --radius-pill: 22px; /* saved-view chips */
+}

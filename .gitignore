@@ -23,3 +23,7 @@ venv310/
 data/
 # The switched-off daily launchd job (kept for reference, not deployed)
 .disabled-launchagents/
+# Front-end test and Storybook output (never deployed)
+dashboard/frontend/test-results/
+dashboard/frontend/playwright-report/
+dashboard/frontend/storybook-static/
