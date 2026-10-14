@@ -152,12 +152,15 @@ git checkout gh-pages
 cp /tmp/nh-dist/index.html index.html
 # Replace the bundle rather than adding to it: each build gets a new hashed
 # name, and copying alongside old ones had left 20 unused bundles in assets/
-git rm -q assets/*.js && mkdir -p assets && cp /tmp/nh-dist/assets/*.js assets/   # mkdir: removing the only bundle removes the folder
+# The build has a CSS file too since 2026-10-14 (src/tokens.css, src/app.css): copy both.
+# Leave dist/feed.xml out -- gh-pages keeps its own from the data refresh.
+git rm -q --ignore-unmatch assets/*.js assets/*.css && mkdir -p assets && cp /tmp/nh-dist/assets/*.js /tmp/nh-dist/assets/*.css assets/   # mkdir: removing the only bundle removes the folder
 git add -A index.html assets/ && git commit -m "Frontend: <what changed>" && git push origin gh-pages
 git checkout main
 ```
 
 - Every push to `gh-pages` is a Pages deployment. Batch a frontend change with a data refresh into one push where you can.
+- Before a frontend deploy, `cd dashboard/frontend && npm test` (Playwright + axe against a fixture, plus pixel comparisons; see `tests/`).
 - After a frontend deploy, hard-refresh the site (Cmd+Shift+R) — browsers keep the old bundle cached.
 - `run_and_deploy.sh` still does a full pipeline run plus deploy, and exports `deals.json` with a raw query rather than `export_deals.py`. Don't use it for data refreshes.
 
