@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-13T21:09:12.825358+00:00</updated>
+  <updated>2026-10-14T15:00:30.932940+00:00</updated>
+  <entry>
+    <id>urn:uuid:a9c7ebe4-bce6-4407-b960-2c0b0a3faff3</id>
+    <title>Tordjman Equities acquires Pine Trail Nursing and Rehab Center from Entity tied to K.C. Kross, CEO of Mountaineer Development (FL)</title>
+    <link href="https://commercialobserver.com/2026/10/tordjman-equities-pine-trail-nursing-and-rehab-center-palm-beach-county-nursing-home/"/>
+    <updated>2026-10-14T14:58:28.505004+00:00</updated>
+    <summary>Facilities: Pine Trail Nursing and Rehab Center; $23.80M; $150.00M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
   <entry>
     <id>urn:uuid:5f492f4b-6c39-4e9d-a22c-28ed2a03e02e</id>
     <title>Huntsville SNF Property Holdings to acquire Regency Health Care and Rehabilitation Center from Huntsville Investors (AL)</title>
@@ -347,12 +354,5 @@
     <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2025-11-13/docs/agenda.pdf#project-241018"/>
     <updated>2026-10-09T18:14:35.274198+00:00</updated>
     <summary>Effective 2025-12-04; Facilities: Kirkhaven, Kirkhaven Nursing &amp; Rehab; $0.50M; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7d4f7a7a-02c1-4aff-ab67-0012bd566659</id>
-    <title>JCH Operations to acquire Sands Point Center for Health and Rehabilitation from Agma (NY)</title>
-    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2025-11-13/docs/agenda.pdf#project-231002"/>
-    <updated>2026-10-09T18:14:35.141662+00:00</updated>
-    <summary>Effective 2025-12-04; Facilities: Sands Point Center for Health and Rehabilitation; $53.00M; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
 </feed>
