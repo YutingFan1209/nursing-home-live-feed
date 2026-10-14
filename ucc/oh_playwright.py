@@ -64,6 +64,41 @@ def _parse_individual_name(name: str):
         return None
     return last, first
 
+
+def rows_to_filings(owner_name: str, rows: list, search_mode: str = "organization") -> list[UCCFiling]:
+    """The search API's data rows -> filings. Shared with the
+    browser-session route (scripts/oh_ucc_browser.py)."""
+    results = []
+    today = date.today()
+    for row in rows:
+        filing_number = row.get("finacialStatementNumber")
+        if not filing_number:
+            continue
+        debtor_name = ", ".join(row.get("debtorList") or [])
+        secured_party = ", ".join(row.get("securePartyList") or [])
+        filing_type = row.get("transactionCode") or "Original"
+        filing_date = _parse_iso_date(row.get("finacialStatementDate"))
+        lapse_date = _parse_iso_date(row.get("lapseDate"))
+        status = "active" if lapse_date and lapse_date > today else "lapsed"
+
+        results.append(UCCFiling(
+            state="OH",
+            debtor_name=debtor_name,
+            secured_party_name=secured_party,
+            filing_number=filing_number,
+            filing_date=filing_date,
+            lapse_date=lapse_date,
+            filing_type=filing_type,
+            status=status,
+            source_url=BASE_URL + "/search",
+            raw={
+                "query_name": owner_name,
+                "search_mode": search_mode,
+                "internal_id": row.get("entityId"),
+            },
+        ))
+    return results
+
 def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCFiling]:
     """is_individual routes to the portal's Individual debtor mode
     (personInd1, separate First/Middle/Last Name fields) instead of
@@ -125,35 +160,7 @@ def _search_one(page, owner_name: str, is_individual: bool = False) -> list[UCCF
             health.failed("UCC OH searches", f"{owner_name}: no search response ({e})")
             return []
 
-        rows = payload.get("data") or []
-        today = date.today()
-        for row in rows:
-            filing_number = row.get("finacialStatementNumber")
-            if not filing_number:
-                continue
-            debtor_name = ", ".join(row.get("debtorList") or [])
-            secured_party = ", ".join(row.get("securePartyList") or [])
-            filing_type = row.get("transactionCode") or "Original"
-            filing_date = _parse_iso_date(row.get("finacialStatementDate"))
-            lapse_date = _parse_iso_date(row.get("lapseDate"))
-            status = "active" if lapse_date and lapse_date > today else "lapsed"
-
-            results.append(UCCFiling(
-                state="OH",
-                debtor_name=debtor_name,
-                secured_party_name=secured_party,
-                filing_number=filing_number,
-                filing_date=filing_date,
-                lapse_date=lapse_date,
-                filing_type=filing_type,
-                status=status,
-                source_url=BASE_URL + "/search",
-                raw={
-                    "query_name": owner_name,
-                    "search_mode": "individual" if parsed else "organization",
-                    "internal_id": row.get("entityId"),
-                },
-            ))
+        results = rows_to_filings(owner_name, payload.get("data") or [], "individual" if parsed else "organization")
         logger.info("OH UCC %s (%s) → %d filings", owner_name, "individual" if parsed else "org", len(results))
     except Exception as e:
         logger.error("OH search failed for %r: %s", owner_name, e)
