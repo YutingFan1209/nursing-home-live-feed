@@ -70,8 +70,10 @@ def _split_name_city(parts) -> str:
 # block looked like a clean run. Any response without rows now counts as a
 # block and stops the whole batch.
 # 2.5 s got 159 names through on 2026-09-30 but only 25 on 2026-10-02;
-# 8 s trades runtime (~30 min for the rest of the list) for fewer blocks
-SEARCH_DELAY_MS = 8000
+# 8 s trades runtime (~30 min for the rest of the list) for fewer blocks.
+# 2026-10-14: throttled after ~55 searches even in a person's own Chrome, so
+# main.py now sends CA_NAMES_PER_RUN names a run, 15 s apart (~8 min)
+SEARCH_DELAY_MS = 15000
 
 # Terms actually searched by the last search_ca_batch call (a block stops
 # the batch early). main.py uses it to resume the next run where this one
@@ -83,6 +85,14 @@ _SUFFIXES = re.compile(r"\b(LLC|L L C|INC|INCORPORATED|LP|L P|LLP|CORP|CORPORATI
 
 class CABlocked(RuntimeError):
     pass
+
+
+class CAServerError(RuntimeError):
+    pass
+
+
+# Server errors in a row that count as a block (see CAServerError)
+MAX_SERVER_ERRORS = 3
 
 
 def _norm(name: str) -> str:
@@ -122,12 +132,28 @@ def _search_one(page, search_term: str) -> list[UCCFiling]:
         result = json.loads(response["text"])
     except ValueError:
         result = None
+    if isinstance(result, dict) and result.get("internalerror"):
+        # HTTP 400 "Object reference not set to an instance of an object":
+        # the portal's throttling before a real block. On 2026-10-14 (in a
+        # person's own Chrome) it hit a third of searches, then five in a
+        # row, then every search got the 429 block. A single one is retried
+        # later in the list; several in a row stop the batch (_search_chunk).
+        raise CAServerError(f"HTTP {response['status']}: server error ({result['internalerror']})")
     if response["status"] != 200 or not isinstance(result, dict) or "rows" not in result:
         detail = (result or {}).get("description") if isinstance(result, dict) else response["text"][:120]
         raise CABlocked(f"HTTP {response['status']}: {detail}")
+    results = rows_to_filings(search_term, result.get("rows") or {})
+    logger.info("CA UCC %s → %d filings (%d returned)", search_term, len(results), len(result.get("rows") or {}))
+    return results
 
+
+def rows_to_filings(search_term: str, rows: dict, lender: bool = False) -> list[UCCFiling]:
+    """The search API's rows -> this term's financing statements. Shared
+    with the browser-session route (scripts/ca_ucc_browser.py). lender:
+    search_term is a secured party (ucc/lender_search.LENDER_TERMS), so keep
+    the filings where it's the creditor, whoever the debtor is."""
     results = []
-    for record_id, row in (result.get("rows") or {}).items():
+    for record_id, row in rows.items():
         # RECORD_TYPE_ID "0" returns every record type; only financing
         # statements ("UCC") are loans. State tax liens (e.g. Employment
         # Development Department) and judgment liens were 78 of 639 filings
@@ -136,7 +162,10 @@ def _search_one(page, search_term: str) -> list[UCCFiling]:
             continue
         debtor = _split_name_city(row.get("TITLE"))
         secured_party = _split_name_city(row.get("SEC_PARTY"))
-        if not _is_match(search_term, debtor):
+        if lender:
+            if _norm(search_term) not in _norm(secured_party):
+                continue
+        elif not _is_match(search_term, debtor):
             continue
         results.append(UCCFiling(
             state="CA",
@@ -148,9 +177,9 @@ def _search_one(page, search_term: str) -> list[UCCFiling]:
             filing_type=row.get("RECORD_TYPE", "UCC"),
             status=(row.get("STATUS") or "unknown").lower(),
             source_url=SEARCH_URL,
-            raw={"query_name": search_term, "record_id": record_id},
+            raw={"query_name": search_term, "record_id": record_id,
+                 "search_type": "SECURED_PARTY" if lender else "DEBTOR"},
         ))
-    logger.info("CA UCC %s → %d filings (%d returned)", search_term, len(results), len(result.get("rows") or {}))
     return results
 
 
@@ -167,12 +196,23 @@ def _search_chunk(cdp_url: str, terms: list[str], blocked: threading.Event, out:
         tab["id"] = page_target_id(context, page)
         page.goto(SEARCH_URL, timeout=30000)
         page.wait_for_timeout(3000)
+        in_a_row = 0
         for term in terms:
             if blocked.is_set():
                 break
             try:
                 out.extend(_search_one(page, term))
                 LAST_SEARCHED += 1
+                in_a_row = 0
+            except CAServerError as e:
+                in_a_row += 1
+                LAST_SEARCHED += 1
+                health.failed("UCC CA searches", f"{term}: {e}")
+                if in_a_row >= MAX_SERVER_ERRORS:
+                    blocked.set()
+                    logger.error("CA UCC: %d server errors in a row, last at %r -- throttled, stopping the batch", in_a_row, term)
+                    health.source_failed("UCC CA", f"throttled ({in_a_row} server errors in a row) at {term!r}")
+                    break
             except CABlocked as e:
                 blocked.set()
                 logger.error("CA UCC blocked at %r: %s -- stopping the batch", term, e)

@@ -773,7 +773,9 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             oh_search_names=oh_names or None,
             oh_individual_names=oh_individual_names or None,
             nj_search_names=nj_names or None,
-            ca_search_names=ca_names or None,
+            # A few dozen a run: CA throttles a session after ~55 searches
+            # (2026-10-14); the saved offset carries the rest to later runs
+            ca_search_names=ca_names[:CA_NAMES_PER_RUN] if ca_names else None,
             fl_filings=fl_filings,
             pa_search_names=pa_names or None,
             pa_lender_terms=pa_lenders,
@@ -1187,6 +1189,7 @@ def _get_known_operator_names(conn, state: str = None) -> list[str]:
 
 
 CA_OFFSET_KEY = "ucc_ca_next_offset"
+CA_NAMES_PER_RUN = 30
 PA_LENDER_OFFSET_KEY = "ucc_pa_lender_next_offset"
 PA_OFFSET_KEY = "ucc_pa_next_offset"
 
