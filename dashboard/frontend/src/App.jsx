@@ -603,7 +603,6 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
   const status = displayStatus(deal);
   const cols = cardColumns(deal, facilities);
   const other = otherDate(deal);
-  const pub = publication(deal);
   const names = deal.facility_names || [];
 
   return (
@@ -685,7 +684,6 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
           <Section title="Verification">
             <Row label="Status"><span style={{ fontWeight: 600, color: STATUS_COLOR[status] }}>{STATUS_LABEL[status]}</span></Row>
             <p style={{ fontSize: 14, color: "#1F2328", margin: "2px 0 4px" }}>{statusMeaning(deal)}</p>
-            {deal.status_detail && status !== "on_file" && <p style={{ fontSize: 13, color: "#5F636A", marginBottom: 6 }}>{deal.status_detail}</p>}
             <Row label="Source type">{SOURCE[deal.source_type]?.name || deal.source_type}</Row>
             <Row label="CMS match">
               {ccns.length || deal.possible_homes?.length
@@ -706,7 +704,6 @@ function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, fa
 
           <Section title="Source documentation">
             <Row label="Original source"><SourceLink deal={deal} searchForms={searchForms} /></Row>
-            {deal.source_type === "rss" && pub && <Row label="Publication">{pub}</Row>}
             <Row label="How collected">{howCollected(deal)}</Row>
             <Row label="Sources">{deal.sources?.length || 1}</Row>
             {(deal.sources?.length > 1 || deal.cms_event) && <Timeline deal={deal} />}
@@ -1218,7 +1215,8 @@ export default function App() {
   const [offset, setOffset]       = useState(0);
   const [parade, setParade]       = useState(false);
   // Open on load when a link already carries one of the tucked-away filters
-  const [panel, setPanel]         = useState("");  // "map" | "schedule" under the count line
+  const [aboutOpen, setAboutOpen] = useState(false);  // "About this data" under the count line
+  const [panel, setPanel]         = useState("");  // "map" | "schedule" inside About this data
   const [moreOpen, setMoreOpen]   = useState(!!(initial.sourceType || initial.ccnStatus || initial.dateFrom || initial.dateTo || initial.scope));
   const LIMIT = 20;
 
@@ -1349,6 +1347,8 @@ export default function App() {
     const grouped = allDeals.filter(d => d.grouped_into).length;
     return { total: allDeals.length, refi, other, grouped };
   }, [allDeals]);
+  const breakdown = stats && `${stats.refi.toLocaleString()} refinancings${stats.other > 0 ? ` and ${stats.other} senior living or other records` : ""} hidden by default`
+    + (stats.grouped > 0 ? ` · ${stats.grouped} shown inside another card` : "");
 
   const byCcn = useMemo(() => {
     const m = new Map();
@@ -1431,36 +1431,42 @@ export default function App() {
       fontFamily: "'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 
       <div className="nh-wrap">
-        <header style={{ marginBottom: 20 }}>
+        <header style={{ marginBottom: 12 }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 6 }}>
             Nursing Home Ownership Changes
           </h1>
           <p style={{ fontSize: 14, color: "#5F636A", lineHeight: 1.6 }}>
-            US nursing home ownership changes and financings, from CMS records, state filings, UCC-1s, SEC filings and news.{" "}
-            <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}
-              style={{ color: "#23406F" }}>How this works</a>
+            US nursing home ownership changes and financings, from CMS records, state filings, UCC-1s, SEC filings and news.
           </p>
-          {stats && (
-            <div style={{ fontSize: 13, color: "#5F636A", marginTop: 10, display: "flex", gap: "4px 16px", flexWrap: "wrap", alignItems: "center" }}>
-              <span>
-                {stats.total.toLocaleString()} records · {stats.refi.toLocaleString()} refinancings
-                {stats.other > 0 && ` and ${stats.other} senior living or other records`} hidden by default
-                {stats.grouped > 0 && <span title="Shown in the Details of the deal they're grouped with"> · {stats.grouped} shown inside another card</span>}
+          <div style={{ fontSize: 13, color: "#5F636A", marginTop: 4, display: "flex", gap: "0 16px", flexWrap: "wrap", alignItems: "center" }}>
+            {stats && (
+              <span title={breakdown}>
+                {stats.total.toLocaleString()} records
                 {freshness.pipeline_ran_at && <span title={chowFreshness || undefined}> · updated {fmtDay(freshness.pipeline_ran_at)}</span>}
               </span>
-              <SourceLegend />
-            </div>
-          )}
-          {stats && !view && !focusId && !facilityCcn && (
-            <div style={{ marginTop: 4 }}>
-              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                {[["map", "Map by state"], ["schedule", "Source refresh schedule"]].map(([k, label]) => (
+            )}
+            <button type="button" aria-expanded={aboutOpen} aria-controls="nh-about" onClick={() => setAboutOpen(o => !o)}
+              style={{ ...linkBtn, minHeight: 32, color: "#23406F", fontSize: 13 }}>About this data {aboutOpen ? "▴" : "▾"}</button>
+          </div>
+          {aboutOpen && (
+            <div id="nh-about" style={{ fontSize: 13, color: "#5F636A", marginTop: 2 }}>
+              {stats && (
+                <p>
+                  {stats.refi.toLocaleString()} refinancings
+                  {stats.other > 0 && ` and ${stats.other} senior living or other records`} hidden by default
+                  {stats.grouped > 0 && <span title="Shown in the Details of the deal they're grouped with"> · {stats.grouped} shown inside another card</span>}
+                </p>
+              )}
+              <div style={{ display: "flex", gap: "0 16px", flexWrap: "wrap" }}>
+                <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}
+                  style={{ ...lnkBlock, fontSize: 13 }}>How this works</a>
+                {stats && !view && !focusId && !facilityCcn && [["map", "Map by state"], ["schedule", "Source refresh schedule"]].map(([k, label]) => (
                   <button key={k} type="button" aria-expanded={panel === k} aria-controls={`nh-panel-${k}`}
                     onClick={() => setPanel(p => p === k ? "" : k)}
                     style={{ ...linkBtn, color: "#23406F", fontSize: 13 }}>{label} {panel === k ? "▴" : "▾"}</button>
                 ))}
               </div>
-              {panel && (
+              {stats && !view && !focusId && !facilityCcn && panel && (
                 <div id={`nh-panel-${panel}`} style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, padding: "14px 16px", marginTop: 4 }}>
                   {panel === "map"
                     ? <StatesMap counts={stateCounts} selected={state} what={tab === "financing" ? "Financing records" : "Ownership changes"}
@@ -1469,13 +1475,6 @@ export default function App() {
                 </div>
               )}
             </div>
-          )}
-          {newSinceVisit > 0 && !since && !view && !focusId && !facilityCcn && (
-            <p style={{ fontSize: 14, color: "#1F2328", marginTop: 6 }}>
-              <strong>{newSinceVisit.toLocaleString()} new</strong> since your last visit ({fmtDay(lastVisit)}) ·{" "}
-              <button type="button" onClick={() => { setSince(lastVisit); setOffset(0); }}
-                style={{ ...linkBtn, ...lnk, textDecoration: "underline", minHeight: 0, verticalAlign: "baseline" }}>Show them</button>
-            </p>
           )}
         </header>
 
@@ -1562,19 +1561,30 @@ export default function App() {
           )}
         </div>
 
-        <div role="tablist" aria-label="Record type" style={{ display: "flex", gap: 4, borderBottom: "1px solid #E3E0D8", marginBottom: 12 }}>
-          {TABS.map(t => {
-            const active = tab === t.key;
-            return (
-              <button key={t.key || "ownership"} type="button" role="tab" aria-selected={active}
-                onClick={() => { setTab(t.key); setOffset(0); }}
-                style={{ font: "inherit", fontSize: 15, minHeight: 44, padding: "0 14px", background: "none", border: "none", cursor: "pointer", fontWeight: active ? 600 : 400,
-                  color: active ? "#1F2328" : "#5F636A", marginBottom: -1,
-                  borderBottom: `2px solid ${active ? "#1F2328" : "transparent"}` }}>
-                {t.label} <span style={{ color: "#5F636A", fontWeight: 400 }}>{tabCounts[t.key]?.toLocaleString()}</span>
-              </button>
-            );
-          })}
+        {newSinceVisit > 0 && !since && (
+          <p style={{ fontSize: 14, color: "#1F2328", margin: "0 0 4px" }}>
+            <strong>{newSinceVisit.toLocaleString()} new</strong> since your last visit ({fmtDay(lastVisit)}) ·{" "}
+            <button type="button" onClick={() => { setSince(lastVisit); setOffset(0); }}
+              style={{ ...linkBtn, ...lnk, textDecoration: "underline", minHeight: 0, verticalAlign: "baseline" }}>Show them</button>
+          </p>
+        )}
+
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0 16px", borderBottom: "1px solid #E3E0D8", marginBottom: 12 }}>
+          <div role="tablist" aria-label="Record type" style={{ display: "flex", gap: 4 }}>
+            {TABS.map(t => {
+              const active = tab === t.key;
+              return (
+                <button key={t.key || "ownership"} type="button" role="tab" aria-selected={active}
+                  onClick={() => { setTab(t.key); setOffset(0); }}
+                  style={{ font: "inherit", fontSize: 15, minHeight: 44, padding: "0 14px", background: "none", border: "none", cursor: "pointer", fontWeight: active ? 600 : 400,
+                    color: active ? "#1F2328" : "#5F636A", marginBottom: -1,
+                    borderBottom: `2px solid ${active ? "#1F2328" : "transparent"}` }}>
+                  {t.label} <span style={{ color: "#5F636A", fontWeight: 400 }}>{tabCounts[t.key]?.toLocaleString()}</span>
+                </button>
+              );
+            })}
+          </div>
+          {stats && <span style={{ fontSize: 13, color: "#5F636A", marginLeft: "auto", padding: "6px 0" }}><SourceLegend /></span>}
         </div>
 
         {tab === "financing" && (
