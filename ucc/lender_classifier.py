@@ -285,6 +285,14 @@ EXCLUDE_PATTERNS.extend([
     r"\bchtd company\b", r"\bfirst corporate solutions\b",  # filing agents, not lenders
 ])
 
+# Drug, lab and equipment suppliers on CA's weekly bulk file (2026-10-14)
+EXCLUDE_PATTERNS.extend([
+    r"\bamerisourcebergen\b", r"\bcencora\b", r"\broche diagnostics\b", r"\bquidelortho\b",
+    r"\bfff enterprises\b", r"\bstryker\b", r"\bsiemens financial\b", r"\bdext capital\b",
+    r"\bhuntington technology finance\b", r"\bgreatamerica bank\b", r"\bnavitas credit\b",
+    r"\bkelley create\b",
+])
+
 # HUD loans are healthcare RE financing — acquisition relevant
 KNOWN_HEALTHCARE_REITS.update([
     "secretary of housing and urban development",
