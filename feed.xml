@@ -4,13 +4,13 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-14T17:31:09.752323+00:00</updated>
+  <updated>2026-10-15T15:27:09.187272+00:00</updated>
   <entry>
     <id>urn:uuid:dc78978e-4020-41df-a7bb-92be7a82cd8f</id>
-    <title>NORTHERN CALIFORNIA RETIRED OFFICERS COMMUNITY — UCC-1 financing (CA)</title>
+    <title>Laurel Creek Health Center — UCC-1 financing (CA)</title>
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
     <updated>2026-10-14T17:30:24.360895+00:00</updated>
-    <summary>Effective 2026-09-02; Facilities: NORTHERN CALIFORNIA RETIRED OFFICERS COMMUNITY; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-09-02; Facilities: Laurel Creek Health Center; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:1963042b-63e5-43ba-aa05-c418b91ed749</id>
@@ -25,13 +25,6 @@
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
     <updated>2026-10-14T17:30:18.704277+00:00</updated>
     <summary>Effective 2026-09-22; Facilities: SMM MASTER TENANT 2, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0afa8eab-a81b-4679-bc36-7f69458e7075</id>
-    <title>TARZANA POST ACUTE LLC — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-14T17:30:16.919694+00:00</updated>
-    <summary>Effective 2026-09-22; Facilities: TARZANA POST ACUTE LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:0dc67db7-1176-4efe-a67d-99c4601c49cf</id>
@@ -55,13 +48,6 @@
     <summary>Effective 2026-09-30; Facilities: SEMA, LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
-    <id>urn:uuid:da6da785-6ff4-4441-b8ea-374bef6a668a</id>
-    <title>VPR OPS, LLC — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-14T17:30:09.516967+00:00</updated>
-    <summary>Effective 2026-09-30; Facilities: VPR OPS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:2b86f61d-b8f8-4616-9c7c-a3626431dc41</id>
     <title>919 N SUNSET, LLC — UCC-1 financing (CA)</title>
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
@@ -74,13 +60,6 @@
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
     <updated>2026-10-14T17:30:06.786640+00:00</updated>
     <summary>Effective 2026-09-30; Facilities: 8133 MAGNOLIA, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ad944c0e-3d85-4d14-b560-b6ea444f2166</id>
-    <title>SHAFTER NURSING REHAB LLC — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-14T17:30:05.601587+00:00</updated>
-    <summary>Effective 2026-09-30; Facilities: SHAFTER NURSING REHAB LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:666bb2f3-7531-4092-84c1-b1fe828ab2e0</id>
@@ -102,13 +81,6 @@
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
     <updated>2026-10-14T17:30:01.909220+00:00</updated>
     <summary>Effective 2026-09-30; Facilities: GROSSMONT SKILLED CARE, INC.; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d7cf394c-81f1-4170-bc71-9a6fa9483839</id>
-    <title>TANZANITE HOLDING LLC — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-14T17:29:58.004212+00:00</updated>
-    <summary>Effective 2026-09-10; Facilities: TANZANITE HOLDING LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:cec9cdc6-c62d-4a4a-a4da-c79590b47b58</id>
@@ -354,5 +326,33 @@
     <link href="https://ucc.ohiosos.gov/company-profile/search/4723142"/>
     <updated>2026-10-14T16:09:09.123024+00:00</updated>
     <summary>Effective 2018-08-07; Facilities: MOMENTOUS HEALTH AT RICHFIELD; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:39cd9a68-a5b9-4f2b-bf0f-1a8e77ad7bb9</id>
+    <title>THE ATLANTES HEALTH CARE AND REHABILITATION LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7252953"/>
+    <updated>2026-10-14T16:09:07.593120+00:00</updated>
+    <summary>Effective 2026-10-07; Facilities: THE ATLANTES HEALTH CARE AND REHABILITATION LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b7e89b62-6ae2-4f74-8127-8998226d4d80</id>
+    <title>Suburban Prop Co LLC, AJ Suburban Pavilion OpCo, LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/5933709"/>
+    <updated>2026-10-14T16:09:05.981800+00:00</updated>
+    <summary>Effective 2022-03-28; Facilities: Suburban Prop Co LLC, AJ Suburban Pavilion OpCo, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3c30324c-2ebc-41ac-8de5-4018d62d9659</id>
+    <title>SUBURBAN HEALTHCARE AND REHABILITATION — acquisition financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/5910826"/>
+    <updated>2026-10-14T16:09:04.581296+00:00</updated>
+    <summary>Effective 2022-03-07; Facilities: SUBURBAN HEALTHCARE AND REHABILITATION; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2bd63948-b603-434a-8e12-8e8d162e8c6d</id>
+    <title>Cityview Propco LLC, AJ Cityview Nursing &amp; Rehab Opco LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/5819116"/>
+    <updated>2026-10-14T16:09:01.831376+00:00</updated>
+    <summary>Effective 2021-11-12; Facilities: Cityview Propco LLC, AJ Cityview Nursing &amp; Rehab Opco LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
