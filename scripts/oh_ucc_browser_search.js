@@ -12,7 +12,7 @@
 // slowed to 13-23 s responses after ~160 searches in an hour on 2026-09-21,
 // the warning sign before its blocks). window.__ohd.stop = true ends early.
 const NAMES = window.OH_NAMES || [];
-const GAP_MS = 12000;
+const GAP_MS = window.OH_GAP_MS || 12000;  // 20000 after a slowdown the day before (2026-10-15)
 const SLOW_MS = 10000;
 const base = JSON.parse(window.__ohReq.body), headers = window.__ohReq.headers;
 window.__ohd = {status: 'running', done: 0, total: NAMES.length, filings: 0, stopped: null, stop: false, results: []};
