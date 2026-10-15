@@ -32,6 +32,7 @@ import os
 import re
 import sys
 import json
+from urllib.parse import quote
 from xml.sax.saxutils import escape
 from datetime import datetime, timezone
 
@@ -59,6 +60,17 @@ UCC_PORTAL_URLS = {
     "NJ": "https://www.njportal.com/ucc/search/noncertifiedsearch.aspx",  # was missing entirely -- confirmed 2026-09-22 that every NJ deal (337) was falling through to the raw ucc://NJ/{filing_number} scheme URL untouched, which isn't navigable at all (no browser handles the ucc:// protocol), worse than every other state's fallback
     "CA": "https://bizfileonline.sos.ca.gov/search/ucc",
     "FL": "https://floridaucc.com/search",
+    "OR": "https://secure.sos.state.or.us/ucc/searchHome.action",  # was missing -- OR's 9 deals shipped the raw ucc://OR/... key (2026-10-15)
+}
+
+# Per-filing pages that can be built from the filing number alone, so no
+# ucc_filings.detail_url is needed. FL's detail page loads straight from its
+# URL (verified 2026-10-15; a first-time visitor clicks through the Terms of
+# Use box first). CA, PA and OR have none: CA's filing panel opens without
+# changing the URL, so those link to the search page and the frontend copies
+# the filing number on click.
+UCC_FILING_URLS = {
+    "FL": "https://floridaucc.com/search/details?text={n}&searchOptionType=DocumentNumber&searchCategory=Standard&uccNumber={n}",
 }
 
 NJ_WIZARD = "ctl00$mainContent$DebtorSearch1$Wizard1$"
@@ -191,6 +203,10 @@ def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | No
     portal's search page with the filing number in the title so a viewer
     can search for it themselves."""
     state, _, filing_number = source_url.removeprefix("ucc://").partition("/")
+    if filing_number.startswith("NYX-") and not detail_url:
+        return UCC_PORTAL_URLS["NY"], f"NY UCC-1 filing — search the debtor's name on the state portal"
+    if not detail_url and state.upper() in UCC_FILING_URLS:
+        detail_url = UCC_FILING_URLS[state.upper()].format(n=quote(filing_number))
     if detail_url:
         return detail_url, f"{state} UCC-1 filing #{filing_number}"
     portal = UCC_PORTAL_URLS.get(state.upper())
@@ -198,6 +214,33 @@ def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | No
         return source_url, source_title
     title = f"{state} UCC-1 filing #{filing_number} — search this number on the state portal"
     return portal, title
+
+
+def _ny_spreadsheet_links(cur) -> dict:
+    """(debtor, filing date) -> [(secured party, filing number, detail_url)]
+    for NY filings with a real per-filing link. The June 2026 NY spreadsheet
+    backfill (ucc/ny.py) had no filing numbers, so its 826 deals carry a
+    made-up 'NYX-<hash>' key that the portal can't find; many of the same
+    filings were scraped later with real numbers (2026-10-15)."""
+    cur.execute("""
+        SELECT UPPER(debtor_name), LEFT(filing_date, 10), UPPER(COALESCE(secured_party, '')),
+               filing_number, detail_url
+        FROM ucc_filings
+        WHERE state = 'NY' AND detail_url IS NOT NULL AND filing_date ~ '^\\d{4}-'""")
+    index = {}
+    for debtor, filed, sp, number, url in cur.fetchall():
+        index.setdefault((debtor.strip(), filed), []).append((sp.strip(), number, url))
+    return index
+
+
+def _match_ny_spreadsheet(index: dict, debtor: str | None, filed: str | None, lender: str | None):
+    """The real filing behind an NYX deal: the person's only NY filing that
+    day, or else the one whose secured party is the deal's lender. None
+    when it's still ambiguous."""
+    candidates = index.get(((debtor or "").upper().strip(), filed or ""), [])
+    if len(candidates) > 1:
+        candidates = [c for c in candidates if c[0] == (lender or "").upper().strip()]
+    return candidates[0][1:] if len(candidates) == 1 else None
 
 
 LENDER_CATEGORY_LABELS = {
@@ -322,6 +365,7 @@ def _add_labels(deal: dict, cms, homes: dict) -> None:
         deal["ucc_debtor"] = None
         deal["operator_names"] = None
         deal["source_title"] = f"{deal.get('ucc_state')} UCC-1 filing #{deal.get('ucc_filing_number')}"
+        deal.pop("ucc_search_text", None)
 
 
 SITE_URL = "https://yutingfan1209.github.io/nursing-home-live-feed/"
@@ -408,8 +452,10 @@ def main():
             ORDER BY COALESCE(d.acquisition_date, d.created_at::date) DESC, d.created_at DESC
         """)
         cols = [c[0] for c in cur.description]
+        rows = cur.fetchall()
+        ny_links = _ny_spreadsheet_links(cur)
         deals = []
-        for row in cur.fetchall():
+        for row in rows:
             deal = dict(zip(cols, row))
             deal["id"] = str(deal["id"])
             deal["acquisition_date"] = str(deal["acquisition_date"]) if deal["acquisition_date"] else None
@@ -418,9 +464,20 @@ def main():
                 ucc_state, _, deal["ucc_filing_number"] = deal["source_url"].removeprefix("ucc://").partition("/")
                 deal["ucc_state"] = ucc_state.upper()
                 deal.update(_ucc_fields(deal, deal.pop("ucc_debtor"), deal.pop("ucc_filing_type")))
+                if deal["ucc_filing_number"].startswith("NYX-") and not deal["ucc_detail_url"]:
+                    real = _match_ny_spreadsheet(ny_links, deal["ucc_debtor"], deal["published_at"], deal.get("lender"))
+                    if real:
+                        deal["ucc_filing_number"], deal["ucc_detail_url"] = real
+                        deal["source_url"] = f"ucc://NY/{real[0]}"
+                    else:
+                        # No real number to search for: copy the debtor's name
+                        deal["ucc_search_text"] = deal["ucc_debtor"]
                 deal["source_url"], deal["source_title"] = _ucc_display_fields(
                     deal["source_url"], deal["source_title"], deal.pop("ucc_detail_url")
                 )
+                # The link only reaches a search page: the frontend copies
+                # the filing number on click so the viewer can paste it
+                deal["ucc_search_page"] = deal["source_url"] == UCC_PORTAL_URLS.get(ucc_state.upper())
             else:
                 for k in ("ucc_detail_url", "ucc_debtor", "ucc_filing_type"):
                     deal.pop(k, None)

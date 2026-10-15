@@ -489,3 +489,23 @@ def test_a_new_source_records_its_first_check():
     for fn in (main._ensure_source, scraper.chow.get_chow_source_id, scraper.cms_owner_changes.ensure_source):
         sql = inspect.getsource(fn)
         assert "last_fetched_at)" in sql and "NOW())" in sql, fn.__name__
+
+
+def test_ucc_source_links_2026_10_15():
+    """Every UCC state gets a real link: FL's per-filing page is built from
+    the number, OR has a portal (its deals shipped raw ucc:// keys), and an
+    NY spreadsheet deal (made-up NYX- key) links to the real filing only
+    when it's unambiguous."""
+    from scripts.export_deals import _ucc_display_fields, _match_ny_spreadsheet
+    url, _ = _ucc_display_fields("ucc://FL/20260303070X", "", None)
+    assert url.startswith("https://floridaucc.com/search/details?") and "uccNumber=20260303070X" in url
+    url, title = _ucc_display_fields("ucc://OR/94372864", "", None)
+    assert url.startswith("https://secure.sos.state.or.us/") and "#94372864" in title
+    url, title = _ucc_display_fields("ucc://NY/NYX-723ed67e0fa1a2a3", "", None)
+    assert url.startswith("https://ucc-efiling.dos.ny.gov/") and "NYX" not in title
+    index = {("JANE ROE", "2017-02-24"): [("BANK A", "111", "u1")],
+             ("JOHN DOE", "2020-01-01"): [("BANK A", "222", "u2"), ("BANK B", "333", "u3")]}
+    assert _match_ny_spreadsheet(index, "Jane Roe", "2017-02-24", "anyone") == ("111", "u1")
+    assert _match_ny_spreadsheet(index, "John Doe", "2020-01-01", "Bank B") == ("333", "u3")
+    assert _match_ny_spreadsheet(index, "John Doe", "2020-01-01", "Bank C") is None
+    assert _match_ny_spreadsheet(index, "Nobody", "2020-01-01", "Bank A") is None

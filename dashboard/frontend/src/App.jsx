@@ -282,8 +282,10 @@ function HouseParade({ onDone }) {
 // NJ's portal has no per-filing URL, but its search wizard accepts a
 // replayed POST of tokens scripts/export_deals.py fetches at export time
 // (deals.json `ucc_search_forms`), so this submits the filing-number search
-// in a new tab. PA has no equivalent at all (verified 2026-09-23), so it
-// gets a copy button to paste into the portal's search box instead.
+// in a new tab. CA, PA and OR have no per-filing URL at all (CA's filing
+// panel doesn't change the URL, verified 2026-10-15), so a link that only
+// reaches a search page (deals.json `ucc_search_page`) copies the filing
+// number as it opens, ready to paste into the portal's search box.
 function UccSource({ deal, searchForm }) {
   const [copied, setCopied] = useState(false);
   const label = `${deal.ucc_state} UCC-1 filing #${deal.ucc_filing_number}`;
@@ -301,19 +303,28 @@ function UccSource({ deal, searchForm }) {
     );
   }
 
-  const copy = () => navigator.clipboard?.writeText(deal.ucc_filing_number)
-    .then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
+  // NY's June 2026 spreadsheet backfill has no real filing number
+  // (deals.json `ucc_search_text` is the debtor's name to search instead)
+  const searchText = deal.ucc_search_text || deal.ucc_filing_number;
+  const copy = () => navigator.clipboard?.writeText(searchText)
+    .then(() => { setCopied(true); setTimeout(() => setCopied(false), 4000); });
 
   return (
     <span style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-      <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}>
-        {deal.ucc_state} UCC-1 filing #{deal.ucc_filing_number} ↗
+      <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}
+        onClick={deal.ucc_search_page ? copy : undefined}>
+        {deal.ucc_search_text
+          ? <>{deal.ucc_state} UCC-1 filing against {deal.ucc_search_text} ↗</>
+          : <>{deal.ucc_state} UCC-1 filing #{deal.ucc_filing_number} ↗</>}
       </a>
-      {deal.ucc_state === "PA" && (
-        <button type="button" onClick={copy} style={{ ...btnGhost, fontSize: 12, padding: "0 12px" }}>
-          {copied ? "Copied" : "Copy filing #"}
-        </button>
-      )}
+      {deal.ucc_search_page && <>
+      <button type="button" onClick={copy} style={{ ...btnGhost, fontSize: 12, padding: "0 12px" }}>
+        {copied ? "Copied" : deal.ucc_search_text ? "Copy name" : "Copy filing #"}
+      </button>
+      <span role="status" style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)" }}>
+        {copied ? `${deal.ucc_search_text ? "Name" : "Filing #"} copied — paste it into the portal's search box` : ""}
+      </span>
+      </>}
     </span>
   );
 }

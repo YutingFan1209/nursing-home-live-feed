@@ -141,3 +141,21 @@ test("(h) no horizontal scroll at 375px", async ({ page }) => {
     await card(page, d.id).getByRole("button", { name: "Details" }).click();
   await noScroll("financing tab, Details open");
 });
+
+test("(i) a UCC link that only reaches a search page copies the filing number", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await context.route(/bizfileonline\.sos\.ca\.gov/, route => route.fulfill({ body: "portal" }));
+  const ca = { ...fixture.deals.find(d => d.id === IDS.individualUcc), ucc_state: "CA",
+    ucc_filing_number: "U260079323028", ucc_search_page: true,
+    source_url: "https://bizfileonline.sos.ca.gov/search/ucc" };
+  await page.route(/deals\.json/, route => route.fulfill({
+    json: { ...fixture, deals: fixture.deals.map(d => d.id === ca.id ? ca : d) } }));
+  await page.goto("./?tab=financing");
+  await card(page, ca.id).getByRole("button", { name: "Details" }).click();
+  const details = page.locator(`#details-${ca.id}`);
+  const popup = page.waitForEvent("popup");
+  await details.getByRole("link", { name: /CA UCC-1 filing #U260079323028/ }).click();
+  await popup;
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("U260079323028");
+  await expect(details.getByRole("status")).toContainText("paste it into the portal's search box");
+});

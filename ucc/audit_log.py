@@ -11,7 +11,10 @@ beyond what the search itself already required):
   NY: OnlineLienInformation?lienId=...   (2026-09-15)
   KY: search.aspx?filing=...              (2026-09-16)
   OH: company-profile/search/{entityId}   (2026-09-22, see below)
-  PA, CA: none known yet -- falls back to the portal's search page.
+  FL: built from the filing number in scripts/export_deals.py (2026-10-15)
+  PA, CA, OR: none -- falls back to the portal's search page, and the
+  frontend copies the filing number on click (CA verified 2026-10-15:
+  its filing panel opens without changing the URL).
 
 OH's deep link was the whole reason the original "source link doesn't
 resolve to a functional page" report (2026-09-21) existed -- the static
