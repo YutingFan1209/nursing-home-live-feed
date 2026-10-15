@@ -20,12 +20,16 @@ from ucc.base import UCCFiling
 from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp, page_target_id, run_tab_workers
 from datetime import datetime
 import logging
+import re
 import time
 from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
 SEARCH_URL = "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch"
+# Result pages read per search (10 filings each), so a broad org name that
+# matches hundreds of filings can't tie up a tab
+MAX_PAGES = 10
 
 
 def _ensure_chrome_cdp(cdp_url: str = CDP_URL) -> None:
@@ -81,6 +85,17 @@ def _parse_individual_name(name: str):
         return None
     return last, first
 
+def _wait_for_records(page, first: int, timeout_ms: int = 15000) -> None:
+    """Wait until the results show "records {first} to ..." or, for an
+    empty search, the portal's "No records found" alert."""
+    try:
+        page.wait_for_function(
+            "first => new RegExp('records ' + first + ' to \\\\d+ of|No records found').test(document.body.innerText)",
+            arg=first, timeout=timeout_ms)
+    except Exception:
+        pass
+
+
 def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCCFiling]:
     """Search for one owner name using an existing page object.
     is_individual routes to the portal's Individual debtor search (separate
@@ -115,21 +130,35 @@ def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCC
         page.evaluate("() => uccSearchVM.SearchButtonClick()")
         page.wait_for_timeout(4000)
 
-        html = page.content()
-        soup = BeautifulSoup(html, "html.parser")
-        rows = soup.select("tbody tr")
-
-        # First pass: collect all rows without navigating away
+        # First pass: collect all rows without navigating away. Results come
+        # 10 to a page, oldest first, so a name with more than 10 filings has
+        # its newest ones on later pages -- reading only page 1 missed them
+        # (found 2026-10-15). The portal's own Next link calls $xhtml.paging(n).
+        # Each page is read once its "records N to M of T" line is up; with 8
+        # tabs at once the pager could lag the rows, and a page read early
+        # looked like a one-page result (2026-10-15)
         parsed_rows = []
-        for row in rows:
-            cells = [td.get_text(strip=True) for td in row.find_all("td")]
-            hdn = row.find("input", {"id": "hdnIFS"})
-            internal_id = hdn["value"] if hdn else ""
-            if len(cells) < 8:
-                continue
-            status_raw = cells[8] if len(cells) > 8 else ""
-            status = status_raw.lower() if status_raw else "unknown"
-            parsed_rows.append((cells, internal_id, status))
+        page_no, pages = 1, 1
+        while True:
+            _wait_for_records(page, (page_no - 1) * 10 + 1)
+            soup = BeautifulSoup(page.content(), "html.parser")
+            for row in soup.select("tbody tr"):
+                cells = [td.get_text(strip=True) for td in row.find_all("td")]
+                hdn = row.find("input", {"id": "hdnIFS"})
+                internal_id = hdn["value"] if hdn else ""
+                if len(cells) < 8:
+                    continue
+                status_raw = cells[8] if len(cells) > 8 else ""
+                status = status_raw.lower() if status_raw else "unknown"
+                parsed_rows.append((cells, internal_id, status))
+            m = re.search(r"Page \d+ of (\d+)", soup.get_text(" ", strip=True))
+            pages = min(int(m.group(1)), MAX_PAGES) if m else 1
+            if page_no >= pages:
+                break
+            page_no += 1
+            page.evaluate(f"() => $xhtml.paging({page_no})")
+        if m and int(m.group(1)) > MAX_PAGES:
+            logger.warning("NY search %r has %s result pages; read the first %d", search_term, m.group(1), MAX_PAGES)
 
         # Second pass: fetch secured party for Active filings only
         sp_cache = {}
@@ -185,14 +214,15 @@ def _search_chunk_cdp(cdp_url: str, terms: list[tuple[str, bool]], out: list, ta
     run_tab_workers thread. Each thread gets its own
     sync_playwright()/connect_over_cdp() connection and page (Playwright's
     sync API requires objects stay within the thread that created them),
-    but all threads attach to the SAME running Chrome and share its first
-    browser context -- meaning they all share the already-solved
-    Cloudflare Turnstile clearance cookie, so only the very first page
-    load across all threads needs to actually pass the challenge.
+    all attached to the SAME running Chrome.
+    Each worker also gets its own browser context, i.e. its own portal
+    session: the portal pages results by the session's last search, so
+    tabs sharing one session got each other's page 2 (2026-10-15). A fresh
+    context passes Cloudflare Turnstile by itself (tested 2026-10-15).
     Results go into `out` as they come, so a stuck tab can't lose them."""
     with sync_playwright() as p:
         browser = p.chromium.connect_over_cdp(cdp_url)
-        context = browser.contexts[0] if browser.contexts else browser.new_context()
+        context = browser.new_context()
         page = context.new_page()
         tab["id"] = page_target_id(context, page)
         for name, is_individual in terms:
@@ -201,7 +231,7 @@ def _search_chunk_cdp(cdp_url: str, terms: list[tuple[str, bool]], out: list, ta
             out.extend(filings)
         tab["searched"] = time.time()
         try:
-            page.close()
+            context.close()
         except Exception as e:
             logger.warning("NY UCC tab didn't close cleanly: %s", e)
 
@@ -228,10 +258,9 @@ def search_ny_batch_cdp(
     Runs max_workers tabs in parallel within the ONE real Chrome window
     (see _search_chunk_cdp) rather than one search at a time -- NY's
     individual-name list alone can run into the thousands, and at ~10s/
-    query serially that's multiple hours. Confirmed 2026-09-15 that
-    concurrent tabs in the same context work fine since the Cloudflare
-    clearance cookie is shared, not per-tab -- 8 workers tested clean
-    (147 names, zero errors) and is the current default. Still haven't
+    query serially that's multiple hours. 8 workers tested clean
+    2026-09-15 (147 names, zero errors) and is the current default; since
+    2026-10-15 each worker has its own context (see _search_chunk_cdp). Still haven't
     tested beyond 8 or verified whether NY's infra treats a burst of
     concurrent requests differently from the same volume spread serially,
     so ramp further increases incrementally rather than jumping far past

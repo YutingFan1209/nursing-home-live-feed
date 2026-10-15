@@ -509,3 +509,6 @@ def test_ucc_source_links_2026_10_15():
     assert _match_ny_spreadsheet(index, "John Doe", "2020-01-01", "Bank B") == ("333", "u3")
     assert _match_ny_spreadsheet(index, "John Doe", "2020-01-01", "Bank C") is None
     assert _match_ny_spreadsheet(index, "Nobody", "2020-01-01", "Bank A") is None
+    # the portal lists a middle initial the spreadsheet left out
+    index[(("RONALD", "STERN"), "2013-06-03")] = [("", "444", "u4")]
+    assert _match_ny_spreadsheet(index, "Ronald Stern", "2013-06-03", "Bank D") == ("444", "u4")

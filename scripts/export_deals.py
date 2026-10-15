@@ -229,18 +229,31 @@ def _ny_spreadsheet_links(cur) -> dict:
         WHERE state = 'NY' AND detail_url IS NOT NULL AND filing_date ~ '^\\d{4}-'""")
     index = {}
     for debtor, filed, sp, number, url in cur.fetchall():
-        index.setdefault((debtor.strip(), filed), []).append((sp.strip(), number, url))
+        row = (sp.strip(), number, url)
+        index.setdefault((debtor.strip(), filed), []).append(row)
+        index.setdefault((_first_last(debtor), filed), []).append(row)
     return index
+
+
+def _first_last(name: str) -> tuple:
+    """'RONALD A. STERN' -> ('RONALD', 'STERN'): the portal lists one person
+    under middle-initial variants the spreadsheet left out (2026-10-15)."""
+    parts = name.upper().replace(",", "").replace(".", "").split()
+    return (parts[0], parts[-1]) if len(parts) > 1 else tuple(parts)
 
 
 def _match_ny_spreadsheet(index: dict, debtor: str | None, filed: str | None, lender: str | None):
     """The real filing behind an NYX deal: the person's only NY filing that
-    day, or else the one whose secured party is the deal's lender. None
-    when it's still ambiguous."""
-    candidates = index.get(((debtor or "").upper().strip(), filed or ""), [])
-    if len(candidates) > 1:
-        candidates = [c for c in candidates if c[0] == (lender or "").upper().strip()]
-    return candidates[0][1:] if len(candidates) == 1 else None
+    day, or else the one whose secured party is the deal's lender -- by the
+    exact name first, then by first and last name. None when it's still
+    ambiguous."""
+    for key in ((debtor or "").upper().strip(), _first_last(debtor or "")):
+        candidates = index.get((key, filed or ""), [])
+        if len(candidates) > 1:
+            candidates = [c for c in candidates if c[0] == (lender or "").upper().strip()]
+        if len(candidates) == 1:
+            return candidates[0][1:]
+    return None
 
 
 LENDER_CATEGORY_LABELS = {
