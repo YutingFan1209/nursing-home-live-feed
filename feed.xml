@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-16T18:01:06.316835+00:00</updated>
+  <updated>2026-10-16T18:23:52.956636+00:00</updated>
+  <entry>
+    <id>urn:uuid:a791df3f-b564-477c-b767-c29e653b66db</id>
+    <title>Kamakakoa dba Pacific Health Alliance to acquire a facility in HI (HI)</title>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-26-08A"/>
+    <updated>2026-10-16T18:15:51.605965+00:00</updated>
+    <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
+  </entry>
   <entry>
     <id>urn:uuid:c638ad1b-80a6-4b29-b847-e76d19729b27</id>
     <title>Oak Grove Manor Operating Company, LLC — UCC-1 financing (OH)</title>
@@ -74,6 +81,13 @@
     <link href="https://ucc.ohiosos.gov/company-profile/search/854851"/>
     <updated>2026-10-15T16:01:44.237097+00:00</updated>
     <summary>Effective 2016-12-30; Facilities: EATON GARDENS REHABILITATION AND HEALTH CARE LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1d6ce0bc-610a-41cd-98aa-d745bb45cfaf</id>
+    <title>101 W. State Street acquires 175 facilities in PA from Genesis HealthCare (PA)</title>
+    <link href="https://www.mcknights.com/news/breaking-judge-approves-genesis-liquidation-plan-closing-tense-and-uncertain-chapter-in-company-history/"/>
+    <updated>2026-10-14T18:56:34.773660+00:00</updated>
+    <summary>Effective 2026-10-14; $996.00M; Source: McKnight's Long-Term Care News</summary>
   </entry>
   <entry>
     <id>urn:uuid:dc78978e-4020-41df-a7bb-92be7a82cd8f</id>
@@ -340,19 +354,5 @@
     <link href="https://ucc.ohiosos.gov/company-profile/search/5885800"/>
     <updated>2026-10-14T16:09:41.790972+00:00</updated>
     <summary>Effective 2022-02-03; Facilities: CEDAR HILL NURSING AND REHAB CENTER PROPCO LLC, CONTINUING HEALTHCARE CEDAR HILLS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9cdfbbff-a84d-4193-8a43-42a5b34ba202</id>
-    <title>CONTINUING HEALTHCARE CEDAR HILLS, LLC, CEDAR HILLS OPCO LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/5855451"/>
-    <updated>2026-10-14T16:09:39.793720+00:00</updated>
-    <summary>Effective 2021-12-28; Facilities: CONTINUING HEALTHCARE CEDAR HILLS, LLC, CEDAR HILLS OPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ff6ebfb5-ea99-4bee-97a6-2686caa51ad0</id>
-    <title>BECKETT HOUSE NURSING AND REHAB CENTER PROPCO LLC, CONTINUING HEALTHCARE BECKETT HOUSE, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/5886254"/>
-    <updated>2026-10-14T16:09:37.872654+00:00</updated>
-    <summary>Effective 2022-02-03; Facilities: BECKETT HOUSE NURSING AND REHAB CENTER PROPCO LLC, CONTINUING HEALTHCARE BECKETT HOUSE, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
