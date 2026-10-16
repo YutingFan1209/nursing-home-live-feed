@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-15T16:02:18.758651+00:00</updated>
+  <updated>2026-10-16T18:01:06.316835+00:00</updated>
+  <entry>
+    <id>urn:uuid:c638ad1b-80a6-4b29-b847-e76d19729b27</id>
+    <title>Oak Grove Manor Operating Company, LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7188681"/>
+    <updated>2026-10-16T17:01:03.328871+00:00</updated>
+    <summary>Effective 2026-07-22; Facilities: Oak Grove Manor Operating Company, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0d9c3013-484f-4b78-a95e-386b15438af3</id>
+    <title>Northcrest Acres Nursing &amp; Rehabilitation Center, LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/4839531"/>
+    <updated>2026-10-16T17:01:00.649057+00:00</updated>
+    <summary>Effective 2019-01-04; Facilities: Northcrest Acres Nursing &amp; Rehabilitation Center, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e8a6ade3-bc98-4645-a376-9f002575278d</id>
+    <title>Gardens at Celina Operating Company, LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7188663"/>
+    <updated>2026-10-16T17:00:58.720934+00:00</updated>
+    <summary>Effective 2026-07-22; Facilities: Gardens at Celina Operating Company, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e41bc1db-09e6-47cc-88e6-d9429d6b3a06</id>
+    <title>Flint Ridge Healthcare, LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7240671"/>
+    <updated>2026-10-16T17:00:56.760205+00:00</updated>
+    <summary>Effective 2026-09-24; Facilities: Flint Ridge Healthcare, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:f49d60b0-7ec1-4bfd-a534-bb8607e56fcd</id>
     <title>Embassy Woodview, LLC — UCC-1 financing (OH)</title>
@@ -326,33 +354,5 @@
     <link href="https://ucc.ohiosos.gov/company-profile/search/5886254"/>
     <updated>2026-10-14T16:09:37.872654+00:00</updated>
     <summary>Effective 2022-02-03; Facilities: BECKETT HOUSE NURSING AND REHAB CENTER PROPCO LLC, CONTINUING HEALTHCARE BECKETT HOUSE, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7a8b303d-40ca-44f7-a24c-c3aaf7148c22</id>
-    <title>CONTINUING HEALTHCARE BECKETT HOUSE, LLC, BECKETT HOUSE OPCO LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/5855454"/>
-    <updated>2026-10-14T16:09:36.001486+00:00</updated>
-    <summary>Effective 2021-12-28; Facilities: CONTINUING HEALTHCARE BECKETT HOUSE, LLC, BECKETT HOUSE OPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5f63b823-a9df-4a19-a6e9-24050dd4a0d7</id>
-    <title>CANTON 13TH STREET PROPCO LLC, SHANE HILL ROUTE 118 PROPCO LLC, SCHOENBRUNN PROPCO LLC, GLENDORA PROPCO LLC, CANTON REHABILITATION AND NURSING CENTER LLC, SHANE HILL REHABILITATION AND NURSING CENTER LLC, PROGRESSIVE MORNING CARE, LLC, PROGRESSIVE PINES, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7030574"/>
-    <updated>2026-10-14T16:09:23.240680+00:00</updated>
-    <summary>Effective 2026-01-02; Facilities: CANTON 13TH STREET PROPCO LLC, SHANE HILL ROUTE 118 PROPCO LLC, SCHOENBRUNN PROPCO LLC, GLENDORA PROPCO LLC, CANTON REHABILITATION AND NURSING CENTER LLC, SHANE HILL REHABILITATION AND NURSING CENTER LLC, PROGRESSIVE MORNING CARE, LLC, PROGRESSIVE PINES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:07751559-db5b-47f7-b56c-d69cadc67e63</id>
-    <title>CANTON REHABILITATION AND NURSING CENTER LLC, SHANE HILL REHABILITATION AND NURSING CENTER LLC, PROGRESSIVE MORNING CARE, LLC, PROGRESSIVE PINES, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7030530"/>
-    <updated>2026-10-14T16:09:20.092150+00:00</updated>
-    <summary>Effective 2026-01-02; Facilities: CANTON REHABILITATION AND NURSING CENTER LLC, SHANE HILL REHABILITATION AND NURSING CENTER LLC, PROGRESSIVE MORNING CARE, LLC, PROGRESSIVE PINES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:72102c43-b1a4-4b60-ac35-1f7dd86e6faf</id>
-    <title>Canton Rehabilitation and Nursing Center LLC, Hall of Fame Rehabilitation and Nursing Center — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/6841677"/>
-    <updated>2026-10-14T16:09:18.805602+00:00</updated>
-    <summary>Effective 2025-05-01; Facilities: Canton Rehabilitation and Nursing Center LLC, Hall of Fame Rehabilitation and Nursing Center; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
