@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-16T18:23:52.956636+00:00</updated>
+  <updated>2026-10-19T21:05:27.896976+00:00</updated>
+  <entry>
+    <id>urn:uuid:4341466d-82e4-459d-a552-7e144d173697</id>
+    <title>Eskaton acquires Moldaw Residences (CA)</title>
+    <link href="https://seniorhousingnews.com/2026/10/16/senior-living-dealbook-1019-senior-living-expands-in-indian-seven-community-pennsylvania-portfolio-trades-hands/"/>
+    <updated>2026-10-19T20:57:35.686352+00:00</updated>
+    <summary>Facilities: Moldaw Residences; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f6062a66-6ccf-4cc8-8f29-82e469056f53</id>
+    <title>Nursing Placement and Health Concepts acquires Crystal Lake Rehabilitation and Care Center (RI)</title>
+    <link href="https://rinewstoday.com/family-owned-nursing-co-purchases-crystal-lake-nursing-home-pascoag/"/>
+    <updated>2026-10-19T20:57:35.585920+00:00</updated>
+    <summary>Facilities: Crystal Lake Rehabilitation and Care Center; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a774a7e3-ae0e-418e-8f9c-636d2ba2b17c</id>
+    <title>NEWGEN ADMINISTRATIVE SERVICES, LLC — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-10-19T20:56:14.333624+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: NEWGEN ADMINISTRATIVE SERVICES, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1484fe3c-e99b-4a05-8211-31987fcc93ea</id>
+    <title>ANTELOPE REALTY HOLDINGS I, LLC — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-10-19T20:56:11.927187+00:00</updated>
+    <summary>Effective 2026-10-13; Facilities: ANTELOPE REALTY HOLDINGS I, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:a791df3f-b564-477c-b767-c29e653b66db</id>
     <title>Kamakakoa dba Pacific Health Alliance to acquire a facility in HI (HI)</title>
@@ -326,33 +354,5 @@
     <link href="https://ucc.ohiosos.gov/company-profile/search/6472765"/>
     <updated>2026-10-14T16:09:53.495520+00:00</updated>
     <summary>Effective 2024-01-04; Facilities: DAUGHTERS OF MIRIAM CENTER FOR NURSING &amp; REHABILITATION LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bdea95d3-5641-4506-a77a-1b4d73f9af20</id>
-    <title>CV OPERATING CO., LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/5674817"/>
-    <updated>2026-10-14T16:09:52.313064+00:00</updated>
-    <summary>Effective 2021-06-10; Facilities: CV OPERATING CO., LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e9830b37-14d7-4c45-979d-68abc6240047</id>
-    <title>LUXE REHABILITATION AND CARE CENTER — acquisition financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/6463603"/>
-    <updated>2026-10-14T16:09:50.345755+00:00</updated>
-    <summary>Effective 2023-12-21; Facilities: LUXE REHABILITATION AND CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:173b10ac-aabb-4282-a0ae-36608a75fb4e</id>
-    <title>Continuing Healthcare of Gahanna, LLC, Creekside Care Center of Gahanna, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/6379660"/>
-    <updated>2026-10-14T16:09:44.038348+00:00</updated>
-    <summary>Effective 2023-08-31; Facilities: Continuing Healthcare of Gahanna, LLC, Creekside Care Center of Gahanna, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0e846fd5-c6e3-4898-a02c-efff070bf0ba</id>
-    <title>CEDAR HILL NURSING AND REHAB CENTER PROPCO LLC, CONTINUING HEALTHCARE CEDAR HILLS, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/5885800"/>
-    <updated>2026-10-14T16:09:41.790972+00:00</updated>
-    <summary>Effective 2022-02-03; Facilities: CEDAR HILL NURSING AND REHAB CENTER PROPCO LLC, CONTINUING HEALTHCARE CEDAR HILLS, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
