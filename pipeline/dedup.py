@@ -39,6 +39,13 @@ def make_dedup_hash(deal: dict) -> str:
         key = f"con|{state}|{deal['_con_id']}"
         return hashlib.sha256(key.encode()).hexdigest()[:16]
 
+    # CHOW rows are one facility each, and one buyer can take over several
+    # homes in a month (Frio Hospital District 12/15 and 12/25): key on the
+    # facility and the exact date, not the month
+    if deal.get("extraction_model") == "chow_direct" and deal.get("ccn"):
+        key = f"chow|{deal['ccn']}|{(deal.get('acquiring_entity') or '').upper()}|{deal.get('acquisition_date') or ''}"
+        return hashlib.sha256(key.encode()).hexdigest()[:16]
+
     # CMS Ownership-file changes: one per buyer + start date
     if deal.get("_cms_change_id"):
         key = f"cmsown|{deal['_cms_change_id']}"
@@ -168,6 +175,24 @@ def _facility_names_overlap_ok(a: list, b: list) -> bool:
     return bool(set_a & set_b)
 
 
+def _ccns_overlap_ok(a: set, b: set) -> bool:
+    """Either side with no known CCN is 'no info' - pass. Otherwise require a
+    shared facility: chains name each opco after its town, and CHOW lists
+    same-day takeovers of different homes that fuzzy-match on acquirer alone
+    ("ACCURA HEALTHCARE OF O'NEILL" 285108 vs "... OF NELIGH" 285124,
+    "BIRMINGHAM EAST SNF OPCO" 015134 vs "BIRMINGHAM SNF OPCO" 015217 -- both
+    merged away on 2026-10-19)."""
+    if not a or not b:
+        return True
+    return bool(a & b)
+
+
+def _deal_ccns(deal_id, conn) -> set:
+    with conn.cursor() as cur:
+        cur.execute("SELECT DISTINCT ccn FROM cms_matches WHERE deal_id = %s AND ccn IS NOT NULL", (deal_id,))
+        return {r[0] for r in cur.fetchall()}
+
+
 def _merge_array_union(a: list, b: list) -> list:
     return sorted(set(a or []) | set(b or []))
 
@@ -204,13 +229,16 @@ _DEAL_FIELDS = """
 """
 
 
-def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
+def find_and_resolve_fuzzy_duplicate(deal_id, conn, ccns=None) -> str:
     """
     Post-insertion semantic dedup pass for a single just-stored deal.
     Compares it against other deals sharing a fuzzy-matched acquiring_entity
     (token_sort_ratio >= 85, normalizing "The X" vs "X" and corp suffixes),
     overlapping states, a nearby acquisition date, a similar facility count,
     and at least one shared facility name (unless both sides list none).
+    ccns are the new deal's CMS-known facilities (CHOW, CMS Ownership file);
+    when given, an existing deal whose cms_matches name other CCNs only is
+    a different sale, not a duplicate.
     If a likely duplicate is found, the more complete row (by
     _completeness_score) survives and absorbs the best fields from both:
     states/operator_names/facility_names are unioned, facility_count takes
@@ -238,6 +266,7 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
     if not acquirer:
         return deal_id
     normalized_new = normalize_acquirer(acquirer)
+    new_ccns = {c for c in (ccns or []) if c}
 
     with conn.cursor() as cur:
         cur.execute(f"""
@@ -257,6 +286,8 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn) -> str:
         if not _facility_count_close_ok(new_deal["facility_count"], other["facility_count"]):
             continue
         if not _facility_names_overlap_ok(new_deal["facility_names"], other["facility_names"]):
+            continue
+        if new_ccns and not _ccns_overlap_ok(new_ccns, _deal_ccns(other["id"], conn)):
             continue
 
         keep, drop = (

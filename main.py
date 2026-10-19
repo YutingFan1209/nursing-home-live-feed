@@ -983,6 +983,9 @@ def process_article(article: dict, conn) -> int:
         deals = deduplicate_batch(deals)
         stored = 0
         for d in deals:
+            if d["extraction_model"] == "chow_direct" and _add_to_chow_deal(d, conn):
+                _mark_extraction_done(article_id, conn)
+                return 1
             hash_val = d.get("dedup_hash") or make_dedup_hash(d)
             if is_duplicate(hash_val, conn):
                 continue
@@ -1077,6 +1080,40 @@ def process_article(article: dict, conn) -> int:
     return stored
 
 
+def _add_to_chow_deal(deal: dict, conn) -> bool:
+    """CHOW has one row per facility, so a buyer taking over several homes
+    the same day (TX/IN hospital districts: Sweeny 4, Pulaski 5, North Big
+    Horn 6) is several rows with the same buyer, state and date. Those used
+    to hit the semantic unique index and be dropped, leaving one deal that
+    said "1 facility" (33 facilities lost by 2026-10-19). Add the row's
+    facility to that deal instead. True if a deal took it."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT id FROM deals
+            WHERE extraction_model = 'chow_direct' AND acquiring_entity = %s
+              AND states = %s AND acquisition_date = %s AND merged_into IS NULL
+            LIMIT 1
+        """, (deal.get("acquiring_entity"), deal.get("states") or [], deal.get("acquisition_date")))
+        row = cur.fetchone()
+        if not row:
+            return False
+        deal_id = row[0]
+        cur.execute("""
+            SELECT DISTINCT ccn FROM cms_matches
+            WHERE deal_id = %s AND match_method = 'chow_ccn_direct'
+        """, (deal_id,))
+        ccns = {r[0] for r in cur.fetchall()}
+        if deal["ccn"] in ccns:
+            return True
+        ccns.add(deal["ccn"])
+        _store_cms_matches(deal_id, _build_known_ccn_match({**deal, "ccns": sorted(ccns)}, conn), conn)
+        cur.execute("UPDATE deals SET facility_count = %s, updated_at = now() WHERE id = %s",
+                    (len(ccns), deal_id))
+    logger.info(f"CHOW: added CCN {deal['ccn']} to {deal.get('acquiring_entity')!r} "
+                f"{deal.get('acquisition_date')} -> {len(ccns)} facilities")
+    return True
+
+
 def _build_known_ccn_match(deal: dict, conn) -> list[dict]:
     """CHOW deals arrive with a CMS-verified CCN already known from the
     filing itself (CCN - BUYER column), and CMS Ownership-file changes
@@ -1084,7 +1121,7 @@ def _build_known_ccn_match(deal: dict, conn) -> list[dict]:
     cms_ownership_records would be an approximation of something we
     already have exactly, so build the match records directly instead."""
     ccns = deal.get("ccns") or [deal["ccn"]]
-    method = "cms_ownership_direct" if deal.get("ccns") else "chow_ccn_direct"
+    method = "chow_ccn_direct" if deal.get("extraction_model") == "chow_direct" or not deal.get("ccns") else "cms_ownership_direct"
     with conn.cursor() as cur:
         cur.execute("SELECT ccn, provider_name, provider_state FROM cms_facilities WHERE ccn = ANY(%s)", (ccns,))
         facilities = {row[0]: row[1:] for row in cur.fetchall()}
@@ -1629,7 +1666,8 @@ def _store_deal(deal: dict, article_id, conn) -> str:
             deal.get("summary") or deal.get("rationale"),
         ))
         deal_id = cur.fetchone()[0]
-    return find_and_resolve_fuzzy_duplicate(deal_id, conn)
+    return find_and_resolve_fuzzy_duplicate(
+        deal_id, conn, ccns=deal.get("ccns") or [deal.get("ccn")])
 
 
 def _store_cms_matches(deal_id, matches: list[dict], conn):

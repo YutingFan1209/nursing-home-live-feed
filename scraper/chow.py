@@ -20,6 +20,7 @@ Column mapping from actual CSV:
 import csv
 import io
 import logging
+import re
 import requests
 from datetime import date, datetime, timedelta, timezone
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -55,6 +56,7 @@ CHOW_URLS = [
     # for the states this pipeline tracks. Now only reached if
     # CHOW_RESOURCES_API itself fails -- update this manually if that happens
     # and stays down, checking https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership.
+    "https://data.cms.gov/sites/default/files/2026-10/89166aa5-0fb8-49d6-bef5-f970876794b5/SNF_CHOW_2026.09.29.csv",
     "https://data.cms.gov/sites/default/files/2026-07/cf019cb8-b8ce-45fc-a912-d1ee9a83ca1c/SNF_CHOW_2026.07.17.csv",
     "https://data.cms.gov/sites/default/files/2026-01/900cec56-f1c8-40cb-9f8a-bf54cae53b90/SNF_CHOW_2026.01.02.csv",
     "https://data.cms.gov/sites/default/files/2025-10/92b32732-ba6e-4dee-9bd5-f422b45758ba/SNF_CHOW_2025.10.01.csv",
@@ -71,16 +73,45 @@ CHOW_SOURCE_URL  = "https://catalog.data.gov/dataset/skilled-nursing-facility-ch
 CHOW_RECENCY_DAYS = 730
 
 
+# CMS's site-wide catalog. CHOW_RESOURCES_API lags new releases: on 2026-10-19
+# it still pointed at the 2026-07-17 file the day this catalog already listed
+# SNF_CHOW_2026.09.29.csv, so both are checked and the newer file wins.
+CMS_CATALOG_URL = "https://data.cms.gov/data.json"
+CHOW_CATALOG_TITLE = "Skilled Nursing Facility Change of Ownership :"
+
+
+def _chow_file_date(url: str) -> str:
+    m = re.search(r"(\d{4})\.(\d{2})\.(\d{2})\.csv$", url or "")
+    return "".join(m.groups()) if m else ""
+
+
 def _discover_chow_csv_url() -> str | None:
+    candidates = []
     try:
         resp = requests.get(CHOW_RESOURCES_API, timeout=30)
         resp.raise_for_status()
         for resource in resp.json().get("data", []):
             if resource.get("type") == "Primary" and resource.get("file_url"):
-                return resource["file_url"]
+                candidates.append(resource["file_url"])
+                break
     except Exception as e:
         logger.warning(f"Discovery API lookup failed for CHOW dataset: {e}")
-    return None
+    try:
+        resp = requests.get(CMS_CATALOG_URL, timeout=60)
+        resp.raise_for_status()
+        for ds in resp.json().get("dataset", []):
+            # "... Change of Ownership - Owner Information : ..." is a separate dataset
+            if not ds.get("title", "").startswith(CHOW_CATALOG_TITLE):
+                continue
+            for dist in ds.get("distribution", []):
+                url = dist.get("downloadURL") or ""
+                if "/SNF_CHOW_" in url and _chow_file_date(url):
+                    candidates.append(url)
+    except Exception as e:
+        logger.warning(f"CMS catalog lookup failed for CHOW dataset: {e}")
+    if not candidates:
+        return None
+    return max(candidates, key=_chow_file_date)
 
 
 @retry(

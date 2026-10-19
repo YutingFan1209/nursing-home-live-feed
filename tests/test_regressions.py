@@ -512,3 +512,25 @@ def test_ucc_source_links_2026_10_15():
     # the portal lists a middle initial the spreadsheet left out
     index[(("RONALD", "STERN"), "2013-06-03")] = [("", "444", "u4")]
     assert _match_ny_spreadsheet(index, "Ronald Stern", "2013-06-03", "Bank D") == ("444", "u4")
+
+
+# ── Fuzzy dedup across facilities (fixed 2026-10-19) ──────────
+# Same-chain opcos named after their towns fuzzy-matched on acquirer, so
+# CHOW takeovers of different homes on the same day merged into one deal.
+
+def test_fuzzy_dedup_keeps_same_day_takeovers_of_different_facilities():
+    from pipeline.dedup import _ccns_overlap_ok
+    assert not _ccns_overlap_ok({"285108"}, {"285124"})
+    assert _ccns_overlap_ok({"015379"}, {"015379", "015380"})
+    assert _ccns_overlap_ok({"285108"}, set())
+    assert _ccns_overlap_ok(set(), {"285124"})
+
+
+def test_chow_same_month_takeovers_get_distinct_hashes():
+    base = {"extraction_model": "chow_direct", "acquiring_entity": "FRIO HOSPITAL DISTRICT",
+            "states": ["TX"], "facility_count": 1}
+    a = make_dedup_hash({**base, "ccn": "675233", "acquisition_date": "2024-12-15"})
+    b = make_dedup_hash({**base, "ccn": "675700", "acquisition_date": "2024-12-25"})
+    c = make_dedup_hash({**base, "ccn": "675469", "acquisition_date": "2024-12-25"})
+    assert len({a, b, c}) == 3
+    assert a == make_dedup_hash({**base, "ccn": "675233", "acquisition_date": "2024-12-15"})
