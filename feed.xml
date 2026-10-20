@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-20T18:41:48.627705+00:00</updated>
+  <updated>2026-10-20T18:56:30.845581+00:00</updated>
+  <entry>
+    <id>urn:uuid:fe0cb2b3-c09e-4864-82a4-ad6eec1e453e</id>
+    <title>SUNBRIDGE HEALTHCARE, LLC — UCC-1 financing (NM)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-20T18:53:40.402873+00:00</updated>
+    <summary>Effective 2025-09-09; Facilities: SUNBRIDGE HEALTHCARE, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:f0456ddb-8cf0-47f7-a0c5-77338c6c1738</id>
     <title>RED OAK REALTY HOLDINGS LLC — UCC-1 financing (AR)</title>
@@ -347,12 +354,5 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4226935"/>
     <updated>2026-10-20T16:19:50.051166+00:00</updated>
     <summary>Effective 2026-10-07; Facilities: Medford Multicare Center For Living, Northern Manhattan Rehabilitation and Nursing Cent; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:35844a91-abaf-45a9-a0fb-3dc601f0a6ce</id>
-    <title>DAVID MARC COHEN — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3708089"/>
-    <updated>2026-10-20T16:19:49.654514+00:00</updated>
-    <summary>Effective 2025-01-24; Facilities: THE PINES AT CATSKILL CENTER FOR NURSING &amp; REHAB, THE PINES AT GLENS FALLS CTR FOR NURSING &amp; REHAB, THE PINES AT POUGHKEEPSIE CTR FOR NURSING &amp; REHAB, THE PINES AT UTICA CENTER FOR NURSING AND REHAB; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
