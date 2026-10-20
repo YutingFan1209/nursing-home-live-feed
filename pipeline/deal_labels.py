@@ -71,7 +71,12 @@ CONSUMER_LENDER_RE = re.compile(
     r"synchrony|goodleap|sunrun|\bsolar\b|mosaic solar|rent.to.own|self.?storage|extra space storage|"
     r"snap.?on|matco|mac tools|farm credit|agricultural credit|yamaha|polaris|bmw financial|"
     r"1st franklin|world acceptance|onemain|lendmark|mariner finance|regional finance|security finance|"
-    r"tower loan|cnh industrial|caterpillar financial", re.I)
+    r"tower loan|cnh industrial|caterpillar financial|"
+    # NY individual run 2026-10-20: solar loans, timeshares, manufactured
+    # homes, farm supply, powersports, card banks
+    r"cred\w* union|loanpal|capital resorts|timeshare|vacation|resorts? group|21st mortgage|origen financial|"
+    r"green ?tree|freedom road|great plains acceptance|merrick bank|groffdale|growmark|"
+    r"social security administration|consumer finance", re.I)
 
 
 def is_personal_loan(d: dict) -> bool:

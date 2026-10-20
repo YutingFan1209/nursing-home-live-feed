@@ -18,7 +18,7 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from ucc.base import UCCFiling
 from ucc.chrome_cdp import CDP_URL, ensure_chrome_cdp, page_target_id, run_tab_workers
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import logging
 import re
 import time
@@ -30,6 +30,22 @@ SEARCH_URL = "https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineUCCSearch"
 # Result pages read per search (10 filings each), so a broad org name that
 # matches hundreds of filings can't tie up a tab
 MAX_PAGES = 10
+# Individual (person) searches: a common name brings back everyone who
+# shares it, mostly old car, farm and solar loans. Keep only recent
+# filings, and drop consumer lenders (2026-10-20: the paging fix pulled in
+# 192 such filings in one run, all dismissed)
+INDIVIDUAL_MAX_AGE = timedelta(days=730)
+
+
+def _recent_enough(filing_date, today=None) -> bool:
+    """Individual-search cutoff; an unreadable date is kept."""
+    return filing_date is None or filing_date >= (today or date.today()) - INDIVIDUAL_MAX_AGE
+
+
+def keep_individual_filing(filing: UCCFiling, today=None) -> bool:
+    from pipeline.deal_labels import CONSUMER_LENDER_RE
+    return (_recent_enough(filing.filing_date, today)
+            and not CONSUMER_LENDER_RE.search(filing.secured_party_name or ""))
 
 
 def _ensure_chrome_cdp(cdp_url: str = CDP_URL) -> None:
@@ -160,6 +176,10 @@ def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCC
         if m and int(m.group(1)) > MAX_PAGES:
             logger.warning("NY search %r has %s result pages; read the first %d", search_term, m.group(1), MAX_PAGES)
 
+        if parsed:
+            # Drop old filings before fetching their secured parties
+            parsed_rows = [r for r in parsed_rows if _recent_enough(_parse_date(r[0][6]))]
+
         # Second pass: fetch secured party for Active filings only
         sp_cache = {}
         active_ids = [iid for _, iid, st in parsed_rows if st == "active" and iid]
@@ -186,6 +206,8 @@ def _search_one(page, search_term: str, is_individual: bool = False) -> list[UCC
                     "internal_id": internal_id,
                 },
             ))
+        if parsed:
+            results = [f for f in results if keep_individual_filing(f)]
         time.sleep(0.5)
     except Exception as e:
         logger.error("NY search failed for %r: %s", search_term, e)

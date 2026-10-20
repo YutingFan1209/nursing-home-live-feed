@@ -534,3 +534,22 @@ def test_chow_same_month_takeovers_get_distinct_hashes():
     c = make_dedup_hash({**base, "ccn": "675469", "acquisition_date": "2024-12-25"})
     assert len({a, b, c}) == 3
     assert a == make_dedup_hash({**base, "ccn": "675233", "acquisition_date": "2024-12-15"})
+
+
+# ── NY individual searches (fixed 2026-10-20) ─────────────────
+# Reading every result page pulled in everyone sharing an owner's name:
+# 192 old car, farm and solar loans in one run, next to real guarantor
+# filings (CIBC as agent against an Elderwood owner).
+
+def test_ny_individual_filter_keeps_recent_commercial_drops_old_and_consumer():
+    from ucc.base import UCCFiling
+    from ucc.ny_playwright import keep_individual_filing
+    today = date(2026, 10, 20)
+    f = lambda lender, filed: UCCFiling(state="NY", debtor_name="WARREN COLE", secured_party_name=lender,
+                                        filing_number="1", filing_date=filed)
+    assert keep_individual_filing(f("CIBC BANK USA, AS ADMINISTRATIVE AGENT", date(2025, 12, 31)), today)
+    assert keep_individual_filing(f("", None), today)
+    assert not keep_individual_filing(f("CIBC BANK USA", date(2023, 3, 31)), today)
+    for lender in ("SHEFFIELD FINANCIAL, A DIVISION OF TRUIST BANK", "GOODLEAP,LLC", "LOANPAL, LLC",
+                   "CAPITAL RESORTS GROUP LLC", "AMERICU CREDOIT UNION", "DEERE & COMPANY"):
+        assert not keep_individual_filing(f(lender, date(2026, 5, 1)), today), lender
