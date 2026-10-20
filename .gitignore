@@ -27,3 +27,6 @@ data/
 dashboard/frontend/test-results/
 dashboard/frontend/playwright-report/
 dashboard/frontend/storybook-static/
+
+# Internal decision log, kept local
+docs/tyler-questions.md
