@@ -337,6 +337,18 @@ def test_same_sale_rules():
     assert not _filed_after_closing({**con, "acquisition_date": date(2025, 6, 1)}, chow)
 
 
+def test_same_sale_licensee_and_parent_merge_automatically():
+    # CHOW names the licensee, the CMS ownership file its parent (2026-10-20)
+    from pipeline.same_sale import _licensee_and_parent
+    chow = {"extraction_model": "chow_direct", "acquisition_date": date(2025, 11, 1), "direct_ccns": {"115273"}}
+    parent = {"extraction_model": "cms_owner_change", "acquisition_date": date(2025, 11, 1), "direct_ccns": {"115273"}}
+    assert _licensee_and_parent(chow, parent)
+    assert _licensee_and_parent(parent, {**chow, "acquisition_date": date(2025, 10, 31)})
+    assert not _licensee_and_parent(chow, {**parent, "acquisition_date": date(2026, 4, 1)})   # months apart
+    assert not _licensee_and_parent(chow, {**parent, "direct_ccns": set()})                    # name-guessed link only
+    assert not _licensee_and_parent(chow, {**chow, "extraction_model": "con_direct"})          # CON stays in review
+
+
 # ── Philadelphia notices (2026-10-08) ─────────────────────────
 
 def test_phl_notices_dedupe_links_and_attach_exhibits_by_name():

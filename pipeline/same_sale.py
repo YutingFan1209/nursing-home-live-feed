@@ -12,7 +12,11 @@ Pairs are ownership deals (not UCC, not dismissed) that share a CMS
 facility (CCN) or a facility name in a shared state, dated within
 WINDOW_DAYS. A pair is merged automatically only when nothing conflicts:
 the buyers match (or one side names none), the sellers don't contradict,
-and a state filing isn't dated after the CMS record of the closing. Two different named buyers can be two real transactions (an
+and a state filing isn't dated after the CMS record of the closing. Also
+merged automatically: a CHOW record and a CMS ownership-file record of the
+same home (both linked by CCN, not by name) within LICENSEE_PARENT_DAYS --
+CHOW names the new licensee and the ownership file its parent, so their
+buyers never match (2026-10-20: 25 such pairs from one quarterly file). Two different named buyers can be two real transactions (an
 opco and a propco sold separately, a REIT and its operator), so those
 pairs go to a review list instead.
 
@@ -37,6 +41,8 @@ logger = logging.getLogger(__name__)
 WINDOW_DAYS = 183
 BUYER_MATCH = 85
 AFTER_CLOSING_DAYS = 30
+LICENSEE_PARENT_DAYS = 7
+DIRECT_METHODS = ("chow_ccn_direct", "cms_ownership_direct")
 
 _FIELDS = """d.id, d.acquiring_entity, d.seller_entity, d.operator_names, d.facility_names, d.states,
              d.facility_count, d.deal_value_m, d.acquisition_date, d.stage, d.ucc_confirmed,
@@ -72,15 +78,29 @@ def _filed_after_closing(con: dict, closed: dict) -> bool:
     return bool(dc and dm and (dc - dm).days > AFTER_CLOSING_DAYS)
 
 
+def _licensee_and_parent(x: dict, y: dict) -> bool:
+    """One CHOW record and one CMS ownership-file record, both tied to a
+    shared home by its CCN, dated within LICENSEE_PARENT_DAYS."""
+    models = {x["extraction_model"], y["extraction_model"]}
+    if models != {"chow_direct", "cms_owner_change"}:
+        return False
+    if not (x.get("direct_ccns", set()) & y.get("direct_ccns", set())):
+        return False
+    dx, dy = x["acquisition_date"], y["acquisition_date"]
+    return bool(dx and dy and abs((dx - dy).days) <= LICENSEE_PARENT_DAYS)
+
+
 def _load(conn) -> dict:
     with conn.cursor() as cur:
         cur.execute(f"SELECT {_FIELDS} {_OWNERSHIP}")
         cols = [c[0] for c in cur.description]
         deals = {r[0]: dict(zip(cols, r)) for r in cur.fetchall()}
-        cur.execute("SELECT deal_id, ccn FROM cms_matches WHERE ccn IS NOT NULL")
-        for deal_id, ccn in cur.fetchall():
+        cur.execute("SELECT deal_id, ccn, match_method FROM cms_matches WHERE ccn IS NOT NULL")
+        for deal_id, ccn, method in cur.fetchall():
             if deal_id in deals:
                 deals[deal_id].setdefault("ccns", set()).add(ccn)
+                if method in DIRECT_METHODS:
+                    deals[deal_id].setdefault("direct_ccns", set()).add(ccn)
     return deals
 
 
@@ -117,6 +137,8 @@ def find_pairs(conn, only_ids=None) -> tuple[list, list]:
             review.append((x, y, reason + " (state filing dated after the CMS record: maybe a later sale)"))
         elif _names_agree(x["acquiring_entity"], y["acquiring_entity"]) and _names_agree(x["seller_entity"], y["seller_entity"]):
             auto.append((x, y, reason))
+        elif _licensee_and_parent(x, y):
+            auto.append((x, y, reason + " (CHOW licensee + CMS ownership parent)"))
         else:
             review.append((x, y, reason))
     return auto, review
