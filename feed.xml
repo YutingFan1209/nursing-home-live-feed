@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-20T16:29:39.033671+00:00</updated>
+  <updated>2026-10-20T18:04:07.086296+00:00</updated>
   <entry>
     <id>urn:uuid:d37c6b1c-f0e8-45d5-b4d3-1f80604aefa8</id>
     <title>STILLWATER POST-ACUTE — acquisition financing (CA)</title>
@@ -97,11 +97,109 @@
     <summary>Effective 2021-05-04; Facilities: Rancho Seco Care Center; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:660c7502-ec2c-444b-bcef-7cea8f47a9de</id>
+    <title>MATTHEW CHARLES ANDERSON — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3814145"/>
+    <updated>2026-10-20T16:20:24.975746+00:00</updated>
+    <summary>Effective 2025-09-25; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a0cc2cdb-2bf6-4ef1-9d9f-8ad66319c48a</id>
+    <title>MATTHEW ANDERSON — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3846375"/>
+    <updated>2026-10-20T16:20:24.607911+00:00</updated>
+    <summary>Effective 2025-09-22; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e0da12ef-b82c-46b2-b6df-b82af40dd251</id>
+    <title>ISRAEL MINZER — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4187878"/>
+    <updated>2026-10-20T16:20:22.306689+00:00</updated>
+    <summary>Effective 2026-07-30; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:eb54f219-a65b-42b5-89f4-095945c687a1</id>
     <title>PINEGROVE MANOR, LLC — UCC-1 financing (NY)</title>
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3238132"/>
     <updated>2026-10-20T16:20:21.956024+00:00</updated>
     <summary>Effective 2021-03-02; Facilities: PINEGROVE MANOR, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:623d7b74-7af5-4a5a-9d14-e56bf0b1a9fa</id>
+    <title>WARREN COLE — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3876865"/>
+    <updated>2026-10-20T16:20:20.736986+00:00</updated>
+    <summary>Effective 2025-12-31; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3de1d8aa-4031-4d08-bfea-5f93b4fce7b3</id>
+    <title>JAMES T WALLACE — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3848524"/>
+    <updated>2026-10-20T16:20:20.030644+00:00</updated>
+    <summary>Effective 2025-08-15; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6a9c6e8b-c9f2-436b-829d-9d6730f9397a</id>
+    <title>EDWARD FARBENBLUM — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4213008"/>
+    <updated>2026-10-20T16:20:14.242305+00:00</updated>
+    <summary>Effective 2026-09-17; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e7ef1304-58ef-47c2-ad76-778ef2c84187</id>
+    <title>JEREMY STRAUSS — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3725302"/>
+    <updated>2026-10-20T16:20:13.105234+00:00</updated>
+    <summary>Effective 2025-10-09; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b59e9adb-2e27-4b1d-a151-86413e75850f</id>
+    <title>THOMAS JOSEPH GLEASON — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3736959"/>
+    <updated>2026-10-20T16:20:11.256040+00:00</updated>
+    <summary>Effective 2025-03-31; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a4cd6665-f406-4d5c-a9ed-fb01e5287bb9</id>
+    <title>MICHAEL KRAUS — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3669627"/>
+    <updated>2026-10-20T16:20:10.096064+00:00</updated>
+    <summary>Effective 2025-02-04; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fd7605dd-69bf-4ee8-a4b9-e38b8feba75e</id>
+    <title>Mark Allen Henry — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4198224"/>
+    <updated>2026-10-20T16:20:09.367453+00:00</updated>
+    <summary>Effective 2026-08-21; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:32e4d58e-2bb0-43f5-bbba-51b510400ccc</id>
+    <title>MARK HENRY — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4167457"/>
+    <updated>2026-10-20T16:20:09.069821+00:00</updated>
+    <summary>Effective 2026-06-08; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d4f15008-3017-4948-9760-a65575f8a63d</id>
+    <title>JASON EDWARD ZIMMERMAN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4187819"/>
+    <updated>2026-10-20T16:20:08.127391+00:00</updated>
+    <summary>Effective 2026-07-30; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:56c43d79-070d-455c-adda-813462c2e6a3</id>
+    <title>JASON ZIMMERMAN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3627598"/>
+    <updated>2026-10-20T16:20:07.287804+00:00</updated>
+    <summary>Effective 2025-02-12; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d2931727-c2cb-490a-93cd-8077ec76cf74</id>
+    <title>JASON EDWARD ZIMMERMAN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3814535"/>
+    <updated>2026-10-20T16:20:06.820696+00:00</updated>
+    <summary>Effective 2024-12-16; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:e5ebddfe-ed7d-4391-9eb5-77d82a7a328c</id>
@@ -118,11 +216,123 @@
     <summary>Effective 2009-09-18; Facilities: North Shore - LIJ Orzac Center For Rehabilitation; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:0e5a699f-94ac-4889-9be9-3dc8e8169a52</id>
+    <title>MICHAEL P ROSSI — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3771673"/>
+    <updated>2026-10-20T16:19:55.838748+00:00</updated>
+    <summary>Effective 2025-01-27; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0a88f441-bb34-4a0d-b148-bcfef7a77391</id>
+    <title>DANIEL ALLEN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3583672"/>
+    <updated>2026-10-20T16:19:53.636839+00:00</updated>
+    <summary>Effective 2024-12-16; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e9ae01e7-6ed7-4a2f-9583-4899e111ae78</id>
+    <title>ROBERT W WALLACE — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4188291"/>
+    <updated>2026-10-20T16:19:51.912206+00:00</updated>
+    <summary>Effective 2026-07-31; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:961dd990-bef1-4e4e-a190-683fa66656e0</id>
+    <title>ROBERT F WALLACE — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3681322"/>
+    <updated>2026-10-20T16:19:51.536991+00:00</updated>
+    <summary>Effective 2024-12-18; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9b0cdec8-09f2-4c6f-b8ef-d8459ed52bac</id>
+    <title>MARK EDWARD WILCOX — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3877880"/>
+    <updated>2026-10-20T16:19:50.411789+00:00</updated>
+    <summary>Effective 2025-09-25; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4dccdc93-c5f5-432a-bf28-747a59861fc2</id>
+    <title>NORMAN S. RAUSMAN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4226935"/>
+    <updated>2026-10-20T16:19:50.051166+00:00</updated>
+    <summary>Effective 2026-10-07; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:35844a91-abaf-45a9-a0fb-3dc601f0a6ce</id>
+    <title>DAVID MARC COHEN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3708089"/>
+    <updated>2026-10-20T16:19:49.654514+00:00</updated>
+    <summary>Effective 2025-01-24; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cd943bd9-cb1b-41fc-9d85-0a268cb8feb3</id>
+    <title>DAVID MICHAEL ROGERS — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4141278"/>
+    <updated>2026-10-20T16:19:48.858791+00:00</updated>
+    <summary>Effective 2026-04-01; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8995a2e9-a7aa-4b3b-b6b9-f442f1054868</id>
+    <title>DAVID ANDREW ROGERS — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3829379"/>
+    <updated>2026-10-20T16:19:48.434605+00:00</updated>
+    <summary>Effective 2025-11-14; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:290388c8-c2bc-420a-a2fc-fc9d2645fd89</id>
+    <title>NEAL EINHORN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4198753"/>
+    <updated>2026-10-20T16:19:45.533898+00:00</updated>
+    <summary>Effective 2026-08-18; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f28be6a5-205b-4dc8-9486-2362cd7a55f6</id>
+    <title>TEDDY LICHTSCHEIN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4176505"/>
+    <updated>2026-10-20T16:19:43.057962+00:00</updated>
+    <summary>Effective 2026-07-01; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8010e0be-fbc5-4231-850a-1c7bf1d025b2</id>
+    <title>AKIVA DANIEL RUDNER — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4142734"/>
+    <updated>2026-10-20T16:19:42.581290+00:00</updated>
+    <summary>Effective 2026-04-06; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:af8cafe6-bd0a-41e9-ab56-be5214a9e3b4</id>
+    <title>ELIEZER SCHEINER — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4176502"/>
+    <updated>2026-10-20T16:19:38.826266+00:00</updated>
+    <summary>Effective 2026-07-01; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:e23deeb8-9379-44aa-b42e-a00b6778f8b5</id>
     <title>Bethel Nursing Home Company Inc — UCC-1 financing (NY)</title>
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3284618"/>
     <updated>2026-10-20T16:19:38.378114+00:00</updated>
     <summary>Effective 2021-01-07; Facilities: Bethel Nursing Home Company Inc; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:895394d0-af11-422d-b3f6-484b03736b9d</id>
+    <title>MARIA FRANCISCA PEREZ PEREZ — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4162846"/>
+    <updated>2026-10-20T16:19:33.908911+00:00</updated>
+    <summary>Effective 2026-05-28; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:06e15ab9-bd95-415d-9aab-91987cfc9308</id>
+    <title>GARY VALENTINE SMITH — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3242703"/>
+    <updated>2026-10-20T16:19:32.134355+00:00</updated>
+    <summary>Effective 2026-05-01; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a4b28f37-7b11-46e8-be27-efb88bf0e154</id>
+    <title>MICHAEL SCHWARTZ — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3774453"/>
+    <updated>2026-10-20T16:19:26.365074+00:00</updated>
+    <summary>Effective 2025-04-28; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:99c2cb00-a83c-4a1d-aea1-efdd68d8d669</id>
@@ -139,220 +349,10 @@
     <summary>Effective 2024-07-30; Facilities: BVRNC OPERATING LLC  DBA SODUS REHABILITATION &amp; NURSING CENTER; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
-    <id>urn:uuid:9280a358-dc5b-4ba6-8517-4440468434d7</id>
-    <title>TCPRNC LLC — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3230675"/>
-    <updated>2026-10-20T16:19:08.651987+00:00</updated>
-    <summary>Effective 2021-01-06; Facilities: TCPRNC LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c4991c80-306b-423b-95b9-8651df87a2fc</id>
-    <title>CRESTVIEW OPERATIONS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:19.037513+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: CRESTVIEW OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:eb3c6687-744e-4583-9934-1597d2630c14</id>
-    <title>KING CITY REHAB, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:18.812027+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: KING CITY REHAB, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:475d4a4d-ecd9-4187-bcc4-32f1f8197da8</id>
-    <title>EUGENE REHABILITATION, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:18.654636+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: EUGENE REHABILITATION, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bea08a3b-8936-4841-9959-7593309eb846</id>
-    <title>LEBANON CARE CENTER, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:18.488911+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: LEBANON CARE CENTER, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:31cae72c-efae-4811-a790-6e23f636d42a</id>
-    <title>COOS BAY REHABILITATION, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:18.241924+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: COOS BAY REHABILITATION, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:51dfb23b-91ed-497f-8d93-d8b081da82b9</id>
-    <title>RICHMOND BEACH REHAB, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:18.015120+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: RICHMOND BEACH REHAB, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8bc8381c-78f5-4f2c-af8e-3c64fab5ae3c</id>
-    <title>WATERFORD OPERATIONS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:17.597354+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: WATERFORD OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:41e0dc82-2c46-4720-ac6f-88b3b6bb3421</id>
-    <title>MEDFORD OPERATIONS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:17.307975+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: MEDFORD OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:48f68476-5074-4d8a-ad36-a88003f5290a</id>
-    <title>AVAMERE LAKE OSWEGO OPERATIONS INVESTORS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:16.937433+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: AVAMERE LAKE OSWEGO OPERATIONS INVESTORS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c9f40c2a-eb98-4b44-8c83-ca857f8a509c</id>
-    <title>NEWPORT REHABILITATION, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:16.777030+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: NEWPORT REHABILITATION, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:60459fa0-55d7-4b8d-82ba-4972c732759a</id>
-    <title>CLACKAMAS REHABILITATION, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:16.607384+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: CLACKAMAS REHABILITATION, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0160d033-0883-4721-83ff-8ee45044bca9</id>
-    <title>SUNNYSIDE OPERATIONS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:16.348582+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: SUNNYSIDE OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:107ea1de-9e7c-4f40-b9d6-af5c0280dd9f</id>
-    <title>JUNCTION CITY REHABILITATION, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:16.151968+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: JUNCTION CITY REHABILITATION, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b6aecbc4-7a73-4627-b959-c0c01fc06247</id>
-    <title>SEQUIM REHABILITATION, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:15.999936+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: SEQUIM REHABILITATION, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ffa38325-7c59-4504-906f-0ffef1fc0026</id>
-    <title>PECKHAM-MILLER, INC. — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:15.786035+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: PECKHAM-MILLER, INC.; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9164917a-f549-4a6c-ad51-b5fdd0848c19</id>
-    <title>KEIZER CAMPUS OPERATIONS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:15.490801+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: KEIZER CAMPUS OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7c12c846-afab-43b1-a4bc-0d4da5bd4e17</id>
-    <title>RIVERPARK OPERATIONS, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:15.235407+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: RIVERPARK OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7e08f092-add3-45a5-994a-c8285a68958e</id>
-    <title>MOUNTAIN VIEW REHAB, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:14.867777+00:00</updated>
-    <summary>Effective 2026-10-05; Facilities: MOUNTAIN VIEW REHAB, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4b815427-592f-4c84-9f5b-85b1307d76fc</id>
-    <title>SOUTH BEACH MANOR OPCO, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:14.518425+00:00</updated>
-    <summary>Effective 2026-10-07; Facilities: SOUTH BEACH MANOR OPCO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8259d65e-0057-4b25-94ec-bc0d065e55cf</id>
-    <title>CPNW MASTER, LLC — UCC-1 financing (OR)</title>
-    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
-    <updated>2026-10-20T15:46:14.275985+00:00</updated>
-    <summary>Effective 2026-10-07; Facilities: CPNW MASTER, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:cf522eda-f02c-48a1-8d6b-8b15f9dad6eb</id>
-    <title>FAMILY OF CARING AT PARK RIDGE LLC — UCC-1 financing (NJ)</title>
-    <link href="https://www.njportal.com/ucc/search/noncertifiedsearch.aspx"/>
-    <updated>2026-10-20T15:03:17.679256+00:00</updated>
-    <summary>Effective 2024-02-07; Facilities: FAMILY OF CARING AT PARK RIDGE LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:696b0fff-b177-4911-b821-b61e6d43d7be</id>
-    <title>FAMILY OF CARING AT PARK RIDGE LLC — UCC-1 financing (NJ)</title>
-    <link href="https://www.njportal.com/ucc/search/noncertifiedsearch.aspx"/>
-    <updated>2026-10-20T15:03:17.142341+00:00</updated>
-    <summary>Effective 2024-09-18; Facilities: FAMILY OF CARING AT PARK RIDGE LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:55d13bed-e31e-4cb0-9e12-3ef085516f23</id>
-    <title>FAMILY OF CARING AT PARK RIDGE LLC — UCC-1 financing (NJ)</title>
-    <link href="https://www.njportal.com/ucc/search/noncertifiedsearch.aspx"/>
-    <updated>2026-10-20T15:03:16.623698+00:00</updated>
-    <summary>Effective 2022-06-30; Facilities: FAMILY OF CARING AT PARK RIDGE LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f7453bd3-6b9e-43b0-9b2a-8f1bbd5ae75b</id>
-    <title>BIRMINGHAM EAST SNF OPCO LLC acquires a facility in AL from BIRMINGHAM NURSING AND REHABILITATION CENTER EAST LLC (AL)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-015134-11-01-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-11-01; Source: CMS SNF Change of Ownership</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:aa3cd5c1-ae87-47ac-b1d0-e386466cec12</id>
-    <title>MOBILE SNF OPCO LLC acquires a facility in AL from MOBILE NURSING AND REHABILITATION CENTER LLC (AL)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-015379-10-31-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-10-31; Source: CMS SNF Change of Ownership</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:661ac9f0-83d6-4a84-8cf1-bf753fed898f</id>
-    <title>NORTH BIG HORN HOSPITAL DISTRICT acquires a facility in WY from CASPER OPCO LLC (WY)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-535024-10-01-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-10-01; Source: CMS SNF Change of Ownership</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:53e867d9-7e94-43d9-84a1-4ae396861716</id>
-    <title>NORTH BIG HORN HOSPITAL DISTRICT acquires a facility in WY from DOUGLAS CARE CENTER, LLC (WY)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-535040-09-01-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-09-01; Source: CMS SNF Change of Ownership</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3f73eb5a-4087-4a41-9b44-f0eb0f41ca0e</id>
-    <title>WEST WHARTON COUNTY HOSPITAL DISTRICT acquires a facility in TX from EAST EL PASO HEALTHCARE OPERATIONS LLC (TX)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-745038-06-01-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-06-01; Source: CMS SNF Change of Ownership</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:cd7406ae-84c5-452b-bc06-394e33dd4160</id>
-    <title>ACCURA HEALTHCARE OF O'NEILL, LLC acquires a facility in NE from ARBOR CARE CENTERS - ONEILL LLC (NE)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-285108-05-01-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-05-01; Source: CMS SNF Change of Ownership</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c4de1a23-f70e-47c7-b326-1f9f40171e0c</id>
-    <title>MONMOUTH REHAB AND NURSING LLC acquires a facility in IL from COMMUNITY CARE CENTER OF MONMOUTH, INC (IL)</title>
-    <link href="https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-146057-04-01-2025"/>
-    <updated>2026-10-19T21:25:05.108984+00:00</updated>
-    <summary>Effective 2025-04-01; Source: CMS SNF Change of Ownership</summary>
+    <id>urn:uuid:dd3fcb69-d10c-46eb-80e3-6d078861846a</id>
+    <title>MARVIN RUBIN — UCC-1 financing (NY)</title>
+    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4179498"/>
+    <updated>2026-10-20T16:19:17.381930+00:00</updated>
+    <summary>Effective 2026-07-07; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
