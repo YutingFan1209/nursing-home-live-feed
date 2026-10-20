@@ -567,10 +567,10 @@ def test_ny_individual_filter_keeps_recent_commercial_drops_old_and_consumer():
         assert not keep_individual_filing(f(lender, date(2026, 5, 1)), today), lender
 
 
-# ── Arkansas lender search (added 2026-10-20) ─────────────────
+# ── AR / NM lien portal lender search (added 2026-10-20) ──────
 
 def test_ar_rows_split_debtor_and_lender_from_place():
-    from ucc.ar import rows_to_filings
+    from ucc.lien_portal import rows_to_filings
     rows = {"3104524": {"DEBTOR": "BRYANT OPERATING SNF LLC - ROSENBERG, TX", "RECORD_NUM": "98260519289",
                         "UCC_RECORD_ID": 1900467, "RECORD_TYPE": "Lien Financing Statement",
                         "SEC_PARTY": "CAPITAL FUNDING, LLC, AS AGENT - BALTIMORE, MD", "STATUS": "Active",
@@ -579,3 +579,27 @@ def test_ar_rows_split_debtor_and_lender_from_place():
     assert (f.debtor_name, f.secured_party_name) == ("BRYANT OPERATING SNF LLC", "CAPITAL FUNDING, LLC, AS AGENT")
     assert f.raw["address"] == "ROSENBERG, TX" and f.filing_number == "98260519289"
     assert f.filing_date == date(2026, 8, 11) and f.status == "active"
+
+
+def test_lien_portal_splits_full_windows_and_checks_loose_matches():
+    from ucc import lien_portal
+    row = lambda n, lender: {"DEBTOR": f"HOME {n} SNF LLC - TOWN, NM", "RECORD_NUM": str(n), "SEC_PARTY": f"{lender} - X, MD",
+                             "STATUS": "Active", "FILING_DATE": "5/1/2026 10:00 AM", "LAPSE_DATE": "5/1/2031 10:00 AM"}
+    calls = []
+    def fake(state, name, start, end, session):
+        calls.append((start, end))
+        if len(calls) == 1:                                   # the full 2-year window hits the cap
+            return {str(i): row(i, "CAPITAL FUNDING, LLC") for i in range(100)}
+        return {f"{start}-{i}": row(f"{start}{i}", "CAPITAL FUNDING, LLC" if i == 0 else "EXPRESS CAPITAL FUNDING, INC.")
+                for i in range(3)}
+    lien_portal._search_window, real = fake, lien_portal._search_window
+    try:
+        got = lien_portal.search_secured_party("NM", "Capital Funding", session=object(),
+                                               today=date(2026, 10, 20), pause=lambda s: None)
+    finally:
+        lien_portal._search_window = real
+    assert len(calls) == 3                                    # split once into two halves
+    assert len(got) == 2 and all(f.secured_party_name == "CAPITAL FUNDING, LLC" for f in got)
+    assert lien_portal.lender_matches("SECRETARY OF HOUSING AND URBAN DEVELOPMENT",
+                                      "SECRETARY OF U.S. DEPARTMENT OF HOUSING & URBAN DEVELOPMENT")
+    assert not lien_portal.lender_matches("CAPITAL FUNDING", "CLOUD CAPITAL FUNDING LLC")

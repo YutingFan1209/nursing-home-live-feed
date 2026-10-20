@@ -13,7 +13,7 @@ from ucc.oh_playwright import search_oh_batch
 from ucc.ky_playwright import search_ky_batch
 from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
-from ucc.ar import search_ar_lenders
+from ucc.lien_portal import search_lenders as search_portal_lenders
 from ucc import pa_playwright
 from ucc.lender_search import LENDER_TERMS, filter_lender_hits
 from ucc.lender_classifier import classify_secured_party
@@ -59,7 +59,9 @@ ENABLE_CA_PLAYWRIGHT = True  # enabled 2026-09-30: auto-launched Chrome like PA.
 # blocks sustained volume (429 after ~35 fast searches), so ucc/ca_playwright.py runs one
 # throttled tab and stops the batch at the first block -- run CA on its own
 # (--ucc-states CA) and not twice in one day.
-ENABLE_AR_LENDER = True  # 2026-10-20: plain JSON API, no bot wall; lender search only (ucc/ar.py)
+# 2026-10-20: AR and NM share one lien search platform with a plain JSON API, no bot
+# wall; lender search only (ucc/lien_portal.py)
+ENABLE_PORTAL_LENDER = {"AR": True, "NM": True}
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -91,6 +93,7 @@ def fetch_ucc_filings(
     pa_search_names: list[str] = None,
     pa_lender_terms: list[str] = None,
     cms_healthcare_names: set[str] = None,
+    portal_lender_terms: dict[str, list[str]] = None,
     states: list[str] = None,
 ) -> list[dict]:
     """states: optional list of 2-letter state codes (case-insensitive) to
@@ -117,15 +120,18 @@ def fetch_ucc_filings(
     if fl_filings and (wanted is None or "FL" in wanted):
         filings.extend(fl_filings)
 
-    # AR: secured-party search for nursing home lenders over the portal's
-    # JSON API, 5 s apart (ucc/ar.py); no debtor search
-    if _enabled(ENABLE_AR_LENDER, "AR") and cms_healthcare_names:
-        health.attempted("UCC AR lender searches", len(LENDER_TERMS))
+    # AR, NM: secured-party search for nursing home lenders over the shared
+    # lien portal's JSON API, 5 s apart (ucc/lien_portal.py); no debtor search
+    for code, on in ENABLE_PORTAL_LENDER.items():
+        if not (_enabled(on, code) and cms_healthcare_names):
+            continue
+        health.attempted(f"UCC {code} lender searches", len((portal_lender_terms or {}).get(code) or LENDER_TERMS))
         try:
-            filings.extend(filter_lender_hits(search_ar_lenders(LENDER_TERMS), cms_healthcare_names))
+            terms = (portal_lender_terms or {}).get(code) or LENDER_TERMS
+            filings.extend(filter_lender_hits(search_portal_lenders(code, terms), cms_healthcare_names))
         except Exception as e:
-            logger.warning(f"AR UCC lender search failed: {e}")
-            health.source_failed("UCC AR lender search", e)
+            logger.warning(f"{code} UCC lender search failed: {e}")
+            health.source_failed(f"UCC {code} lender search", e)
 
     # KY (Playwright, no Cloudflare, headless=True)
     # Use ky_search_names (CHOW facility-level LLCs) — the KY portal only
