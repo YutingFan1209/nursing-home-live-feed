@@ -565,3 +565,17 @@ def test_ny_individual_filter_keeps_recent_commercial_drops_old_and_consumer():
     for lender in ("SHEFFIELD FINANCIAL, A DIVISION OF TRUIST BANK", "GOODLEAP,LLC", "LOANPAL, LLC",
                    "CAPITAL RESORTS GROUP LLC", "AMERICU CREDOIT UNION", "DEERE & COMPANY"):
         assert not keep_individual_filing(f(lender, date(2026, 5, 1)), today), lender
+
+
+# ── Arkansas lender search (added 2026-10-20) ─────────────────
+
+def test_ar_rows_split_debtor_and_lender_from_place():
+    from ucc.ar import rows_to_filings
+    rows = {"3104524": {"DEBTOR": "BRYANT OPERATING SNF LLC - ROSENBERG, TX", "RECORD_NUM": "98260519289",
+                        "UCC_RECORD_ID": 1900467, "RECORD_TYPE": "Lien Financing Statement",
+                        "SEC_PARTY": "CAPITAL FUNDING, LLC, AS AGENT - BALTIMORE, MD", "STATUS": "Active",
+                        "FILING_DATE": "8/11/2026 11:45 AM", "LAPSE_DATE": "8/11/2031 11:45 AM"}}
+    f, = rows_to_filings(rows, "CAPITAL FUNDING")
+    assert (f.debtor_name, f.secured_party_name) == ("BRYANT OPERATING SNF LLC", "CAPITAL FUNDING, LLC, AS AGENT")
+    assert f.raw["address"] == "ROSENBERG, TX" and f.filing_number == "98260519289"
+    assert f.filing_date == date(2026, 8, 11) and f.status == "active"

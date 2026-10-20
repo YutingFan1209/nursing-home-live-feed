@@ -13,8 +13,9 @@ from ucc.oh_playwright import search_oh_batch
 from ucc.ky_playwright import search_ky_batch
 from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
+from ucc.ar import search_ar_lenders
 from ucc import pa_playwright
-from ucc.lender_search import filter_lender_hits
+from ucc.lender_search import LENDER_TERMS, filter_lender_hits
 from ucc.lender_classifier import classify_secured_party
 from ucc.base import UCCFiling
 from pipeline.run_health import health
@@ -58,6 +59,7 @@ ENABLE_CA_PLAYWRIGHT = True  # enabled 2026-09-30: auto-launched Chrome like PA.
 # blocks sustained volume (429 after ~35 fast searches), so ucc/ca_playwright.py runs one
 # throttled tab and stops the batch at the first block -- run CA on its own
 # (--ucc-states CA) and not twice in one day.
+ENABLE_AR_LENDER = True  # 2026-10-20: plain JSON API, no bot wall; lender search only (ucc/ar.py)
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -114,6 +116,16 @@ def fetch_ucc_filings(
     # (ucc/fl_download.py); only the lender filter below applies
     if fl_filings and (wanted is None or "FL" in wanted):
         filings.extend(fl_filings)
+
+    # AR: secured-party search for nursing home lenders over the portal's
+    # JSON API, 5 s apart (ucc/ar.py); no debtor search
+    if _enabled(ENABLE_AR_LENDER, "AR") and cms_healthcare_names:
+        health.attempted("UCC AR lender searches", len(LENDER_TERMS))
+        try:
+            filings.extend(filter_lender_hits(search_ar_lenders(LENDER_TERMS), cms_healthcare_names))
+        except Exception as e:
+            logger.warning(f"AR UCC lender search failed: {e}")
+            health.source_failed("UCC AR lender search", e)
 
     # KY (Playwright, no Cloudflare, headless=True)
     # Use ky_search_names (CHOW facility-level LLCs) — the KY portal only

@@ -738,6 +738,8 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             pa_lenders, pa_lender_offset = _rotate_names(conn, LENDER_TERMS, PA_LENDER_OFFSET_KEY, "PA lender",
                                                          keep_order=True)
             cms_hc_names = _cms_healthcare_names(conn)
+        if cms_hc_names is None and (wanted is None or "AR" in wanted):
+            cms_hc_names = _cms_healthcare_names(conn)  # AR lender search filter
         ca_names, ca_offset = None, 0
         if wanted is None or "CA" in wanted:
             ca_names, ca_offset = _rotate_ca_names(
