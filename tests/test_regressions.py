@@ -985,3 +985,11 @@ def test_ucc_debtors_named_by_street_address_or_town_link_to_the_home():
     assert _address_match("1 MAIN STREET LLC", "MD", by_state) is None  # two homes there
     assert _address_match("9101 SECOND AVENUE OPERATIONS LLC", "VA", by_state) is None
     assert _town_candidates("DENTON MD PROPCO LLC", "MD", by_state) == {("215999", "DENTON NURSING")}
+
+
+def test_every_ucc_state_on_the_site_has_a_portal_link():
+    """AZ, CO and MD records shipped the raw ucc://XX/... key, which no
+    browser opens (2026-10-21); any state with UCC records needs a page."""
+    from scripts.export_deals import UCC_PORTAL_URLS
+    for state in ("NY", "KY", "OH", "PA", "NJ", "CA", "FL", "OR", "AR", "NM", "RI", "ID", "AZ", "CO", "MD"):
+        assert UCC_PORTAL_URLS[state].startswith("https://"), state

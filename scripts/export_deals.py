@@ -67,6 +67,12 @@ UCC_PORTAL_URLS = {
     "NM": "https://enterprise.sos.nm.gov/search/ucc",
     "RI": "https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx",
     "ID": "https://sosbiz.idaho.gov/search/ucc",
+    # Searched by hand (robots.txt, terms or a captcha keep automated tools
+    # off; a person opening the search page is fine). Shipped ucc://AZ/...
+    # and ucc://CO/... until 2026-10-21
+    "AZ": "https://apps.azsos.gov/apps/ucc/search/",
+    "CO": "https://www.coloradosos.gov/ucc/pages/home.xhtml",
+    "MD": "https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx",
 }
 
 # Per-filing pages that can be built from the filing number alone, so no
