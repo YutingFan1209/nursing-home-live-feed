@@ -331,7 +331,8 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
             subject = (facilities[:1] or d.get("operator_names") or [d.get("ucc_debtor") or "Borrower"])[0]
         kind = {"amendment": "UCC-3 amendment",
                 "non_deal_lien": "likely personal loan" if is_personal_loan(d) else "likely non-deal lien",
-                "acquisition_financing": "acquisition financing", "refinancing": "refinancing"}.get(dt, "UCC-1 financing")
+                "acquisition_financing": "acquisition financing", "refinancing": "refinancing",
+                "operations_transfer": "likely operations transfer"}.get(dt, "UCC-1 financing")
         return [[subject, ""], [f" — {kind}", "muted"]]
 
     if dt == "control_change":

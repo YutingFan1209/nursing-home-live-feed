@@ -20,6 +20,11 @@ buyers never match (2026-10-20: 25 such pairs from one quarterly file). Two diff
 opco and a propco sold separately, a REIT and its operator), so those
 pairs go to a review list instead.
 
+News and SEC filings about a portfolio sale often name no facility, so
+they also pair on the same seller and the same price (NHI's $560 million
+NHC portfolio sale, from an 8-K and a Skilled Nursing News story,
+audit 2026-10-21).
+
 A merge keeps the more complete row, fills its blanks from the other,
 takes the earliest date (the first signal), unions states, operators and
 facilities, carries over CMS matches and UCC confirmation, and marks the
@@ -108,7 +113,7 @@ def find_pairs(conn, only_ids=None) -> tuple[list, list]:
     """(auto, review): lists of (deal_a, deal_b, reason). only_ids limits it
     to pairs involving those deals (the deals a run just added)."""
     deals = _load(conn)
-    by_ccn, by_fac = {}, {}
+    by_ccn, by_fac, by_price = {}, {}, {}
     for d in deals.values():
         for ccn in d.get("ccns", ()):
             by_ccn.setdefault(ccn, set()).add(d["id"])
@@ -116,9 +121,13 @@ def find_pairs(conn, only_ids=None) -> tuple[list, list]:
             k = _fac_key(f)
             if len(k) >= 6:
                 by_fac.setdefault(k, set()).add(d["id"])
+        seller = normalize_acquirer(d["seller_entity"] or "")
+        if seller and d["deal_value_m"] and d["deal_value_m"] >= 1:
+            by_price.setdefault(f"{seller} ${float(d['deal_value_m']):.1f}M", set()).add(d["id"])
 
     candidates = {}
-    for kind, index in (("same CMS facility", by_ccn), ("same facility name", by_fac)):
+    for kind, index in (("same CMS facility", by_ccn), ("same facility name", by_fac),
+                        ("same seller and price", by_price)):
         for key, ids in index.items():
             for a in ids:
                 for b in ids:

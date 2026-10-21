@@ -16,6 +16,10 @@ Category of a UCC-1 against a company debtor:
     filing with a different lender (Weatherwood's Greystone filing, 2026).
     NJ never returns a lender name, so only the CMS test applies there.
   - financing: neither test says anything (no CMS match or owner dates).
+  - operations_transfer: the secured party is itself a nursing home
+    operator (East Ridge Retirement Village <- Cutler Bay SNF Operating,
+    FL 2025): an incoming operator taking security from the outgoing one,
+    a sale signal. Unless CMS already shows the sale (acquisition_financing).
 Filings against a person (NY's individual-owner track, often personal
 loans) stay 'financing' until Tyler decides what they are.
 
@@ -32,7 +36,14 @@ from datetime import date, timedelta
 
 ACQUISITION_WINDOW = timedelta(days=183)
 
-FINANCING_TYPES = ("financing", "acquisition_financing", "refinancing")
+FINANCING_TYPES = ("financing", "acquisition_financing", "refinancing", "operations_transfer")
+
+# A secured party that runs nursing homes, not one that lends to them
+_OPERATOR = re.compile(r"\b(OPERATING|OPERATIONS|OPCO|OPERATOR|NURSING|REHAB\w*|CARE CENTER)\b")
+_NOT_OPERATOR = re.compile(r"\b(FUND\w*|FINANC\w*|CAPITAL|MONEY|HOLDINGS|PROPCO|REALTY|PROPERTIES|BANK|"
+                           r"CREDIT|LENDING|MORTGAGE|PHARMACY|OMNICARE)\b")
+# Owners added for estate planning, not a sale
+_TRUST = re.compile(r"\b(TRUST|TR|ESTATE|FAMILY|FAM)\b")
 
 _SUFFIX = re.compile(r"\b(LLC|L L C|INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LP|L P|LLP|NA|N A|"
                      r"NATIONAL ASSOCIATION|THE|AS AGENT|AS ADMINISTRATIVE AGENT|AS COLLATERAL AGENT|AGENT)\b")
@@ -62,6 +73,33 @@ def _day(s) -> date | None:
         return date.fromisoformat(str(s)[:10]) if s else None
     except ValueError:
         return None
+
+
+def is_operator(lender: str | None, debtor: str | None) -> bool:
+    l = (lender or "").upper()
+    return (bool(_OPERATOR.search(l)) and not _NOT_OPERATOR.search(l)
+            and not is_person(debtor) and norm(l) not in norm(debtor))
+
+
+def owner_start_dates(rows) -> dict:
+    """CCN -> set of dates a current direct owner started, from (ccn,
+    owner_name, start) rows. A date on which only trusts or family entities
+    were added, while an earlier owner stays on, is left out: estate
+    planning, not a sale (Coral Reef Subacute, FL: MZM 2017 Trust added
+    2025-02-20 next to the 2021 owner, read as acquisition financing)."""
+    by_day = defaultdict(list)
+    for ccn, owner, start in rows:
+        if start:
+            by_day[(ccn, start)].append(owner or "")
+    first = {}
+    for ccn, start in by_day:
+        first[ccn] = min(first.get(ccn, start), start)
+    out = defaultdict(set)
+    for (ccn, start), owners in by_day.items():
+        if start > first[ccn] and all(_TRUST.search(o.upper()) for o in owners):
+            continue
+        out[ccn].add(start)
+    return dict(out)
 
 
 def complete_through(owner_starts: dict, today: date = None) -> date:
@@ -132,6 +170,8 @@ def categorize(deals: list[dict], owner_starts: dict, today: date = None, notice
             lender = norm(d.get("lender"))
             if any(f < filed and l != lender for f, l in by_debtor[(d.get("ucc_state"), norm(debtor))]):
                 signal = "refinancing"
+        if signal != "acquisition_financing" and is_operator(d.get("lender"), debtor):
+            signal = "operations_transfer"
         d["deal_type"] = signal or "financing"
 
 

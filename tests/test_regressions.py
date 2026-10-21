@@ -737,3 +737,58 @@ def test_state_notice_date_marks_acquisition_financing():
     categorize(deals, owner_starts, today=date(2026, 10, 21), notices=[deals[0]])
     assert deals[1]["deal_type"] == "acquisition_financing"
     assert owner_starts == {"395917": {date(2014, 1, 1)}}          # caller's dict untouched
+
+
+# ── Audit 2026-10-21: labels that misread what a filing says ──
+
+def test_operator_as_secured_party_is_an_operations_transfer():
+    from pipeline.ucc_category import categorize, is_operator
+    assert is_operator("CUTLER BAY SNF OPERATING LLC", "EAST RIDGE RETIREMENT VILLAGE, INC.")
+    assert not is_operator("HEALTHCARE FINANCING OF AMERICA, LLC", "INTEGRATIVE HEALTH & REHAB LLC")
+    assert not is_operator("SOVRAN HEALTH & REHAB CENTER, LLC",            # the debtor itself
+                           "The Laurels of Gahanna, LLC, Sovran Health & Rehab Center, LLC")
+    assert not is_operator("WASHINGTON OPERATIONS ASSOCIATES LL", "KENNETH ROZENBERG")  # a person's filing
+    deals = [{"source_type": "ucc", "deal_type": "financing", "ucc_state": "FL", "ucc_debtor": "EAST RIDGE RETIREMENT VILLAGE, INC.",
+              "lender": "CUTLER BAY SNF OPERATING LLC", "acquisition_date": "2025-06-23", "ccns": ["105508"]}]
+    categorize(deals, {"105508": {date(2010, 4, 19)}}, today=date(2025, 6, 30))
+    assert deals[0]["deal_type"] == "operations_transfer"            # was "refinancing" of the 2010 owner
+
+
+def test_trust_added_next_to_owner_is_not_a_sale():
+    from pipeline.ucc_category import owner_start_dates
+    rows = [("105910", "CORAL REEF CENTER HOLDINGS LLC", date(2021, 3, 2)),
+            ("105910", "MZM 2017 TRUST", date(2025, 2, 20)),
+            ("366432", "IRREVOCABLE TRUST AGREEMENT OF BARRY A. KOHN", date(2024, 2, 15)),
+            ("366432", "CHASE M. KOHN IRREVOCABLE TRUST", date(2024, 11, 1)),
+            ("777777", "OLD OWNER LLC", date(2010, 1, 1)),
+            ("777777", "NEW BUYER LLC", date(2025, 1, 1)),
+            ("777777", "BUYER FAMILY TRUST", date(2025, 1, 1))]
+    assert owner_start_dates(rows) == {"105910": {date(2021, 3, 2)}, "366432": {date(2024, 2, 15)},
+                                       "777777": {date(2010, 1, 1), date(2025, 1, 1)}}
+
+
+def test_equipment_lessors_named_like_healthcare_lenders():
+    for name in ("LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS", "MED ONE CAPITAL FUNDING, LLC",
+                 "FIRST AMERICAN CAPITAL GROUP CORPORATION", "COACTIV CAPITAL PARTNERS, INC."):
+        assert classify_secured_party(name).category == LenderCategory.EQUIPMENT_VENDOR, name
+    assert classify_secured_party("CAPITAL FUNDING, LLC, AS AGENT").category == LenderCategory.REAL_ESTATE
+
+
+def test_alert_title_from_another_story_counts_as_snippet():
+    url = "https://skillednursingnews.com/2026/06/temperature-check-financing-is-top-factor-behind-stalled-nursing-home-deals/"
+    assert rss.looks_like_snippet("Charlotte-area nursing homes, bringing operations to 32 locations with more", url)
+    assert not rss.looks_like_snippet("Temperature Check: Financing Is Top Factor Behind Stalled Nursing Home Deals", url)
+    assert not rss.looks_like_snippet("Company Announcements", "https://markets.ft.com/data/announce/detail?dockey=600-2026")
+
+
+def test_same_sale_pairs_news_and_8k_on_seller_and_price(monkeypatch):
+    import pipeline.same_sale as same_sale
+    row = lambda i, src, buyer, value: {"id": i, "acquiring_entity": buyer, "seller_entity": "National Health Investors",
+                                        "operator_names": None, "facility_names": None, "states": [], "facility_count": 35,
+                                        "deal_value_m": value, "acquisition_date": date(2026, 7, 1), "stage": "detected",
+                                        "ucc_confirmed": False, "extraction_model": None, "created_at": None,
+                                        "source_type": src, "url": ""}
+    deals = {"a": row("a", "edgar", "NHC/Op, L.P", 560.0), "b": row("b", "rss", None, 560.0), "c": row("c", "rss", None, 19.0)}
+    monkeypatch.setattr(same_sale, "_load", lambda conn: deals)
+    auto, review = same_sale.find_pairs(None)
+    assert [(x["id"], y["id"]) for x, y, _ in auto] == [("a", "b")] and not review

@@ -41,7 +41,7 @@ import psycopg2
 import requests
 from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
-from pipeline.ucc_category import categorize, collapse_repeats
+from pipeline.ucc_category import categorize, collapse_repeats, owner_start_dates
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
 from pipeline.cms_confirm import CmsIndex, same_facility_name
@@ -558,14 +558,15 @@ def main():
         # UCC financing -> acquisition financing / refinancing, and one row
         # per repeated loan (pipeline/ucc_category.py)
         cur.execute("""
-            SELECT ccn, ownership_start_date FROM cms_ownership_records
+            SELECT DISTINCT ccn, owner_name, ownership_start_date FROM cms_ownership_records
             WHERE ownership_start_date IS NOT NULL
               AND owner_role ILIKE '%DIRECT OWNERSHIP%' AND owner_role NOT ILIKE '%INDIRECT%'
-            UNION
+        """)
+        owner_starts = owner_start_dates(cur.fetchall())
+        cur.execute("""
             SELECT ccn, TO_DATE(effective_date, 'MM/DD/YYYY') FROM chow_seen_records
             WHERE effective_date ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
         """)
-        owner_starts = {}
         for ccn, start in cur.fetchall():
             owner_starts.setdefault(ccn, set()).add(start)
         # State notices' dates count for the homes they name exactly

@@ -137,11 +137,22 @@ def fetch_article_text(url: str) -> Optional[str]:
 _SNIPPET_TITLE = re.compile(r"^([a-z]|\d+ [a-z])|\.\.\.$|…$")
 
 
+def _slug_words(url: str) -> set:
+    return set(re.findall(r"[a-z]{4,}", (url or "").rstrip("/").rsplit("/", 1)[-1].lower()))
+
+
 def looks_like_snippet(title: str, url: str = "") -> bool:
     """Google Alert emails carry a text fragment, not the headline
-    ("buyouts and ...", "the Ohio market, a press release noted")."""
+    ("buyouts and ...", "the Ohio market, a press release noted"), and
+    often a line that isn't this article's at all: "Charlotte-area nursing
+    homes, bringing operations to 32 locations with more" on a story whose
+    URL is temperature-check-financing-is-top-factor... (audit 2026-10-21).
+    So a title sharing under a third of the URL slug's words counts too."""
     title = (title or "").strip()
-    return not title or title == url or title.startswith("http") or bool(_SNIPPET_TITLE.search(title))
+    if not title or title == url or title.startswith("http") or _SNIPPET_TITLE.search(title):
+        return True
+    slug = _slug_words(url)
+    return len(slug) >= 3 and len(slug & set(re.findall(r"[a-z]{4,}", title.lower()))) < len(slug) / 3
 
 
 def _page_title(html: str) -> Optional[str]:

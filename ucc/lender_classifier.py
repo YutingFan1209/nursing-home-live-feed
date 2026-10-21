@@ -53,7 +53,7 @@ KNOWN_HEALTHCARE_REITS = {
     "healthpeak", "healthcare trust of america", "diversified healthcare trust",
     "greystone", "midcap funding", "midcap financial",
     "gmcc", "monticello",
-    "welltower", "capital funding",
+    "welltower",
     "berkadia", "keybank", "regions bank healthcare",
     "ares capital", "benefit street", "owl rock",
 }
@@ -148,6 +148,12 @@ EXCLUDE_PATTERNS = [
     r"\bconseco finance\b",         # Conseco Finance Servicing Corp — subprime consumer lending
     r"\bgreen tree credit\b",       # Green Tree Credit Corp (now Conseco) — subprime consumer lending
     r"\bc t corporation system\b",  # registered agent, space variant of "ct corporation system"
+    # Equipment lessors labelled as financing on the site (audit 2026-10-21)
+    r"\bleaf capital funding\b",    # LEAF Commercial Capital — office/medical equipment leases
+    r"\bfirst american (capital group|equipment)\b",  # First American Equipment Finance
+    r"\bphilips medical capital\b", # Philips imaging equipment finance
+    r"\bjoerns healthcare\b",       # beds and support surfaces
+    r"\bcoactiv capital\b",         # equipment leasing
 ]
 
 
@@ -174,7 +180,10 @@ def classify_secured_party(name: str, state: str = None) -> LenderClassification
 
     normalized = " ".join(name.lower().strip().split())
 
-    # 1. Known-entity lookup (highest confidence)
+    # 1. Known-entity lookup (highest confidence). Capital Funding only at
+    # the start: LEAF Capital Funding and Med One Capital Funding lease equipment
+    if normalized.startswith("capital funding"):
+        return LenderClassification(LenderCategory.REAL_ESTATE, 0.95, "known REIT: capital funding", True)
     for known in KNOWN_HEALTHCARE_REITS:
         if known in normalized:
             return LenderClassification(

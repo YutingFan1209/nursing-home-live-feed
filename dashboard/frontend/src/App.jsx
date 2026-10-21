@@ -89,6 +89,7 @@ const DEAL_TYPE = {
   financing:        { label: "Financing" },
   acquisition_financing: { label: "Acquisition financing" },
   refinancing:      { label: "Refinancing" },
+  operations_transfer: { label: "Operations transfer (sale signal)" },
   non_deal_lien:    { label: "Non-deal lien" },
   amendment:        { label: "UCC-3 amendment" },
 };
@@ -129,6 +130,8 @@ const TAGS = {
     tip: "Operations move to a new operator under a lease; no sale" },
   acq:        { label: "Acquisition financing", bg: "#E3EAF6", fg: "#23406F",
     tip: "A loan for a purchase: the source says so, or the UCC-1 was filed within 6 months of the facility's owner changing in CMS records" },
+  opsTransfer: { label: "Operations transfer", bg: "#E3EAF6", fg: "#23406F",
+    tip: "The UCC-1's secured party is itself a nursing home operator: usually an incoming operator taking security from the outgoing one before a takeover" },
   cms:        { label: "CMS confirmed",         bg: "#E4F1EC", fg: "#14543F",
     tip: "CMS records show a new owner at this facility within 6 months of this date" },
 };
@@ -138,6 +141,7 @@ function cardTag(d) {
   if (d.deal_type === "control_change") return TAGS.control;
   if (d.deal_type === "lease") return TAGS.lease;
   if (d.deal_type === "acquisition_financing") return TAGS.acq;
+  if (d.deal_type === "operations_transfer") return TAGS.opsTransfer;
   if (d.deal_type === "ownership_change" && (d.source_type === "chow" || d.cms_confirmed_on)) return TAGS.cms;
   return null;
 }
@@ -189,7 +193,7 @@ const CSV_COLUMNS = [
   ["found_date", d => d.found_date, "Date this tracker first found the record."],
   ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, a state UCC filing, or CMS shows a new owner within 6 months), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), or Reported (news or a company filing, not yet confirmed)."],
   ["status_detail", d => d.status_detail, "What the status rests on."],
-  ["deal_type", d => d.deal_type, "ownership_change (a sale), control_change (control moves without a sale), lease, financing, acquisition_financing, refinancing, non_deal_lien, or amendment (UCC-3)."],
+  ["deal_type", d => d.deal_type, "ownership_change (a sale), control_change (control moves without a sale), lease, financing, acquisition_financing, refinancing, operations_transfer (UCC-1 to an operator: a sale signal), non_deal_lien, or amendment (UCC-3)."],
   ["facility_type", d => d.facility_type, "skilled_nursing (includes any record with a nursing home in it), senior_living, hospital, non_us, or unknown (the source doesn't say)."],
   ["tag", d => cardTag(d)?.label, "The tag shown on the card, if any."],
   ["source", d => SOURCE[d.source_type]?.name || d.source_type, "Kind of source."],
@@ -477,7 +481,7 @@ const typeLabel = (d) => d.individual_filing ? "Individual filing"
   : d.deal_type === "ownership_change" ? "Ownership change"
   : DEAL_TYPE[d.deal_type]?.label || d.deal_type;
 
-const FINANCING_TYPES = new Set(["financing", "acquisition_financing", "refinancing", "non_deal_lien", "amendment"]);
+const FINANCING_TYPES = new Set(["financing", "acquisition_financing", "refinancing", "operations_transfer", "non_deal_lien", "amendment"]);
 
 // Missing values are never filled in; this says why there is none
 const missingBuyer = (d) => d.buyer_disclosure === "undisclosed" ? "Undisclosed"
