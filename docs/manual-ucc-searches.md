@@ -6,11 +6,11 @@ a worklist CSV in the repo root; fill it in by hand, then ingest it.
 
 | State | Search | Why manual | Worklist | Searches |
 |---|---|---|---|---|
-| AZ | [apps.azsos.gov/apps/ucc/search](https://apps.azsos.gov/apps/ucc/search/), secured party (results list only the lender; open each filing for the debtor) | robots.txt closes /apps/ to automated tools | `az_manual_search_worklist.csv` | 46 lenders |
-| CO | [coloradosos.gov/ucc](https://www.coloradosos.gov/ucc/pages/home.xhtml) → advanced search, secured party | terms prohibit robots and data mining | `co_manual_search_worklist.csv` | 46 lenders |
-| IN | [bsd.sos.in.gov/PublicUCCSearch](https://bsd.sos.in.gov/PublicUCCSearch), secured party | captcha on every search | `in_manual_search_worklist.csv` | 46 lenders |
-| MD | [ucc.egov.maryland.gov](https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx) → File / Search Now → Name Search, Secured Party, Organization, UCC-1 only | captcha on every search | `md_manual_search_worklist.csv` | 46 lenders |
-| WV | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search), secured party | reCAPTCHA before every search | `wv_manual_search_worklist.csv` | 46 lenders |
+| AZ | [apps.azsos.gov/apps/ucc/search](https://apps.azsos.gov/apps/ucc/search/), secured party (results list only the lender; open each filing for the debtor) | robots.txt closes /apps/ to automated tools | `az_manual_search_worklist.csv` | 47 lenders |
+| CO | [coloradosos.gov/ucc](https://www.coloradosos.gov/ucc/pages/home.xhtml) → advanced search, secured party | terms prohibit robots and data mining | `co_manual_search_worklist.csv` | 47 lenders |
+| IN | [bsd.sos.in.gov/PublicUCCSearch](https://bsd.sos.in.gov/PublicUCCSearch), secured party | captcha on every search | `in_manual_search_worklist.csv` | 47 lenders |
+| MD | [ucc.egov.maryland.gov](https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx) → File / Search Now → Name Search, Secured Party, Organization, UCC-1 only | captcha on every search | `md_manual_search_worklist.csv` | 47 lenders |
+| WV | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search), secured party | reCAPTCHA before every search | `wv_manual_search_worklist.csv` | 47 lenders |
 | ME | free search at www1.maine.gov (robots.txt) or InforME (paid) | robots.txt / paid | `me_manual_search_worklist.csv` | 8 debtor names |
 | NH | QuickStart (bot check); paper UCC-11 requests are $10 | bot check | — | — |
 
