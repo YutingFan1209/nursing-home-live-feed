@@ -4,7 +4,70 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-21T15:27:46.296960+00:00</updated>
+  <updated>2026-10-21T16:06:02.175912+00:00</updated>
+  <entry>
+    <id>urn:uuid:a673652d-338a-4a10-b6e0-67900767a9e3</id>
+    <title>Cedar Haven Operations LLC DBA Lake Forest Health — acquisition financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:54:00.140305+00:00</updated>
+    <summary>Effective 2025-06-02; Facilities: Cedar Haven Operations LLC DBA Lake Forest Health; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f6873288-16ea-426a-9425-58aebae31b2c</id>
+    <title>VALLEY VIEW HEALTH &amp; REHABILITATION LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:54:00.027595+00:00</updated>
+    <summary>Effective 2025-06-12; Facilities: VALLEY VIEW HEALTH &amp; REHABILITATION LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ce1a357c-783a-42e3-b495-363a916f73cf</id>
+    <title>HIGHTOWER &amp; SHEPARD GROUP PROPCO, LLC — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:23.543726+00:00</updated>
+    <summary>Effective 2025-07-21; Facilities: HIGHTOWER &amp; SHEPARD GROUP PROPCO, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:418a31f9-da7f-4183-9c5f-6bde59ceb1d3</id>
+    <title>PEACHTREE MENA LLC — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:23.345263+00:00</updated>
+    <summary>Effective 2025-07-21; Facilities: PEACHTREE MENA LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3571aed3-fa9f-4200-b523-6c5a3cd80b4c</id>
+    <title>PALM TREE HC ARKANSAS LLC — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:22.699961+00:00</updated>
+    <summary>Effective 2025-07-21; Facilities: PALM TREE HC ARKANSAS LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:76e44e93-e23b-4a21-b77f-03d89890a69f</id>
+    <title>ARKMONT MT LLC — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:20.896113+00:00</updated>
+    <summary>Effective 2025-07-23; Facilities: ARKMONT MT LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bf8e18cc-79fb-4749-b8c6-da4ea51e7c94</id>
+    <title>COURTYARD ARKADELPHIA HEALTHCARE LLC — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:20.337705+00:00</updated>
+    <summary>Effective 2025-07-23; Facilities: COURTYARD ARKADELPHIA HEALTHCARE LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9af65cd0-812d-4869-b7e5-3020b6bab5d9</id>
+    <title>ARKADELPHIA REALTY HOLDINGS LLC — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:20.053010+00:00</updated>
+    <summary>Effective 2025-07-23; Facilities: ARKADELPHIA REALTY HOLDINGS LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:680fbfd6-2be2-4cff-999f-3b67fe453f7c</id>
+    <title>TANABELL HEALTH SERVICES, INC. — UCC-1 financing (ID)</title>
+    <link href="https://sosbiz.idaho.gov/search/ucc"/>
+    <updated>2026-10-21T15:45:22.393802+00:00</updated>
+    <summary>Effective 2025-04-02; Facilities: TANABELL HEALTH SERVICES, INC.; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:13e73f2a-4d18-463c-a1dc-81e606e1f778</id>
     <title>AdviniaCare Newport, LLC — acquisition financing (RI)</title>
@@ -291,68 +354,5 @@
     <link href="https://enterprise.sos.nm.gov/search/ucc"/>
     <updated>2026-10-21T15:15:00.195000+00:00</updated>
     <summary>Effective 2026-10-14; Facilities: 9150 McMahon Boulevard NW Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0f317160-5eed-493a-9445-4302663511e2</id>
-    <title>4210 Sabana Grande Avenue SE Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:15:00.058762+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 4210 Sabana Grande Avenue SE Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9dd1dc90-e71f-4729-ab24-a7b8fc1c5695</id>
-    <title>Silver City Care Center Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:14:59.959096+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: Silver City Care Center Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:66b8f914-d6d9-4488-8a14-47b7f36c6d83</id>
-    <title>5123 Juan Tabo Boulevard NE Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:14:59.829431+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 5123 Juan Tabo Boulevard NE Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:07b20b9b-8caa-4bf7-897a-744f12e3a7a0</id>
-    <title>1005 Lujan Hill Road Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:14:59.712708+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 1005 Lujan Hill Road Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7f73e586-dda1-4364-8a2f-4bd74ea87136</id>
-    <title>10101 Lagrima De Oro Road NE Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:14:59.590196+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 10101 Lagrima De Oro Road NE Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7004629f-839e-4d20-8125-0b0fa0fee066</id>
-    <title>5900 Forest Hills Drive NE Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:14:59.452726+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 5900 Forest Hills Drive NE Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7cbbc2ed-9376-41f4-b2f2-33f3d09790ed</id>
-    <title>Sale of 4 facilities in IN (IN)</title>
-    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
-    <updated>2026-10-21T14:54:23.481349+00:00</updated>
-    <summary>Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6e022218-f6ef-428e-847d-28a822e6d947</id>
-    <title>Sale of 3 facilities in OH to a new entrant (OH)</title>
-    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
-    <updated>2026-10-21T14:54:23.481349+00:00</updated>
-    <summary>Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:74927071-7d70-4b65-b15b-d529a9cf8120</id>
-    <title>Sale of Northwest Manor (IN)</title>
-    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
-    <updated>2026-10-21T14:54:23.481349+00:00</updated>
-    <summary>Facilities: Northwest Manor; Source: Skilled Nursing News</summary>
   </entry>
 </feed>
