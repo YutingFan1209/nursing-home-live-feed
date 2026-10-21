@@ -25,6 +25,10 @@ Phases, highest confidence first:
     Downloads CHOW CSV, normalizes names, matches buyer → DBA facility name.
     Handles KY opco entities like "DJLM OPERATIONS LLC" → "LETCHER MANOR".
 
+  Phase 1b/1c — a company named after a town with one home ("CRAIG SNF",
+    "DENTON MD PROPCO") or after the home's street address ("9101 SECOND
+    AVENUE OPERATIONS LLC") -> that home.
+
   Phase 2 — LLC-suffix strip for already-descriptive names (free, medium confidence):
     Names containing nursing/rehab/health/care/manor/villa etc. that don't already
     look like opco wrappers → strip corporate suffix for cleaner display.
@@ -169,13 +173,15 @@ def _build_cms_maps(conn):
     report, and (state, city) -> facilities for the town rule."""
     facilities, owners, by_state, names_by_ccn = {}, {}, {}, {}
     with conn.cursor() as cur:
-        cur.execute("SELECT ccn, provider_name, provider_state, provider_city FROM cms_facilities")
-        for ccn, name, state, city in cur.fetchall():
+        cur.execute("SELECT ccn, provider_name, provider_state, provider_city, provider_address FROM cms_facilities")
+        for ccn, name, state, city, address in cur.fetchall():
             facilities.setdefault((_entity_key(name), state), set()).add((ccn, name))
             names_by_ccn[ccn] = name
             by_state.setdefault(state, []).append((ccn, name, _entity_key(name), _core_key(name)))
             if city:
                 by_state.setdefault(("city", state, _entity_key(city)), []).append((ccn, name))
+            if _address_key(address):
+                by_state.setdefault(("address", state, _address_key(address)), []).append((ccn, name))
         cur.execute("""
             SELECT DISTINCT ccn, provider_name, owner_name, provider_state
             FROM cms_ownership_records WHERE owner_type ILIKE 'org%%'
@@ -243,9 +249,32 @@ NOT_PORTFOLIO_LENDER = re.compile(r"^(SECRETARY OF|UNITED STATES DEPARTMENT OF H
 
 def _town_candidates(debtor: str, state: str, by_state):
     """Homes in the town a debtor is named after ("CRAIG SNF, LLC",
-    "Monte Vista 2277 Realty LLC")."""
+    "Monte Vista 2277 Realty LLC", "DENTON MD PROPCO LLC")."""
     town = re.sub(r"\s+", " ", TOWN_ROLE_WORDS.sub(" ", _entity_key(debtor))).strip()
+    town = re.sub(rf"\s+{state}$", "", town)
     return set(by_state.get(("city", state, town), [])) if town else set()
+
+
+# Operators often name each home's company after its street address: MD's
+# Genesis homes ("9101 SECOND AVENUE OPERATIONS LLC", 2011) and Autumn Lake
+# homes ("8710 EMGE OPCO LLC"); 79 of 164 MD filings went unlinked without
+# it (2026-10-21). The key is the house number and the first word of the
+# street name, so "AVE"/"AVENUE" and "RD"/"ROAD" spellings still agree.
+_DIRECTIONS = {"N", "S", "E", "W", "NORTH", "SOUTH", "EAST", "WEST"}
+
+
+def _address_key(address):
+    words = re.sub(r"[^A-Z0-9 ]", " ", (address or "").upper()).split()
+    if len(words) < 2 or not words[0].isdigit():
+        return None
+    street = [w for w in words[1:] if w not in _DIRECTIONS]
+    return (words[0], street[0]) if street and len(street[0]) >= 3 else None
+
+
+def _address_match(debtor: str, state: str, by_state):
+    """(ccn, provider) of the one home at the address a debtor is named after."""
+    hits = set(by_state.get(("address", state, _address_key(debtor)), []))
+    return next(iter(hits)) if len(hits) == 1 else None
 
 
 def _portfolio_match(debtor: str, state: str, companion_ccns: set, by_state, names_by_ccn):
@@ -386,6 +415,9 @@ def run(dry_run: bool = False, state_filter: str | None = None,
                 found = {}
                 for part in parts:
                     m = _cms_exact_match(part, state, facilities, owners)
+                    if not m and _address_match(part, state, by_state):
+                        ccn, name = _address_match(part, state, by_state)
+                        m = (ccn, name, part, "ucc_debtor_address")
                     if not m:
                         hits = chow_map.get((_normalize(part), state), set())
                         ccn, name = next(iter(hits)) if len(hits) == 1 else (None, None)
@@ -468,7 +500,7 @@ def run(dry_run: bool = False, state_filter: str | None = None,
 
             # Phase 1b: a skilled nursing company named after a town with
             # one home ("CRAIG SNF, LLC" -> the only home in Craig, CO)
-            if re.search(r"\b(SNF|NURSING)\b", debtor.upper()):
+            if re.search(r"\b(SNF|NURSING|OPCO|PROPCO)\b", debtor.upper()):
                 town = _town_candidates(debtor, state, by_state)
                 if len(town) == 1:
                     ccn, provider = next(iter(town))
@@ -478,6 +510,17 @@ def run(dry_run: bool = False, state_filter: str | None = None,
                     linked.setdefault(deal_id, set()).add(ccn)
                     updated_cms += 1
                     continue
+
+            # Phase 1c: a company named after the home's street address
+            at = _address_match(debtor, state, by_state)
+            if at:
+                ccn, provider = at
+                logger.info(f"  ADDR [{state}] {debtor[:45]:<45} → {provider} ({ccn})")
+                if not dry_run:
+                    _record_cms_match(conn, deal_id, state, ccn, provider, debtor, "ucc_debtor_address")
+                linked.setdefault(deal_id, set()).add(ccn)
+                updated_cms += 1
+                continue
 
             # Phase 2 (opt-in, --strip): strip LLC suffix for facility-like
             # names. Off by default since 2026-09-23: the frontend now shows

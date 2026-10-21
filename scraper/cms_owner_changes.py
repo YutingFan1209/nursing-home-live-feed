@@ -98,9 +98,10 @@ def refresh_ownership_if_stale(conn) -> bool:
 def refresh_provider_info_if_stale(conn) -> bool:
     """Same for the Provider Information file, which carries each home's
     licensed company (Legal Business Name): a new one is a buyer CHOW
-    hasn't listed yet (scraper/licensee_names.py)."""
+    hasn't listed yet (scraper/licensee_names.py), and its street address,
+    which UCC debtors are often named by."""
     with conn.cursor() as cur:
-        cur.execute("SELECT MAX(cms_refreshed_at), COUNT(legal_business_name) FROM cms_facilities")
+        cur.execute("SELECT MAX(cms_refreshed_at), LEAST(COUNT(legal_business_name), COUNT(provider_address)) FROM cms_facilities")
         last, named = cur.fetchone()
     if named and last and datetime.now(timezone.utc) - last < timedelta(days=REFRESH_MAX_AGE_DAYS):
         return False

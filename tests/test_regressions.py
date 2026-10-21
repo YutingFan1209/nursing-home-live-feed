@@ -968,3 +968,20 @@ def test_new_licensee_names_skip_buyers_chow_already_lists():
         def cursor(self): return self.c
     conn = Conn(); conn.c = Cur()
     assert new_licensee_names(conn, "OH") == ["600 NORTH BRUSH OPCO LLC", "670 OH OPCO LLC"]
+
+
+def test_ucc_debtors_named_by_street_address_or_town_link_to_the_home():
+    """MD operators name homes' companies by address ("9101 SECOND AVENUE
+    OPERATIONS LLC") or town ("DENTON MD PROPCO LLC"); 79 of 164 MD
+    filings went unlinked without these rules (2026-10-21)."""
+    from scripts.enrich_ucc_facility_names import _address_key, _address_match, _town_candidates
+    assert _address_key("9101 SECOND AVENUE OPERATIONS LLC") == _address_key("9101 SECOND AVE") == ("9101", "SECOND")
+    assert _address_key("22 S. ATHOL STREET, LLC") == ("22", "ATHOL")
+    assert _address_key("ACME OPCO LLC") is None
+    by_state = {("address", "MD", ("9101", "SECOND")): [("215060", "WOODSIDE")],
+                ("address", "MD", ("1", "MAIN")): [("A", "X"), ("B", "Y")],
+                ("city", "MD", "DENTON"): [("215999", "DENTON NURSING")]}
+    assert _address_match("9101 SECOND AVENUE OPERATIONS, LLC", "MD", by_state) == ("215060", "WOODSIDE")
+    assert _address_match("1 MAIN STREET LLC", "MD", by_state) is None  # two homes there
+    assert _address_match("9101 SECOND AVENUE OPERATIONS LLC", "VA", by_state) is None
+    assert _town_candidates("DENTON MD PROPCO LLC", "MD", by_state) == {("215999", "DENTON NURSING")}

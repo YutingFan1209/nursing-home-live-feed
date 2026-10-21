@@ -14,6 +14,7 @@ Column reference (verified against the June 2026 release):
   CMS Certification Number (CCN) -> ccn
   Provider Name                  -> provider_name
   State                          -> provider_state
+  Provider Address               -> provider_address
   City/Town                      -> provider_city
   ZIP Code                       -> provider_zip
   Overall Rating                 -> five_star_rating
@@ -123,6 +124,7 @@ def load_care_compare(conn):
             special_focus == "SFF Candidate",
             now,
             _legal_name(r),
+            r.get("Provider Address", "").strip() or None,
         ))
 
     with conn.cursor() as cur:
@@ -131,7 +133,8 @@ def load_care_compare(conn):
                 (ccn, provider_name, provider_state, provider_city, provider_zip,
                  ownership_type, provider_type, bed_count,
                  five_star_rating, staffing_rating, health_insp_rating,
-                 sff_flag, sff_candidate_flag, cms_refreshed_at, legal_business_name)
+                 sff_flag, sff_candidate_flag, cms_refreshed_at, legal_business_name,
+                 provider_address)
             VALUES %s
             ON CONFLICT (ccn) DO UPDATE SET
                 provider_name      = EXCLUDED.provider_name,
@@ -142,7 +145,8 @@ def load_care_compare(conn):
                 sff_candidate_flag = EXCLUDED.sff_candidate_flag,
                 bed_count          = EXCLUDED.bed_count,
                 cms_refreshed_at   = EXCLUDED.cms_refreshed_at,
-                legal_business_name = COALESCE(EXCLUDED.legal_business_name, cms_facilities.legal_business_name)
+                legal_business_name = COALESCE(EXCLUDED.legal_business_name, cms_facilities.legal_business_name),
+                provider_address   = COALESCE(EXCLUDED.provider_address, cms_facilities.provider_address)
         """, records)
         processed = _processing_date(rows) or now.date()
         psycopg2.extras.execute_values(cur, """
