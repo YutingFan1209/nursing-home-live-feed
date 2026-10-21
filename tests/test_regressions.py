@@ -940,3 +940,31 @@ def test_ucc_match_needs_the_distinctive_words_to_agree():
     assert match_against_existing_deals(f("QUALITY LIFE SERVICES – SARVER, LLC"), [deal("QUALITY LIFE SERVICES SARVER LLC")])
     # A deal with no date and no state matches nothing (Sabra / Communicare)
     assert match_against_existing_deals(f("ONYX WELLNESS CENTER LLC"), [deal("ONYX WELLNESS CENTER LLC", on=None, states=[])]) is None
+
+
+def test_several_debtors_on_one_filing_are_split_after_company_suffixes():
+    from scripts.enrich_ucc_facility_names import split_debtors
+    assert split_debtors("670 OH OPCO LLC, 600 NORTH BRUSH OPCO LLC") == ["670 OH OPCO LLC", "600 NORTH BRUSH OPCO LLC"]
+    assert split_debtors("Schroer Properties of Newark South Inc, Altercare Newark South Inc") == \
+        ["Schroer Properties of Newark South Inc", "Altercare Newark South Inc"]
+    # A comma before the suffix is part of one name
+    assert split_debtors("Oak Hills Manor, LLC") == ["Oak Hills Manor, LLC"]
+    assert split_debtors("FORBRIGHT BANK") == ["FORBRIGHT BANK"]
+
+
+def test_new_licensee_names_skip_buyers_chow_already_lists():
+    from scraper.licensee_names import new_licensee_names
+
+    class Cur:
+        def __init__(self): self.n = 0
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+        def execute(self, sql, params=None): self.n += 1
+        def fetchall(self):
+            return {1: [("365380", "670 OH OPCO LLC")],                       # legal name changed
+                    2: [("365510", "600 NORTH BRUSH OPCO LLC"), ("366000", "OLD OWNER LLC")],
+                    3: [("366000", "OLD OWNER, LLC")]}[self.n]                 # CHOW already lists it
+    class Conn:
+        def cursor(self): return self.c
+    conn = Conn(); conn.c = Cur()
+    assert new_licensee_names(conn, "OH") == ["600 NORTH BRUSH OPCO LLC", "670 OH OPCO LLC"]

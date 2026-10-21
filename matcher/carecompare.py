@@ -22,6 +22,8 @@ Column reference (verified against the June 2026 release):
   Special Focus Status           -> sff_flag ("SFF") / sff_candidate_flag ("SFF Candidate")
   Number of Certified Beds       -> bed_count
   Ownership Type                 -> ownership_type
+  Legal Business Name            -> legal_business_name, and cms_legal_names
+                                    (first seen on the file's Processing Date)
 """
 
 import csv
@@ -120,6 +122,7 @@ def load_care_compare(conn):
             special_focus == "SFF",
             special_focus == "SFF Candidate",
             now,
+            _legal_name(r),
         ))
 
     with conn.cursor() as cur:
@@ -128,7 +131,7 @@ def load_care_compare(conn):
                 (ccn, provider_name, provider_state, provider_city, provider_zip,
                  ownership_type, provider_type, bed_count,
                  five_star_rating, staffing_rating, health_insp_rating,
-                 sff_flag, sff_candidate_flag, cms_refreshed_at)
+                 sff_flag, sff_candidate_flag, cms_refreshed_at, legal_business_name)
             VALUES %s
             ON CONFLICT (ccn) DO UPDATE SET
                 provider_name      = EXCLUDED.provider_name,
@@ -138,8 +141,14 @@ def load_care_compare(conn):
                 sff_flag           = EXCLUDED.sff_flag,
                 sff_candidate_flag = EXCLUDED.sff_candidate_flag,
                 bed_count          = EXCLUDED.bed_count,
-                cms_refreshed_at   = EXCLUDED.cms_refreshed_at
+                cms_refreshed_at   = EXCLUDED.cms_refreshed_at,
+                legal_business_name = COALESCE(EXCLUDED.legal_business_name, cms_facilities.legal_business_name)
         """, records)
+        processed = _processing_date(rows) or now.date()
+        psycopg2.extras.execute_values(cur, """
+            INSERT INTO cms_legal_names (ccn, legal_business_name, first_seen) VALUES %s
+            ON CONFLICT DO NOTHING
+        """, [(rec[0], rec[-1], processed) for rec in records if rec[-1]])
 
     logger.info(f"Care Compare: upserted {len(records)} facilities")
     return len(records)
@@ -195,6 +204,18 @@ def flag_policy_risks(matches: list[dict]) -> list[dict]:
             flags.append("Low staffing rating")
         match["policy_flags"] = flags
     return matches
+
+
+def _legal_name(r: dict) -> str | None:
+    name = (r.get("Legal Business Name") or "").strip()
+    return None if not name or "NOT AVAILABLE" in name.upper() else name
+
+
+def _processing_date(rows: list[dict]):
+    try:
+        return datetime.strptime(rows[0].get("Processing Date", "").strip()[:10], "%Y-%m-%d").date()
+    except (ValueError, IndexError):
+        return None
 
 
 def _safe_int(val):

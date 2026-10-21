@@ -95,6 +95,22 @@ def refresh_ownership_if_stale(conn) -> bool:
     return True
 
 
+def refresh_provider_info_if_stale(conn) -> bool:
+    """Same for the Provider Information file, which carries each home's
+    licensed company (Legal Business Name): a new one is a buyer CHOW
+    hasn't listed yet (scraper/licensee_names.py)."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT MAX(cms_refreshed_at), COUNT(legal_business_name) FROM cms_facilities")
+        last, named = cur.fetchone()
+    if named and last and datetime.now(timezone.utc) - last < timedelta(days=REFRESH_MAX_AGE_DAYS):
+        return False
+    from matcher.carecompare import load_care_compare
+    logger.info("CMS Provider Information file is stale; reloading")
+    load_care_compare(conn)
+    conn.commit()
+    return True
+
+
 def _candidate_rows(conn) -> list[dict]:
     with conn.cursor() as cur:
         cur.execute("""

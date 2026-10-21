@@ -27,8 +27,9 @@ from scraper.sources import ALL_SOURCES, get_active_sources
 from scraper.rss import fetch_feed, fetch_article, fetch_article_text, looks_like_snippet
 from scraper.edgar import fetch_edgar_filings, fetch_filing_text
 from scraper.chow import fetch_chow_deals, get_chow_source_id, get_chow_operator_names
+from scraper.licensee_names import new_licensee_names
 from scraper.cms_owner_changes import (
-    fetch_cms_owner_change_deals, refresh_ownership_if_stale,
+    fetch_cms_owner_change_deals, refresh_ownership_if_stale, refresh_provider_info_if_stale,
     ensure_source as ensure_cms_owner_change_source,
 )
 from scraper.gmail_alerts import fetch_alert_articles
@@ -461,6 +462,7 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         # deals (see scraper/cms_owner_changes.py)
         try:
             refresh_ownership_if_stale(conn)
+            refresh_provider_info_if_stale(conn)
             cms_owner_source_id = ensure_cms_owner_change_source(conn)
             for deal in fetch_cms_owner_change_deals(conn):
                 if not _article_exists(deal["url"], conn):
@@ -727,15 +729,15 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             conn.commit()
         wanted = {s.upper() for s in ucc_states} if ucc_states else None
         known_operator_names = _get_known_operator_names(conn)
-        ky_names = get_chow_operator_names("KY") if wanted is None or "KY" in wanted else None
-        oh_names = get_chow_operator_names("OH") if wanted is None or "OH" in wanted else None
-        ny_names = get_chow_operator_names("NY") if wanted is None or "NY" in wanted else None
-        nj_names = get_chow_operator_names("NJ") if wanted is None or "NJ" in wanted else None
+        ky_names = _buyer_names(conn, "KY") if wanted is None or "KY" in wanted else None
+        oh_names = _buyer_names(conn, "OH") if wanted is None or "OH" in wanted else None
+        ny_names = _buyer_names(conn, "NY") if wanted is None or "NY" in wanted else None
+        nj_names = _buyer_names(conn, "NJ") if wanted is None or "NJ" in wanted else None
         pa_lenders, pa_lender_offset, cms_hc_names = None, 0, None
         pa_names, pa_offset = None, 0
         if wanted is None or "PA" in wanted:
             pa_names, pa_offset = _rotate_names(
-                conn, get_chow_operator_names("PA") + _get_known_operator_names(conn, "PA"),
+                conn, _buyer_names(conn, "PA") + _get_known_operator_names(conn, "PA"),
                 PA_OFFSET_KEY, "PA")
             pa_lenders, pa_lender_offset = _rotate_names(conn, LENDER_TERMS, PA_LENDER_OFFSET_KEY, "PA lender",
                                                          keep_order=True)
@@ -756,7 +758,7 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
         ca_names, ca_offset = None, 0
         if wanted is None or "CA" in wanted:
             ca_names, ca_offset = _rotate_ca_names(
-                conn, get_chow_operator_names("CA") + _get_known_operator_names(conn, "CA"))
+                conn, _buyer_names(conn, "CA") + _get_known_operator_names(conn, "CA"))
         ny_individual_names = _get_cms_individual_owner_names(conn, "NY") if wanted is None or "NY" in wanted else None
         oh_individual_names = _get_cms_individual_owner_names(conn, "OH") if wanted is None or "OH" in wanted else None
         # KY individual-owner search: OFF. Tried 2026-10-12: all 306 filings it
@@ -772,7 +774,7 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             from ucc.fl_download import fetch_new_days
             from ucc.lender_search import norm_name
             fl_names = _cms_healthcare_names(conn, "FL") | {
-                norm_name(n) for n in get_chow_operator_names("FL") + _get_known_operator_names(conn, "FL")}
+                norm_name(n) for n in _buyer_names(conn, "FL") + _get_known_operator_names(conn, "FL")}
             try:
                 fl_filings = fetch_new_days(conn, fl_names)
             except Exception as e:
@@ -1251,6 +1253,24 @@ def _get_known_operator_names(conn, state: str = None) -> list[str]:
     return [n for n in all_names if entity_pattern.search(n) and not _NOT_NURSING_HOME.search(n.upper())]
 
 
+def _buyer_names(conn, state: str) -> list[str]:
+    """UCC debtor-search names for a state: CHOW buyers, and new licensees
+    CHOW hasn't listed yet (scraper/licensee_names.py), which CHOW only
+    publishes about a year after closing."""
+    with conn.cursor() as cur:
+        cur.execute("SAVEPOINT licensee_names")
+    try:
+        new = new_licensee_names(conn, state)
+    except Exception as e:
+        with conn.cursor() as cur:
+            cur.execute("ROLLBACK TO SAVEPOINT licensee_names")
+        logger.warning(f"New licensee names for {state} skipped: {e}")
+        new = []
+    chow = get_chow_operator_names(state)
+    seen = {n.upper() for n in chow}
+    return chow + [n for n in new if n.upper() not in seen]
+
+
 CA_OFFSET_KEY = "ucc_ca_next_offset"
 CA_NAMES_PER_RUN = 30
 PA_LENDER_OFFSET_KEY = "ucc_pa_lender_next_offset"
@@ -1271,7 +1291,7 @@ def _get_id_search_names(conn) -> list[str]:
             WHERE provider_state = 'ID' AND owner_type = 'Organization' AND owner_role IN %s
         """, (_CMS_OWNERSHIP_RELEVANT_ROLES,))
         cms = [r[0] for r in cur.fetchall() if r[0]]
-    names = get_chow_operator_names("ID") + _get_known_operator_names(conn, "ID") + cms
+    names = _buyer_names(conn, "ID") + _get_known_operator_names(conn, "ID") + cms
     return [n for n in names if not NOT_A_HOME_OWNER.search(n)]
 
 
@@ -1423,7 +1443,7 @@ def _ucc_debtor_qualifies(filing, classification, conn) -> bool:
                   for n in _get_cms_individual_owner_names(conn, st)} if st in INDIVIDUAL_UCC_STATES else set()
         # Plus the state's CHOW buyers and ownership-source deal names (the
         # cleaned search list): EMBASSY PARK AVENUE, COMPLETE CARE AT HOLIDAY
-        known = {norm_name(n) for n in get_chow_operator_names(st) + _get_known_operator_names(conn, st)}
+        known = {norm_name(n) for n in _buyer_names(conn, st) + _get_known_operator_names(conn, st)}
         _CMS_NAMES_BY_STATE[st] = _cms_healthcare_names(conn, st) | people | known
     return (looks_like_nursing_home(debtor, _CMS_NAMES_BY_STATE[st])
             or _first_last(debtor) in _CMS_NAMES_BY_STATE[st])

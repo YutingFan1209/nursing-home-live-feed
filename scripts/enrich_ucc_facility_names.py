@@ -285,6 +285,22 @@ def _record_cms_match(conn, deal_id, state, ccn, provider, owner, method):
             """, (deal_id, ccn, provider, owner, state, method))
 
 
+# OH lists every debtor on a filing in one field, comma-separated: "670 OH
+# OPCO LLC, 600 NORTH BRUSH OPCO LLC" (a VNB loan for two homes) matched no
+# home as a whole, so 103 OH/CA/RI/FL filings went unlinked (2026-10-21).
+# Split only after a company suffix, so "ABC, LLC" stays one name.
+_DEBTOR_END = re.compile(r"\b(?:LLC|INC|L\.L\.C|LP|L\.P|CORP|CORPORATION|COMPANY|LTD)\.?(?=,\s+)", re.I)
+
+
+def split_debtors(debtor: str) -> list[str]:
+    parts, start = [], 0
+    for m in _DEBTOR_END.finditer(debtor or ""):
+        parts.append(debtor[start:m.end()])
+        start = m.end() + 1  # past the comma
+    parts.append((debtor or "")[start:])
+    return [p.strip() for p in parts if p.strip()]
+
+
 def _is_just_debtor_copy(facility_names: list[str], debtor: str) -> bool:
     """True when facility_names is just [debtor] with possible case/whitespace variation."""
     if len(facility_names) != 1:
@@ -363,6 +379,31 @@ def run(dry_run: bool = False, state_filter: str | None = None,
             if not _is_just_debtor_copy(facility_names, debtor):
                 skipped_already_ok += 1
                 continue
+
+            # Phase 0, several debtors on one filing: link each one's home
+            parts = split_debtors(debtor)
+            if len(parts) > 1:
+                found = {}
+                for part in parts:
+                    m = _cms_exact_match(part, state, facilities, owners)
+                    if not m:
+                        hits = chow_map.get((_normalize(part), state), set())
+                        ccn, name = next(iter(hits)) if len(hits) == 1 else (None, None)
+                        m = (ccn, names_by_ccn.get(ccn, name), part, "ucc_debtor_chow_buyer") if ccn else None
+                    if m:
+                        found.setdefault(m[0], m)
+                if found:
+                    for ccn, provider, owner, method in found.values():
+                        logger.info(f"  CMS  [{state}] {owner[:45]:<45} → {provider} ({ccn}, {method}, one of {len(parts)} debtors)")
+                        if not dry_run:
+                            _record_cms_match(conn, deal_id, state, ccn, provider, owner, method)
+                        linked.setdefault(deal_id, set()).add(ccn)
+                    if not dry_run:
+                        with conn.cursor() as cur:
+                            cur.execute("UPDATE deals SET facility_names = %s WHERE id = %s",
+                                        (sorted({m[1] for m in found.values()}), deal_id))
+                    updated_cms += 1
+                    continue
 
             # Phase 0: CMS exact match
             match = _cms_exact_match(debtor, state, facilities, owners)
