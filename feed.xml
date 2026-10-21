@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-20T18:56:30.845581+00:00</updated>
+  <updated>2026-10-21T15:00:06.547529+00:00</updated>
+  <entry>
+    <id>urn:uuid:74927071-7d70-4b65-b15b-d529a9cf8120</id>
+    <title>Sale of Northwest Manor (IN)</title>
+    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
+    <updated>2026-10-21T14:54:23.481349+00:00</updated>
+    <summary>Facilities: Northwest Manor; Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6e022218-f6ef-428e-847d-28a822e6d947</id>
+    <title>Sale of 3 facilities in OH to a new entrant (OH)</title>
+    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
+    <updated>2026-10-21T14:54:23.481349+00:00</updated>
+    <summary>Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7cbbc2ed-9376-41f4-b2f2-33f3d09790ed</id>
+    <title>Sale of 4 facilities in IN (IN)</title>
+    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
+    <updated>2026-10-21T14:54:23.481349+00:00</updated>
+    <summary>Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:31a15f27-f469-4e59-89dd-a80e29fdc4f2</id>
+    <title>300-320 St. Albans Drive Opco LLC to acquire The Cardinal at North Hills (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5294"/>
+    <updated>2026-10-21T14:54:03.110971+00:00</updated>
+    <summary>Effective 2026-08-31; Facilities: The Cardinal at North Hills; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
   <entry>
     <id>urn:uuid:fe0cb2b3-c09e-4864-82a4-ad6eec1e453e</id>
     <title>SUNBRIDGE HEALTHCARE, LLC — UCC-1 financing (NM)</title>
@@ -326,33 +354,5 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3583672"/>
     <updated>2026-10-20T16:19:53.636839+00:00</updated>
     <summary>Effective 2024-12-16; Facilities: MEADOWBROOK HEALTHCARE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e9ae01e7-6ed7-4a2f-9583-4899e111ae78</id>
-    <title>ROBERT W WALLACE — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4188291"/>
-    <updated>2026-10-20T16:19:51.912206+00:00</updated>
-    <summary>Effective 2026-07-31; Facilities: Canterbury Woods; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:961dd990-bef1-4e4e-a190-683fa66656e0</id>
-    <title>ROBERT F WALLACE — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3681322"/>
-    <updated>2026-10-20T16:19:51.536991+00:00</updated>
-    <summary>Effective 2024-12-18; Facilities: Canterbury Woods; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9b0cdec8-09f2-4c6f-b8ef-d8459ed52bac</id>
-    <title>MARK EDWARD WILCOX — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3877880"/>
-    <updated>2026-10-20T16:19:50.411789+00:00</updated>
-    <summary>Effective 2025-09-25; Facilities: HERITAGE GREEN REHAB &amp; SKILLED NURSING; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4dccdc93-c5f5-432a-bf28-747a59861fc2</id>
-    <title>NORMAN S. RAUSMAN — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4226935"/>
-    <updated>2026-10-20T16:19:50.051166+00:00</updated>
-    <summary>Effective 2026-10-07; Facilities: Medford Multicare Center For Living, Northern Manhattan Rehabilitation and Nursing Cent; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
