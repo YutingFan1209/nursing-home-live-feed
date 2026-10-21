@@ -1,48 +1,59 @@
 query_name,found_y_n,debtor_name,secured_party,filing_number,filing_date,lapse_date,notes
-SECRETARY OF HOUSING AND URBAN DEVELOPMENT,,,,,,,
-UNITED STATES DEPARTMENT OF HOUSING,,,,,,,
-GREYSTONE,,,,,,,
-LUMENT,,,,,,,
-NEWPOINT,,,,,,,
-BERKADIA,,,,,,,
-LANCASTER POLLARD,,,,,,,
-ORIX REAL ESTATE CAPITAL,,,,,,,
-DWIGHT CAPITAL,,,,,,,
-MONTICELLO,,,,,,,
-GMCC,,,,,,,
-CAPITAL FUNDING,,,,,,,
-CAPITAL FINANCE,,,,,,,
-MIDCAP,,,,,,,
-WHITE OAK HEALTHCARE,,,,,,,
-OXFORD FINANCE,,,,,,,
-CIBC,,,,,,,
-BANKWELL,,,,,,,
-METROPOLITAN COMMERCIAL BANK,,,,,,,
-OMEGA HEALTHCARE,,,,,,,
-SABRA,,,,,,,
-CTW INVESTMENT,,,,,,,
-CARETRUST,,,,,,,
-NATIONAL HEALTH INVESTORS,,,,,,,
-LTC PROPERTIES,,,,,,,
-WELLTOWER,,,,,,,
-VENTAS,,,,,,,
-SECRETARY OF U.S. DEPARTMENT OF HOUSING,,,,,,,
-FORBRIGHT,,,,,,,
-VALLEY NATIONAL BANK,,,,,,,
-VNB NEW YORK,,,,,,,
-EAST WEST BANK,,,,,,,
-IKARIA,,,,,,,
-VIUM CAPITAL,,,,,,,
-TEXAS CAPITAL BANK,,,,,,,
-POPULAR BANK,,,,,,,
-BANK HAPOALIM,,,,,,,
-ONB DHF,,,,,,,
-DMT SPE,,,,,,,
-ECAPITAL,,,,,,,
-MERCHANTS BANK OF INDIANA,,,,,,,
-BOKF,,,,,,,
-ISRAEL DISCOUNT BANK,,,,,,,
-DIME COMMUNITY BANK,,,,,,,
-CONNECTONE,,,,,,,
-YAKAR,,,,,,,
-DBF SPE,,,,,,,
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"HAVEN OF SIERRA VISTA, LLC","CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT",2026-003-0715-6,06/23/2026,06/23/2031,"Nursing-home related; Sierra Vista portfolio filing; source reviewed 10/21/2026"
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"HAVEN PROPERTIES MASTER TENANT, LLC","CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT",2026-003-0717-3,06/23/2026,06/23/2031,"Nursing-home related; Sierra Vista portfolio filing; source reviewed 10/21/2026"
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"HAVEN SIERRA VISTA REAL ESTATE, LLC","CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT",2026-003-0719-4,06/23/2026,06/23/2031,"Nursing-home related; Sierra Vista portfolio filing; source reviewed 10/21/2026"
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"HAVEN SCOTTSDALE REAL ESTATE, LLC","CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT",2026-003-0721-1,06/23/2026,06/23/2031,"Nursing-home related; Scottsdale portfolio filing; source reviewed 10/21/2026"
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"HAVEN PROPERTIES MASTER TENANT, LLC","CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT",2026-003-0724-8,06/23/2026,06/23/2031,"Nursing-home related; Scottsdale portfolio filing; source reviewed 10/21/2026"
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"HAVEN OF SCOTTSDALE, LLC","CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT",2026-003-0726-9,06/23/2026,06/23/2031,"Nursing-home related; Scottsdale portfolio filing; source reviewed 10/21/2026"
+UNITED STATES DEPARTMENT OF HOUSING,n,,,,,,"Reviewed 4 liens; none filed within the two-year window; source reviewed 10/21/2026"
+GREYSTONE,n,,,,,,"Reviewed 57 displayed lien entries (including repeated party matches); recent hits were multifamily housing, not nursing homes; source reviewed 10/21/2026"
+LUMENT,n,,,,,,"Reviewed 26 lien records; recent hits were multifamily or affordable senior housing, not nursing homes; source reviewed 10/21/2026"
+NEWPOINT,n,,,,,,"Reviewed 1 lien; filed 02/18/2022, outside the two-year window; source reviewed 10/21/2026"
+BERKADIA,n,,,,,,"Reviewed 26 lien records; the only recent hits were San Cipriano Townhomes, not a nursing home; source reviewed 10/21/2026"
+LANCASTER POLLARD,n,,,,,,"Reviewed 19 displayed lien entries (including repeated party matches); no filings within the two-year window; source reviewed 10/21/2026"
+ORIX REAL ESTATE CAPITAL,n,,,,,,"Reviewed 16 displayed lien entries (including repeated party matches); no filings within the two-year window; source reviewed 10/21/2026"
+DWIGHT CAPITAL,n,,,,,,"Reviewed 9 liens; newest potentially care-related filings were dated 06/26/2024, outside the two-year window; source reviewed 10/21/2026"
+MONTICELLO,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+GMCC,n,,,,,,"Reviewed 2 unique liens; the only recent filing was unrelated to nursing homes; source reviewed 10/21/2026"
+CAPITAL FUNDING,y,"1880 VAN BUREN PHOENIX, LLC","CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS",2025-000-8693-0,02/04/2025,02/04/2030,"Nursing-home property entity associated with Haven Health Sky Harbor; source reviewed 10/21/2026"
+CAPITAL FUNDING,y,"HAVEN HEALTH GREEN VALLEY, LLC","CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS",2025-001-9242-0,04/25/2025,04/25/2030,"Skilled-nursing facility operator; source reviewed 10/21/2026"
+CAPITAL FUNDING,y,"HAVEN GREEN VALLEY REAL ESTATE, LLC","CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS",2025-001-9244-9,04/25/2025,04/25/2030,"Nursing-home real-estate entity associated with Haven Health Green Valley; source reviewed 10/21/2026"
+CAPITAL FUNDING,y,"HAVEN OF SCOTTSDALE, LLC","CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS",2025-003-6939-7,09/12/2025,09/12/2030,"Skilled-nursing facility operator; source reviewed 10/21/2026"
+CAPITAL FUNDING,y,"HAVEN SCOTTSDALE REAL ESTATE, LLC","CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS",2025-003-6940-2,09/12/2025,09/12/2030,"Nursing-home real-estate entity associated with Haven of Scottsdale; source reviewed 10/21/2026"
+CAPITAL FINANCE,y,"HAVEN HEALTH GREEN VALLEY, LLC","CAPITAL FINANCE, LLC, AS AGENT",2025-001-9107-0,04/29/2025,04/29/2030,"Skilled-nursing facility operator; source reviewed 10/21/2026"
+CAPITAL FINANCE,y,"HAVEN OF SIERRA VISTA, LLC","CAPITAL FINANCE, LLC, AS AGENT",2026-002-5334-3,04/23/2026,04/23/2031,"Skilled-nursing facility operator; source reviewed 10/21/2026"
+CAPITAL FINANCE,y,"HAVEN OF SCOTTSDALE, LLC","CAPITAL FINANCE, LLC, AS AGENT",2026-003-0954-2,06/25/2026,06/25/2031,"Skilled-nursing facility operator; source reviewed 10/21/2026"
+MIDCAP,n,,,,,,"Reviewed 66 unique liens; 19 were within the two-year window, but none involved nursing-home entities; source reviewed 10/21/2026"
+WHITE OAK HEALTHCARE,n,,,,,,"Reviewed 20 unique liens; no filings within the two-year window; source reviewed 10/21/2026"
+OXFORD FINANCE,n,,,,,,"Reviewed 33 unique liens; recent hits involved home health, hospice, palliative care, pharmacy/lab, or other healthcare rather than nursing homes; source reviewed 10/21/2026"
+CIBC,n,,,,,,"Reviewed 98 unique liens; 12 were within the two-year window, but none involved nursing-home entities; source reviewed 10/21/2026"
+BANKWELL,n,,,,,,"Reviewed 4 unique liens; the only recent filing involved G5 OPCO LLC and was not nursing-home related; source reviewed 10/21/2026"
+METROPOLITAN COMMERCIAL BANK,n,,,,,,"Reviewed 15 unique liens; no filings within the two-year window; source reviewed 10/21/2026"
+OMEGA HEALTHCARE,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+SABRA,n,,,,,,"Reviewed 1 lien; no filings within the two-year window; source reviewed 10/21/2026"
+CTW INVESTMENT,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+CARETRUST,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+NATIONAL HEALTH INVESTORS,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+LTC PROPERTIES,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+WELLTOWER,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+VENTAS,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+SECRETARY OF U.S. DEPARTMENT OF HOUSING,n,,,,,,"Reviewed 14 unique liens; the only recent filing involved Orchard Pointe at Arrowhead, an assisted-living facility rather than a nursing home; source reviewed 10/21/2026"
+FORBRIGHT,n,,,,,,"Reviewed 59 unique liens; the two recent filings involved a solar project and a youth behavioral-health residential facility, not nursing homes; source reviewed 10/21/2026"
+VALLEY NATIONAL BANK,n,,,,,,"Reviewed 100 unique liens; 12 were within the two-year window, but none involved nursing-home entities; source reviewed 10/21/2026"
+VNB NEW YORK,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+EAST WEST BANK,n,,,,,,"Reviewed 99 unique liens; 31 were within the two-year window, but recent senior-living, housing, staffing, and other hits were not nursing-home entities; source reviewed 10/21/2026"
+IKARIA,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+VIUM CAPITAL,n,,,,,,"Reviewed 2 unique liens; no filings within the two-year window; source reviewed 10/21/2026"
+TEXAS CAPITAL BANK,n,,,,,,"Reviewed 61 unique liens; 9 were within the two-year window, but none involved nursing-home entities; source reviewed 10/21/2026"
+POPULAR BANK,n,,,,,,"Reviewed 85 unique liens; the 3 recent hits involved recovery care, assisted living, and hospital equipment financing rather than nursing homes; source reviewed 10/21/2026"
+BANK HAPOALIM,n,,,,,,"Reviewed 2 unique liens; no filings within the two-year window; source reviewed 10/21/2026"
+ONB DHF,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+DMT SPE,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+ECAPITAL,n,,,,,,"Reviewed 100 unique liens; 15 were within the two-year window, but none involved nursing-home entities; source reviewed 10/21/2026"
+MERCHANTS BANK OF INDIANA,n,,,,,,"Reviewed 21 unique liens; 7 were within the two-year window, but the recent hits were housing or unrelated entities rather than nursing homes; source reviewed 10/21/2026"
+BOKF,n,,,,,,"Reviewed 99 unique liens; 3 were within the two-year window, but none involved nursing-home entities; source reviewed 10/21/2026"
+ISRAEL DISCOUNT BANK,n,,,,,,"Reviewed 7 unique liens; recent healthcare-adjacent hits were assisted living and behavioral-health residential care, not nursing homes; source reviewed 10/21/2026"
+DIME COMMUNITY BANK,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+CONNECTONE,n,,,,,,"Reviewed 6 unique liens; 2 were within the two-year window, but neither involved a nursing-home entity; source reviewed 10/21/2026"
+YAKAR,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
+DBF SPE,n,,,,,,"No Arizona search result found; user reported not found; recorded 10/21/2026"
