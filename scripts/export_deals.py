@@ -66,6 +66,7 @@ UCC_PORTAL_URLS = {
     "AR": "https://bcs.sos.arkansas.gov/search/ucc",
     "NM": "https://enterprise.sos.nm.gov/search/ucc",
     "RI": "https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx",
+    "ID": "https://sosbiz.idaho.gov/search/ucc",
 }
 
 # Per-filing pages that can be built from the filing number alone, so no

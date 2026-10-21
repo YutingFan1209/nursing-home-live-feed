@@ -747,6 +747,10 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             if wanted is None or code in wanted:
                 portal_terms[code], portal_offsets[code] = _rotate_names(
                     conn, LENDER_TERMS, PORTAL_LENDER_OFFSET_KEY.format(code.lower()), f"{code} lender", keep_order=True)
+        id_names, id_offset, id_hc_names = None, 0, None
+        if wanted is None or "ID" in wanted:
+            id_names, id_offset = _rotate_names(conn, _get_id_search_names(conn), ID_OFFSET_KEY, "ID")
+            id_hc_names = _cms_healthcare_names(conn, "ID")
         ca_names, ca_offset = None, 0
         if wanted is None or "CA" in wanted:
             ca_names, ca_offset = _rotate_ca_names(
@@ -790,11 +794,15 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             pa_lender_terms=pa_lenders,
             cms_healthcare_names=cms_hc_names,
             portal_lender_terms=portal_terms,
+            id_search_names=id_names,
+            id_healthcare_names=id_hc_names,
             states=ucc_states,
         )
         if ca_names:
             _save_ca_offset(conn, ca_offset, len(ca_names))
-        from ucc import lien_portal, ri
+        from ucc import lien_portal, ri, id as id_ucc
+        if id_names and "ID" in id_ucc.LAST_SEARCHED:
+            _save_offset(conn, ID_OFFSET_KEY, id_offset, id_ucc.LAST_SEARCHED["ID"], len(id_names), "ID")
         searched = {**lien_portal.LAST_SEARCHED, **ri.LAST_SEARCHED}
         for code, offset in portal_offsets.items():
             if code in searched:
@@ -1246,6 +1254,23 @@ CA_NAMES_PER_RUN = 30
 PA_LENDER_OFFSET_KEY = "ucc_pa_lender_next_offset"
 PA_OFFSET_KEY = "ucc_pa_next_offset"
 PORTAL_LENDER_OFFSET_KEY = "ucc_{}_lender_next_offset"  # AR, NM (ucc/lien_portal.py), RI (ucc/ri.py)
+ID_OFFSET_KEY = "ucc_id_next_offset"
+
+
+def _get_id_search_names(conn) -> list[str]:
+    """Idaho has ~80 homes, so its debtor search can take more than CHOW
+    buyers: those, Idaho deal names, and CMS organization owners with an
+    ownership or control role (operators, landlords, holding companies),
+    leaving out counties, hospital districts and trusts."""
+    from ucc.id import NOT_A_HOME_OWNER
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT DISTINCT owner_name FROM cms_ownership_records
+            WHERE provider_state = 'ID' AND owner_type = 'Organization' AND owner_role IN %s
+        """, (_CMS_OWNERSHIP_RELEVANT_ROLES,))
+        cms = [r[0] for r in cur.fetchall() if r[0]]
+    names = get_chow_operator_names("ID") + _get_known_operator_names(conn, "ID") + cms
+    return [n for n in names if not NOT_A_HOME_OWNER.search(n)]
 
 
 def _rotate_names(conn, names: list[str], key: str, label: str, keep_order: bool = False) -> tuple[list[str], int]:

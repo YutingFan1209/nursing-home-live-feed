@@ -643,3 +643,23 @@ def test_ri_results_url_sends_every_form_key():
     url = ri.results_url("CAPITAL FUNDING")
     for key in ("txtLast=", "chkDebtor=", "chkSecuredParty=S", "txtName=CAPITAL+FUNDING", "lstDisplay=10000"):
         assert key in url
+
+
+# ── ID UCC debtor search (2026-10-21) ──────────────────────────
+from ucc import id as id_ucc
+
+
+def test_id_rows_keep_ucc_only_and_split_parties():
+    rows = {
+        "1": {"TITLE": ["SNF BOISE OPERATING COMPANY, LLC - WOODS CROSS, UT"], "SEC_PARTY": ["ECAPITAL HEALTHCARE CORP. - AVENTURA, FL"],
+              "RECORD_NUM": "20261111111", "FILING_DATE": "04/30/2026", "LAPSE_DATE": "04/30/2031", "RECORD_TYPE": "UCC", "STATUS": "Active", "ID": 1},
+        "2": {"TITLE": ["SNF BOISE OPERATING CO LLC - BOISE, ID"], "SEC_PARTY": ["IDAHO DEPARTMENT OF LABOR - BOISE, ID"],
+              "RECORD_NUM": "20212222222", "FILING_DATE": "03/19/2021", "RECORD_TYPE": "State Lien", "STATUS": "Released", "ID": 2},
+    }
+    got = id_ucc.rows_to_filings(rows, "BOISE SNF")
+    assert len(got) == 1
+    f = got[0]
+    assert (f.debtor_name, f.secured_party_name, f.filing_date) == (
+        "SNF BOISE OPERATING COMPANY, LLC", "ECAPITAL HEALTHCARE CORP.", date(2026, 4, 30))
+    assert f.raw["address"] == "WOODS CROSS, UT" and f.status == "active"
+    assert id_ucc.NOT_A_HOME_OWNER.search("BOUNDARY COUNTY") and not id_ucc.NOT_A_HOME_OWNER.search("BOISE SNF OPERATIONS LLC")

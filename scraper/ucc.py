@@ -15,6 +15,7 @@ from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
 from ucc.lien_portal import search_lenders as search_portal_lenders
 from ucc.ri import search_lenders as search_ri_lenders
+from ucc.id import search_debtors as search_id_debtors
 from ucc import pa_playwright
 from ucc.lender_search import LENDER_TERMS, filter_lender_hits
 from ucc.lender_classifier import classify_secured_party
@@ -64,6 +65,9 @@ ENABLE_CA_PLAYWRIGHT = True  # enabled 2026-09-30: auto-launched Chrome like PA.
 # wall; lender search only (ucc/lien_portal.py). 2026-10-21: RI's public search
 # the same way, secured party only (ucc/ri.py)
 ENABLE_PORTAL_LENDER = {"AR": True, "NM": True, "RI": True}
+# 2026-10-21: Idaho has no secured-party search, so its nursing home entity
+# names are searched as debtors over its plain JSON API (ucc/id.py)
+ENABLE_ID_DEBTOR = True
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -96,6 +100,8 @@ def fetch_ucc_filings(
     pa_lender_terms: list[str] = None,
     cms_healthcare_names: set[str] = None,
     portal_lender_terms: dict[str, list[str]] = None,
+    id_search_names: list[str] = None,
+    id_healthcare_names: set[str] = None,
     states: list[str] = None,
 ) -> list[dict]:
     """states: optional list of 2-letter state codes (case-insensitive) to
@@ -136,6 +142,18 @@ def fetch_ucc_filings(
         except Exception as e:
             logger.warning(f"{code} UCC lender search failed: {e}")
             health.source_failed(f"UCC {code} lender search", e)
+
+    # ID: debtor search by Idaho CHOW buyers, deal names and CMS owners
+    # (main.py). The search matches any order of the words, so results also
+    # carry other businesses sharing a word ("CASCADIA MEDICAL BILLING"):
+    # keep recent filings whose debtor looks like an Idaho nursing home
+    if _enabled(ENABLE_ID_DEBTOR, "ID") and id_search_names:
+        health.attempted("UCC ID debtor searches", len(id_search_names))
+        try:
+            filings.extend(filter_lender_hits(search_id_debtors(id_search_names), id_healthcare_names or set()))
+        except Exception as e:
+            logger.warning(f"ID UCC debtor search failed: {e}")
+            health.source_failed("UCC ID debtor search", e)
 
     # KY (Playwright, no Cloudflare, headless=True)
     # Use ky_search_names (CHOW facility-level LLCs) — the KY portal only

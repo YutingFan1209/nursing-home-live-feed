@@ -43,6 +43,17 @@ LENDER_TERMS = [
     # Healthcare REITs (lease and loan collateral)
     "OMEGA HEALTHCARE", "SABRA", "CTW INVESTMENT", "CARETRUST",
     "NATIONAL HEALTH INVESTORS", "LTC PROPERTIES", "WELLTOWER", "VENTAS",
+    # Added 2026-10-21: the most frequent lenders on recent nursing home
+    # filings found by debtor search (NY/KY/OH/FL/CA/NJ) that the list above
+    # missed -- 573 of 1,082 recent UCC deals. HUD also files as "SECRETARY
+    # OF U.S. DEPARTMENT OF HOUSING...", which a begins-with search on the
+    # first HUD term doesn't reach. Big general banks (Regions, Fifth Third,
+    # BMO, JPMorgan) left out: thousands of unrelated filings per search
+    "SECRETARY OF U.S. DEPARTMENT OF HOUSING",
+    "FORBRIGHT", "VALLEY NATIONAL BANK", "VNB NEW YORK", "EAST WEST BANK",
+    "IKARIA", "VIUM CAPITAL", "TEXAS CAPITAL BANK", "POPULAR BANK", "BANK HAPOALIM",
+    "ONB DHF", "DMT SPE", "ECAPITAL HEALTHCARE", "MERCHANTS BANK OF INDIANA",
+    "BOKF", "ISRAEL DISCOUNT BANK", "DIME COMMUNITY BANK", "CONNECTONE", "YAKAR",
 ]
 
 # Only recent filings are a current signal (72% of UCC deals on the site
