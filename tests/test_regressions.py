@@ -895,6 +895,7 @@ def test_true_filings_that_are_not_deals_are_non_deal_liens():
     assert is_not_a_deal(old, today)
     # A nursing home lender's filing against an owner stays (Warren Cole, Elderwood)
     assert not is_not_a_deal({**old, "lender": "CAPITAL FINANCE, LLC", "lender_category": "Healthcare RE / HUD lender"}, today)
+    assert not is_not_a_deal({**old, "lender": "BANK OF AMERICA, N.A., AS ADMINISTRATIVE AGENT"}, today)
     # So does one CMS dates put near a sale, and a recent one
     assert not is_not_a_deal({**old, "deal_type": "acquisition_financing"}, today)
     assert not is_not_a_deal({**old, "acquisition_date": "2025-09-25"}, today)

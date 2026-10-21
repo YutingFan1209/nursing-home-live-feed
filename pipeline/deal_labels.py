@@ -93,6 +93,9 @@ CONSUMER_LENDER_RE = re.compile(
 # filings for Elderwood) and any filing CMS dates put near a sale.
 PERSON_FILING_MAX_AGE = timedelta(days=730)
 HOME_LENDERS = ("Healthcare RE / HUD lender", "Private credit fund")
+# A syndicate's agent or a deal's nominee lends to a business the owner
+# guarantees (Bank of America as administrative agent, Carillo and Friedman 2018)
+_DEAL_LENDER_RE = re.compile(r"\bAS (ADMINISTRATIVE |COLLATERAL )?AGENT\b|\bNOMINEE\b|\bLENDER,? LLC\b", re.I)
 # Florida's daily file is matched on words like "Nursing" and "Rehab": a
 # filing linked to no home is kept unless it's plainly another business
 # (nursing schools, home care, hospice, pharmacy) or another kind of loan
@@ -122,7 +125,7 @@ def is_not_a_deal(d: dict, today: date = None) -> bool:
     filed = str(d.get("acquisition_date") or "")[:10]
     if (d.get("individual_filing") and d.get("deal_type") == "financing" and filed
             and filed < ((today or date.today()) - PERSON_FILING_MAX_AGE).isoformat()
-            and d.get("lender_category") not in HOME_LENDERS):
+            and d.get("lender_category") not in HOME_LENDERS and not _DEAL_LENDER_RE.search(d.get("lender") or "")):
         return True
     if d.get("ucc_state") == "FL" and not d.get("ccns"):
         lender = d.get("lender") or ""
