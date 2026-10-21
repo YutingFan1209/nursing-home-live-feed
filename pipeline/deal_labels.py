@@ -84,11 +84,51 @@ CONSUMER_LENDER_RE = re.compile(
     r"social security administration|consumer finance|"
     # audit 2026-10-21: older personal and farm-equipment lenders
     r"american general finan|springleaf|citifinancial|household finance|beneficial (finance|mortgage)|"
-    r"new holland credit|avco financial|associates financial", re.I)
+    r"new holland credit|avco financial|associates financial|ubs bank usa", re.I)
+
+# Audit 2026-10-21 noise: true filings that aren't nursing home deals.
+# A person's filing older than NY's two-year search window, from a lender
+# that doesn't finance nursing homes (M&T 2007, Banco Popular 2017). Kept:
+# nursing home and private credit lenders (Warren Cole's Capital Finance
+# filings for Elderwood) and any filing CMS dates put near a sale.
+PERSON_FILING_MAX_AGE = timedelta(days=730)
+HOME_LENDERS = ("Healthcare RE / HUD lender", "Private credit fund")
+# Florida's daily file is matched on words like "Nursing" and "Rehab": a
+# filing linked to no home is kept unless it's plainly another business
+# (nursing schools, home care, hospice, pharmacy) or another kind of loan
+# (merchant cash advances, copiers, a person as lender)
+NOT_A_HOME_RE = re.compile(
+    r"school|education|home ?care|home health|hospice|pharmacy|nursing services|staffing|spinal|"
+    r"pediatric|mobility|allied health|nursing on demand|\bshop\b", re.I)
+SMALL_BUSINESS_LENDER_RE = re.compile(
+    r"bitty advance|ace funding|dash funding|seamless funding|lcf group|funding metrics|biz capital|"
+    r"olympus lending|mazel tov|alternative funding group|funding strategy partners|middesk|copiers|"
+    r"targeted education finance", re.I)
+# A lender with no business word in its name is a person ("DAMAS MIRIAM");
+# is_person() is for debtors and passes "FORBRIGHT BANK, AS AGENT"
+_BUSINESS_WORD_RE = re.compile(
+    r"BANK\b|\b(BANCORP|N\.?A|LLC|L\.?L\.?C|INC|CORP\w*|CO|COMPANY|LP|L\.?P|LTD|FUND|CAPITAL|TRUST|FINANC\w*|"
+    r"CREDIT|LENDING|FUNDING|AGENT|SECRETARY|DEPARTMENT|ASSOCIATION|PARTNERS|GROUP|HOLDINGS?|SERVIC\w*|"
+    r"MANAGEMENT|INVESTORS?|MORTGAGE|COALITION|PLAN)\b", re.I)
 
 
 def is_personal_loan(d: dict) -> bool:
     return bool(d.get("individual_filing") and CONSUMER_LENDER_RE.search(d.get("lender") or ""))
+
+
+def is_not_a_deal(d: dict, today: date = None) -> bool:
+    """A UCC filing that is real but not a nursing home deal (see
+    PERSON_FILING_MAX_AGE and NOT_A_HOME_RE)."""
+    filed = str(d.get("acquisition_date") or "")[:10]
+    if (d.get("individual_filing") and d.get("deal_type") == "financing" and filed
+            and filed < ((today or date.today()) - PERSON_FILING_MAX_AGE).isoformat()
+            and d.get("lender_category") not in HOME_LENDERS):
+        return True
+    if d.get("ucc_state") == "FL" and not d.get("ccns"):
+        lender = d.get("lender") or ""
+        return bool(NOT_A_HOME_RE.search(d.get("ucc_debtor") or "") or SMALL_BUSINESS_LENDER_RE.search(lender)
+                    or (lender and not _BUSINESS_WORD_RE.search(lender)))
+    return False
 
 
 def transaction_type(d: dict) -> str:
@@ -97,7 +137,7 @@ def transaction_type(d: dict) -> str:
     except a person's loan from a consumer lender, which is a non-deal lien."""
     dt = d.get("deal_type") or "ownership_change"
     if d.get("source_type") == "ucc":
-        return "non_deal_lien" if is_personal_loan(d) else dt
+        return "non_deal_lien" if is_personal_loan(d) or is_not_a_deal(d) else dt
     text = _text(d)
     if dt == "ownership_change":
         if _CONTROL_RE.search(text) and not d.get("deal_value_m"):

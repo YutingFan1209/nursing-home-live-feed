@@ -884,3 +884,25 @@ def test_news_lease_transition_is_a_lease_not_a_sale():
                     "Laurels portfolio facilities from Ciena to Saber Healthcare's master lease. This was an "
                     "operator change, not a sale."}
     assert transaction_type(d) == "lease"
+
+
+def test_true_filings_that_are_not_deals_are_non_deal_liens():
+    from datetime import date
+    from pipeline.deal_labels import is_not_a_deal
+    today = date(2026, 10, 21)
+    old = {"source_type": "ucc", "ucc_state": "NY", "individual_filing": True, "deal_type": "financing",
+           "acquisition_date": "2007-05-14", "lender": "MANUFACTURERS & TRADERS TRUST COMPANY", "lender_category": "Bank"}
+    assert is_not_a_deal(old, today)
+    # A nursing home lender's filing against an owner stays (Warren Cole, Elderwood)
+    assert not is_not_a_deal({**old, "lender": "CAPITAL FINANCE, LLC", "lender_category": "Healthcare RE / HUD lender"}, today)
+    # So does one CMS dates put near a sale, and a recent one
+    assert not is_not_a_deal({**old, "deal_type": "acquisition_financing"}, today)
+    assert not is_not_a_deal({**old, "acquisition_date": "2025-09-25"}, today)
+    fl = {"source_type": "ucc", "ucc_state": "FL", "ccns": None, "deal_type": "financing"}
+    assert is_not_a_deal({**fl, "ucc_debtor": "ORLANDO SCHOOL OF NURSING LLC.", "lender": "TARGETED EDUCATION FINANCE FUND LLC"}, today)
+    assert is_not_a_deal({**fl, "ucc_debtor": "JOY LIFE NURSING, INC., A FLORIDA CORPORATION", "lender": "DAMAS MIRIAM"}, today)
+    assert is_not_a_deal({**fl, "ucc_debtor": "SKILLED NURSING SERVICES INC", "lender": "BITTY ADVANCE 2, LLC"}, today)
+    # A new property company CMS doesn't list yet stays
+    assert not is_not_a_deal({**fl, "ucc_debtor": "STUART FL PROPCO II LLC", "lender": "CAPITAL FUNDING, LLC"}, today)
+    assert not is_not_a_deal({**fl, "ucc_debtor": "PINES NURSING HOME 2015, LLC", "lender": "OPTIMUMBANK"}, today)
+    assert not is_not_a_deal({**fl, "ucc_debtor": "TAYLOR SNF PROPCO LLC", "lender": "FORBRIGHT BANK, AS AGENT"}, today)
