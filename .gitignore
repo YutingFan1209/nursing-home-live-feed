@@ -30,3 +30,4 @@ dashboard/frontend/storybook-static/
 
 # Internal decision log, kept local
 docs/tyler-questions.md
+dashboard/frontend/.vite/

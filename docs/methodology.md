@@ -201,5 +201,3 @@ venv/bin/python3 main.py --test-article <URL>      # single-article dry run, pri
 ```
 
 `run_pipeline.sh` is the cron-safe wrapper (starts the DB container if needed, runs `main.py`, never touches git; no scheduled job currently runs it) — see `CLAUDE.md` for the branch model and deploy steps (`main` holds source only; `gh-pages` is a separate, manually-updated deploy target with its own divergent copy of the Python source).
-
-AWS deployment (Lambda + RDS + EventBridge) is designed but not yet deployed — see `infra/eventbridge.tf` for the Terraform config (daily EventBridge Scheduler trigger, containerized Lambda, 15-minute timeout) and `infra/cloudrun.yaml` for an alternative GCP Cloud Run Jobs config.

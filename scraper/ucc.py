@@ -5,8 +5,6 @@ from __future__ import annotations
 
 import logging
 import os
-from ucc.nj import NewJerseyUCCSource
-from ucc.me import MaineUCCSource
 from ucc.ny_playwright import search_ny_batch_cdp
 from ucc.nj_playwright import search_nj_batch
 from ucc.oh_playwright import search_oh_batch
@@ -43,8 +41,6 @@ def _union_names(chow_names: list[str] | None, known_names: list[str]) -> list[s
             merged.append(n)
     return merged
 
-ENABLE_NJ_AUTOMATION = False
-ENABLE_MAINE_AUTOMATION = False
 ENABLE_NY_PLAYWRIGHT = True
 ENABLE_NJ_PLAYWRIGHT = True  # re-enabled 2026-09-22 -- disabled 2026-06-23 because the
 # free non-certified search doesn't return secured-party/lender name without paying
@@ -283,15 +279,6 @@ def fetch_ucc_filings(
             logger.warning(f"NJ UCC batch search failed: {e}")
             health.source_failed("UCC NJ", e)
 
-    # NJ (legacy - disabled)
-    if _enabled(ENABLE_NJ_AUTOMATION, "NJ"):
-        nj_source = NewJerseyUCCSource()
-        for operator_name in known_operator_names:
-            try:
-                filings.extend(nj_source.search(operator_name))
-            except Exception as e:
-                logger.warning(f"NJ UCC search failed for {operator_name!r}: {e}")
-
     # OH (Playwright, hidden window)
     # Use oh_search_names (CHOW facility-level LLCs) unioned with
     # known_operator_names — the OH portal is a debtor search and
@@ -314,15 +301,6 @@ def fetch_ucc_filings(
         except Exception as e:
             logger.warning(f"OH UCC batch search failed: {e}")
             health.source_failed("UCC OH", e)
-
-    # ME
-    if _enabled(ENABLE_MAINE_AUTOMATION, "ME"):
-        me_source = MaineUCCSource()
-        for operator_name in known_operator_names:
-            try:
-                filings.extend(me_source.search(operator_name))
-            except Exception as e:
-                logger.warning(f"ME UCC search failed for {operator_name!r}: {e}")
 
     logger.info(f"UCC: fetched {len(filings)} raw filings across enabled states")
     articles = []
