@@ -3,7 +3,7 @@
 A live feed of U.S. nursing home (skilled nursing facility) ownership changes. It combines sources that are early but unconfirmed (state pre-closing filings, UCC-1 financing statements, trade press) with sources that are slow but authoritative (CMS ownership records), and matches everything against CMS facility and ownership data.
 
 **Live site:** https://yutingfan1209.github.io/nursing-home-live-feed/
-**As of 2026-09-30:** 2,549 live deals across 53 states and territories (UCC-1 1,653 · CMS CHOW 572 · news 162 · state filings 150 · SEC 12)
+**As of 2026-10-21:** 4,117 live deals across 51 states and territories (UCC-1 3,003 · CMS CHOW 700 · CMS ownership file 49 · state filings 197 · news 159 · SEC 9)
 
 | Doc | What's in it |
 |---|---|
@@ -12,6 +12,8 @@ A live feed of U.S. nursing home (skilled nursing facility) ownership changes. I
 | [`docs/methodology.md`](docs/methodology.md) | CMS dataset IDs, matching and dedup internals |
 | [`docs/stages-and-tags.md`](docs/stages-and-tags.md) | Deal stages and researcher tags |
 | [`docs/con-feasibility.md`](docs/con-feasibility.md) | Research behind the state-filing sources, state by state, incl. the NY test |
+| [`docs/ucc-feasibility.md`](docs/ucc-feasibility.md) | Every state's UCC search: cost, robots.txt, terms, captcha, what's live |
+| [`docs/manual-ucc-searches.md`](docs/manual-ucc-searches.md) | States searched by hand, with the worklists in `Manual/` |
 
 ---
 
@@ -21,12 +23,14 @@ A live feed of U.S. nursing home (skilled nursing facility) ownership changes. I
 DISCOVERY                        PROCESSING                      STORAGE      FRONTEND
 ───────────────────────          ─────────────────────────       ─────────    ──────────────
 State pre-closing filings  ─┐    Claude extraction (news,        Postgres  →  deals.json +
-  (8 states, source 'con')  │      filings, scanned PDFs)          │          feed.xml on
-State UCC-1 filings (5)    ─┤    Pre-extracted fast path         export_      GitHub Pages
-CMS CHOW CSV (quarterly)   ─┼──→   (CHOW, UCC, table-based CON) → deals.py ─→ (static React,
-Google Alerts (Gmail)      ─┤    Dedup: exact hash + fuzzy                     Vite build)
-RSS trade press            ─┤    CMS ownership matcher → stage
-SEC EDGAR full-text search ─┘    Lender classifier (UCC)
+  (13 states + Philadelphia)│      filings, scanned PDFs)          │          feed.xml on
+State UCC-1 filings        ─┤    Pre-extracted fast path         export_      GitHub Pages
+  (12 automated, 7 by hand) │      (CHOW, UCC, table-based CON) → deals.py ─→ (static React,
+CMS CHOW CSV (quarterly)   ─┼──→ Dedup: exact hash + fuzzy                     Vite build)
+CMS ownership file (monthly)┤      + same-sale merge
+Google Alerts (Gmail)      ─┤    CMS ownership matcher → stage
+RSS trade press            ─┤    Lender classifier + lender
+SEC EDGAR full-text search ─┘      search filter (UCC)
 ```
 
 Deal stages: `detected` → `pending_cms` → `confirmed`, plus `unresolved`, `verified` and `dismissed` (see [`docs/stages-and-tags.md`](docs/stages-and-tags.md)). Pending deals are re-matched against CMS on every run until they confirm or hit the recheck limit.
@@ -37,7 +41,7 @@ Deal stages: `detected` → `pending_cms` → `confirmed`, plus `unresolved`, `v
 
 Summary only — [`docs/data-sources.md`](docs/data-sources.md) has the detail and current status of each.
 
-### State pre-closing filings (`source_type='con'`, added 2026-09-30)
+### State pre-closing filings (`source_type='con'`, since 2026-09-30)
 Filings a buyer makes with a state *before* a nursing home changes hands — usually weeks to months ahead of news and CMS. One module per state:
 
 | State | Filing | Buyer named? | How it's read |
@@ -50,28 +54,49 @@ Filings a buyer makes with a state *before* a nursing home changes hands — usu
 | NC `scraper/con_nc.py` | DHSR CON exemption to acquire a facility | Yes | HTML table, no Claude |
 | MD `scraper/con_md.py` | MHCC acquisition application, ≥60 days pre-close | Yes | PDF → Claude, one per case |
 | NJ `scraper/con_nj.py` | DOH transfer-of-ownership + real estate transfer | Yes | PDF → Claude / HTML table |
+| PA `scraper/con_pa.py` | DOH licence application, 10-day public comment | Yes | HTML form fields, no Claude |
+| PA (Philadelphia) `scraper/con_phl.py` | City notice before a transfer | Yes | PDF → Claude, many scanned |
+| CA `scraper/con_ca.py` | OHCA material change notice, ≥90 days pre-close | Yes | HTML table + PDF → Claude; SNF deals only |
+| NY `scraper/con_ny.py` | PHHPC establishment exhibit, 2–4 weeks before the council vote | Yes | Agenda PDF → Claude (`ENABLE_CON_NY`) |
+| IL `scraper/con_il.py` | HFSRB county-home sale (most IL sales need no CON) | Yes | Scanned application → Claude |
+| HI `scraper/con_hi.py` | SHPDA CON application to acquire | Yes (address, not name) | HTML table, no Claude |
 
-Scanned PDFs are transcribed by Claude (`pipeline/pdf_text.py`) — there's no system OCR on the pipeline machine. NY has been tested (found 9 of 9 recent sales in committee agendas 14–28 days before the vote) but isn't built yet.
+Scanned PDFs are transcribed by Claude (`pipeline/pdf_text.py`) — there's no system OCR on the pipeline machine. Research and build order for the other states: [`docs/con-feasibility.md`](docs/con-feasibility.md).
 
 ### State UCC-1 financing statements
-Browser scrapers per state portal (`ucc/`), orchestrated by `scraper/ucc.py`. A UCC-1 is financing, not a sale, so it either corroborates an existing deal or seeds a new "signal" deal, after the lender classifier (`ucc/lender_classifier.py`) filters out equipment, vendor and personal liens.
+One module per state portal (`ucc/`), orchestrated by `scraper/ucc.py`. A UCC-1 is financing, not a sale, so it either corroborates an existing deal or seeds a new "signal" deal, after the lender classifier (`ucc/lender_classifier.py`) filters out equipment, vendor and personal liens.
 
-| State | Automation | Notes |
+Two ways in, depending on what the portal allows:
+- **Debtor search:** look up names we already know (CHOW buyers, live deal names, CMS owners).
+- **Lender search:** look up the 47 lenders that mostly finance nursing homes (`LENDER_TERMS` in `ucc/lender_search.py`). This finds borrowers we've never heard of. `filter_lender_hits` keeps filings from the last 2 years whose debtor looks like a nursing home entity, plus that lender's other filings the same day (a portfolio's property companies).
+
+| State | How | Notes |
 |---|---|---|
-| KY | Headless | Most reliable. Rate-limits a second full run on the same day |
-| NY | Real Chrome over CDP (`ucc/chrome_cdp.py`) | Cloudflare blocks headless. Org + individual-owner searches, multi-hour |
-| NJ | Headless, parallel workers | Portal never returns the lender; deals show "not available" |
-| PA | Real Chrome over CDP | Automated but gets Incapsula-challenged under volume |
-| OH | Blocked for Playwright since 2026-09 | Searches have been run through a real Chrome session instead |
+| KY | Headless debtor search | Most reliable. Rate-limits a second full run on the same day |
+| NY | Debtor search in a real Chrome over CDP (`ucc/chrome_cdp.py`) | Cloudflare blocks headless. Org + individual-owner searches; person filings keep the last 2 years and drop consumer lenders |
+| NJ | Headless debtor search, parallel workers | Portal never returns the lender; deals show "not available" |
+| PA | Lender search, then debtor search, in a real Chrome | Incapsula-challenged under volume; big debtor passes run in the person's own Chrome (`scripts/pa_ucc_browser.py`) |
+| OH | The person's own Chrome only | Playwright is IP-blocked; `scripts/oh_ucc_browser.py` (debtor), `scripts/oh_ucc_lender_search.js` (lender) |
+| CA | SOS weekly bulk data (`scripts/ca_ucc_import.py`) | Name search throttles at ~55 searches, so it's a 30-name backup |
+| FL | Registry's official daily data files (`ucc/fl_download.py`) | No scraping |
+| OR | Lender search in the person's own Chrome (`scripts/or_ucc_lender_search.js`) | Loaded with `scripts/ingest_lender_rows.py` |
+| AR, NM | Headless lender search over a JSON API (`ucc/lien_portal.py`) | NM refuses after ~20 quick searches: 30 s apart, resumes where it stopped |
+| RI | Headless lender search (`ucc/ri.py`) | Borrower read from each filing's history page |
+| ID | Headless debtor search (`ucc/id.py`) | No lender mode; ~80 buyer and owner names |
 
-Run states separately (`--ucc-states KY`); nothing commits until the whole UCC step returns. See [`docs/data-sources.md`](docs/data-sources.md) for search-name sourcing (CHOW + live deal names + CMS individual owners).
+**By hand:** AZ, CO, IN, MD, WV and NH (the 47 lenders) and ME (owner names) can't be automated within our rules: captcha, bot check, robots.txt or terms of use. Worklists are in `Manual/`; fill one in and load it with `scripts/ingest_manual_ucc.py` ([`docs/manual-ucc-searches.md`](docs/manual-ucc-searches.md)). IL and VT (captcha, debtor search only) and AK (robots.txt) are off. Every other state is in [`docs/ucc-feasibility.md`](docs/ucc-feasibility.md).
+
+Run states separately (`--ucc-states KY`, or `--ucc-only --ucc-states AR,RI`); nothing commits until the whole UCC step returns. See [`docs/data-sources.md`](docs/data-sources.md) for search-name sourcing.
 
 ### CMS CHOW (confirmation)
-Quarterly SNF change-of-ownership CSV. The download URL is discovered through CMS's data API, and every row is recorded in `chow_seen_records` so each run only considers genuinely new rows (until 2026-09-22 a date-window bug meant no CHOW deal had ever been created). Latest file: 2026-07-17.
+Quarterly SNF change-of-ownership CSV. The download URL comes from CMS's data API, and `scraper/chow.py` also reads `data.cms.gov/data.json` and takes the newer file, since the API lags new releases. Every row is recorded in `chow_seen_records`, so each run only considers new rows. A buyer taking over several homes on the same day becomes one multi-facility deal; `scripts/chow_restore_lost.py` re-links records left without a deal. Latest file: `SNF_CHOW_2026.09.29.csv` (posted 2026-10-19); the next is due around January 2027.
+
+### CMS ownership changes (confirmation, all states)
+`scraper/cms_owner_changes.py` reloads the monthly CMS ownership file when it's more than 25 days old and turns new organization owners into deals (`extraction_model='cms_owner_change'`, shown as "Federal Record"). These catch closed sales about 1–2 months after closing.
 
 ### News and filings
-- **Google Alerts** → dedicated Gmail inbox → Gmail API (`scraper/gmail_alerts.py`). Lookback widens automatically after a gap.
-- **RSS**: Skilled Nursing News, McKnight's (news feed, with a browser-impersonation fallback for 403s), Senior Housing News.
+- **Google Alerts** → dedicated Gmail inbox → Gmail API (`scraper/gmail_alerts.py`). Lookback widens automatically after a gap (up to 30 days).
+- **RSS**: Skilled Nursing News, McKnight's (news feed, with a browser-impersonation fallback for 403s), Senior Housing News. Modern Healthcare's and Provider Magazine's feeds are dead (`active=False`).
 - **SEC EDGAR** full-text search for operator/REIT 8-Ks.
 
 ### CMS reference data
@@ -91,6 +116,9 @@ venv/bin/python3 main.py --no-alerts --skip-ucc
 # UCC for specific states only, one state per run
 venv/bin/python3 main.py --no-alerts --ucc-states KY
 
+# UCC only (skips Gmail/RSS/EDGAR/CHOW/state filings)
+venv/bin/python3 main.py --no-alerts --ucc-only --ucc-states AR,NM,RI,ID
+
 # Gmail alerts only; or override the Gmail lookback after a long gap
 venv/bin/python3 main.py --no-alerts --gmail-only
 venv/bin/python3 main.py --no-alerts --gmail-days-back 8
@@ -99,7 +127,7 @@ venv/bin/python3 main.py --no-alerts --gmail-days-back 8
 ./run_pipeline.sh
 ```
 
-**Scheduling:** there is currently no scheduled job — the daily launchd job is intentionally disabled (plist kept in `.disabled-launchagents/`) and runs are manual. Two sources depend on regular runs: MS removes items 30 days after they complete (runs must be ≤ ~6 weeks apart), and NJ's operator page only lists recent applications.
+**Scheduling:** there is currently no scheduled job — the daily launchd job is intentionally disabled (plist kept in `.disabled-launchagents/`) and runs are manual. Three sources depend on regular runs: PA's licence applications are only listed during their comment window (runs ≤ a week apart), MS removes items 30 days after they complete (≤ ~6 weeks apart), and NJ's operator page only lists recent applications.
 
 **Run health:** each run ends with a `RUN HEALTH` summary (`pipeline/run_health.py`) and exits with code **2** if a source failed outright or too many fetches/extractions failed; `SOURCE HEALTH` warnings (`pipeline/source_health.py`) flag sources that have gone quiet.
 
@@ -108,6 +136,7 @@ venv/bin/python3 main.py --no-alerts --gmail-days-back 8
 - **Two-layer dedup** (`pipeline/dedup.py`):
   - *Exact hash* — acquirer + states + month + facility count + value. Records with no buyer hash on their own ID instead (UCC filing number, state CON record ID); otherwise every buyer-less record in a state and month collided into one.
   - *Fuzzy pass* after each insert — fuzzy acquirer (≥85) + overlapping states + date within 30 days + similar facility count + a shared facility name. Keeps the more complete row and merges the other into it.
+- **Same-sale merge** (`pipeline/same_sale.py`): one sale reported by two sources (say CHOW and the CMS ownership file) is merged automatically when the match is clear. Each merge is logged to `data/same_sale_merges.jsonl` and the dropped row is only marked dismissed (`merged_into`). Unclear pairs are left for review with `scripts/merge_same_sale.py`.
 - **CMS matching** (`matcher/ownership.py`) sets the stage. A state-filing deal only counts as `confirmed` by a CMS ownership record starting no earlier than 30 days before the filing; older records belong to the seller.
 - **Scope:** assisted living / memory care news deals are auto-dismissed (`pipeline/al_mc_scope.py`); state-filing deals skip that check since each source already restricts to nursing facilities.
 - **Names** are cleaned for display by `pipeline/normalizer.py` (legal suffixes dropped; "Opco" kept on street-number names like "813 Keller Lane Opco").
@@ -162,7 +191,26 @@ git checkout main
 - Before a frontend deploy, `cd dashboard/frontend && npm test` (Playwright + axe against a fixture, plus pixel comparisons; see `tests/`).
 - After a frontend deploy, hard-refresh the site (Cmd+Shift+R) — browsers keep the old bundle cached.
 
-**Branch rules:** `main` has the source and never deploy artifacts; `gh-pages` has only the site files above (its pipeline-code copy and `run_and_deploy.sh` were removed 2026-10-21; they're in its history).
+**Branch rules:** `main` has the source and never deploy artifacts; `gh-pages` has only the site files above (its pipeline-code copy and `run_and_deploy.sh` were removed 2026-10-21; they're in its history). `data/` (local working files, some with personal names) and the credential files never go on either branch.
+
+---
+
+## Useful scripts
+
+| Script | What it does |
+|---|---|
+| `scripts/export_deals.py <path>` | Export `deals.json` + `feed.xml` (positional path; `feed.xml` goes next to it) |
+| `scripts/predeploy_check.py <export>` | Compare an export with the live site; stops on suspicious batches |
+| `scripts/ingest_manual_ucc.py <STATE> <csv>` | Load a hand-filled UCC worklist from `Manual/` |
+| `scripts/ingest_lender_rows.py` | Load lender-search results gathered in a browser (OR, OH) |
+| `scripts/ca_ucc_import.py data/DataRequest*.zip` | Import California's weekly UCC bulk data |
+| `scripts/{pa,oh,ca}_ucc_browser.py` | UCC debtor searches in the person's own Chrome |
+| `scripts/merge_same_sale.py` | List or merge one sale stored twice |
+| `scripts/chow_restore_lost.py` | Re-link CHOW records left without a deal |
+| `scripts/reextract_news.py` | Re-extract news articles (headlines, bare deals, missing summaries) |
+| `scripts/relink_cms_ucc.py` | Re-run UCC↔CMS matching from stored filings, no portal hits |
+| `scripts/ucc_gap_check.py` | Find a state's deal names never covered by the UCC search lists |
+| `scripts/enrich_ucc_facility_names.py` | Fill in facility names on UCC deals that only carry the debtor name |
 
 ---
 
@@ -206,6 +254,7 @@ cp .env.example .env        # DATABASE_URL, ANTHROPIC_API_KEY
 
 # Tests
 venv/bin/python3 -m pytest -q tests
+cd dashboard/frontend && npm test     # frontend: Playwright + axe + pixel comparisons
 ```
 
 ---
@@ -213,12 +262,11 @@ venv/bin/python3 -m pytest -q tests
 ## Known limitations
 
 - **No scheduled runs** (see Scheduling above) — the feed only updates when someone runs the pipeline.
-- **UCC automation is fragile:** NY and PA need a real Chrome (not cloud-ready as-is); PA and OH get bot-challenged under volume; OH is blocked for Playwright; KY and OH rate-limit repeat same-day runs.
+- **UCC automation is fragile:** NY and PA need a real Chrome (not cloud-ready as-is); PA, OH and CA get bot-challenged or throttled under volume; OH runs only in the person's own Chrome; KY and OH rate-limit repeat same-day runs; seven states are searched by hand.
 - **State-filing deals:** OK, MS and most MI records name no buyer; OK statuses and ME/MD cases aren't refreshed after they're first stored; MD dates come from upload month (late when documents are re-uploaded).
-- **One sale, several entries:** a sale reported by news and by a state filing (or a UCC-1) can appear as separate deals when the buyer names differ; fuzzy dedup only merges on a close buyer-name match.
-- **CMS data:** CHOW is quarterly and lags real closings by months; `cms_ownership_records` / `cms_facilities` have no scheduled refresh (rerun `python3 -m cms.fetch_cms`).
+- **One sale, several entries:** a sale reported by news and by a state filing (or a UCC-1) can still appear as separate deals when the buyer names differ; fuzzy dedup and the same-sale merge only act on a clear match.
+- **CMS data:** CHOW is quarterly and lags real closings by months; `cms_ownership_records` reloads when it's over 25 days old, but `cms_facilities` has no scheduled refresh (rerun `python3 -m cms.fetch_cms`).
 - **Lender classifier is permissive by default:** unrecognized secured parties count as relevant, so new noise categories are only filtered once someone adds a pattern.
 - **Fuzzy dedup only runs on new inserts;** there's no periodic full-table sweep.
 - **Operator networks:** individual CMS owners feed NY/OH UCC searches, but nothing links an individual across facilities into an operator group.
-- **Deployment** is manual, and every data refresh commits a ~2.3 MB `deals.json` to `gh-pages` history. Moving to GitHub Actions Pages deploys would fix the growth.
-- **AWS deployment** (Lambda + RDS + EventBridge) was designed but never deployed.
+- **Deployment** is manual, and every data refresh commits a ~9 MB `deals.json` to `gh-pages` history. Moving to GitHub Actions Pages deploys would fix the growth.
