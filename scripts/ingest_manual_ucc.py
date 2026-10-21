@@ -93,6 +93,16 @@ def main():
     except Exception as e:
         print(f"CMS/UCC relink skipped/failed: {e}")
 
+    # Name the facility behind each debtor (CMS exact, then CHOW buyer), as
+    # main.py's UCC step does; without it the deals carry no CCN, so the
+    # export can't tell refinancing from acquisition financing
+    try:
+        from scripts.enrich_ucc_facility_names import run as enrich_ucc_facility_names
+        enriched = enrich_ucc_facility_names(conn=conn, state_filter=state)
+        print(f"UCC facility-name enrichment: {enriched} deals named")
+    except Exception as e:
+        print(f"UCC facility-name enrichment skipped/failed: {e}")
+
     conn.close()
 
 
