@@ -899,6 +899,12 @@ def test_true_filings_that_are_not_deals_are_non_deal_liens():
     # So does one CMS dates put near a sale, and a recent one
     assert not is_not_a_deal({**old, "deal_type": "acquisition_financing"}, today)
     assert not is_not_a_deal({**old, "acquisition_date": "2025-09-25"}, today)
+    # NY nursing home banks that sort as plain banks stay (fresh sample 2026-10-21)
+    for lender in ("VNB NEW YORK, LLC", "BANK HAPOALIM B.M.", "SIGNATURE BANK", "THE PRIVATEBANK AND TRUST COMPANY"):
+        assert not is_not_a_deal({**old, "lender": lender}, today)
+    # Equipment and vendor liens don't
+    assert is_not_a_deal({**old, "individual_filing": False, "lender": "RED-D-ARC INC"}, today)
+    assert is_not_a_deal({**old, "individual_filing": False, "lender": "AIRX FERGUSON"}, today)
     fl = {"source_type": "ucc", "ucc_state": "FL", "ccns": None, "deal_type": "financing"}
     assert is_not_a_deal({**fl, "ucc_debtor": "ORLANDO SCHOOL OF NURSING LLC.", "lender": "TARGETED EDUCATION FINANCE FUND LLC"}, today)
     assert is_not_a_deal({**fl, "ucc_debtor": "JOY LIFE NURSING, INC., A FLORIDA CORPORATION", "lender": "DAMAS MIRIAM"}, today)
@@ -907,3 +913,11 @@ def test_true_filings_that_are_not_deals_are_non_deal_liens():
     assert not is_not_a_deal({**fl, "ucc_debtor": "STUART FL PROPCO II LLC", "lender": "CAPITAL FUNDING, LLC"}, today)
     assert not is_not_a_deal({**fl, "ucc_debtor": "PINES NURSING HOME 2015, LLC", "lender": "OPTIMUMBANK"}, today)
     assert not is_not_a_deal({**fl, "ucc_debtor": "TAYLOR SNF PROPCO LLC", "lender": "FORBRIGHT BANK, AS AGENT"}, today)
+
+
+def test_oh_lender_list_drops_the_homes_own_entities():
+    from scripts.export_deals import clean_lender
+    assert clean_lender("OTTAWA SNF OPCO LLC\n\nMetropolitan Commercial Bank, as Agent") == "Metropolitan Commercial Bank, as Agent"
+    assert clean_lender("LANCASTER POLLARD MORTGAGE COMPANY\n\nSECRETARY OF HOUSING AND URBAN DEVELOPMENT") == \
+        "LANCASTER POLLARD MORTGAGE COMPANY; SECRETARY OF HOUSING AND URBAN DEVELOPMENT"
+    assert clean_lender("FORBRIGHT BANK") == "FORBRIGHT BANK"

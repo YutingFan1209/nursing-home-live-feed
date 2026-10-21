@@ -18,6 +18,7 @@ from rapidfuzz import fuzz
 
 from pipeline.normalizer import looks_non_us
 from pipeline.ucc_category import is_person, norm
+from ucc.lender_classifier import LenderCategory, classify_secured_party
 
 
 
@@ -96,6 +97,11 @@ HOME_LENDERS = ("Healthcare RE / HUD lender", "Private credit fund")
 # A syndicate's agent or a deal's nominee lends to a business the owner
 # guarantees (Bank of America as administrative agent, Carillo and Friedman 2018)
 _DEAL_LENDER_RE = re.compile(r"\bAS (ADMINISTRATIVE |COLLATERAL )?AGENT\b|\bNOMINEE\b|\bLENDER,? LLC\b", re.I)
+# Banks that lend to NY nursing homes but sort as plain banks: 11 of 30
+# hidden records in the fresh sample (2026-10-21) were their loans to owners
+_HOME_BANK_RE = re.compile(
+    r"\bVNB NEW YORK|VALLEY NATIONAL|PRIVATE ?BANK AND TRUST|HAPOALIM|SIGNATURE BANK|DORAL HEALTHCARE"
+    r"|METROPOLITAN NATIONAL BANK|FORTRESS CREDIT", re.I)
 # Florida's daily file is matched on words like "Nursing" and "Rehab": a
 # filing linked to no home is kept unless it's plainly another business
 # (nursing schools, home care, hospice, pharmacy) or another kind of loan
@@ -125,13 +131,15 @@ def is_not_a_deal(d: dict, today: date = None) -> bool:
     filed = str(d.get("acquisition_date") or "")[:10]
     if (d.get("individual_filing") and d.get("deal_type") == "financing" and filed
             and filed < ((today or date.today()) - PERSON_FILING_MAX_AGE).isoformat()
-            and d.get("lender_category") not in HOME_LENDERS and not _DEAL_LENDER_RE.search(d.get("lender") or "")):
+            and d.get("lender_category") not in HOME_LENDERS and not _DEAL_LENDER_RE.search(d.get("lender") or "")
+            and not _HOME_BANK_RE.search(d.get("lender") or "")):
         return True
     if d.get("ucc_state") == "FL" and not d.get("ccns"):
         lender = d.get("lender") or ""
         return bool(NOT_A_HOME_RE.search(d.get("ucc_debtor") or "") or SMALL_BUSINESS_LENDER_RE.search(lender)
                     or (lender and not _BUSINESS_WORD_RE.search(lender)))
-    return False
+    # Equipment and vendor liens (welding gear, HVAC) the classifier now knows
+    return classify_secured_party(d.get("lender") or "").category == LenderCategory.EQUIPMENT_VENDOR
 
 
 def transaction_type(d: dict) -> str:

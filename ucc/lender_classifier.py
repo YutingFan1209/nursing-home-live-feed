@@ -154,6 +154,9 @@ EXCLUDE_PATTERNS = [
     r"\bphilips medical capital\b", # Philips imaging equipment finance
     r"\bjoerns healthcare\b",       # beds and support surfaces
     r"\bcoactiv capital\b",         # equipment leasing
+    # Fresh sample 2026-10-21
+    r"\bred-?d-?arc\b",              # welding equipment rental
+    r"\bairx\b", r"\bferguson enterprises\b",  # HVAC and plumbing supply
 ]
 
 

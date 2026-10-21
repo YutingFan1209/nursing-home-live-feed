@@ -248,6 +248,22 @@ def _first_last(name: str) -> tuple:
     return (parts[0], parts[-1]) if len(parts) > 1 else tuple(parts)
 
 
+# OH lists every secured party on a filing, one per paragraph, and some
+# are the homes' own opcos and property companies (a tenant's or landlord's
+# interest), not lenders: "OTTAWA SNF OPCO LLC" on Autumn Court's loan from
+# Metropolitan Commercial Bank (fresh sample 2026-10-21)
+_HOME_ENTITY_RE = re.compile(r"\b(OPCO|PROPCO|PROPERTY HOLDINGS|REHAB\w*|HEALTH ?CARE,? (LLC|INC)|NURSING|SNF)\b", re.I)
+_LENDER_WORD_RE = re.compile(r"BANK|TRUST|CAPITAL|FUND|FINANC|MORTGAGE|LENDING|CREDIT|HOUSING|HUD\b|AGENT|SPE\b", re.I)
+
+
+def clean_lender(lender: str | None) -> str | None:
+    if not lender or "\n" not in lender:
+        return lender
+    parts = list(dict.fromkeys(p.strip() for p in lender.split("\n") if p.strip()))
+    lenders = [p for p in parts if _LENDER_WORD_RE.search(p) or not _HOME_ENTITY_RE.search(p)]
+    return "; ".join(lenders or parts)
+
+
 def _match_ny_spreadsheet(index: dict, debtor: str | None, filed: str | None, lender: str | None):
     """The real filing behind an NYX deal: the person's only NY filing that
     day, or else the one whose secured party is the deal's lender -- by the
@@ -485,6 +501,7 @@ def main():
         for row in rows:
             deal = dict(zip(cols, row))
             deal["id"] = str(deal["id"])
+            deal["lender"] = clean_lender(deal["lender"])
             deal["acquisition_date"] = str(deal["acquisition_date"]) if deal["acquisition_date"] else None
             deal["created_at"] = deal["created_at"].isoformat() if deal["created_at"] else None
             if deal["source_type"] == "ucc" and deal["source_url"]:
