@@ -41,7 +41,7 @@ def check_watch(conn) -> list[str]:
                       AND owner_role ILIKE '%%DIRECT OWNERSHIP%%' AND owner_role NOT ILIKE '%%INDIRECT%%'
                     UNION
                     SELECT buyer_name, TO_DATE(effective_date, 'MM/DD/YYYY') FROM chow_seen_records
-                    WHERE ccn = %(ccn)s AND effective_date ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
+                    WHERE LEFT(ccn, 6) = %(ccn)s AND effective_date ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
                       AND TO_DATE(effective_date, 'MM/DD/YYYY') >= %(since)s
                 """, w)
             else:

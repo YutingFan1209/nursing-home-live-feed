@@ -134,6 +134,12 @@ def _load_seen_chow_keys(conn) -> set[tuple[str, str, str]]:
         return set(cur.fetchall())
 
 
+def _load_home_states(conn) -> dict[str, str]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT ccn, provider_state FROM cms_facilities")
+        return dict(cur.fetchall())
+
+
 def _mark_chow_keys_seen(conn, keys: list[tuple[str, str, str]]) -> None:
     if not keys:
         return
@@ -185,6 +191,7 @@ def fetch_chow_deals(conn) -> list[dict]:
         return []
 
     already_seen = _load_seen_chow_keys(conn)
+    home_state = _load_home_states(conn)
     newly_seen_keys = []
     deals = []
     seen_this_run = set()
@@ -222,6 +229,13 @@ def fetch_chow_deals(conn) -> list[dict]:
         if effective_date < date.today() - timedelta(days=CHOW_RECENCY_DAYS):
             continue
 
+        # The CSV suffixes a home's CCN on a repeat CHOW (475025B, 335331001),
+        # and its state is the buyer's enrollment state, which can differ
+        # from the home's (Stonehenge of Orem, UT, listed under CA): the
+        # deal gets the home's own CCN and state (audit 2026-10-21)
+        ccn = home_ccn(ccn)
+        state = home_state.get(ccn) or state
+
         # Build a synthetic article-like dict for the pipeline
         title = f"[CHOW] {buyer} acquires {seller or 'facility'} (CCN: {ccn})"
         deal = {
@@ -254,6 +268,13 @@ def fetch_chow_deals(conn) -> list[dict]:
     _mark_chow_keys_seen(conn, newly_seen_keys)
     logger.info(f"Found {len(deals)} new CHOW records ({len(already_seen)} previously seen)")
     return deals
+
+
+def home_ccn(ccn: str) -> str:
+    """The six-character CMS certification number, without the CHOW file's
+    repeat-sale suffix."""
+    ccn = (ccn or "").strip().upper()
+    return ccn[:6] if len(ccn) > 6 else ccn
 
 
 def _build_synthetic_text(buyer, seller, ccn, state, date_str, chow_type) -> str:

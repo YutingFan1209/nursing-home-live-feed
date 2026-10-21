@@ -21,6 +21,7 @@ from collections import Counter
 sys.path.insert(0, "/Users/kitty/Projects/nursing-home-live-feed")
 from pipeline.deal_labels import CONSUMER_LENDER_RE
 from pipeline.ucc_category import is_person
+from scripts.consistency_check import issues, load_exceptions, unexcused
 
 LIVE_URL = "https://yutingfan1209.github.io/nursing-home-live-feed/deals.json"
 
@@ -33,6 +34,7 @@ LIMITS = {
     "type_changes": 40,           # deal_type changes on existing records
     "facility_changes": 60,       # CCN changes on existing records
     "acquired_headlines": 0,      # never say "acquired" (2026-10-12 rule)
+    "consistency_issues": 0,      # scripts/consistency_check.py, whole site (2026-10-21)
 }
 
 
@@ -61,6 +63,8 @@ def check(new: dict, live: dict) -> tuple[dict, list[str]]:
         "facility_changes": sum(1 for i in common if sorted(a[i].get("ccns") or []) != sorted(b[i].get("ccns") or [])),
         "acquired_headlines": sum(1 for d in a.values() if re.search(r"\bacquired\b", headline(d))),
     }
+    found = unexcused(issues(new), load_exceptions())
+    counts["consistency_issues"] = len(found)
     lines = [f"{'check':22} {'count':>6} {'limit':>6}"]
     for k, v in counts.items():
         flag = "  <-- over" if v > LIMITS[k] else ""
@@ -73,6 +77,8 @@ def check(new: dict, live: dict) -> tuple[dict, list[str]]:
                      Counter(d.get("lender") for d in added if d.get("lender")).most_common(10)))
         lines.append("sample new headlines:")
         lines += [f"  - {headline(d)[:110]}" for d in added[:12]]
+    for k, i, x in found:
+        lines.append(f"  {k}: {i[:8]} {headline(a[i])[:60]} | {x}")
     for d in a.values():
         if re.search(r"\bacquired\b", headline(d)):
             lines.append(f"  'acquired' headline: {d['id'][:8]} {headline(d)[:100]}")

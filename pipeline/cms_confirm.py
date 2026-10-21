@@ -65,6 +65,20 @@ def same_facility_name(a: str, b: str) -> bool:
     return bool(ka) and ka == kb
 
 
+def facility_names_agree(a: str, b: str) -> bool:
+    """same_facility_name, either way round, or the same name once
+    punctuation and case are set aside ("Vista Grande Villa", all generic
+    words), or one name cut off from the other ("Optalis Health And
+    Rehabilitation Of Three" / "...of Three Rivers")."""
+    na = " ".join(re.sub(r"[^A-Z0-9 ]", " ", (a or "").upper()).split())
+    nb = " ".join(re.sub(r"[^A-Z0-9 ]", " ", (b or "").upper()).split())
+    if not na or not nb:
+        return False
+    short, long_ = sorted((na, nb), key=len)
+    return (same_facility_name(a, b) or same_facility_name(b, a) or na == nb
+            or (len(short) >= 12 and long_.startswith(short)))
+
+
 def _mdy(s):
     m = re.match(r"(\d{2})/(\d{2})/(\d{4})$", s or "")
     return date(int(m[3]), int(m[1]), int(m[2])) if m else None
@@ -91,7 +105,7 @@ class CmsIndex:
             """)
             for ccn, start, owner in cur.fetchall():
                 self.events[ccn].append((start, owner, "CMS ownership data"))
-            cur.execute("SELECT ccn, buyer_name, effective_date FROM chow_seen_records")
+            cur.execute("SELECT LEFT(ccn, 6), buyer_name, effective_date FROM chow_seen_records")  # repeat-CHOW suffix off
             for ccn, buyer, eff in cur.fetchall():
                 if _mdy(eff):
                     self.events[ccn].append((_mdy(eff), buyer, "CMS change-of-ownership file"))

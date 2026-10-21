@@ -11,6 +11,8 @@ from typing import Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import anthropic
 
+from pipeline.grounding import ground
+
 from config import get_config
 from pipeline.run_health import health
 
@@ -173,6 +175,10 @@ def extract_deals(article_text: str, article_url: str = "", published_at=None) -
     normalized = []
     for deal in deals:
         n = _normalize_deal(deal)
+        if not n:
+            continue
+        # Only what the article says (pipeline/grounding.py)
+        n = ground(n, truncated_text)
         if not n:
             continue
         if _looks_stale(n.get("rationale")):

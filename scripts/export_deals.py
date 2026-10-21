@@ -44,7 +44,7 @@ from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline.ucc_category import categorize, collapse_repeats, owner_start_dates
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
-from pipeline.cms_confirm import CmsIndex, same_facility_name
+from pipeline.cms_confirm import CmsIndex, facility_names_agree, same_facility_name
 from pipeline.deal_groups import group
 
 # NY UCC filings against a person name a private individual. Tyler approved
@@ -555,6 +555,30 @@ def main():
                 deal["ccns"] = keep or None
         print(f"Dropped {dropped} fuzzy facility matches whose names don't agree")
 
+        # A news story or state notice that names its homes is about those
+        # homes: a linked home must agree with one of the names (or the
+        # seller's, a notice's current operator), or sit in a town the record
+        # mentions (a home renamed after its sale). Owner and buyer-name
+        # matches had linked Ensign's St. Elizabeth Care Center to two
+        # Providence hospitals and an 18-home Maryland portfolio to Snow Hill,
+        # which isn't in it (audit 2026-10-21)
+        cur.execute("SELECT deal_id::text, ccn FROM cms_matches WHERE match_method IN ('chow_ccn_direct', 'cms_ownership_direct')")
+        direct = set(cur.fetchall())
+        cur.execute("SELECT ccn, provider_name, provider_city FROM cms_facilities")
+        home = {ccn: (name, city) for ccn, name, city in cur.fetchall()}
+        unnamed = 0
+        for deal in deals:
+            if deal["source_type"] in ("chow", "ucc") or not deal.get("facility_names") or not deal.get("ccns"):
+                continue
+            names = deal["facility_names"] + ([deal["seller_entity"]] if deal.get("seller_entity") else [])
+            text = " ".join([deal.get("summary") or "", deal.get("source_title") or ""] + deal["facility_names"]).upper()
+            keep = [c for c in deal["ccns"] if (deal["id"], c) in direct or c not in home
+                    or any(facility_names_agree(n, home[c][0]) for n in names)
+                    or (home[c][1] and re.search(rf"\b{re.escape(home[c][1].upper())}\b", text))]
+            unnamed += len(deal["ccns"]) - len(keep)
+            deal["ccns"] = keep or None
+        print(f"Dropped {unnamed} links to homes a record doesn't name")
+
         # UCC financing -> acquisition financing / refinancing, and one row
         # per repeated loan (pipeline/ucc_category.py)
         cur.execute("""
@@ -564,7 +588,7 @@ def main():
         """)
         owner_starts = owner_start_dates(cur.fetchall())
         cur.execute("""
-            SELECT ccn, TO_DATE(effective_date, 'MM/DD/YYYY') FROM chow_seen_records
+            SELECT LEFT(ccn, 6), TO_DATE(effective_date, 'MM/DD/YYYY') FROM chow_seen_records
             WHERE effective_date ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
         """)
         for ccn, start in cur.fetchall():

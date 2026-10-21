@@ -76,6 +76,7 @@ def chow_env(monkeypatch):
     monkeypatch.setattr(chow, "_download_chow_csv", lambda url: rows)
     monkeypatch.setattr(chow, "_load_seen_chow_keys", lambda conn: set(seen))
     monkeypatch.setattr(chow, "_mark_chow_keys_seen", lambda conn, keys: seen.update(keys))
+    monkeypatch.setattr(chow, "_load_home_states", lambda conn: {})
     return seen
 
 
@@ -792,3 +793,61 @@ def test_same_sale_pairs_news_and_8k_on_seller_and_price(monkeypatch):
     monkeypatch.setattr(same_sale, "_load", lambda conn: deals)
     auto, review = same_sale.find_pairs(None)
     assert [(x["id"], y["id"]) for x, y, _ in auto] == [("a", "b")] and not review
+
+
+# ── Grounding and CCN guards (audit 2026-10-21) ───────────────
+# Claude filled fields from its own knowledge (homes a notice never names, a
+# buyer from a different story); CHOW's repeat-sale suffix made CCNs that
+# match no home; news deals were linked to a namesake home in another town.
+
+def test_grounding_drops_what_the_source_never_says():
+    from pipeline.grounding import ground
+    text = ("Cliveden Nursing and Rehabilitation Center and Tucker House Nursing and Rehabilitation "
+            "Center in Philadelphia were sold by Cliveden Operating LLC to Gem Care Partners for $14,500,000.")
+    deal = {"acquiring_entity": "Gem Care Partners", "seller_entity": "Cliveden Operating LLC",
+            "facility_names": ["Cliveden Nursing and Rehabilitation Center", "Tucker House Nursing and Rehabilitation Center",
+                               "Maplewood Nursing and Rehabilitation Center"], "deal_value_m": 14.5}
+    named = list(deal["facility_names"])
+    out = ground(deal, text)
+    assert out["facility_names"] == named[:2] and out["deal_value_m"] == 14.5
+    assert ground({"acquiring_entity": "PACS Group", "facility_names": [], "deal_value_m": None},
+                  "Earnings call highlights: revenue grew 12%.") is None
+    # An anonymous story stays
+    assert ground({"acquiring_entity": None, "facility_names": [], "deal_value_m": None}, "A 32-unit community in Utah sold.")
+
+
+def test_grounding_reads_prices_as_filings_write_them():
+    from pipeline.grounding import value_in_text
+    assert value_in_text(14.5, "purchase price of $14,500, excluding closing costs")   # SEC table, thousands
+    assert value_in_text(0.11, "Consideration: $ _______111,688.89___")                # Alabama notice form
+    assert value_in_text(0.47, "___468,957.14______$")
+    assert value_in_text(30.0, "$18 million for the operations and $12 million for the real estate")
+    assert not value_in_text(10.4, "sold for $15 million")
+
+
+def test_chow_repeat_sale_suffix_is_the_same_home():
+    assert chow.home_ccn("475025B") == "475025"
+    assert chow.home_ccn("335331001") == "335331"
+    assert chow.home_ccn(" 05a123 ") == "05A123"
+
+
+def test_named_home_must_agree_with_linked_home():
+    from pipeline.cms_confirm import facility_names_agree
+    assert facility_names_agree("Optalis Health and Rehabilitation of Three", "OPTALIS HEALTH AND REHABILITATION OF THREE RIVERS")
+    assert facility_names_agree("Vista Grande Villa", "VISTA GRANDE VILLA")
+    assert not facility_names_agree("Moldaw Residences", "ESKATON VILLAGE CARMICHAEL")
+
+
+def test_consistency_check_finds_the_audit_mistakes():
+    from scripts.consistency_check import issues
+    homes = {"075183": {"name": "ESKATON VILLAGE CARMICHAEL", "city": "CARMICHAEL", "state": "CA", "owners": []},
+             "015147": {"name": "GLENWOOD POST ACUTE", "city": "BIRMINGHAM", "state": "AL", "owners": []}}
+    deal = lambda i, **kw: {"id": i, "source_type": "rss", "states": ["CA"], "acquisition_date": "2026-06-01",
+                            "facility_names": [], "ccns": [], **kw}
+    found = {(k, i) for k, i, _ in issues({"facilities": homes, "deals": [
+        deal("moldaw", facility_names=["Moldaw Residences"], ccns=["075183"]),
+        deal("glenwood", source_type="con", states=["AL"], facility_names=["Glenwood Post Acute"], ccns=["015147"],
+             acquiring_entity="211-213 Ana Drive Opco", seller_entity="211-213 Ana Drive Opco, LLC"),
+        deal("chow-ut", source_type="chow", ccns=["015147"]),
+    ]})}
+    assert found == {("home_not_named", "moldaw"), ("buyer_is_seller", "glenwood"), ("home_in_other_state", "chow-ut")}
