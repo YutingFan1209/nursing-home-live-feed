@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-21T19:40:50.410707+00:00</updated>
+  <updated>2026-10-21T19:53:58.499656+00:00</updated>
   <entry>
     <id>urn:uuid:df35d0a0-7de7-41d2-9e0a-dc90139c6f6b</id>
     <title>GRANDVIEW HEALTH AND REHAB LLC — UCC-1 financing (CO)</title>
@@ -55,6 +55,13 @@
     <summary>Effective 2026-09-01; Facilities: FRANKLIN PARK OPCO HOLDINGS LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:24fbd482-336b-4b03-b122-83098e515b2e</id>
+    <title>VISTA RIDGE CARE AND REHABILITATION — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:56.125733+00:00</updated>
+    <summary>Effective 2026-07-24; Facilities: VISTA RIDGE CARE AND REHABILITATION; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:cd5439df-6862-4174-8c09-cde78e21aaa3</id>
     <title>THE CENTER AT PARMER — UCC-1 financing (CO)</title>
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
@@ -67,6 +74,20 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-21T19:29:55.736975+00:00</updated>
     <summary>Effective 2026-07-06; Facilities: 150 Spring ST LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:03c3b6b6-3d0b-4b6b-8821-bdd2dccdbb1a</id>
+    <title>THE LODGE AT RED ROCKS — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:55.481978+00:00</updated>
+    <summary>Effective 2026-07-06; Facilities: THE LODGE AT RED ROCKS; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e0abeaae-a74f-4f9d-8c74-e5e97a341e11</id>
+    <title>HIGH PLAINS POST ACUTE LLC — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:55.157743+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: HIGH PLAINS POST ACUTE LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:11a379fe-8ae2-4566-a427-a12c28f2510d</id>
@@ -83,6 +104,20 @@
     <summary>Effective 2026-06-01; Facilities: HIGH PLAINS COTTAGES LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:67ba9b64-b5ce-481f-b59d-b74c8051f689</id>
+    <title>LARCHWOOD HEALTH AND REHAB LLC — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:54.315468+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: LARCHWOOD HEALTH AND REHAB LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:37434df9-b081-42cc-97e3-0c4b8a839cb7</id>
+    <title>LARCHWOOD HEALTH AND REHAB LLC — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:54.017301+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: LARCHWOOD HEALTH AND REHAB LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:1f909492-9e0b-43b3-a6bf-d3be31eb5236</id>
     <title>HIGH PLAINS VILLAGE PROPCO HOLDINGS LLC — UCC-1 financing (CO)</title>
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
@@ -95,6 +130,27 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-21T19:29:53.259149+00:00</updated>
     <summary>Effective 2026-06-01; Facilities: HIGH PLAINS ILF OPCO HOLDINGS LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f611de69-980a-4135-8c66-4d12aef767ea</id>
+    <title>COLOROW CARE CENTER — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:53.067182+00:00</updated>
+    <summary>Effective 2026-05-12; Facilities: COLOROW CARE CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d303319b-4704-4a45-8d87-e9245340fe3b</id>
+    <title>VALLEY VIEW CARE CENTER — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:52.844279+00:00</updated>
+    <summary>Effective 2026-05-12; Facilities: VALLEY VIEW CARE CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a8cb2b9f-4b99-4a22-9c2a-f0b3aba52d3b</id>
+    <title>Yampa Valley Healthcare Center — UCC-1 financing (CO)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:29:52.624947+00:00</updated>
+    <summary>Effective 2026-03-06; Facilities: Yampa Valley Healthcare Center; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:5b9074fa-127c-42db-a7ba-c1e1d8275b88</id>
@@ -153,6 +209,27 @@
     <summary>Effective 2025-02-04; Facilities: 1880 VAN BUREN PHOENIX, LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:ad96fddb-17ee-462a-b53a-64c0d83014da</id>
+    <title>HAVEN OF SIERRA VISTA, LLC — UCC-1 financing (AZ)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:16:01.305152+00:00</updated>
+    <summary>Effective 2026-06-23; Facilities: HAVEN OF SIERRA VISTA, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:581b9b6d-b8c2-499b-a5d0-cc24cff5d67a</id>
+    <title>HAVEN OF SCOTTSDALE — UCC-1 financing (AZ)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:16:00.967837+00:00</updated>
+    <summary>Effective 2026-06-23; Facilities: HAVEN OF SCOTTSDALE, HAVEN OF SIERRA VISTA, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5f8610d5-daba-4415-a406-8ff126029cfd</id>
+    <title>HAVEN OF SIERRA VISTA, LLC — UCC-1 financing (AZ)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:16:00.680212+00:00</updated>
+    <summary>Effective 2026-06-23; Facilities: HAVEN OF SIERRA VISTA, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:a673652d-338a-4a10-b6e0-67900767a9e3</id>
     <title>Cedar Haven Operations LLC DBA Lake Forest Health — acquisition financing (RI)</title>
     <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
@@ -188,6 +265,34 @@
     <summary>Effective 2025-07-21; Facilities: PALM TREE HC ARKANSAS LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:a205b4ce-8046-41d3-bcf7-841759f6094b</id>
+    <title>THE SPRINGS BROADWAY — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:22.244535+00:00</updated>
+    <summary>Effective 2026-07-02; Facilities: THE SPRINGS BROADWAY; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:71f83d4f-6019-4fc9-a02e-f934d67888ee</id>
+    <title>THE SPRINGS BROADWAY — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:21.970896+00:00</updated>
+    <summary>Effective 2026-07-02; Facilities: THE SPRINGS BROADWAY; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7d92a037-7d72-4063-a3b3-c21ab595cafb</id>
+    <title>THE SPRINGS OF MINE CREEK — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:21.519234+00:00</updated>
+    <summary>Effective 2026-07-02; Facilities: THE SPRINGS OF MINE CREEK; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0eed3179-addb-49c0-a571-dab0bd0bbc15</id>
+    <title>THE SPRINGS OF MINE CREEK — UCC-1 financing (AR)</title>
+    <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
+    <updated>2026-10-21T15:49:21.260765+00:00</updated>
+    <summary>Effective 2026-07-02; Facilities: THE SPRINGS OF MINE CREEK; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:76e44e93-e23b-4a21-b77f-03d89890a69f</id>
     <title>ARKMONT MT LLC — UCC-1 financing (AR)</title>
     <link href="https://bcs.sos.arkansas.gov/search/ucc"/>
@@ -216,6 +321,20 @@
     <summary>Effective 2025-04-02; Facilities: TANABELL HEALTH SERVICES, INC.; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
+    <id>urn:uuid:3b50d8a0-399e-4547-80b1-694a362c67ce</id>
+    <title>CASCADIA HEALTHCARE, LLC — UCC-1 financing (ID)</title>
+    <link href="https://sosbiz.idaho.gov/search/ucc"/>
+    <updated>2026-10-21T15:45:21.933720+00:00</updated>
+    <summary>Effective 2026-10-01; Facilities: CASCADIA HEALTHCARE, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e8923c8a-5ef8-4703-91ba-dad71ad3164b</id>
+    <title>Bingham Memorial Skilled Nursing &amp; Rehabilitation — UCC-1 financing (ID)</title>
+    <link href="https://sosbiz.idaho.gov/search/ucc"/>
+    <updated>2026-10-21T15:45:20.992218+00:00</updated>
+    <summary>Effective 2026-02-15; Facilities: Bingham Memorial Skilled Nursing &amp; Rehabilitation; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:13e73f2a-4d18-463c-a1dc-81e606e1f778</id>
     <title>AdviniaCare Newport, LLC — acquisition financing (RI)</title>
     <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
@@ -235,124 +354,5 @@
     <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-10-21T15:27:18.058249+00:00</updated>
     <summary>Effective 2026-02-04; Facilities: AdviniaCare Summit Commons, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a64ba458-b322-4518-be3e-8d4bab0f5203</id>
-    <title>AdviniaCare Waterview Villas, LLC — acquisition financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:17.942331+00:00</updated>
-    <summary>Effective 2026-02-04; Facilities: AdviniaCare Waterview Villas, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:218f2b36-50a7-4b19-9dc0-58a8a70aa383</id>
-    <title>100 CHAMBERS STREET OPCO, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:17.038681+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 100 CHAMBERS STREET OPCO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f58d5903-40a9-489f-8476-30032f6825c2</id>
-    <title>KENT REGENCY CENTER OPCO, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:16.916795+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: KENT REGENCY CENTER OPCO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bbf13250-b115-42f4-a9ce-73fc9a1668c5</id>
-    <title>333 GREEN END AVENUE OPCO, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:16.767099+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 333 GREEN END AVENUE OPCO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:116a56c5-4f12-4db4-a0ed-691c741ac726</id>
-    <title>POINTE RI OPCO, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:16.663355+00:00</updated>
-    <summary>Effective 2025-11-17; Facilities: POINTE RI OPCO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:840e7837-f52c-40a2-b821-db14a774a832</id>
-    <title>SOUTH KINGSTOWN PROPERTIES, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:16.029564+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: SOUTH KINGSTOWN PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:cfc35210-1a92-452b-9650-df27e19a5a7f</id>
-    <title>WARWICK HEALTH CENTRE, INC. — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.916049+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: WARWICK HEALTH CENTRE, INC.; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b6a99c36-ee59-44d7-bd37-bfb0f22cce98</id>
-    <title>VILLAGE HOUSE CONVALESCENT HOME ASSOCIATES, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.739982+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: VILLAGE HOUSE CONVALESCENT HOME ASSOCIATES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2eea90e5-e2d8-41b5-93ab-a720a8426e50</id>
-    <title>STEPHANIE  RYAN — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.642305+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: STEPHANIE  RYAN; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1ea06886-45cf-4d60-80a7-44c91a42a23d</id>
-    <title>ELMWOOD AVENUE REALTY, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.503269+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: ELMWOOD AVENUE REALTY, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2bc578fc-e50f-4edb-87a0-c3b90330cd00</id>
-    <title>BAYBERRY COMMONS PROPERTIES, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.353639+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: BAYBERRY COMMONS PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bc5d9859-0add-45c4-b453-e258f3199a99</id>
-    <title>EASTGATE PROPERTIES, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.224160+00:00</updated>
-    <summary>Effective 2025-01-06; Facilities: EASTGATE PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4cc435fa-0642-44d1-a9d3-a186b4174b46</id>
-    <title>198 WATERMAN AVENUE, LLC, D.B.A. EASTGATE NURSING &amp; REHABILITATION CENTER — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:15.033855+00:00</updated>
-    <summary>Effective 2026-07-27; Facilities: 198 WATERMAN AVENUE, LLC, D.B.A. EASTGATE NURSING &amp; REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:07a3f368-91c6-4411-9037-e028d9017067</id>
-    <title>BURRILLVILLE HEALTH CENTER ASSOCIATES LIMITED PARTNERSHIP, D.B.A. BAYBERRY COMMONS — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:14.626842+00:00</updated>
-    <summary>Effective 2026-07-27; Facilities: BURRILLVILLE HEALTH CENTER ASSOCIATES LIMITED PARTNERSHIP, D.B.A. BAYBERRY COMMONS; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c1533d5e-d1fc-4076-9e5f-c5ec37d909ef</id>
-    <title>ALLEN'S HEALTH CENTER, INC., D.B.A. SOUTH KINGSTOWN NURSING &amp; REHABILITATION CENTER — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:14.169476+00:00</updated>
-    <summary>Effective 2026-07-27; Facilities: ALLEN'S HEALTH CENTER, INC., D.B.A. SOUTH KINGSTOWN NURSING &amp; REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:09298c03-9612-4f82-b7d2-a8792140f7fd</id>
-    <title>HEALTH CONCEPTS MASTER REALTY, LLC — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:13.855518+00:00</updated>
-    <summary>Effective 2026-07-27; Facilities: HEALTH CONCEPTS MASTER REALTY, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:19349d27-c7fe-43a3-afde-6b530fcdf1ef</id>
-    <title>VILLAGE HOUSE CONVALESCENT HOME, INC., D.B.A. VILLAGE HOUSE NURSING &amp; REHABILITATION CENTER — UCC-1 financing (RI)</title>
-    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-10-21T15:27:13.688618+00:00</updated>
-    <summary>Effective 2026-07-27; Facilities: VILLAGE HOUSE CONVALESCENT HOME, INC., D.B.A. VILLAGE HOUSE NURSING &amp; REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
