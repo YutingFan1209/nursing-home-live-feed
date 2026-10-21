@@ -4,7 +4,21 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-21T16:06:02.175912+00:00</updated>
+  <updated>2026-10-21T19:16:21.257311+00:00</updated>
+  <entry>
+    <id>urn:uuid:a1562bf1-8bf2-45b3-957d-329f5dc6410e</id>
+    <title>1880 VAN BUREN PHOENIX, LLC — UCC-1 financing (AZ)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:16:02.205972+00:00</updated>
+    <summary>Effective 2025-02-04; Facilities: 1880 VAN BUREN PHOENIX, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:581b9b6d-b8c2-499b-a5d0-cc24cff5d67a</id>
+    <title>HAVEN PROPERTIES MASTER TENANT, LLC — UCC-1 financing (AZ)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-21T19:16:00.967837+00:00</updated>
+    <summary>Effective 2026-06-23; Facilities: HAVEN PROPERTIES MASTER TENANT, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:a673652d-338a-4a10-b6e0-67900767a9e3</id>
     <title>Cedar Haven Operations LLC DBA Lake Forest Health — acquisition financing (RI)</title>
@@ -340,19 +354,5 @@
     <link href="https://enterprise.sos.nm.gov/search/ucc"/>
     <updated>2026-10-21T15:15:00.442951+00:00</updated>
     <summary>Effective 2026-10-14; Facilities: 103 Hospital Loop NE Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:368bec55-b92e-4b39-8832-97e6647ffe4b</id>
-    <title>2905 Missouri Avenue Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:15:00.322691+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 2905 Missouri Avenue Opco, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c4f8dd5e-6b38-4500-b2bf-f710b241a8dc</id>
-    <title>9150 McMahon Boulevard NW Opco, LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-10-21T15:15:00.195000+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: 9150 McMahon Boulevard NW Opco, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
