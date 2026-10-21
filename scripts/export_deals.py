@@ -306,6 +306,14 @@ def _news_deal_type(deal: dict) -> str:
     existing 2019 bonds"), which the site hides by default like UCC ones."""
     if deal.get("financing_amount_m") and not deal.get("deal_value_m") and not deal.get("acquiring_entity"):
         return "refinancing" if REFINANCING_RE.search(deal.get("summary") or "") else "financing"
+    # A lender with no amount, buyer or price: a portfolio loan whose total
+    # wasn't split per deal (MonticelloAM's three Virginia SNFs, 2026-10-21).
+    # First sentence only: the Indiana half of that loan mentions "a Virginia
+    # refinancing" later on
+    first = re.split(r"(?<=\.)\s", deal.get("summary") or "", maxsplit=1)[0]
+    if (deal.get("lender") and not deal.get("deal_value_m") and not deal.get("acquiring_entity")
+            and REFINANCING_RE.search(first)):
+        return "refinancing"
     return "ownership_change"
 
 

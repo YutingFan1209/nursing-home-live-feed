@@ -179,6 +179,11 @@ def test_news_refinancing_split_from_summary():
         "summary": "Ziegler closed a placement to refinance existing 2019 bonds"}) == "refinancing"
     assert _news_deal_type({"financing_amount_m": 11, "lender": "CIBC",
         "summary": "CIBC closed an $11M commercial mortgage for a skilled nursing facility"}) == "financing"
+    # no amount: a portfolio loan split across deals, refinancing only if its first sentence says so
+    assert _news_deal_type({"lender": "MONTICELLOAM",
+        "summary": "MONTICELLOAM provided loans to refinance three Virginia SNFs. Part of $195.7M."}) == "refinancing"
+    assert _news_deal_type({"lender": "MONTICELLOAM",
+        "summary": "MONTICELLOAM financed the acquisition of four Indiana SNFs. It also includes a Virginia refinancing."}) == "ownership_change"
 
 
 # ── Data-quality guards (2026-10-12) ──────────────────────────
