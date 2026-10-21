@@ -1,11 +1,10 @@
-.env
-gmail_credentials.json
-gmail_token.json
-client_secret*.json
-*.json.bak
-__pycache__/
-*.pyc
-venv/
-node_modules/
-.DS_Store
-CLAUDE.md
+# Deploy branch: only the website itself is tracked here. The pipeline's
+# source lives on main; everything else in a working copy is ignored.
+/*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/assets/
+!/classic/
+!/deals.json
+!/feed.xml
