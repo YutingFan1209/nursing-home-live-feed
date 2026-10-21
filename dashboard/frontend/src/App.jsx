@@ -941,8 +941,9 @@ function Methodology({ chowDate, corrections, onBack }) {
         <li style={li}><strong>Leases:</strong> operations move to a new operator under a lease.</li>
         <li style={li}><strong>Refinancings</strong> (hidden unless you tick "Show refinancings"): new loans on a facility
           whose owner hasn't changed.</li>
-        <li style={li}><strong>Non-deal liens:</strong> UCC filings by equipment vendors, registered agents and small-business
-          lenders, which are rarely about a sale.</li>
+        <li style={li}><strong>Non-deal liens</strong> (hidden unless you tick "Show non-deal liens"): UCC filings by equipment
+          vendors, registered agents and small-business lenders, owners' personal loans, owners' bank loans more than two
+          years old, and businesses that aren't nursing homes, which are rarely about a sale.</li>
         <li style={li}><strong>Other senior living</strong> (assisted or independent living, memory care with no nursing home),
           hospitals, and records whose source doesn't say what kind of facility: hidden unless you tick
           "Include senior living and other" under More filters. Deals outside the US are removed.</li>
@@ -1104,7 +1105,7 @@ function CompanyPanel({ entity, deals, onEntity, onClose }) {
   );
 }
 
-function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity, since }) {
+function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, scope, entity, since }) {
   return allDeals.filter(d => {
     // A record grouped into another deal's card shows there, not on its own
     if (d.grouped_into) return false;
@@ -1113,9 +1114,10 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
     if (tab !== undefined && !inTab(d, tab)) return false;
     // Skilled-nursing-related records unless "Include senior living and other"
     if (!scope && d.facility_type !== "skilled_nursing") return false;
-    // Refinancings are hidden unless asked for; non-deal liens shown unless hidden
+    // Refinancings and non-deal liens are hidden unless asked for (liens:
+    // old personal loans and non-nursing-home businesses, audit 2026-10-21)
     if (!refi && d.deal_type === "refinancing") return false;
-    if (noLiens && d.deal_type === "non_deal_lien") return false;
+    if (!liens && d.deal_type === "non_deal_lien") return false;
     if (state && !(d.states || []).includes(state)) return false;
     // the date the card shows (Effective, Expected close, Filed, Reported)
     const shownDate = d._date;
@@ -1163,17 +1165,17 @@ function readLastVisit() {
 // named views in this browser, each remembering when it was last opened so
 // it can show how many deals are new since then.
 const FILTER_PARAMS = { state: "state", dateFrom: "from", dateTo: "to", search: "q", sourceType: "source", ccnStatus: "ccn",
-  tab: "tab", refi: "refi", noLiens: "noliens", scope: "scope", entity: "entity", since: "since" };
+  tab: "tab", refi: "refi", liens: "liens", scope: "scope", entity: "entity", since: "since" };
 const SAVED_VIEWS_KEY = "nh-saved-views";
 
 // Links and saved views from before the tabs carry a deal type ("type=...")
 // instead -- map it onto the tabs.
 function fromLegacyType(f, type) {
-  if (!type || f.tab || f.refi || f.noLiens) return f;
+  if (!type || f.tab || f.refi || f.liens) return f;
   return { ...f,
     tab: type === "ownership_change" ? "" : "financing",
     refi: type === "all" || type === "refinancing" ? "1" : "",
-    noLiens: type === "no_liens" ? "1" : "" };
+    liens: type === "all" ? "1" : "" };
 }
 
 function filtersFromUrl() {
@@ -1198,7 +1200,7 @@ function viewName(f) {
     f.sourceType && (SOURCE[f.sourceType]?.label || f.sourceType),
     f.tab === "financing" && "Financing",
     f.refi && "With refinancings",
-    f.noLiens && "No non-deal liens",
+    f.liens && "With non-deal liens",
     f.scope && "Incl. senior living & other",
     f.since && `New since ${f.since.slice(0, 10)}`,
     f.ccnStatus && (f.ccnStatus === "matched" ? "CCN matched" : "No CCN"),
@@ -1223,7 +1225,7 @@ export default function App() {
   const [ccnStatus, setCcnStatus] = useState(initial.ccnStatus);
   const [tab, setTab]             = useState(initial.tab === "financing" ? "financing" : "");
   const [refi, setRefi]           = useState(initial.refi);
-  const [noLiens, setNoLiens]     = useState(initial.noLiens);
+  const [liens, setLiens]         = useState(initial.liens);
   const [scope, setScope]         = useState(initial.scope);
   const [since, setSince]         = useState(initial.since);
   const lastVisit = useMemo(readLastVisit, []);
@@ -1275,8 +1277,8 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity, since };
-  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, noLiens, scope, entity, since];
+  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, scope, entity, since };
+  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, scope, entity, since];
 
   useEffect(() => {
     if (focusId || view || facilityCcn) return;  // those pages own the URL
@@ -1331,7 +1333,7 @@ export default function App() {
     const f = fromLegacyType(view.filters, view.filters.dealType);
     setState(f.state || ""); setDateFrom(f.dateFrom || ""); setDateTo(f.dateTo || "");
     setSearch(f.search || ""); setSourceType(f.sourceType || ""); setCcnStatus(f.ccnStatus || "");
-    setTab(f.tab || ""); setRefi(f.refi || ""); setNoLiens(f.noLiens || ""); setScope(f.scope || "");
+    setTab(f.tab || ""); setRefi(f.refi || ""); setLiens(f.liens || ""); setScope(f.scope || "");
     setEntity(f.entity || ""); setOffset(0);
     updateSavedViews(savedViews.map(v => v.name === view.name ? { ...v, lastSeen: new Date().toISOString() } : v));
   }
@@ -1418,7 +1420,7 @@ export default function App() {
   // Clears filters but stays on the current tab
   function clearAll() {
     setState(""); setDateFrom(""); setDateTo("");
-    setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setNoLiens(""); setScope(""); setEntity(""); setSince(""); setOffset(0);
+    setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setLiens(""); setScope(""); setEntity(""); setSince(""); setOffset(0);
   }
 
   // Escape closes "More filters" or "About this data" (the one holding focus,
@@ -1447,7 +1449,7 @@ export default function App() {
     });
   }
 
-  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || noLiens || scope || entity || since;
+  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || liens || scope || entity || since;
   const moreCount = [sourceType, ccnStatus, dateFrom || dateTo, scope].filter(Boolean).length;
 
   // Opening a company view replaces the other filters -- it's a profile,
@@ -1642,8 +1644,8 @@ export default function App() {
               Show refinancings
             </label>
             <label style={checkLabel}>
-              <input type="checkbox" checked={!!noLiens} onChange={resetPage(setNoLiens)} style={checkBox} />
-              Hide non-deal liens
+              <input type="checkbox" checked={!!liens} onChange={resetPage(setLiens)} style={checkBox} />
+              Show non-deal liens
             </label>
           </div>
         )}
