@@ -663,3 +663,46 @@ def test_id_rows_keep_ucc_only_and_split_parties():
         "SNF BOISE OPERATING COMPANY, LLC", "ECAPITAL HEALTHCARE CORP.", date(2026, 4, 30))
     assert f.raw["address"] == "WOODS CROSS, UT" and f.status == "active"
     assert id_ucc.NOT_A_HOME_OWNER.search("BOUNDARY COUNTY") and not id_ucc.NOT_A_HOME_OWNER.search("BOISE SNF OPERATIONS LLC")
+
+
+# ── UCC facility linking: portfolio companions (2026-10-21, CO) ──
+# Property companies, holdcos and out-of-state LLCs had no CMS link, so the
+# export couldn't tell refinancing from acquisition financing.
+from scripts import enrich_ucc_facility_names as enrich
+
+
+def _co_maps():
+    by_state, names = {}, {}
+    for ccn, name, city in [("065399", "RIO GRANDE REHABILITATION AND HEALTHCARE CENTER", "DEL NORTE"),
+                            ("065306", "VALLEY REHABILITATION AND HEALTHCARE CENTER, THE", "SPRINGFIELD"),
+                            ("065347", "VALLEY VIEW CARE CENTER", "PUEBLO"),
+                            ("065291", "ROCK CREEK REHABILITATION AND HEALTHCARE CENTER", "MONTE VISTA"),
+                            ("065391", "COLORADO VETERANS COMMUNITY LIVING CTR AT HOMELAKE", "MONTE VISTA")]:
+        names[ccn] = name
+        by_state.setdefault("CO", []).append((ccn, name, enrich._entity_key(name), enrich._core_key(name)))
+        by_state.setdefault(("city", "CO", city), []).append((ccn, name))
+    return by_state, names
+
+
+def test_portfolio_companions_link_propcos_towns_and_parents():
+    by_state, names = _co_maps()
+    pm = lambda debtor, comp: enrich._portfolio_match(debtor, "CO", comp, by_state, names)
+    # "VALLEY" alone also starts VALLEY VIEW: the companions decide
+    assert pm("THE VALLEY REALTY LLC", {"065306", "065399"}) == (
+        "ucc_debtor_portfolio_name", [("065306", "VALLEY REHABILITATION AND HEALTHCARE CENTER, THE")])
+    assert pm("RIO GRANDE PROPCO LLC", set()) is None
+    # two homes in Monte Vista; only one is in the portfolio
+    assert pm("Monte Vista 2277 Realty LLC", {"065291", "065399"})[0] == "ucc_debtor_portfolio_town"
+    assert pm("CENTENNIAL 7 MASTER TENANT LLC", {"065306", "065399"})[1] == [
+        ("065306", names["065306"]), ("065399", names["065399"])]
+    # one companion isn't a portfolio
+    assert pm("113 SOUTH ROUTE 73 PROPCO HOLDCO LLC", {"065399"}) is None
+    assert enrich.NOT_PORTFOLIO_LENDER.match("SECRETARY OF HOUSING AND URBAN DEVELOPMENT")
+    assert not enrich.NOT_PORTFOLIO_LENDER.match("CAPITAL FUNDING, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT")
+
+
+def test_other_state_link_needs_a_registered_company_and_a_unique_name():
+    national = {enrich._entity_key("THE CENTER AT PARMER"): {("676487", "THE CENTER AT PARMER", "TX")},
+                enrich._entity_key("HERITAGE PARK NURSING CENTER"): {("555514", "Heritage Park Nursing Center", "CA")}}
+    assert enrich._other_state_exact("THE CENTER AT PARMER, LLC", "CO", national) == ("676487", "THE CENTER AT PARMER", "TX")
+    assert enrich._other_state_exact("HERITAGE PARK NURSING CENTER", "FL", national) is None

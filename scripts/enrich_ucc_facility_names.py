@@ -165,15 +165,17 @@ def _core_key(name: str) -> str:
 
 def _build_cms_maps(conn):
     """(entity_key, state) -> {(ccn, provider_name)} for facility names and
-    for organizational owners, plus per-state facility lists for the loose
-    report."""
+    for organizational owners, per-state facility lists for the loose
+    report, and (state, city) -> facilities for the town rule."""
     facilities, owners, by_state, names_by_ccn = {}, {}, {}, {}
     with conn.cursor() as cur:
-        cur.execute("SELECT ccn, provider_name, provider_state FROM cms_facilities")
-        for ccn, name, state in cur.fetchall():
+        cur.execute("SELECT ccn, provider_name, provider_state, provider_city FROM cms_facilities")
+        for ccn, name, state, city in cur.fetchall():
             facilities.setdefault((_entity_key(name), state), set()).add((ccn, name))
             names_by_ccn[ccn] = name
             by_state.setdefault(state, []).append((ccn, name, _entity_key(name), _core_key(name)))
+            if city:
+                by_state.setdefault(("city", state, _entity_key(city)), []).append((ccn, name))
         cur.execute("""
             SELECT DISTINCT ccn, provider_name, owner_name, provider_state
             FROM cms_ownership_records WHERE owner_type ILIKE 'org%%'
@@ -197,6 +199,20 @@ def _cms_exact_match(debtor: str, state: str, facilities, owners):
     return None
 
 
+def _other_state_exact(debtor: str, state: str, national):
+    """A UCC-1 is filed where the company is registered, not where the home
+    is: "THE CENTER AT PARMER, LLC" is a Colorado LLC running The Center at
+    Parmer in Austin, TX. Only a facility name that is unique nationwide.
+    national: entity_key -> {(ccn, provider_name, state)}. Registered
+    companies only: an unregistered name files where it does business
+    ("HERITAGE PARK NURSING CENTER" in FL isn't the CA home)."""
+    if not re.search(r"\b(LLC|L L C|INC|INCORPORATED|CORP|CORPORATION|LP|L P|LLP|LTD)\b",
+                     re.sub(r"[^A-Z ]", " ", debtor.upper())):
+        return None
+    hits = {h for h in national.get(_entity_key(debtor), set()) if h[2] != state}
+    return next(iter(hits)) if len(hits) == 1 else None
+
+
 def _loose_match(debtor: str, state: str, by_state):
     core = _core_key(debtor)
     if len(core) < 4:
@@ -205,6 +221,51 @@ def _loose_match(debtor: str, state: str, by_state):
         (ccn, name) for ccn, name, key, fac_core in by_state.get(state, [])
         if fac_core == core or (len(core) >= 6 and (fac_core.startswith(core + " ") or key.startswith(core + " ")))
     })
+
+
+# Portfolio rules (2026-10-21, CO): a lender files against a portfolio's
+# operators, property companies and parents on the same day or the next,
+# so a filing's linked companions narrow down a borrower whose own name
+# isn't in CMS. Colorado's Centennial portfolio: "RIO GRANDE PROPCO LLC"
+# (Vium, 2025-12-03) beside "RIO GRANDE REHABILITATION AND HEALTHCARE
+# CENTER LLC" (Vium, 2025-12-04).
+PORTFOLIO_DAYS = 1
+TOWN_ROLE_WORDS = re.compile(
+    r"\b(SNF|NURSING|OPCO|PROPCO|REALTY|REAL ESTATE|PROPERTY|PROPERTIES|HOLDINGS?)\b|\b\d+\b")
+# A parent links to every home its companions link to; only these words, as
+# a "... VILLAGE ASSISTED LIVING" or "... COTTAGES" companion is a different
+# kind of home and must stay unlinked
+PARENT_WORDS = re.compile(r"\b(HOLDCO|MASTER TENANT)\b")
+# HUD files against unrelated borrowers on the same day ("GRAND JUNCTION SNF"
+# and "THE CENTER AT FORESIGHT", 2025-05-05), so its filings aren't a portfolio
+NOT_PORTFOLIO_LENDER = re.compile(r"^(SECRETARY OF|UNITED STATES DEPARTMENT OF HOUSING)")
+
+
+def _town_candidates(debtor: str, state: str, by_state):
+    """Homes in the town a debtor is named after ("CRAIG SNF, LLC",
+    "Monte Vista 2277 Realty LLC")."""
+    town = re.sub(r"\s+", " ", TOWN_ROLE_WORDS.sub(" ", _entity_key(debtor))).strip()
+    return set(by_state.get(("city", state, town), [])) if town else set()
+
+
+def _portfolio_match(debtor: str, state: str, companion_ccns: set, by_state, names_by_ccn):
+    """(method, [(ccn, provider)]) or None. companion_ccns: CCNs linked to
+    filings by the same lender in the same state within PORTFOLIO_DAYS."""
+    if not companion_ccns:
+        return None
+    loose = {ccn for ccn, _ in _loose_match(debtor, state, by_state)} & companion_ccns
+    if len(loose) == 1:
+        ccn = loose.pop()
+        return "ucc_debtor_portfolio_name", [(ccn, names_by_ccn[ccn])]
+    town = {ccn for ccn, _ in _town_candidates(debtor, state, by_state)} & companion_ccns
+    if len(town) == 1:
+        ccn = town.pop()
+        return "ucc_debtor_portfolio_town", [(ccn, names_by_ccn[ccn])]
+    # two or more homes: with one, an address-named property holdco ("113
+    # SOUTH ROUTE 73 PROPCO HOLDCO LLC") took whichever companion happened to link
+    if PARENT_WORDS.search(debtor.upper()) and len(companion_ccns) >= 2:
+        return "ucc_debtor_portfolio_parent", sorted((c, names_by_ccn[c]) for c in companion_ccns)
+    return None
 
 
 def _record_cms_match(conn, deal_id, state, ccn, provider, owner, method):
@@ -249,12 +310,17 @@ def run(dry_run: bool = False, state_filter: str | None = None,
         conn = psycopg2.connect(get_config().database_url)
     psycopg2.extras.register_uuid()
     facilities, owners, by_state, names_by_ccn = _build_cms_maps(conn)
+    national = {}
+    for (key, st), found in facilities.items():
+        for ccn, name in found:
+            national.setdefault(key, set()).add((ccn, name, st))
     loose_rows = []
 
     try:
         with conn.cursor() as cur:
             query = """
-                SELECT id, operator_names[1] AS debtor, facility_names, states[1] AS state
+                SELECT id, operator_names[1] AS debtor, facility_names, states[1] AS state,
+                       lender, acquisition_date
                 FROM deals
                 WHERE extraction_model = 'ucc_filing'
                   AND array_length(operator_names, 1) > 0
@@ -265,7 +331,20 @@ def run(dry_run: bool = False, state_filter: str | None = None,
                 params.append(state_filter)
             cur.execute(query, params)
             rows = cur.fetchall()
+            # CCNs each deal is already linked to by this script
+            cur.execute("""
+                SELECT deal_id, ccn FROM cms_matches
+                WHERE match_method LIKE 'ucc_debtor%%' AND ccn IS NOT NULL
+            """)
+            linked = {}
+            for deal_id, ccn in cur.fetchall():
+                linked.setdefault(deal_id, set()).add(ccn)
         logger.info(f"Loaded {len(rows)} UCC deals to evaluate")
+        by_lender = {}
+        for deal_id, _, _, state, lender, filed in rows:
+            if lender and filed and not NOT_PORTFOLIO_LENDER.match(lender.strip().upper()):
+                by_lender.setdefault((state, _entity_key(lender)), []).append((filed, deal_id))
+        unlinked = []
 
         updated_cms = 0
         updated_chow = 0
@@ -275,7 +354,7 @@ def run(dry_run: bool = False, state_filter: str | None = None,
         skipped_no_match = 0
         skipped_already_ok = 0
 
-        for deal_id, debtor, facility_names, state in rows:
+        for deal_id, debtor, facility_names, state, lender, filed in rows:
             if not debtor:
                 continue
 
@@ -292,8 +371,22 @@ def run(dry_run: bool = False, state_filter: str | None = None,
                 logger.info(f"  CMS  [{state}] {debtor[:45]:<45} → {provider} ({ccn}, {method})")
                 if not dry_run:
                     _record_cms_match(conn, deal_id, state, ccn, provider, owner, method)
+                linked.setdefault(deal_id, set()).add(ccn)
                 updated_cms += 1
                 continue
+
+            # Phase 0b: the same facility name in exactly one other state
+            if not facilities.get((_entity_key(debtor), state)):
+                other = _other_state_exact(debtor, state, national)
+                if other:
+                    ccn, provider, other_state = other
+                    logger.info(f"  CMS  [{state}] {debtor[:45]:<45} → {provider} ({ccn}, {other_state}, other state)")
+                    if not dry_run:
+                        _record_cms_match(conn, deal_id, other_state, ccn, provider, debtor,
+                                          "ucc_debtor_exact_other_state")
+                    linked.setdefault(deal_id, set()).add(ccn)
+                    updated_cms += 1
+                    continue
 
             if loose_report:
                 hits = _loose_match(debtor, state, by_state)
@@ -327,7 +420,22 @@ def run(dry_run: bool = False, state_filter: str | None = None,
                                     "UPDATE deals SET facility_names = %s WHERE id = %s",
                                     ([new_name], deal_id)
                                 )
+                    if ccn:
+                        linked.setdefault(deal_id, set()).add(ccn)
                     updated_chow += 1
+                    continue
+
+            # Phase 1b: a skilled nursing company named after a town with
+            # one home ("CRAIG SNF, LLC" -> the only home in Craig, CO)
+            if re.search(r"\b(SNF|NURSING)\b", debtor.upper()):
+                town = _town_candidates(debtor, state, by_state)
+                if len(town) == 1:
+                    ccn, provider = next(iter(town))
+                    logger.info(f"  TOWN [{state}] {debtor[:45]:<45} → {provider} ({ccn})")
+                    if not dry_run:
+                        _record_cms_match(conn, deal_id, state, ccn, provider, debtor, "ucc_debtor_town")
+                    linked.setdefault(deal_id, set()).add(ccn)
+                    updated_cms += 1
                     continue
 
             # Phase 2 (opt-in, --strip): strip LLC suffix for facility-like
@@ -347,7 +455,38 @@ def run(dry_run: bool = False, state_filter: str | None = None,
                     updated_strip += 1
                     continue
 
-            skipped_no_match += 1
+            unlinked.append((deal_id, debtor, state, lender, filed))
+
+        # Phase 3: portfolio companions. Repeat while it links anything: a
+        # property company linked in one pass gives its master tenant
+        # companions to link to in the next
+        updated_portfolio = 0
+        for _ in range(3):
+            still = []
+            for deal_id, debtor, state, lender, filed in unlinked:
+                companions = set()
+                if lender and filed:
+                    for other_filed, other_id in by_lender.get((state, _entity_key(lender)), []):
+                        if other_id != deal_id and abs((other_filed - filed).days) <= PORTFOLIO_DAYS:
+                            companions |= linked.get(other_id, set())
+                match = _portfolio_match(debtor, state, companions, by_state, names_by_ccn)
+                if not match:
+                    still.append((deal_id, debtor, state, lender, filed))
+                    continue
+                method, homes = match
+                logger.info(f"  PORT [{state}] {debtor[:45]:<45} → {'; '.join(p for _, p in homes)} ({method})")
+                if not dry_run:
+                    for ccn, provider in homes:
+                        _record_cms_match(conn, deal_id, state, ccn, provider, debtor, method)
+                    with conn.cursor() as cur:
+                        cur.execute("UPDATE deals SET facility_names = %s WHERE id = %s",
+                                    ([p for _, p in homes], deal_id))
+                linked.setdefault(deal_id, set()).update(c for c, _ in homes)
+                updated_portfolio += 1
+            if len(still) == len(unlinked):
+                break
+            unlinked = still
+        skipped_no_match += len(unlinked)
 
         if not dry_run:
             conn.commit()
@@ -362,6 +501,7 @@ def run(dry_run: bool = False, state_filter: str | None = None,
         print("\n=== Enrichment summary ===")
         print(f"  CMS exact matches:     {updated_cms}")
         print(f"  CHOW DBA updates:      {updated_chow}")
+        print(f"  Portfolio companions:  {updated_portfolio}")
         print(f"  CHOW buyer ambiguous:  {skipped_chow_ambiguous}")
         print(f"  LLC-strip updates:     {updated_strip}")
         print(f"  Person names skipped:  {skipped_person}")
@@ -373,7 +513,7 @@ def run(dry_run: bool = False, state_filter: str | None = None,
     finally:
         if owns_conn:
             conn.close()
-    return updated_cms + updated_chow + updated_strip
+    return updated_cms + updated_chow + updated_strip + updated_portfolio
 
 
 if __name__ == "__main__":
