@@ -116,9 +116,9 @@ venv/bin/python3 main.py --no-alerts --gmail-days-back 8
 
 ## Deployment (gh-pages)
 
-Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh` never touches git. (The old combined `run_and_deploy.sh`, which only lives on `gh-pages`, silently stopped automation whenever the working directory was left on `main`.)
+Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh` never touches git.
 
-`main` and `gh-pages` each track their **own copies** of the Python source; they genuinely diverge. Don't run any Python while checked out on `gh-pages`.
+`gh-pages` holds only the website (`index.html`, `assets/`, `classic/`, `deals.json`, `feed.xml`, `.nojekyll`); its `.gitignore` is an allowlist, so nothing else can be committed there. While it's checked out, the pipeline source isn't in the working copy, so don't run any Python until you're back on `main`.
 
 ```bash
 # 1. On main: export deals.json (also rewrites UCC source links, fetches NJ portal
@@ -131,7 +131,6 @@ venv/bin/python3 scripts/export_deals.py /tmp/deals.json   # also writes /tmp/fe
 venv/bin/python3 scripts/predeploy_check.py /tmp/deals.json
 
 # 2. Stash unrelated changes if they block the switch, then switch
-#    (git will show a diverged main.py etc. -- expected)
 git stash
 git checkout gh-pages
 
@@ -162,9 +161,8 @@ git checkout main
 - Every push to `gh-pages` is a Pages deployment. Batch a frontend change with a data refresh into one push where you can.
 - Before a frontend deploy, `cd dashboard/frontend && npm test` (Playwright + axe against a fixture, plus pixel comparisons; see `tests/`).
 - After a frontend deploy, hard-refresh the site (Cmd+Shift+R) — browsers keep the old bundle cached.
-- `run_and_deploy.sh` still does a full pipeline run plus deploy, and exports `deals.json` with a raw query rather than `export_deals.py`. Don't use it for data refreshes.
 
-**Branch rules:** `main` has the source and never deploy artifacts; `gh-pages` has `deals.json`, `feed.xml`, `index.html` and `assets/`, plus its own older copy of the Python source.
+**Branch rules:** `main` has the source and never deploy artifacts; `gh-pages` has only the site files above (its pipeline-code copy and `run_and_deploy.sh` were removed 2026-10-21; they're in its history).
 
 ---
 

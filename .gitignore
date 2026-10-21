@@ -17,7 +17,6 @@ dashboard/frontend/public/feed.xml
 # Vite copies public/ into dist/ on build
 dashboard/frontend/dist/deals.json
 dashboard/frontend/dist/feed.xml
-venv310/
 
 # Local working files: re-extraction/merge backups, dismissal lists, browser-session results
 data/

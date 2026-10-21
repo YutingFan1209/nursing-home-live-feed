@@ -200,4 +200,4 @@ venv/bin/python3 main.py --no-alerts --ucc-states KY   # UCC for one state
 venv/bin/python3 main.py --test-article <URL>      # single-article dry run, prints extraction + matches, writes nothing
 ```
 
-`run_pipeline.sh` is the cron-safe wrapper (starts the DB container if needed, runs `main.py`, never touches git; no scheduled job currently runs it) — see `CLAUDE.md` for the branch model and deploy steps (`main` holds source only; `gh-pages` is a separate, manually-updated deploy target with its own divergent copy of the Python source).
+`run_pipeline.sh` is the cron-safe wrapper (starts the DB container if needed, runs `main.py`, never touches git; no scheduled job currently runs it) — see `CLAUDE.md` for the branch model and deploy steps (`main` holds the source; `gh-pages` holds only the website and is updated by hand).

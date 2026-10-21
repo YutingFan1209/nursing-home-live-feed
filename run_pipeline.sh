@@ -2,7 +2,7 @@
 # Runs the pipeline only — no branch switching, no deploy. Safe to run from
 # cron regardless of which branch happens to be checked out elsewhere,
 # because it never touches git. Deploy (export deals.json + push to
-# gh-pages) stays a separate, manual step: run_and_deploy.sh on gh-pages.
+# gh-pages) stays a separate, manual step: README, "Deployment (gh-pages)".
 set -e
 cd "$(dirname "$0")"
 
