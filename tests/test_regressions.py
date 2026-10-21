@@ -706,3 +706,34 @@ def test_other_state_link_needs_a_registered_company_and_a_unique_name():
                 enrich._entity_key("HERITAGE PARK NURSING CENTER"): {("555514", "Heritage Park Nursing Center", "CA")}}
     assert enrich._other_state_exact("THE CENTER AT PARMER, LLC", "CO", national) == ("676487", "THE CENTER AT PARMER", "TX")
     assert enrich._other_state_exact("HERITAGE PARK NURSING CENTER", "FL", national) is None
+
+
+# ── CMS owner data lags months: no CMS-based "refinancing" after it (2026-10-21) ──
+
+def test_refinancing_needs_owner_data_that_covers_the_filing():
+    from pipeline.ucc_category import categorize, complete_through
+    # 40 homes a month change hands through 2025-12, then CMS has only 2 a month
+    owner_starts = {f"c{y}{m}{i}": {date(y, m, 1)} for y, m in [(2025, k) for k in range(1, 13)] for i in range(40)}
+    owner_starts.update({f"late{m}{i}": {date(2026, m, 1)} for m in range(1, 8) for i in range(2)})
+    owner_starts["065355"] = {date(1995, 10, 11)}
+    assert complete_through(owner_starts, today=date(2026, 10, 21)) == date(2025, 12, 31)
+
+    def ucc(filed):
+        return {"source_type": "ucc", "deal_type": "financing", "ucc_state": "CO", "ucc_debtor": "HIGH PLAINS POST ACUTE LLC",
+                "lender": "DMT SPE I LLC", "acquisition_date": filed, "ccns": ["065355"]}
+    deals = [ucc("2025-06-01"), ucc("2026-06-01")]
+    categorize(deals, owner_starts, today=date(2026, 10, 21))
+    assert [d["deal_type"] for d in deals] == ["refinancing", "financing"]
+
+
+def test_state_notice_date_marks_acquisition_financing():
+    from pipeline.ucc_category import categorize
+    owner_starts = {"395917": {date(2014, 1, 1)}}
+    deals = [{"source_type": "con", "deal_type": "ownership_change", "acquisition_date": "2026-07-08", "ccns": ["395917"]},
+             {"source_type": "ucc", "deal_type": "financing", "ucc_state": "PA", "ucc_debtor": "BM REHAB & NURSING CENTER LLC",
+              "lender": "DMT SPE I LLC", "acquisition_date": "2026-07-08", "ccns": ["395917"]}]
+    categorize(deals, owner_starts, today=date(2026, 10, 21))
+    assert deals[1]["deal_type"] == "refinancing"                  # matcher ccns on a notice don't count
+    categorize(deals, owner_starts, today=date(2026, 10, 21), notices=[deals[0]])
+    assert deals[1]["deal_type"] == "acquisition_financing"
+    assert owner_starts == {"395917": {date(2014, 1, 1)}}          # caller's dict untouched

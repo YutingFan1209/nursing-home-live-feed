@@ -568,14 +568,17 @@ def main():
         owner_starts = {}
         for ccn, start in cur.fetchall():
             owner_starts.setdefault(ccn, set()).add(start)
-        categorize(deals, owner_starts)
+        # State notices' dates count for the homes they name exactly
+        cms = CmsIndex(conn)
+        notices = [{**d, "ccns": cms.ccns_by_name(_resolved_facilities(d), d.get("states"))}
+                   for d in deals if d["source_type"] == "con"]
+        categorize(deals, owner_starts, notices=notices)
         deals = collapse_repeats(deals)
 
         cur.execute("SELECT deal_id::text, ccn, provider_name, match_type FROM ucc_individual_matches ORDER BY provider_name")
         homes = {}
         for deal_id, ccn, provider, kind in cur.fetchall():
             homes.setdefault(deal_id, []).append((ccn, provider))
-        cms = CmsIndex(conn)
         for deal in deals:
             _add_labels(deal, cms, homes)
 

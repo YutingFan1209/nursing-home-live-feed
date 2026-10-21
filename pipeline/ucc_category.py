@@ -64,19 +64,58 @@ def _day(s) -> date | None:
         return None
 
 
-def _cms_signal(filed: date, ccns, owner_starts: dict) -> str | None:
+def complete_through(owner_starts: dict, today: date = None) -> date:
+    """Last day of the newest month in which the owner data records a
+    normal number of new owners: at least half the median of the 12 months
+    before it. CMS records a sale months after closing, so later filings
+    can't be called refinancing just because the old owner is still listed
+    (2026-10-21: 33-77 homes a month through 2025-12, then 19, 9, 16 and
+    1-8 a month; DMT SPE's 2026-06 loans to new holding companies for
+    Larchwood and High Plains read as refinancing of 2014/1995 owners)."""
+    today = today or date.today()
+    per_month = defaultdict(set)
+    for ccn, starts in owner_starts.items():
+        for s in starts:
+            if s and s <= today:
+                per_month[(s.year, s.month)].add(ccn)
+    months = [(today.year, today.month)]
+    for _ in range(36):
+        y, m = months[-1]
+        months.append((y, m - 1) if m > 1 else (y - 1, 12))
+    for i, (y, m) in enumerate(months[:-12]):
+        before = sorted(len(per_month[k]) for k in months[i + 1:i + 13])
+        if len(per_month[(y, m)]) >= before[6] / 2:
+            nxt = date(y + (m == 12), m % 12 + 1, 1)
+            return nxt - timedelta(days=1)
+    # no normal month in two years: trust nothing after the oldest one checked
+    return date(*months[-13], 1) - timedelta(days=1)
+
+
+def _cms_signal(filed: date, ccns, owner_starts: dict, known_through: date = None) -> str | None:
     starts = set().union(*(owner_starts.get(c, set()) for c in ccns or [] if c))
     if any(abs(s - filed) <= ACQUISITION_WINDOW for s in starts):
         return "acquisition_financing"
-    if any(s < filed - ACQUISITION_WINDOW for s in starts):
+    if any(s < filed - ACQUISITION_WINDOW for s in starts) and (known_through is None or filed <= known_through):
         return "refinancing"
-    return None  # every owner start is later: the filing was a previous owner's
+    return None  # every owner start is later (a previous owner's filing), or a sale CMS can't show yet
 
 
-def categorize(deals: list[dict], owner_starts: dict) -> None:
+def categorize(deals: list[dict], owner_starts: dict, today: date = None, notices=()) -> None:
     """Set deal_type on UCC financing deals. owner_starts: CCN -> set of
-    dates a current direct owner started (CMS) or a CHOW took effect."""
+    dates a current direct owner started (CMS) or a CHOW took effect.
+    notices: state ownership notices (CON deals) with ccns = the homes they
+    name exactly; their dates count as owner starts too, but not toward
+    complete_through, since they come months before CMS (BM Rehab & Nursing
+    Center, PA: DOH notice and loan both 2026-07-08). Not the matcher's
+    fuzzy ccns: Covenant Care's "Courtyard Health Care Center" (Davis) also
+    matched Courtyard Care Center, San Jose, a different owner's home."""
     ucc = [d for d in deals if d.get("source_type") == "ucc" and d.get("deal_type") in FINANCING_TYPES]
+    known_through = complete_through(owner_starts, today)
+    owner_starts = {ccn: set(starts) for ccn, starts in owner_starts.items()}
+    for d in notices:
+        notice = _day(d.get("acquisition_date"))
+        for ccn in (d.get("ccns") or []) if notice else []:
+            owner_starts.setdefault(ccn, set()).add(notice)
     by_debtor = defaultdict(list)
     for d in ucc:
         filed = _day(d.get("acquisition_date"))
@@ -88,7 +127,7 @@ def categorize(deals: list[dict], owner_starts: dict) -> None:
         d["deal_type"] = "financing"
         if not filed or not debtor or is_person(debtor):
             continue
-        signal = _cms_signal(filed, d.get("ccns"), owner_starts)
+        signal = _cms_signal(filed, d.get("ccns"), owner_starts, known_through)
         if not signal and _lender_known(d):
             lender = norm(d.get("lender"))
             if any(f < filed and l != lender for f, l in by_debtor[(d.get("ucc_state"), norm(debtor))]):
