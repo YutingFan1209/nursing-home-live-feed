@@ -608,3 +608,38 @@ def test_lien_portal_splits_full_windows_and_checks_loose_matches():
     assert lien_portal.lender_matches("SECRETARY OF HOUSING AND URBAN DEVELOPMENT",
                                       "SECRETARY OF U.S. DEPARTMENT OF HOUSING & URBAN DEVELOPMENT")
     assert not lien_portal.lender_matches("CAPITAL FUNDING", "CLOUD CAPITAL FUNDING LLC")
+
+
+# ── RI UCC lender search (2026-10-21) ──────────────────────────
+from ucc import ri
+
+
+def test_ri_results_and_history_parsing():
+    results = """<table id="MainContent_grdSearchResults">
+      <tr><th>Name</th><th>Name Type</th><th>City</th><th>State</th><th>Filing Type</th><th>Filing Number</th><th>Original Filing Number</th><th>Filing Date</th></tr>
+      <tr><td><a href="UCCFilingHistory.aspx?SearchLapsed=False&UCC1=444600">CAPITAL FUNDING, LLC</a></td><td>SECURED PARTY</td><td>BALTIMORE</td><td>MD</td><td>UCC-1</td><td>202634846030</td><td>202634846030</td><td>10/13/2026</td></tr>
+      <tr><td><a href="UCCFilingHistory.aspx?SearchLapsed=False&UCC1=387029">CAPITAL FUNDING ASAP LLC</a></td><td>SECURED PARTY</td><td>LAKEWOOD</td><td>NJ</td><td>UCC-1</td><td>202329088990</td><td>202329088990</td><td>05/19/2023</td></tr>
+    </table>"""
+    rows = ri.parse_results(results)
+    assert [(r["ucc1"], r["filing_number"], r["date"]) for r in rows] == [
+        ("444600", "202634846030", date(2026, 10, 13)), ("387029", "202329088990", date(2023, 5, 19))]
+    history = """<table id="MainContent_tblFilingHistory">
+      <tr><td align="center" colspan="4">UCC-1 Standard</td></tr>
+      <tr><td colspan="4">Debtor(s)</td></tr>
+      <tr><td colspan="2">ADVINIACARE PAWTUCKET PLEASANT REHAB CENTER, LLC<BR>544 PLEASANT STREET<BR>PAWTUCKET RI 02860</td><td colspan="2">&nbsp;</td></tr>
+      <tr><td colspan="4">Secured Parties</td></tr>
+      <tr><td colspan="2">CAPITAL FINANCE, LLC<BR>BALTIMORE MD 21230</td><td colspan="2">&nbsp;</td></tr>
+      <tr><td align="center" colspan="4">UCC-3 TERMINATION</td></tr>
+      <tr><td colspan="4">Debtor(s)</td></tr>
+      <tr><td colspan="2">SOMEONE ELSE LLC<BR>X</td></tr>
+    </table>"""
+    got = ri.parse_history(history)
+    assert got["debtors"] == [{"name": "ADVINIACARE PAWTUCKET PLEASANT REHAB CENTER, LLC",
+                               "address": "544 PLEASANT STREET, PAWTUCKET RI 02860"}]
+    assert got["terminated"]
+
+
+def test_ri_results_url_sends_every_form_key():
+    url = ri.results_url("CAPITAL FUNDING")
+    for key in ("txtLast=", "chkDebtor=", "chkSecuredParty=S", "txtName=CAPITAL+FUNDING", "lstDisplay=10000"):
+        assert key in url

@@ -14,6 +14,7 @@ from ucc.ky_playwright import search_ky_batch
 from ucc.pa_playwright import search_pa_batch
 from ucc.ca_playwright import search_ca_batch
 from ucc.lien_portal import search_lenders as search_portal_lenders
+from ucc.ri import search_lenders as search_ri_lenders
 from ucc import pa_playwright
 from ucc.lender_search import LENDER_TERMS, filter_lender_hits
 from ucc.lender_classifier import classify_secured_party
@@ -60,8 +61,9 @@ ENABLE_CA_PLAYWRIGHT = True  # enabled 2026-09-30: auto-launched Chrome like PA.
 # throttled tab and stops the batch at the first block -- run CA on its own
 # (--ucc-states CA) and not twice in one day.
 # 2026-10-20: AR and NM share one lien search platform with a plain JSON API, no bot
-# wall; lender search only (ucc/lien_portal.py)
-ENABLE_PORTAL_LENDER = {"AR": True, "NM": True}
+# wall; lender search only (ucc/lien_portal.py). 2026-10-21: RI's public search
+# the same way, secured party only (ucc/ri.py)
+ENABLE_PORTAL_LENDER = {"AR": True, "NM": True, "RI": True}
 
 
 def _filing_to_article(filing: UCCFiling) -> dict:
@@ -121,14 +123,16 @@ def fetch_ucc_filings(
         filings.extend(fl_filings)
 
     # AR, NM: secured-party search for nursing home lenders over the shared
-    # lien portal's JSON API, 5 s apart (ucc/lien_portal.py); no debtor search
+    # lien portal's JSON API, 5 s apart (ucc/lien_portal.py); RI over its
+    # public search (ucc/ri.py); no debtor search
     for code, on in ENABLE_PORTAL_LENDER.items():
         if not (_enabled(on, code) and cms_healthcare_names):
             continue
         health.attempted(f"UCC {code} lender searches", len((portal_lender_terms or {}).get(code) or LENDER_TERMS))
         try:
             terms = (portal_lender_terms or {}).get(code) or LENDER_TERMS
-            filings.extend(filter_lender_hits(search_portal_lenders(code, terms), cms_healthcare_names))
+            hits = search_ri_lenders(terms) if code == "RI" else search_portal_lenders(code, terms)
+            filings.extend(filter_lender_hits(hits, cms_healthcare_names))
         except Exception as e:
             logger.warning(f"{code} UCC lender search failed: {e}")
             health.source_failed(f"UCC {code} lender search", e)

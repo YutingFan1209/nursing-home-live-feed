@@ -738,12 +738,12 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
             pa_lenders, pa_lender_offset = _rotate_names(conn, LENDER_TERMS, PA_LENDER_OFFSET_KEY, "PA lender",
                                                          keep_order=True)
             cms_hc_names = _cms_healthcare_names(conn)
-        if cms_hc_names is None and (wanted is None or wanted & {"AR", "NM"}):
-            cms_hc_names = _cms_healthcare_names(conn)  # AR/NM lender search filter
-        # AR/NM lender terms start where the last run stopped (NM refuses
+        if cms_hc_names is None and (wanted is None or wanted & {"AR", "NM", "RI"}):
+            cms_hc_names = _cms_healthcare_names(conn)  # AR/NM/RI lender search filter
+        # AR/NM/RI lender terms start where the last run stopped (NM refuses
         # after ~20 requests; 2026-10-20)
         portal_terms, portal_offsets = {}, {}
-        for code in ("AR", "NM"):
+        for code in ("AR", "NM", "RI"):
             if wanted is None or code in wanted:
                 portal_terms[code], portal_offsets[code] = _rotate_names(
                     conn, LENDER_TERMS, PORTAL_LENDER_OFFSET_KEY.format(code.lower()), f"{code} lender", keep_order=True)
@@ -794,11 +794,12 @@ def _discover_ucc(conn, new_articles: list[dict], ucc_states: list[str] = None, 
         )
         if ca_names:
             _save_ca_offset(conn, ca_offset, len(ca_names))
-        from ucc import lien_portal
+        from ucc import lien_portal, ri
+        searched = {**lien_portal.LAST_SEARCHED, **ri.LAST_SEARCHED}
         for code, offset in portal_offsets.items():
-            if code in lien_portal.LAST_SEARCHED:
+            if code in searched:
                 _save_offset(conn, PORTAL_LENDER_OFFSET_KEY.format(code.lower()), offset,
-                             lien_portal.LAST_SEARCHED[code], len(portal_terms[code]), f"{code} lender")
+                             searched[code], len(portal_terms[code]), f"{code} lender")
         if pa_lenders:
             import scraper.ucc as ucc_step
             _save_offset(conn, PA_LENDER_OFFSET_KEY, pa_lender_offset,
@@ -1244,7 +1245,7 @@ CA_OFFSET_KEY = "ucc_ca_next_offset"
 CA_NAMES_PER_RUN = 30
 PA_LENDER_OFFSET_KEY = "ucc_pa_lender_next_offset"
 PA_OFFSET_KEY = "ucc_pa_next_offset"
-PORTAL_LENDER_OFFSET_KEY = "ucc_{}_lender_next_offset"  # AR, NM (ucc/lien_portal.py)
+PORTAL_LENDER_OFFSET_KEY = "ucc_{}_lender_next_offset"  # AR, NM (ucc/lien_portal.py), RI (ucc/ri.py)
 
 
 def _rotate_names(conn, names: list[str], key: str, label: str, keep_order: bool = False) -> tuple[list[str], int]:

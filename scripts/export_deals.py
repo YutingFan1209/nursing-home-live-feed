@@ -61,6 +61,11 @@ UCC_PORTAL_URLS = {
     "CA": "https://bizfileonline.sos.ca.gov/search/ucc",
     "FL": "https://floridaucc.com/search",
     "OR": "https://secure.sos.state.or.us/ucc/searchHome.action",  # was missing -- OR's 9 deals shipped the raw ucc://OR/... key (2026-10-15)
+    # AR/NM shipped ucc://AR/... too until 2026-10-21. RI's filing history
+    # page only opens inside a search session, so this is the search page
+    "AR": "https://bcs.sos.arkansas.gov/search/ucc",
+    "NM": "https://enterprise.sos.nm.gov/search/ucc",
+    "RI": "https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx",
 }
 
 # Per-filing pages that can be built from the filing number alone, so no
