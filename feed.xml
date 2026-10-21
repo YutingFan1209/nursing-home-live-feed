@@ -4,20 +4,335 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-21T15:00:06.547529+00:00</updated>
+  <updated>2026-10-21T15:27:46.296960+00:00</updated>
   <entry>
-    <id>urn:uuid:74927071-7d70-4b65-b15b-d529a9cf8120</id>
-    <title>Sale of Northwest Manor (IN)</title>
-    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
-    <updated>2026-10-21T14:54:23.481349+00:00</updated>
-    <summary>Facilities: Northwest Manor; Source: Skilled Nursing News</summary>
+    <id>urn:uuid:13e73f2a-4d18-463c-a1dc-81e606e1f778</id>
+    <title>AdviniaCare Newport, LLC — acquisition financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:18.272025+00:00</updated>
+    <summary>Effective 2026-02-04; Facilities: AdviniaCare Newport, LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
-    <id>urn:uuid:6e022218-f6ef-428e-847d-28a822e6d947</id>
-    <title>Sale of 3 facilities in OH to a new entrant (OH)</title>
-    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
-    <updated>2026-10-21T14:54:23.481349+00:00</updated>
-    <summary>Source: Skilled Nursing News</summary>
+    <id>urn:uuid:851ad12c-6207-4e40-bbc5-8a57d477618c</id>
+    <title>AdviniaCare Oakland Grove LLC — acquisition financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:18.156018+00:00</updated>
+    <summary>Effective 2026-02-04; Facilities: AdviniaCare Oakland Grove LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d61df4db-17c3-41dc-9b0e-fdd3b7604777</id>
+    <title>AdviniaCare Summit Commons, LLC — acquisition financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:18.058249+00:00</updated>
+    <summary>Effective 2026-02-04; Facilities: AdviniaCare Summit Commons, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a64ba458-b322-4518-be3e-8d4bab0f5203</id>
+    <title>AdviniaCare Waterview Villas, LLC — acquisition financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:17.942331+00:00</updated>
+    <summary>Effective 2026-02-04; Facilities: AdviniaCare Waterview Villas, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:218f2b36-50a7-4b19-9dc0-58a8a70aa383</id>
+    <title>100 CHAMBERS STREET OPCO, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:17.038681+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 100 CHAMBERS STREET OPCO, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f58d5903-40a9-489f-8476-30032f6825c2</id>
+    <title>KENT REGENCY CENTER OPCO, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:16.916795+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: KENT REGENCY CENTER OPCO, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bbf13250-b115-42f4-a9ce-73fc9a1668c5</id>
+    <title>333 GREEN END AVENUE OPCO, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:16.767099+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 333 GREEN END AVENUE OPCO, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:116a56c5-4f12-4db4-a0ed-691c741ac726</id>
+    <title>POINTE RI OPCO, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:16.663355+00:00</updated>
+    <summary>Effective 2025-11-17; Facilities: POINTE RI OPCO, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:840e7837-f52c-40a2-b821-db14a774a832</id>
+    <title>SOUTH KINGSTOWN PROPERTIES, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:16.029564+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: SOUTH KINGSTOWN PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cfc35210-1a92-452b-9650-df27e19a5a7f</id>
+    <title>WARWICK HEALTH CENTRE, INC. — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.916049+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: WARWICK HEALTH CENTRE, INC.; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b6a99c36-ee59-44d7-bd37-bfb0f22cce98</id>
+    <title>VILLAGE HOUSE CONVALESCENT HOME ASSOCIATES, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.739982+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: VILLAGE HOUSE CONVALESCENT HOME ASSOCIATES, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2eea90e5-e2d8-41b5-93ab-a720a8426e50</id>
+    <title>STEPHANIE  RYAN — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.642305+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: STEPHANIE  RYAN; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:1ea06886-45cf-4d60-80a7-44c91a42a23d</id>
+    <title>ELMWOOD AVENUE REALTY, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.503269+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: ELMWOOD AVENUE REALTY, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2bc578fc-e50f-4edb-87a0-c3b90330cd00</id>
+    <title>BAYBERRY COMMONS PROPERTIES, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.353639+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: BAYBERRY COMMONS PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bc5d9859-0add-45c4-b453-e258f3199a99</id>
+    <title>EASTGATE PROPERTIES, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.224160+00:00</updated>
+    <summary>Effective 2025-01-06; Facilities: EASTGATE PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4cc435fa-0642-44d1-a9d3-a186b4174b46</id>
+    <title>198 WATERMAN AVENUE, LLC, D.B.A. EASTGATE NURSING &amp; REHABILITATION CENTER — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:15.033855+00:00</updated>
+    <summary>Effective 2026-07-27; Facilities: 198 WATERMAN AVENUE, LLC, D.B.A. EASTGATE NURSING &amp; REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:07a3f368-91c6-4411-9037-e028d9017067</id>
+    <title>BURRILLVILLE HEALTH CENTER ASSOCIATES LIMITED PARTNERSHIP, D.B.A. BAYBERRY COMMONS — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:14.626842+00:00</updated>
+    <summary>Effective 2026-07-27; Facilities: BURRILLVILLE HEALTH CENTER ASSOCIATES LIMITED PARTNERSHIP, D.B.A. BAYBERRY COMMONS; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c1533d5e-d1fc-4076-9e5f-c5ec37d909ef</id>
+    <title>ALLEN'S HEALTH CENTER, INC., D.B.A. SOUTH KINGSTOWN NURSING &amp; REHABILITATION CENTER — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:14.169476+00:00</updated>
+    <summary>Effective 2026-07-27; Facilities: ALLEN'S HEALTH CENTER, INC., D.B.A. SOUTH KINGSTOWN NURSING &amp; REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:09298c03-9612-4f82-b7d2-a8792140f7fd</id>
+    <title>HEALTH CONCEPTS MASTER REALTY, LLC — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:13.855518+00:00</updated>
+    <summary>Effective 2026-07-27; Facilities: HEALTH CONCEPTS MASTER REALTY, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:19349d27-c7fe-43a3-afde-6b530fcdf1ef</id>
+    <title>VILLAGE HOUSE CONVALESCENT HOME, INC., D.B.A. VILLAGE HOUSE NURSING &amp; REHABILITATION CENTER — UCC-1 financing (RI)</title>
+    <link href="https://business.sos.ri.gov/CorpWeb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-10-21T15:27:13.688618+00:00</updated>
+    <summary>Effective 2026-07-27; Facilities: VILLAGE HOUSE CONVALESCENT HOME, INC., D.B.A. VILLAGE HOUSE NURSING &amp; REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2fe9cf20-1335-4cf6-9cb2-5811d0aecaf2</id>
+    <title>MISSION ARCH PROPCO LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:02.380192+00:00</updated>
+    <summary>Effective 2025-12-03; Facilities: MISSION ARCH PROPCO LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:741ee6d7-8e65-488e-9170-667ca3ccdab3</id>
+    <title>ARLINGTON MANAGEMENT LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:02.269310+00:00</updated>
+    <summary>Effective 2024-11-22; Facilities: ARLINGTON MANAGEMENT LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:27aa4c4b-4afa-4cb2-9fa3-edbbf38ec20c</id>
+    <title>MCGREGOR MANAGEMENT LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:02.163403+00:00</updated>
+    <summary>Effective 2024-11-22; Facilities: MCGREGOR MANAGEMENT LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f9cc70b4-3768-4f6e-98d7-ac549e918b71</id>
+    <title>TX2 PROPCO HOLDCO LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:02.056363+00:00</updated>
+    <summary>Effective 2024-11-21; Facilities: TX2 PROPCO HOLDCO LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d0d91eb3-f5a8-4431-885e-ab9efb9f52e7</id>
+    <title>DAVID M FISTEL TX LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.963913+00:00</updated>
+    <summary>Effective 2024-11-21; Facilities: DAVID M FISTEL TX LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d1cda53b-8848-4d5b-a515-56de69b5de98</id>
+    <title>414 JOHNSON DR REALTY LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.861286+00:00</updated>
+    <summary>Effective 2024-11-21; Facilities: 414 JOHNSON DR REALTY LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:646d2a3c-dea5-426e-952d-545b9fce73d2</id>
+    <title>112 GIBBINS RD REALTY LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.760418+00:00</updated>
+    <summary>Effective 2024-11-20; Facilities: 112 GIBBINS RD REALTY LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:203dc9c2-60bf-4813-b161-b388158095b9</id>
+    <title>5901 Ouray Road NW Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.661204+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 5901 Ouray Road NW Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d49259b1-31ca-4383-a502-23160ae39350</id>
+    <title>7900 Constitution Avenue NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.530373+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 7900 Constitution Avenue NE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8f2444f3-8d50-4cc2-970b-61cf9ca2f11c</id>
+    <title>Clayton Nursing and Rehab Center Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.442145+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: Clayton Nursing and Rehab Center Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f67b8678-5668-4b60-867f-7cd5629679cd</id>
+    <title>Casa Real Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.349103+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: Casa Real Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fdb46119-ae93-44fa-9e86-3061b2ee73b2</id>
+    <title>803 Hacienda Lane Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.232501+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 803 Hacienda Lane Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:462dafbb-28d5-43ff-a288-82fbf71f2ca0</id>
+    <title>1831 Camino Del Llano Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:01.109214+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 1831 Camino Del Llano Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6b99c2c5-0faf-4deb-96ea-c0f9d47d73ee</id>
+    <title>1201 North Norris Street Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.985658+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 1201 North Norris Street Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:97004848-474b-4895-945e-1b2ae504bfc1</id>
+    <title>1400 West 21st Street Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.867533+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 1400 West 21st Street Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c65b5640-954d-4868-b533-6a4b90d7bede</id>
+    <title>8100 Palomas Avenue NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.753485+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 8100 Palomas Avenue NE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3eab10a3-4dc6-455d-9034-40ef4cc13d72</id>
+    <title>2216 Lester Drive NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.642249+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 2216 Lester Drive NE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d53dd4a2-7017-4bab-9c6c-13f346066d15</id>
+    <title>Red Rocks Care Center Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.551014+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: Red Rocks Care Center Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f3b26ee3-415b-4b2e-a628-e7685eb72ba3</id>
+    <title>103 Hospital Loop NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.442951+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 103 Hospital Loop NE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:368bec55-b92e-4b39-8832-97e6647ffe4b</id>
+    <title>2905 Missouri Avenue Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.322691+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 2905 Missouri Avenue Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c4f8dd5e-6b38-4500-b2bf-f710b241a8dc</id>
+    <title>9150 McMahon Boulevard NW Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.195000+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 9150 McMahon Boulevard NW Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0f317160-5eed-493a-9445-4302663511e2</id>
+    <title>4210 Sabana Grande Avenue SE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:15:00.058762+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 4210 Sabana Grande Avenue SE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9dd1dc90-e71f-4729-ab24-a7b8fc1c5695</id>
+    <title>Silver City Care Center Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:14:59.959096+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: Silver City Care Center Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:66b8f914-d6d9-4488-8a14-47b7f36c6d83</id>
+    <title>5123 Juan Tabo Boulevard NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:14:59.829431+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 5123 Juan Tabo Boulevard NE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:07b20b9b-8caa-4bf7-897a-744f12e3a7a0</id>
+    <title>1005 Lujan Hill Road Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:14:59.712708+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 1005 Lujan Hill Road Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7f73e586-dda1-4364-8a2f-4bd74ea87136</id>
+    <title>10101 Lagrima De Oro Road NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:14:59.590196+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 10101 Lagrima De Oro Road NE Opco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7004629f-839e-4d20-8125-0b0fa0fee066</id>
+    <title>5900 Forest Hills Drive NE Opco, LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-10-21T15:14:59.452726+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 5900 Forest Hills Drive NE Opco, LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:7cbbc2ed-9376-41f4-b2f2-33f3d09790ed</id>
@@ -27,332 +342,17 @@
     <summary>Source: Skilled Nursing News</summary>
   </entry>
   <entry>
-    <id>urn:uuid:31a15f27-f469-4e59-89dd-a80e29fdc4f2</id>
-    <title>300-320 St. Albans Drive Opco LLC to acquire The Cardinal at North Hills (NC)</title>
-    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5294"/>
-    <updated>2026-10-21T14:54:03.110971+00:00</updated>
-    <summary>Effective 2026-08-31; Facilities: The Cardinal at North Hills; Source: North Carolina DHSR CON Exemptions</summary>
+    <id>urn:uuid:6e022218-f6ef-428e-847d-28a822e6d947</id>
+    <title>Sale of 3 facilities in OH to a new entrant (OH)</title>
+    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
+    <updated>2026-10-21T14:54:23.481349+00:00</updated>
+    <summary>Source: Skilled Nursing News</summary>
   </entry>
   <entry>
-    <id>urn:uuid:fe0cb2b3-c09e-4864-82a4-ad6eec1e453e</id>
-    <title>SUNBRIDGE HEALTHCARE, LLC — UCC-1 financing (NM)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:53:40.402873+00:00</updated>
-    <summary>Effective 2025-09-09; Facilities: SUNBRIDGE HEALTHCARE, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f0456ddb-8cf0-47f7-a0c5-77338c6c1738</id>
-    <title>RED OAK REALTY HOLDINGS LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:40:02.016905+00:00</updated>
-    <summary>Effective 2025-03-04; Facilities: RED OAK REALTY HOLDINGS LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0638e0dc-a564-4980-9ed3-f1e5cbc4aa26</id>
-    <title>BRYANT REALTY SNF LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:40:00.611738+00:00</updated>
-    <summary>Effective 2026-08-10; Facilities: BRYANT REALTY SNF LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ae3d5d24-b424-4a70-b680-433e7b3c8cb2</id>
-    <title>POCAHONTAS REALTY LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:40:00.394499+00:00</updated>
-    <summary>Effective 2026-08-11; Facilities: POCAHONTAS REALTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1a6da895-9588-44a7-a88c-5988c495efd6</id>
-    <title>POCAHONTAS OPERATING SNF LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:40:00.139087+00:00</updated>
-    <summary>Effective 2026-08-11; Facilities: POCAHONTAS OPERATING SNF LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:45063a14-a1a4-44bb-af24-352cbf659821</id>
-    <title>BRYANT OPERATING SNF LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:59.901001+00:00</updated>
-    <summary>Effective 2026-08-11; Facilities: BRYANT OPERATING SNF LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:36726d35-989c-4afa-9bf0-d9d9ddf2c08f</id>
-    <title>HAMMONS AVENUE PROPERTY LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:59.632309+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: HAMMONS AVENUE PROPERTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b5db44dd-bfc3-4dd1-8905-2394f619f285</id>
-    <title>NORTH PECAN STREET PROPERTY LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:59.062492+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: NORTH PECAN STREET PROPERTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f3c643a6-dbd5-4bcd-8627-27f22ce8ac75</id>
-    <title>MAIN STREET VB PROPERTY LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:58.560810+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: MAIN STREET VB PROPERTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e534b954-1659-4025-8a75-869a8bb529a4</id>
-    <title>DIAMOND OPCO HOLDING LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:58.326964+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: DIAMOND OPCO HOLDING LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a967f0cf-73aa-4bed-99e6-cd139240e9da</id>
-    <title>HUNTSVILLE ROAD PROPERTY LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:58.075849+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: HUNTSVILLE ROAD PROPERTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d8dd52f5-8d28-481b-8bbc-60319d11f091</id>
-    <title>DIAMOND MASTER TENANT LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:57.827335+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: DIAMOND MASTER TENANT LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ab1b1854-e8f5-49b7-9222-cebe2c0b23fc</id>
-    <title>COLLEGE AVENUE PROPERTY LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:57.573422+00:00</updated>
-    <summary>Effective 2026-09-25; Facilities: COLLEGE AVENUE PROPERTY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0ff7231f-1bd0-4b92-a786-227f9d491b8f</id>
-    <title>BATESVILLE MT LLC — UCC-1 financing (AR)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-20T18:39:54.559217+00:00</updated>
-    <summary>Effective 2026-05-22; Facilities: BATESVILLE MT LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d37c6b1c-f0e8-45d5-b4d3-1f80604aefa8</id>
-    <title>STILLWATER POST-ACUTE — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:29.108423+00:00</updated>
-    <summary>Effective 2024-02-01; Facilities: STILLWATER POST-ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5f7b4314-4094-40fd-bfb3-ceeb150670dc</id>
-    <title>GOLDEN SAN ANDREAS CARE  CENTER — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:24.719089+00:00</updated>
-    <summary>Effective 2023-03-03; Facilities: GOLDEN SAN ANDREAS CARE  CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:52f3ff3b-69c5-4127-945d-347bba8b9c80</id>
-    <title>PACIFIC COAST POST ACUTE — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:23.577609+00:00</updated>
-    <summary>Effective 2017-09-07; Facilities: PACIFIC COAST POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f107dee6-9769-4c21-8a5c-ff2f2682033f</id>
-    <title>SALINAS VALLEY POST ACUTE — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:20.165600+00:00</updated>
-    <summary>Effective 2023-06-30; Facilities: SALINAS VALLEY POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:340eb217-5abe-4419-9ee4-c8bcd24a7a38</id>
-    <title>The Grove Post-Acute — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:18.882587+00:00</updated>
-    <summary>Effective 2026-06-26; Facilities: The Grove Post-Acute; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:32db7b49-5603-4e85-9518-badc608102ef</id>
-    <title>ROYAL VISTA CARE CENTER LLC, A CALIFORNIA LIMITED LIABILITY COMPANY — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:15.432025+00:00</updated>
-    <summary>Effective 2017-03-17; Facilities: ROYAL VISTA CARE CENTER LLC, A CALIFORNIA LIMITED LIABILITY COMPANY; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fa54d8fe-a3a8-4e6f-9028-4fd432fb7589</id>
-    <title>ROSEMEAD HEALTHCARE CENTER — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:07.662941+00:00</updated>
-    <summary>Effective 2023-04-21; Facilities: ROSEMEAD HEALTHCARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fcde2421-3b9b-46c6-b5e8-35268dc44e1f</id>
-    <title>VISTA POST ACUTE — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:01.461451+00:00</updated>
-    <summary>Effective 2018-06-20; Facilities: VISTA POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:944328e5-c739-4044-a6da-8490e7b58199</id>
-    <title>RIVERSIDE SNF PROPERTIES, LLC — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:29:00.145397+00:00</updated>
-    <summary>Effective 2022-03-29; Facilities: RIVERSIDE SNF PROPERTIES, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:319255bb-3c51-47b8-9e1c-1f55a4001ccb</id>
-    <title>RIVER VALLEY HEALTHCARE &amp; WELLNESS CENTRE, LP — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:28:58.686221+00:00</updated>
-    <summary>Effective 2014-11-10; Facilities: RIVER VALLEY HEALTHCARE &amp; WELLNESS CENTRE, LP; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:957c670a-a6ac-4e53-9a77-df5d656f3ff3</id>
-    <title>Rialto Post Acute Center — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:28:46.366196+00:00</updated>
-    <summary>Effective 2016-02-04; Facilities: Rialto Post Acute Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:28f39910-a1e3-4a8c-a020-40b3cb1c4648</id>
-    <title>VINEYARD CARE CENTER — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:28:44.523101+00:00</updated>
-    <summary>Effective 2023-03-07; Facilities: VINEYARD CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3fd8cda2-a444-4eaa-ab8a-3afa54d407dc</id>
-    <title>Rancho Seco Care Center — acquisition financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-10-20T16:28:42.932847+00:00</updated>
-    <summary>Effective 2021-05-04; Facilities: Rancho Seco Care Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:660c7502-ec2c-444b-bcef-7cea8f47a9de</id>
-    <title>MATTHEW CHARLES ANDERSON — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3814145"/>
-    <updated>2026-10-20T16:20:24.975746+00:00</updated>
-    <summary>Effective 2025-09-25; Facilities: The Osborn; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a0cc2cdb-2bf6-4ef1-9d9f-8ad66319c48a</id>
-    <title>MATTHEW ANDERSON — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3846375"/>
-    <updated>2026-10-20T16:20:24.607911+00:00</updated>
-    <summary>Effective 2025-09-22; Facilities: The Osborn; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e0da12ef-b82c-46b2-b6df-b82af40dd251</id>
-    <title>ISRAEL MINZER — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4187878"/>
-    <updated>2026-10-20T16:20:22.306689+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Bellhaven Center for Rehab and Nursing Care, Cortlandt Healthcare, Dumont Center for Rehabilitation and Nursing Care, St James Rehabilitation &amp; Healthcare Center, The Grand Pavilion For Rehab &amp; Nursing at Rockvill; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:eb54f219-a65b-42b5-89f4-095945c687a1</id>
-    <title>PINEGROVE MANOR, LLC — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3238132"/>
-    <updated>2026-10-20T16:20:21.956024+00:00</updated>
-    <summary>Effective 2021-03-02; Facilities: PINEGROVE MANOR, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:623d7b74-7af5-4a5a-9d14-e56bf0b1a9fa</id>
-    <title>WARREN COLE — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3876865"/>
-    <updated>2026-10-20T16:20:20.736986+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: Elderwood at Amherst, ELDERWOOD AT CHEEKTOWAGA, Elderwood at Grand Island, Elderwood at Hamburg, Elderwood at Hornell; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3de1d8aa-4031-4d08-bfea-5f93b4fce7b3</id>
-    <title>JAMES T WALLACE — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3848524"/>
-    <updated>2026-10-20T16:20:20.030644+00:00</updated>
-    <summary>Effective 2025-08-15; Facilities: CHARLES T SITRIN HEALTH CARE CENTER INC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6a9c6e8b-c9f2-436b-829d-9d6730f9397a</id>
-    <title>EDWARD FARBENBLUM — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4213008"/>
-    <updated>2026-10-20T16:20:14.242305+00:00</updated>
-    <summary>Effective 2026-09-17; Facilities: Absolut Center for Nursing and Rehabilitation at G, Autumn View Health Care Facility L L C, Bishop Rehabilitation and Nursing Center, Brookhaven Health Care Facility, LLC, Chautauqua Nursing and Rehabilitation Center; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e7ef1304-58ef-47c2-ad76-778ef2c84187</id>
-    <title>JEREMY STRAUSS — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3725302"/>
-    <updated>2026-10-20T16:20:13.105234+00:00</updated>
-    <summary>Effective 2025-10-09; Facilities: Bridge View Nursing Home, Central Queens Rehab &amp; Nursing Center, Delaware Oaks Center for Rehabilitation and Nursin, Queens Center for Rehabilitation and Nursing, THE GRAND REHABILITATION AND NRSG AT CHITTENANGO; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b59e9adb-2e27-4b1d-a151-86413e75850f</id>
-    <title>THOMAS JOSEPH GLEASON — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3736959"/>
-    <updated>2026-10-20T16:20:11.256040+00:00</updated>
-    <summary>Effective 2025-03-31; Facilities: MCAULEY RESIDENCE, MERCY HOSPITAL SKILLED NURSING FACILITY, ST CATHERINE LABOURE HEALTH CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a4cd6665-f406-4d5c-a9ed-fb01e5287bb9</id>
-    <title>MICHAEL KRAUS — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3669627"/>
-    <updated>2026-10-20T16:20:10.096064+00:00</updated>
-    <summary>Effective 2025-02-04; Facilities: Silver Lake Specialized Rehabilitation and Care Ce; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fd7605dd-69bf-4ee8-a4b9-e38b8feba75e</id>
-    <title>Mark Allen Henry — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4198224"/>
-    <updated>2026-10-20T16:20:09.367453+00:00</updated>
-    <summary>Effective 2026-08-21; Facilities: CLINTON COUNTY NURSING HOME; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:32e4d58e-2bb0-43f5-bbba-51b510400ccc</id>
-    <title>MARK HENRY — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4167457"/>
-    <updated>2026-10-20T16:20:09.069821+00:00</updated>
-    <summary>Effective 2026-06-08; Facilities: CLINTON COUNTY NURSING HOME; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d4f15008-3017-4948-9760-a65575f8a63d</id>
-    <title>JASON EDWARD ZIMMERMAN — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=4187819"/>
-    <updated>2026-10-20T16:20:08.127391+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Boro Park Center for Rehabilitation and Healthcare; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:56c43d79-070d-455c-adda-813462c2e6a3</id>
-    <title>JASON ZIMMERMAN — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3627598"/>
-    <updated>2026-10-20T16:20:07.287804+00:00</updated>
-    <summary>Effective 2025-02-12; Facilities: Boro Park Center for Rehabilitation and Healthcare; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d2931727-c2cb-490a-93cd-8077ec76cf74</id>
-    <title>JASON EDWARD ZIMMERMAN — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3814535"/>
-    <updated>2026-10-20T16:20:06.820696+00:00</updated>
-    <summary>Effective 2024-12-16; Facilities: Boro Park Center for Rehabilitation and Healthcare; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e5ebddfe-ed7d-4391-9eb5-77d82a7a328c</id>
-    <title>5692 IRREVOCABLE TRUST — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3302673"/>
-    <updated>2026-10-20T16:20:05.184496+00:00</updated>
-    <summary>Effective 2023-09-29; Facilities: 5692 IRREVOCABLE TRUST; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7b828dcf-2db5-40c0-8178-7b3bd2957a41</id>
-    <title>North Shore - LIJ Orzac Center For Rehabilitation — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=554052"/>
-    <updated>2026-10-20T16:20:03.659028+00:00</updated>
-    <summary>Effective 2009-09-18; Facilities: North Shore - LIJ Orzac Center For Rehabilitation; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0e5a699f-94ac-4889-9be9-3dc8e8169a52</id>
-    <title>MICHAEL P ROSSI — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3771673"/>
-    <updated>2026-10-20T16:19:55.838748+00:00</updated>
-    <summary>Effective 2025-01-27; Facilities: Canterbury Woods; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0a88f441-bb34-4a0d-b148-bcfef7a77391</id>
-    <title>DANIEL ALLEN — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3583672"/>
-    <updated>2026-10-20T16:19:53.636839+00:00</updated>
-    <summary>Effective 2024-12-16; Facilities: MEADOWBROOK HEALTHCARE; Source: State UCC-1 Filings</summary>
+    <id>urn:uuid:74927071-7d70-4b65-b15b-d529a9cf8120</id>
+    <title>Sale of Northwest Manor (IN)</title>
+    <link href="https://skillednursingnews.com/2026/10/skilled-nursing-dealbook-midwest-nursing-home-deals-mark-owner-exit-and-regional-expansion/"/>
+    <updated>2026-10-21T14:54:23.481349+00:00</updated>
+    <summary>Facilities: Northwest Manor; Source: Skilled Nursing News</summary>
   </entry>
 </feed>
