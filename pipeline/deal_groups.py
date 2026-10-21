@@ -35,7 +35,7 @@ WINDOW_DAYS = 183
 # "North Mobile SNF Property Holdings" at 90 against "Mobile SNF Property
 # Holdings", a different propco
 _GENERIC = re.compile(r"\b(GROUP|COMPANY|CO|HOLDINGS?|THE)\b")
-STATUS_RANK = {"confirmed": 4, "reported": 3, "expected": 2, "unconfirmed": 1}
+STATUS_RANK = {"confirmed": 4, "on_file": 4, "reported": 3, "expected": 2, "unconfirmed": 1}
 GROUPED_TYPES = ("ownership_change", "lease", "control_change")
 
 

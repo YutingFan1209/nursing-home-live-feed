@@ -814,6 +814,10 @@ def test_grounding_drops_what_the_source_never_says():
                   "Earnings call highlights: revenue grew 12%.") is None
     # An anonymous story stays
     assert ground({"acquiring_entity": None, "facility_names": [], "deal_value_m": None}, "A 32-unit community in Utah sold.")
+    # A lender the story never names is dropped (Sabra, "Creekridge Capital")
+    out = ground({"acquiring_entity": "Sabra Health Care REIT", "lender": "Creekridge Capital",
+                  "facility_names": [], "deal_value_m": None}, "Sabra Health Care REIT bought two homes.")
+    assert out["lender"] is None and out["acquiring_entity"] == "Sabra Health Care REIT"
 
 
 def test_grounding_reads_prices_as_filings_write_them():
@@ -851,3 +855,32 @@ def test_consistency_check_finds_the_audit_mistakes():
         deal("chow-ut", source_type="chow", ccns=["015147"]),
     ]})}
     assert found == {("home_not_named", "moldaw"), ("buyer_is_seller", "glenwood"), ("home_in_other_state", "chow-ut")}
+
+
+def test_cms_owner_must_be_the_buyer_side_to_confirm():
+    from pipeline.deal_labels import cms_event
+    class Cms:
+        def __init__(self, owner, start): self.ev = {"date": start, "owner": owner, "owner_count": 1, "ccn": "145445",
+                                                     "source": "CMS ownership data", "facility": None}
+        def new_owner(self, ccns, when): return dict(self.ev)
+    deal = {"deal_type": "ownership_change", "ccns": ["145445"], "acquisition_date": "2025-10-01",
+            "acquiring_entity": "Accolade Healthcare of Waterloo", "seller_entity": "Monroe County, Illinois"}
+    assert cms_event(deal, Cms("MONROE COUNTY", "2025-12-01")) is None          # the seller
+    assert cms_event(deal, Cms("SH OPCO HOLDCO LLC", "2025-04-19")) is None     # unrelated, months before
+    assert cms_event(deal, Cms("ACCOLADE HEALTHCARE OF WATERLOO LLC", "2025-04-19"))  # the buyer, early
+    assert cms_event(deal, Cms("ARIA HOLDCO LLC", "2025-11-15"))                # a parent, after closing
+
+
+def test_ucc_filing_is_on_file_not_confirmed():
+    from pipeline.deal_labels import status
+    assert status({"source_type": "ucc"}, None)["status"] == "on_file"
+
+
+def test_news_lease_transition_is_a_lease_not_a_sale():
+    from pipeline.deal_labels import transaction_type
+    d = {"source_type": "rss", "deal_type": "ownership_change", "acquiring_entity": "Saber Healthcare",
+         "seller_entity": "Ciena",
+         "summary": "Omega Healthcare Investors completed a lease transition during Q2 2026, moving 18 leased "
+                    "Laurels portfolio facilities from Ciena to Saber Healthcare's master lease. This was an "
+                    "operator change, not a sale."}
+    assert transaction_type(d) == "lease"

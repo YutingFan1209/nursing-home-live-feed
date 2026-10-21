@@ -99,6 +99,7 @@ const STATUS = {
   reported:    "Reported",
   expected:    "Expected",
   unconfirmed: "Unconfirmed",
+  on_file:     "On file",
 };
 
 const FACILITY_TYPE = {
@@ -191,7 +192,7 @@ const CSV_COLUMNS = [
   ["headline", d => headlineText(d), "The record's headline as shown on the site."],
   ["date", d => d.acquisition_date || d.created_at?.slice(0, 10), "Effective or filing date from the source; the date found if the source gives none."],
   ["found_date", d => d.found_date, "Date this tracker first found the record."],
-  ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, a state UCC filing, or CMS shows a new owner within 6 months), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), or Reported (news or a company filing, not yet confirmed)."],
+  ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, or CMS shows a new owner within 6 months), On file (a UCC-1 filing: a record of the loan, not of a sale), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), or Reported (news or a company filing, not yet confirmed)."],
   ["status_detail", d => d.status_detail, "What the status rests on."],
   ["deal_type", d => d.deal_type, "ownership_change (a sale), control_change (control moves without a sale), lease, financing, acquisition_financing, refinancing, operations_transfer (UCC-1 to an operator: a sale signal), non_deal_lien, or amendment (UCC-3)."],
   ["facility_type", d => d.facility_type, "skilled_nursing (includes any record with a nursing home in it), senior_living, hospital, non_us, or unknown (the source doesn't say)."],
@@ -220,7 +221,7 @@ const CSV_COLUMNS = [
   ["source_count", d => d.sources?.length, "Number of sources behind this record's card (including duplicates merged in the database)."],
   ["deal_value_m", d => d.deal_value_m, "Sale price in $ millions, as reported."],
   ["financing_amount_m", d => d.financing_amount_m, "Loan amount in $ millions, as reported."],
-  ["display_status", d => STATUS_LABEL[displayStatus(d)], "Status as shown on the site: the status column, except UCC-1 filings show On file (a record of the loan, not of a sale)."],
+  ["display_status", d => STATUS_LABEL[displayStatus(d)], "Status as shown on the site."],
   ["date_role", d => primaryDate(d).role, "What primary_date is: Effective (CMS records), Expected close (news of a pending deal that gives a closing date), Filed (state filings and notices, UCC-1s, SEC filings), Decision posted (Hawaii's list, which dates only the decision), or Reported (news, publication date)."],
   ["primary_date", d => primaryDate(d).date, "The date shown on the card, as described by date_role. The date column keeps the source's own date field."],
   ["source_label", d => SOURCE_LABEL[d.source_type] || d.source_type, "Short source type: CMS, State CON, State UCC-1, SEC EDGAR or News."],

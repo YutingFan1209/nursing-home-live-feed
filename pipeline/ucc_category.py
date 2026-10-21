@@ -43,7 +43,7 @@ _OPERATOR = re.compile(r"\b(OPERATING|OPERATIONS|OPCO|OPERATOR|NURSING|REHAB\w*|
 _NOT_OPERATOR = re.compile(r"\b(FUND\w*|FINANC\w*|CAPITAL|MONEY|HOLDINGS|PROPCO|REALTY|PROPERTIES|BANK|"
                            r"CREDIT|LENDING|MORTGAGE|PHARMACY|OMNICARE)\b")
 # Owners added for estate planning, not a sale
-_TRUST = re.compile(r"\b(TRUST|TR|ESTATE|FAMILY|FAM)\b")
+_TRUST = re.compile(r"\b(TRUST|TR|ESTATE|FAMILY|FAM|DYNASTY)\b")
 
 _SUFFIX = re.compile(r"\b(LLC|L L C|INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LP|L P|LLP|NA|N A|"
                      r"NATIONAL ASSOCIATION|THE|AS AGENT|AS ADMINISTRATIVE AGENT|AS COLLATERAL AGENT|AGENT)\b")
@@ -138,7 +138,7 @@ def _cms_signal(filed: date, ccns, owner_starts: dict, known_through: date = Non
     return None  # every owner start is later (a previous owner's filing), or a sale CMS can't show yet
 
 
-def categorize(deals: list[dict], owner_starts: dict, today: date = None, notices=()) -> None:
+def categorize(deals: list[dict], owner_starts: dict, today: date = None, notices=(), known_through: date = None) -> None:
     """Set deal_type on UCC financing deals. owner_starts: CCN -> set of
     dates a current direct owner started (CMS) or a CHOW took effect.
     notices: state ownership notices (CON deals) with ccns = the homes they
@@ -148,7 +148,9 @@ def categorize(deals: list[dict], owner_starts: dict, today: date = None, notice
     fuzzy ccns: Covenant Care's "Courtyard Health Care Center" (Davis) also
     matched Courtyard Care Center, San Jose, a different owner's home."""
     ucc = [d for d in deals if d.get("source_type") == "ucc" and d.get("deal_type") in FINANCING_TYPES]
-    known_through = complete_through(owner_starts, today)
+    # known_through: pass one computed from direct owners only; holding
+    # companies' dates are recorded unevenly and made 2026-01..03 look complete
+    known_through = known_through or complete_through(owner_starts, today)
     owner_starts = {ccn: set(starts) for ccn, starts in owner_starts.items()}
     for d in notices:
         notice = _day(d.get("acquisition_date"))

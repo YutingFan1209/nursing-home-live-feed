@@ -94,7 +94,7 @@ def ground(deal: dict, text: str) -> dict | None:
     kept = [f for f in facs if name_in_text(f, text_words)]
     removed += [f"facility {f!r}" for f in facs if f not in kept]
     deal["facility_names"] = kept
-    for field in ("acquiring_entity", "seller_entity"):
+    for field in ("acquiring_entity", "seller_entity", "lender"):
         if deal.get(field) and not name_in_text(deal[field], text_words):
             removed.append(f"{field} {deal[field]!r}")
             deal[field] = None

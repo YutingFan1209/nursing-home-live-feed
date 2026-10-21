@@ -20,6 +20,7 @@ from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pipeline.cms_confirm import facility_names_agree
+from pipeline.deal_labels import same_party
 from pipeline.ucc_category import norm
 
 EXCEPTIONS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "consistency_exceptions.json")
@@ -76,6 +77,9 @@ def issues(export: dict) -> list[tuple[str, str, str]]:
         v = float(d["deal_value_m"]) if d.get("deal_value_m") not in (None, "") else None
         if v is not None and not (0 < v < 25000):
             out.append(("price_out_of_range", d["id"], f"${v}M"))
+        owner = (d.get("cms_event") or {}).get("owner")
+        if src != "chow" and d.get("status") == "confirmed" and same_party(owner, d.get("seller_entity")):
+            out.append(("confirmed_by_seller", d["id"], f"CMS owner {owner} is the seller"))
         b, s = norm(d.get("acquiring_entity") or ""), norm(d.get("seller_entity") or "")
         if b and b == s:
             out.append(("buyer_is_seller", d["id"], d["acquiring_entity"]))

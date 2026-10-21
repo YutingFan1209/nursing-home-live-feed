@@ -41,7 +41,7 @@ import psycopg2
 import requests
 from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
-from pipeline.ucc_category import categorize, collapse_repeats, owner_start_dates
+from pipeline.ucc_category import categorize, collapse_repeats, complete_through, owner_start_dates
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
 from pipeline.cms_confirm import CmsIndex, facility_names_agree, same_facility_name
@@ -580,13 +580,21 @@ def main():
         print(f"Dropped {unnamed} links to homes a record doesn't name")
 
         # UCC financing -> acquisition financing / refinancing, and one row
-        # per repeated loan (pipeline/ucc_category.py)
+        # per repeated loan (pipeline/ucc_category.py). Holding companies
+        # count too: a sale above the licensed LLC changes only its
+        # indirect owners (Valley View, CA; Maple, KY; audit 2026-10-21)
         cur.execute("""
-            SELECT DISTINCT ccn, owner_name, ownership_start_date FROM cms_ownership_records
+            SELECT DISTINCT ccn, owner_name, ownership_start_date, owner_role NOT ILIKE '%INDIRECT%'
+            FROM cms_ownership_records
             WHERE ownership_start_date IS NOT NULL
-              AND owner_role ILIKE '%DIRECT OWNERSHIP%' AND owner_role NOT ILIKE '%INDIRECT%'
+              AND owner_role ILIKE '%DIRECT OWNERSHIP%'
+              AND (owner_role NOT ILIKE '%INDIRECT%' OR owner_type ILIKE 'ORG%')
         """)
-        owner_starts = owner_start_dates(cur.fetchall())
+        rows = cur.fetchall()
+        owner_starts = owner_start_dates(r[:3] for r in rows)
+        # How far CMS's owner data is complete is judged on direct owners
+        # alone: counting holding companies moved it from 2025-12 to 2026-03
+        known_through = complete_through(owner_start_dates(r[:3] for r in rows if r[3]))
         cur.execute("""
             SELECT LEFT(ccn, 6), TO_DATE(effective_date, 'MM/DD/YYYY') FROM chow_seen_records
             WHERE effective_date ~ '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'
@@ -597,7 +605,7 @@ def main():
         cms = CmsIndex(conn)
         notices = [{**d, "ccns": cms.ccns_by_name(_resolved_facilities(d), d.get("states"))}
                    for d in deals if d["source_type"] == "con"]
-        categorize(deals, owner_starts, notices=notices)
+        categorize(deals, owner_starts, notices=notices, known_through=known_through)
         deals = collapse_repeats(deals)
 
         cur.execute("SELECT deal_id::text, ccn, provider_name, match_type FROM ucc_individual_matches ORDER BY provider_name")

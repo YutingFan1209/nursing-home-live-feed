@@ -14,8 +14,10 @@ from the article) and the source title, never the raw article.
 import re
 from datetime import date, timedelta
 
+from rapidfuzz import fuzz
+
 from pipeline.normalizer import looks_non_us
-from pipeline.ucc_category import is_person
+from pipeline.ucc_category import is_person, norm
 
 
 
@@ -43,7 +45,10 @@ _LEASE_RE = re.compile(
     re.I)
 # A new operator taking over under the landlord's lease: PACS taking over 32
 # Omega-owned Florida homes "on Omega's master lease" is not a purchase
-_OPS_TRANSFER_RE = re.compile(r"\b(takeover|took over|take over|transition\w*|transfer\w*) (of |the )?operations?\b", re.I)
+# Saber taking over Ciena's 18 Omega-leased homes: "a lease transition ...
+# an operator change, not a sale" (2026-10-21 audit)
+_OPS_TRANSFER_RE = re.compile(r"\b(takeover|took over|take over|transition\w*|transfer\w*) (of |the )?operations?\b"
+                              r"|\blease transition\b|\boperator (change|transition)\b", re.I)
 _LEASE_WORD_RE = re.compile(r"\b(lease|leases|rent)\b", re.I)
 _SALE_RE = re.compile(r"\b(acquir\w*|purchas\w*|bought|sold|sale of|ACQ)\b", re.I)
 
@@ -76,7 +81,10 @@ CONSUMER_LENDER_RE = re.compile(
     # homes, farm supply, powersports, card banks
     r"cred\w* union|loanpal|capital resorts|timeshare|vacation|resorts? group|21st mortgage|origen financial|"
     r"green ?tree|freedom road|great plains acceptance|merrick bank|groffdale|growmark|"
-    r"social security administration|consumer finance", re.I)
+    r"social security administration|consumer finance|"
+    # audit 2026-10-21: older personal and farm-equipment lenders
+    r"american general finan|springleaf|citifinancial|household finance|beneficial (finance|mortgage)|"
+    r"new holland credit|avco financial|associates financial", re.I)
 
 
 def is_personal_loan(d: dict) -> bool:
@@ -243,8 +251,36 @@ def cms_event(d: dict, cms) -> dict | None:
                 "ccn": (d.get("ccns") or [None])[0], "source": "CMS change-of-ownership record", "facility": None}
     if d.get("deal_type") != "ownership_change" or not cms:
         return None
-    return cms.new_owner(d.get("ccns"), _day(d.get("acquisition_date")) or _day(d.get("published_at"))
-                         or _day(d.get("created_at")))
+    when = _day(d.get("acquisition_date")) or _day(d.get("published_at")) or _day(d.get("created_at"))
+    ev = cms.new_owner(d.get("ccns"), when)
+    if not ev or not ev.get("owner"):
+        return ev
+    # Who CMS names has to fit (2026-10-21): Monroe County, the seller of
+    # Oak Hill, "confirmed" its own sale; a Brookdale Galleria owner change
+    # four months before Brookdale's purchase, to an unrelated company, did too
+    if same_party(ev["owner"], d.get("seller_entity")):
+        return None
+    buyer_side = [d.get("acquiring_entity")] + (d.get("operator_names") or [])
+    if (date.fromisoformat(ev["date"]) < when - EARLY_EVENT
+            and not any(same_party(ev["owner"], b) for b in buyer_side)):
+        return None
+    return ev
+
+
+# A CMS owner change this much before the deal date confirms it only when
+# CMS names the buyer (news often runs weeks after a closing)
+EARLY_EVENT = timedelta(days=60)
+
+
+def same_party(a: str | None, b: str | None) -> bool:
+    """The same company or person, allowing for suffixes, word order and an
+    added place ("Monroe County, Illinois"). Two names sharing one word
+    ("ABC Healthcare", "XYZ Healthcare") are not."""
+    a, b = norm(a or ""), norm(b or "")
+    if not (a and b):
+        return False
+    short, long_ = sorted((set(a.split()), set(b.split())), key=len)
+    return fuzz.token_sort_ratio(a, b) >= 85 or (len(short) >= 2 and short <= long_)
 
 
 STALE_AFTER = timedelta(days=183)
@@ -252,13 +288,15 @@ STALE_AFTER = timedelta(days=183)
 
 def status(d: dict, event: dict | None, today: date | None = None) -> dict:
     """confirmed / expected / unconfirmed (expected, but over 6 months on) /
-    reported, with a line for the Details panel."""
+    reported, or on_file for a UCC filing, with a line for the Details panel."""
     today = today or date.today()
     src, when = d.get("source_type"), _day(d.get("acquisition_date"))
     if src == "chow":
         return {"status": "confirmed", "status_detail": "Confirmed: CMS change-of-ownership record"}
+    # The filing is on record; that is not a confirmed sale (2026-10-21:
+    # "Confirmed" reached readers through the CSV download and deals.json)
     if src == "ucc":
-        return {"status": "confirmed", "status_detail": "Confirmed: UCC-1 financing statement on file with the state "
+        return {"status": "on_file", "status_detail": "On file: UCC-1 financing statement on file with the state "
                 "(a record of the loan, not of a sale)"}
     if event and d.get("deal_type") == "ownership_change":
         where = f" of {event['facility']}" if event.get("facility") else " at this facility"
