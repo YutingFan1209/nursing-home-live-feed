@@ -28,6 +28,7 @@ pattern already lives.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from enum import Enum
@@ -77,6 +78,33 @@ class RoutingResult:
 # as "the same deal" — tune these once you see real match/non-match cases.
 NAME_MATCH_THRESHOLD = 85  # rapidfuzz token_sort_ratio, 0-100
 DATE_WINDOW_DAYS = 180     # UCC-1 filings often lag/lead the actual deal
+
+# The score alone passed names that share only what every home's name has:
+# "Havencrest Rehabilitation and Healthcare Center" ~ "Oak Glen Healthcare
+# and Rehabilitation Center" (86), "Valley Post-Acute and Rehab LLC" ~
+# "Apple Valley Post-Acute Rehab" (87), which put HUD and Oxford Finance on
+# the wrong deals (2026-10-21). The words left after dropping these must agree.
+_GENERIC_WORDS = set("""
+LLC L L C INC CORP CORPORATION CO COMPANY LP LLP LTD THE OF AND AT FOR IN A AN DBA
+HOLDINGS HOLDING GROUP OPCO PROPCO OPERATIONS OPERATING OPERATOR PROPERTIES PROPERTY
+NURSING REHABILITATION REHAB CENTER CENTRE HOME HOMES HEALTH HEALTHCARE CARE LIVING
+SENIOR SKILLED FACILITY SNF POST ACUTE SUBACUTE SUB CONVALESCENT HOSPITAL
+""".split())
+
+
+def distinctive_words(name: str) -> set[str]:
+    return {w.rstrip("S") if len(w) > 4 else w
+            for w in re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper()).split()} - _GENERIC_WORDS
+
+
+def same_entity(a: str, b: str) -> bool:
+    """The names' distinctive words agree: the same set, or one name adds
+    words to two or more of the other's ("Quail Lake" in "Quail Lake of Ohio")."""
+    x, y = distinctive_words(a), distinctive_words(b)
+    if not x or not y:
+        return False
+    small, big = sorted((x, y), key=len)
+    return small == big or (small < big and len(small) >= 2)
 
 
 def route_filing(
@@ -136,6 +164,11 @@ def match_against_existing_deals(
         # excluded, since that's missing data, not a real mismatch.
         if deal.states and filing.state not in deal.states:
             continue
+        # ...but with no date either, nothing limits the match at all: a
+        # Sabra sale with neither got a UCC match on its operator's name
+        # alone, with no such filing on record (2026-10-21)
+        if not deal.states and not deal.acquisition_date:
+            continue
 
         if filing.filing_date and deal.acquisition_date:
             delta = abs((filing.filing_date - deal.acquisition_date).days)
@@ -147,7 +180,7 @@ def match_against_existing_deals(
             if not candidate_name:
                 continue
             score = fuzz.token_sort_ratio(filing_name, candidate_name.lower())
-            if score >= NAME_MATCH_THRESHOLD:
+            if score >= NAME_MATCH_THRESHOLD and same_entity(filing_name, candidate_name):
                 if best_match is None or score > best_match[1]:
                     best_match = (deal.id, score)
 

@@ -921,3 +921,22 @@ def test_oh_lender_list_drops_the_homes_own_entities():
     assert clean_lender("LANCASTER POLLARD MORTGAGE COMPANY\n\nSECRETARY OF HOUSING AND URBAN DEVELOPMENT") == \
         "LANCASTER POLLARD MORTGAGE COMPANY; SECRETARY OF HOUSING AND URBAN DEVELOPMENT"
     assert clean_lender("FORBRIGHT BANK") == "FORBRIGHT BANK"
+
+
+def test_ucc_match_needs_the_distinctive_words_to_agree():
+    from datetime import date
+    from ucc.base import UCCFiling
+    from ucc.integrator import ExistingDeal, match_against_existing_deals
+    f = lambda debtor: UCCFiling(state="PA", debtor_name=debtor, secured_party_name="X BANK",
+                                 filing_number="1", filing_date=date(2025, 5, 21))
+    deal = lambda name, **kw: ExistingDeal(id=1, operator_names=[name], facility_names=[],
+                                           acquisition_date=kw.get("on", date(2025, 3, 1)), states=kw.get("states", ["PA"]))
+    # Same words but the home's: Havencrest is not Oak Glen, Valley is not Apple Valley
+    assert match_against_existing_deals(f("HAVENCREST REHABILITATION AND HEALTHCARE CENTER"),
+                                        [deal("OAK GLEN HEALTHCARE AND REHABILITATION CENTER LLC")]) is None
+    assert match_against_existing_deals(f("VALLEY POST-ACUTE AND REHAB LLC"), [deal("Apple Valley Post-Acute Rehab")]) is None
+    # The same entity still matches across punctuation and OPCO/LLC
+    assert match_against_existing_deals(f("4401 HAVERFORD AVENUE LLC"), [deal("4401 Haverford Avenue OPCO")])
+    assert match_against_existing_deals(f("QUALITY LIFE SERVICES – SARVER, LLC"), [deal("QUALITY LIFE SERVICES SARVER LLC")])
+    # A deal with no date and no state matches nothing (Sabra / Communicare)
+    assert match_against_existing_deals(f("ONYX WELLNESS CENTER LLC"), [deal("ONYX WELLNESS CENTER LLC", on=None, states=[])]) is None
