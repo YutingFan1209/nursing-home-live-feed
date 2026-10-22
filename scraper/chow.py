@@ -21,6 +21,7 @@ import csv
 import io
 import logging
 import re
+from pathlib import Path
 import requests
 from datetime import date, datetime, timedelta, timezone
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -120,12 +121,39 @@ def _discover_chow_csv_url() -> str | None:
     reraise=True,
 )
 def _download_chow_csv(url: str) -> list[dict]:
-    """Download and parse the CHOW CSV file."""
+    """Download and parse the CHOW CSV file, keeping a copy in CHOW_CACHE."""
     logger.info(f"Downloading CHOW CSV: {url}")
     resp = requests.get(url, timeout=60)
     resp.raise_for_status()
+    try:
+        CHOW_CACHE.mkdir(parents=True, exist_ok=True)
+        (CHOW_CACHE / url.rsplit("/", 1)[-1]).write_bytes(resp.content)
+    except OSError as e:
+        logger.warning(f"Could not cache CHOW CSV: {e}")
     reader = csv.DictReader(io.StringIO(resp.text))
     return list(reader)
+
+
+# Local copy of the newest CHOW file: buyers and sellers by CCN for the
+# export (pipeline/cms_confirm.py) and the UCC agent's CHOW search
+CHOW_CACHE = Path(__file__).resolve().parent.parent / "data" / "chow_cache"
+
+
+def load_chow_rows(download: bool = True) -> list[dict]:
+    """Rows of the newest cached CHOW CSV, downloading one if none is cached
+    (and `download`). Empty if neither works."""
+    files = sorted(CHOW_CACHE.glob("SNF_CHOW_*.csv"), key=lambda p: _chow_file_date(p.name))
+    if not files and download:
+        try:
+            _download_chow_csv(_discover_chow_csv_url() or CHOW_URLS[0])
+        except Exception as e:
+            logger.warning(f"Could not download CHOW CSV: {e}")
+        files = sorted(CHOW_CACHE.glob("SNF_CHOW_*.csv"), key=lambda p: _chow_file_date(p.name))
+    if not files:
+        return []
+    # CMS's file isn't valid UTF-8 (stray 0xA0 bytes)
+    with files[-1].open(encoding="latin-1", newline="") as fh:
+        return list(csv.DictReader(fh))
 
 
 def _load_seen_chow_keys(conn) -> set[tuple[str, str, str]]:

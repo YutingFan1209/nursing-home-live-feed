@@ -201,10 +201,15 @@ const CSV_COLUMNS = [
   ["source_name", d => d.source_name, "The specific source (feed, agency or filing system)."],
   ["source_url", d => d.source_url, "Link to the source document or search page."],
   ["source_title", d => d.source_title, "Title of the source document."],
-  ["buyer", d => d.buyer, "Buyer as named in the source."],
-  ["buyer_disclosure", d => d.buyer_disclosure, "named; described (unnamed, but the source describes them); undisclosed (the source says so, or a state filing has no buyer field); not_named (the source doesn't say); cms (the source doesn't name them, and CMS lists exactly one new owner)."],
+  ["buyer", d => d.buyer, "Buyer as named in the source, or CMS's when buyer_disclosure is cms."],
+  ["buyer_disclosure", d => d.buyer_disclosure, "named; described (unnamed, but the source describes them); undisclosed (the source says so, or a state filing has no buyer field); not_named (the source doesn't say); cms (the source doesn't name them; CMS lists exactly one new owner, or its change-of-ownership file names the buyer)."],
   ["buyer_description", d => d.buyer_description, "How the source describes an unnamed buyer, e.g. 'a national REIT'."],
-  ["seller", d => d.seller, "Seller as named in the source."],
+  ["seller", d => d.seller, "Seller as named in the source, or CMS's when seller_disclosure is cms."],
+  ["seller_disclosure", d => d.seller_disclosure, "named (the source names the seller); cms (the source doesn't, and CMS's change-of-ownership file names the seller of this facility within 6 months of the deal date); described (unnamed, but the source describes them); undisclosed (the source says the seller wasn't named)."],
+  ["seller_description", d => d.seller_description, "How the source describes an unnamed seller, e.g. 'an Indiana-based private owner'."],
+  ["cms_sale_buyer", d => d.cms_sale?.buyer, "Buyer in CMS's change-of-ownership file for the sale this record is about (for UCC acquisition financing: the sale the loan paid for)."],
+  ["cms_sale_seller", d => d.cms_sale?.seller, "Seller in CMS's change-of-ownership file for that sale."],
+  ["cms_sale_date", d => d.cms_sale?.date, "Effective date of that sale in CMS's change-of-ownership file."],
   ["borrower", d => d.ucc_debtor, "UCC filings: the debtor named on the filing."],
   ["lender", d => d.lender, "Lender or secured party."],
   ["lender_category", d => d.lender_category, "UCC filings: kind of lender, from the secured party's name."],
@@ -484,7 +489,7 @@ const typeLabel = (d) => d.individual_filing ? "Individual filing"
 
 const FINANCING_TYPES = new Set(["financing", "acquisition_financing", "refinancing", "operations_transfer", "non_deal_lien", "amendment"]);
 
-// Missing values are never filled in; this says why there is none
+// A missing name is filled only from CMS, and marked so; otherwise this says why there is none
 const missingBuyer = (d) => d.buyer_disclosure === "undisclosed" ? "Undisclosed"
   : d.buyer_disclosure === "not_named" ? "Not named in source"
   : d.buyer_disclosure === "described" && d.buyer_description ? d.buyer_description
@@ -524,7 +529,10 @@ function cardColumns(d, facilities) {
     cols.push(d.ucc_debtor ? { label: "Filed against (individual)", value: d.ucc_debtor }
       : { label: "Filed against (individual)", value: "Name not shown", missing: true });
   } else if (ucc) {
-    cols.push(d.ucc_debtor ? { label: "Borrower", value: d.ucc_debtor } : { label: "Borrower", value: "Not reported", missing: true });
+    // acquisition financing: CMS's change-of-ownership file names the sale it paid for
+    const sale = d.deal_type === "acquisition_financing" && d.cms_sale
+      ? joinNote(d.cms_sale.seller && `Bought from ${smartCase(d.cms_sale.seller)}`, `sale ${fmtFull(d.cms_sale.date)} per CMS`) : null;
+    cols.push(d.ucc_debtor ? { label: "Borrower", value: d.ucc_debtor, note: sale } : { label: "Borrower", value: "Not reported", missing: true, note: sale });
   } else if (financing) {
     const ops = d.operator_names || [];
     cols.push(ops.length ? { label: "Borrower", value: firstPlus(ops), note: "Named as operator in source" }
@@ -533,7 +541,10 @@ function cardColumns(d, facilities) {
     const label = d.deal_type === "lease" ? "Landlord or prior operator"
       : d.deal_type === "control_change" ? "Prior operator" : "Seller";
     const seller = d.seller && d.seller !== d.buyer ? d.seller : null;
-    cols.push(seller ? { label, value: seller } : { label, value: "Not reported", missing: true });
+    const missingSeller = d.seller_disclosure === "undisclosed" ? "Undisclosed"
+      : d.seller_disclosure === "described" && d.seller_description ? d.seller_description : "Not reported";
+    cols.push(seller ? { label, value: seller, note: d.seller_disclosure === "cms" ? "Per CMS, not the source" : null }
+      : { label, value: missingSeller, missing: true });
   }
 
   // 3. Facility / Facilities / Possible homes

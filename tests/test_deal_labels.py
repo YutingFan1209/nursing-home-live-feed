@@ -14,7 +14,7 @@ from collections import defaultdict
 
 from pipeline.cms_confirm import CmsIndex, facility_key
 from pipeline.deal_groups import group, same_deal
-from pipeline.deal_labels import buyer_fields, facility_type, label, transaction_type
+from pipeline.deal_labels import buyer_fields, facility_type, label, seller_fields, transaction_type
 from pipeline.individual_owners import first_last
 
 FIXTURES = json.loads((Path(__file__).parent / "fixtures" / "deals_2026_10_12.json").read_text())
@@ -397,3 +397,56 @@ def test_personal_loans_from_consumer_lenders():
     assert d["deal_type"] == "non_deal_lien" and "likely personal loan" in text(d["headline"])
     assert not is_personal_loan({**row, "lender": "METROPOLITAN COMMERCIAL BANK"})
     assert not is_personal_loan({**row, "individual_filing": False})
+
+
+# ── Buyer and seller from CMS's change-of-ownership file (2026-10-22) ─────
+
+def _with_sales(sales, facilities=None):
+    cms = fake_cms(facilities=facilities or {"105001": ("SEASIDE CARE", "FL", 120)})
+    cms.sales = defaultdict(list, sales)
+    return cms
+
+
+def test_unnamed_seller_comes_from_cms_and_is_marked():
+    d = {"source_type": "con", "deal_type": "ownership_change", "acquiring_entity": "Gulf Opco LLC",
+         "ccns": ["105001"], "facility_names": ["Seaside Care"], "states": ["FL"], "acquisition_date": "2026-03-01"}
+    cms = _with_sales({"105001": [(date(2026, 4, 1), "GULF OPCO, LLC", "SEASIDE OPERATIONS LLC")]})
+    out = label(d, cms, d["facility_names"], today=TODAY)
+    assert out["seller"] == "SEASIDE OPERATIONS LLC" and out["seller_disclosure"] == "cms"
+    assert "SEASIDE OPERATIONS" not in text(out["headline"])  # the card marks it; the headline doesn't use it
+
+
+def test_cms_sale_to_another_buyer_is_not_this_deal():
+    d = {"source_type": "rss", "deal_type": "ownership_change", "acquiring_entity": "Gulf Opco LLC",
+         "ccns": ["105001"], "facility_names": ["Seaside Care"], "states": ["FL"], "acquisition_date": "2026-03-01"}
+    cms = _with_sales({"105001": [(date(2026, 4, 1), "UNRELATED HOLDINGS LLC", "SEASIDE OPERATIONS LLC")]})
+    out = label(d, cms, d["facility_names"], today=TODAY)
+    assert out["cms_sale"] is None and out["seller"] is None
+
+
+def test_ucc_acquisition_financing_gets_the_sale_it_paid_for():
+    d = {"source_type": "ucc", "deal_type": "acquisition_financing", "ucc_debtor": "GULF OPCO LLC",
+         "ccns": ["105001"], "states": ["FL"], "acquisition_date": "2026-03-20", "lender": "Capital Funding"}
+    cms = _with_sales({"105001": [(date(2026, 3, 15), "GULF OPCO, LLC", "SEASIDE OPERATIONS LLC")]})
+    out = label(d, cms, [], today=TODAY)
+    assert (out["buyer"], out["buyer_disclosure"]) == ("GULF OPCO, LLC", "cms")
+    assert (out["seller"], out["seller_disclosure"]) == ("SEASIDE OPERATIONS LLC", "cms")
+    # the borrower is the seller: a loan to the outgoing owner, not for the purchase
+    seller_loan = {**d, "ucc_debtor": "SEASIDE OPERATIONS LLC"}
+    assert label(seller_loan, cms, [], today=TODAY)["cms_sale"] is None
+
+
+def test_how_the_source_describes_an_unnamed_seller():
+    def seller(summary):
+        d = _news(summary)
+        return seller_fields(d, {"seller": None, "buyer": None})
+    assert seller("SLIB brokered the sale of Northwest Manor, a 126-bed Indianapolis SNF, from an Indiana-based "
+                  "private owner exiting the nursing home business.")["seller_description"] == "an Indiana-based private owner"
+    assert seller("The seller was a large owner/operator with properties throughout the Southeast.")["seller_disclosure"] == "described"
+    assert seller("Harbert acquired 23 senior living communities from an unnamed seller.")["seller_disclosure"] == "undisclosed"
+    # the operator or landlord, not the seller
+    assert seller("Ensign acquired seven facilities, all run by an Ensign-affiliated operator.")["seller_disclosure"] is None
+    assert seller("Harbert bought a community from an unnamed nonprofit in an off-market transaction.")["seller_description"] == "a nonprofit"
+    loan = {"source_type": "rss", "deal_type": "acquisition_financing",
+            "summary": "It was completed alongside a separate real estate acquisition financing from an unnamed lending partner."}
+    assert seller_fields(loan, {"seller": None, "buyer": None})["seller_disclosure"] is None

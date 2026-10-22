@@ -261,9 +261,11 @@ def buyer_fields(d: dict) -> dict:
     if buyer:
         return {"buyer": buyer, "seller": seller, "buyer_description": None, "buyer_disclosure": "named"}
     # The source doesn't name the buyer but CMS now lists the new owner
-    event = d.get("cms_event")
+    event, sale = d.get("cms_event"), d.get("cms_sale")
     if event and event.get("owner") and d.get("source_type") != "chow":
         return {"buyer": event["owner"], "seller": seller, "buyer_description": desc, "buyer_disclosure": "cms"}
+    if sale and d.get("source_type") != "chow":
+        return {"buyer": sale["buyer"], "seller": seller, "buyer_description": desc, "buyer_disclosure": "cms"}
     summary = d.get("summary") or ""
     if _UNDISCLOSED_RE.search(summary):
         return {"buyer": None, "seller": seller, "buyer_description": None, "buyer_disclosure": "undisclosed"}
@@ -316,6 +318,69 @@ def cms_event(d: dict, cms) -> dict | None:
             and not any(same_party(ev["owner"], b) for b in buyer_side)):
         return None
     return ev
+
+
+SALE_TYPES = ("ownership_change", "acquisition_financing")
+
+
+def cms_sale(d: dict, cms) -> dict | None:
+    """The sale in CMS's change-of-ownership file that this record is
+    about: same facility, within 6 months of the deal date, with a buyer
+    that fits (2026-10-22: sources often name neither party, but the CHOW
+    file names both). CMS records and UCC filings that aren't acquisition
+    financing have none."""
+    if d.get("source_type") == "chow" or d.get("deal_type") not in SALE_TYPES or not cms:
+        return None
+    when = _day(d.get("acquisition_date")) or _day(d.get("published_at")) or _day(d.get("created_at"))
+    sale = cms.sale(d.get("ccns"), when)
+    if not sale:
+        return None
+    if same_party(sale["buyer"], d.get("seller_entity")) or same_party(sale["seller"], d.get("acquiring_entity")):
+        return None   # the other way round: a different sale
+    if d.get("source_type") == "ucc":
+        # the filing's date and CMS timing already say it's this sale, unless
+        # the borrower is the seller (Hilborn Care, sold to Macao Holdings)
+        return None if same_party(sale["seller"], d.get("ucc_debtor")) else sale
+    buyer_side = [d.get("acquiring_entity")] + (d.get("operator_names") or [])
+    fits = any(same_party(sale["buyer"], b) for b in buyer_side)
+    # A named buyer has to be CMS's buyer; an unnamed one can't be checked,
+    # so only a sale on or after the deal date (or just before) counts
+    if d.get("acquiring_entity") and not fits:
+        return None
+    if not fits and date.fromisoformat(sale["date"]) < when - EARLY_EVENT:
+        return None
+    return sale
+
+
+# "from an Indiana-based private owner exiting the nursing home business",
+# "The seller was a large owner/operator". A bare "by" isn't one: "run by
+# an Ensign affiliate" names the operator, not the seller.
+_SELLER_DESC_RE = re.compile(
+    r"\b(?:[Tt]he seller (?:was|is)|sold by|(?:sale|purchase|acquisition|buying|bought|acquired|purchased|acquires|buys)"
+    r"\b[^.;]{0,120}?\bfrom) ((?:an?|the) [^.,;]{3,70}?)(?=[.,;]| exiting| that| who| which| described| to | for | in )")
+_SELLER_UNNAMED_RE = re.compile(r"^(an?|the) (unnamed|undisclosed|unidentified) seller$", re.I)
+
+
+def seller_fields(d: dict, out: dict) -> dict:
+    """The seller from the source, else CMS's (seller_disclosure 'cms'),
+    else how the source describes an unnamed one ('described', with
+    seller_description) or 'undisclosed'."""
+    sale = d.get("cms_sale")
+    if out.get("seller"):
+        return {"seller_disclosure": "named", "seller_description": None}
+    if sale and sale.get("seller") and not same_party(sale["seller"], out.get("buyer")):
+        return {"seller": sale["seller"], "seller_disclosure": "cms", "seller_description": None}
+    # a sale only: "acquisition financing from an unnamed lending partner" is the lender
+    m = (_SELLER_DESC_RE.search(d.get("summary") or "")
+         if d.get("source_type") in ("rss", "edgar") and d.get("deal_type") == "ownership_change" else None)
+    if m and _SELLER_UNNAMED_RE.match(m.group(1)):
+        return {"seller_disclosure": "undisclosed", "seller_description": None}
+    if m and not re.match(r"(?i)(an?|the) (unnamed|undisclosed) (buyer|purchaser)", m.group(1)):
+        desc = re.sub(r"^an? unnamed ", "", m.group(1))
+        desc = desc if desc.lower().startswith(("a ", "an ", "the ")) else ("an " if desc[0].lower() in "aeiou" else "a ") + desc
+        desc = re.sub(r"(?: in an? [\w -]+ (?:transaction|deal|sale))$", "", desc)
+        return {"seller_disclosure": "described", "seller_description": desc}
+    return {"seller_disclosure": None, "seller_description": None}
 
 
 # A CMS owner change this much before the deal date confirms it only when
@@ -454,8 +519,8 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
 
     # Ownership change
     buyer, seller = b.get("buyer"), b.get("seller")
-    if seller == buyer:
-        seller = None
+    if seller == buyer or b.get("seller_disclosure") == "cms":
+        seller = None   # a seller from CMS shows on the card, marked as such
     place = target or f"facility{_in_states(d)}"
     if buyer and b.get("buyer_disclosure") == "cms":
         # Name from CMS, not the source: say so, and don't call it a sale
@@ -490,15 +555,20 @@ def label(d: dict, cms, facilities: list[str], today: date | None = None,
     shows (individual filings use their CMS owner matches)."""
     out = {"deal_type": transaction_type(d), "facility_type": facility_type(d)}
     out["cms_event"] = cms_event({**d, **out}, cms)
+    out["cms_sale"] = cms_sale({**d, **out}, cms)
     merged = {**d, **out}
     if out["deal_type"] in ("ownership_change", "lease", "control_change"):
         out.update(buyer_fields(merged))
     else:
-        out.update({"buyer": d.get("acquiring_entity"), "seller": d.get("seller_entity"),
-                    "buyer_description": None, "buyer_disclosure": None})
+        sale = out["cms_sale"]
+        buyer = d.get("acquiring_entity") or (sale or {}).get("buyer")
+        out.update({"buyer": buyer, "seller": d.get("seller_entity"), "buyer_description": None,
+                    "buyer_disclosure": None if not buyer else "named" if d.get("acquiring_entity") else "cms"})
     if out["deal_type"] == "control_change":
         # No sale: no price, no buyer
         out.update({"buyer": None, "buyer_disclosure": None, "buyer_description": None})
+    out.update(seller_fields({**d, **out}, out) if out["deal_type"] in SALE_TYPES
+               else {"seller_disclosure": "named" if out.get("seller") else None, "seller_description": None})
     out["cms_confirmed_on"] = out["cms_event"]["date"] if out["cms_event"] else None
     merged = {**d, **out}
     out.update(status(merged, out["cms_event"], today))

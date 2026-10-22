@@ -109,6 +109,15 @@ class CmsIndex:
             for ccn, buyer, eff in cur.fetchall():
                 if _mdy(eff):
                     self.events[ccn].append((_mdy(eff), buyer, "CMS change-of-ownership file"))
+        # Buyer and seller of each sale, from the CHOW file itself:
+        # chow_seen_records keeps only the buyer
+        from scraper.chow import load_chow_rows
+        self.sales = defaultdict(list)     # ccn -> [(date, buyer, seller)]
+        for r in load_chow_rows():
+            eff, buyer = _mdy((r.get("EFFECTIVE DATE") or "").strip()), (r.get("ORGANIZATION NAME - BUYER") or "").strip()
+            ccn = (r.get("CCN - BUYER") or r.get("CCN - SELLER") or "").strip()[:6]
+            if eff and buyer and ccn:
+                self.sales[ccn].append((eff, buyer, (r.get("ORGANIZATION NAME - SELLER") or "").strip() or None))
 
     def ccns_by_name(self, facility_names, states) -> list[str]:
         """CCNs whose CMS name equals one of the facility names, when that
@@ -122,6 +131,21 @@ class CmsIndex:
                 if hit and len(hit) == 1:
                     out += [c for c in hit if c not in out]
         return out
+
+    def sale(self, ccns, when: date | None) -> dict | None:
+        """The CHOW-file sale at one of these facilities nearest the date,
+        within 6 months either way: who bought it and who sold it."""
+        if not when:
+            return None
+        best = None
+        for c in ccns or []:
+            for eff, buyer, seller in getattr(self, "sales", {}).get(c, ()):
+                gap = abs(eff - when)
+                if gap <= WINDOW and (best is None or gap < best[0]):
+                    best = (gap, {"date": eff.isoformat(), "buyer": buyer, "seller": seller, "ccn": c,
+                                  "source": "CMS change-of-ownership file",
+                                  "facility": self.facility.get(c, (None,))[0]})
+        return best[1] if best else None
 
     def beds(self, ccns, facility_count: int | None = None) -> int | None:
         """Total CMS certified beds, only when every facility in the record

@@ -24,12 +24,10 @@ In psycopg2, a literal % in a query that takes parameters must be written %%.
 """
 from __future__ import annotations
 
-import csv
 import json
 import re
 from datetime import date, datetime
 from difflib import SequenceMatcher
-from pathlib import Path
 from typing import Any, Optional
 
 from pipeline.deal_labels import _HOME_BANK_RE, SMALL_BUSINESS_LENDER_RE
@@ -38,7 +36,6 @@ from ucc.lender_classifier import classify_secured_party, to_confidence_label
 
 MAX_ROWS = 10
 # The CMS CHOW file, downloaded once (the database keeps CHOW buyers only, not sellers)
-CHOW_CACHE = Path(__file__).resolve().parent.parent / "data" / "chow_cache"
 _LEGAL = re.compile(r"\b(llc|l l c|inc|corp|corporation|company|co|lp|l p|ltd|the)\b")
 _STREET = {"road": "rd", "street": "st", "avenue": "ave", "av": "ave", "boulevard": "blvd", "drive": "dr",
            "lane": "ln", "highway": "hwy", "parkway": "pkwy", "place": "pl", "court": "ct",
@@ -243,21 +240,10 @@ class ToolBox:
         return {"matches": rows}
 
     def _chow(self) -> list:
-        """Rows of the newest CMS CHOW CSV, downloaded to data/chow_cache on first use."""
+        """Rows of the newest CMS CHOW CSV (scraper/chow.py:load_chow_rows)."""
         if self._chow_rows is None:
-            files = sorted(CHOW_CACHE.glob("SNF_CHOW_*.csv"))
-            if not files:
-                import requests
-                from scraper.chow import CHOW_URLS, _discover_chow_csv_url
-                url = _discover_chow_csv_url() or CHOW_URLS[0]
-                resp = requests.get(url, timeout=120)
-                resp.raise_for_status()
-                CHOW_CACHE.mkdir(parents=True, exist_ok=True)
-                files = [CHOW_CACHE / url.rsplit("/", 1)[-1]]
-                files[0].write_bytes(resp.content)
-            # CMS's file isn't valid UTF-8 (stray 0xA0 bytes)
-            with files[-1].open(encoding="latin-1", newline="") as fh:
-                self._chow_rows = list(csv.DictReader(fh))
+            from scraper.chow import load_chow_rows
+            self._chow_rows = load_chow_rows()
         return self._chow_rows
 
     def tool_search_chow_records(self, name: str, state: Optional[str] = None) -> dict:
