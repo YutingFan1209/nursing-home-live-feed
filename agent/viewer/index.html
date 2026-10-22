@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resolver trace viewer</title>
+<style>
+:root {
+  --paper: #E8ECE6;
+  --surface: #F6F7F3;
+  --ink: #1B2A2C;
+  --ink-2: #44585B;
+  --rule: #BFC9C3;
+  --model: #215B73;
+  --model-bg: #DCEAF0;
+  --stamp: #9E2A2B;
+  --stamp-bg: #F6E0DD;
+  --ok: #2C6A3E;
+  --focus: #215B73;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #111A1B;
+    --surface: #182324;
+    --ink: #E3EAE5;
+    --ink-2: #A9B8B5;
+    --rule: #33433F;
+    --model: #86BDD3;
+    --model-bg: #1D3540;
+    --stamp: #FF9C93;
+    --stamp-bg: #3B1F1F;
+    --ok: #8FD0A0;
+    --focus: #86BDD3;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 1rem/1.5 var(--sans); overflow-wrap: anywhere;
+}
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.shell { max-width: 1180px; margin: 0 auto; padding: 0 16px 56px; }
+
+/* page header */
+.top { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: flex-end; padding: 28px 0 16px; border-bottom: 2px solid var(--ink); }
+h1 { font: 600 1.5rem/1.2 var(--serif); margin: 0 0 4px; }
+.lede { margin: 0; color: var(--ink-2); max-width: 58ch; font-size: .9375rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: 500 .9375rem/1.2 var(--sans); padding: .55rem .9rem; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); border-radius: 2px; cursor: pointer; }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn.primary:hover { background: var(--model); border-color: var(--model); color: var(--paper); }
+.btn.small { padding: .3rem .6rem; font-size: .8125rem; }
+#notice { margin: 12px 0 0; padding: 10px 12px; border-left: 4px solid var(--stamp); background: var(--stamp-bg); color: var(--ink); font-size: .9375rem; }
+#notice[hidden] { display: none; }
+#notice ul { margin: 0; padding-left: 1.1rem; }
+
+/* layout */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 24px; }
+@media (min-width: 880px) { .layout { grid-template-columns: 264px minmax(0, 1fr); gap: 40px; } }
+aside { min-width: 0; }
+aside h2 { font: 600 1rem/1.3 var(--serif); margin: 0 0 8px; }
+#runs { list-style: none; margin: 0; padding: 0; max-height: 15rem; overflow: auto; border-top: 1px solid var(--rule); }
+@media (min-width: 880px) { aside { position: sticky; top: 16px; align-self: start; } #runs { max-height: calc(100vh - 120px); } }
+#runs li { border-bottom: 1px solid var(--rule); }
+.run { display: block; width: 100%; text-align: left; font: inherit; color: inherit; background: transparent; border: 0; border-left: 4px solid transparent; padding: 10px 10px 10px 12px; cursor: pointer; }
+.run:hover { background: var(--surface); }
+.run[aria-current="true"] { border-left-color: var(--ink); background: var(--surface); }
+.run .where { font-size: .8125rem; color: var(--ink-2); }
+.run .who { display: block; font: 600 .9375rem/1.3 var(--serif); margin: 2px 0 4px; }
+.run .meta { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: .8125rem; color: var(--ink-2); }
+.tag-review { color: var(--stamp); font-weight: 600; }
+.tag-ok { color: var(--ok); font-weight: 600; }
+.tag-syn { color: var(--model); font-weight: 600; }
+
+main { min-width: 0; }
+main > section { margin-top: 36px; }
+main > section:first-child, main > .banner + section { margin-top: 0; }
+h2.sec { font: 600 1.375rem/1.25 var(--serif); margin: 0 0 12px; }
+.banner { margin: 0 0 20px; padding: 10px 12px; border: 1.5px dashed var(--model); background: var(--model-bg); font-size: .9375rem; }
+
+/* filing */
+.docket-title { font: 600 1.75rem/1.2 var(--serif); margin: 0 0 12px; }
+dl.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 20px; margin: 0; font-size: .9375rem; }
+dl.facts dt { color: var(--ink-2); }
+dl.facts dd { margin: 0; }
+@media (max-width: 479px) { dl.facts { grid-template-columns: minmax(0, 1fr); gap: 0; } dl.facts dd { margin-bottom: 8px; } }
+
+/* timeline */
+.tl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 8px; }
+.tl-head .btns { display: flex; gap: 8px; }
+.hint { margin: 0 0 8px; color: var(--ink-2); font-size: .8125rem; }
+#timeline { list-style: none; margin: 0; padding: 0; }
+.step { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0 10px; position: relative; }
+.step::before { content: ""; position: absolute; left: calc(2.5rem + 14px); top: 0; bottom: 0; width: 2px; background: var(--rule); }
+.step:first-child::before { top: 18px; }
+.step:last-child::before { bottom: calc(100% - 18px); }
+.step .sid { text-align: right; font: 600 .8125rem/1.2 var(--sans); color: var(--ink-2); padding-top: 11px; }
+.step-main { padding: 6px 10px 6px 22px; margin: 2px 0; position: relative; min-width: 0; border-radius: 2px; }
+.step-main::before { content: ""; position: absolute; left: -2px; top: 11px; width: 10px; height: 10px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink-2); }
+.step.tool .step-main::before { background: var(--model); border-color: var(--model); }
+.step.err .step-main::before { background: var(--stamp); border-color: var(--stamp); }
+.step.target .step-main { outline: 2px solid var(--model); outline-offset: 2px; background: var(--model-bg); }
+.step:focus-visible { outline: none; }
+.step:focus-visible .step-main { outline: 3px solid var(--focus); outline-offset: 2px; }
+.who { margin: 0; font-size: .8125rem; color: var(--ink-2); }
+.prose { font: 1.0625rem/1.6 var(--serif); margin: 2px 0 0; max-width: 68ch; }
+.thought .prose { font-style: italic; }
+.step-toggle { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; width: 100%; text-align: left; font: inherit; color: inherit; background: transparent; border: 0; padding: 4px 0; cursor: pointer; }
+.step-toggle .name { font-weight: 650; color: var(--model); }
+.step.err .step-toggle .name { color: var(--stamp); }
+.step-toggle .args { color: var(--ink); font-size: .875rem; flex: 1 1 14rem; min-width: 0; }
+.step-toggle .peek { color: var(--ink-2); font-size: .8125rem; }
+.step-toggle .ms { color: var(--ink-2); font-size: .8125rem; margin-left: auto; }
+.step-toggle .chev { display: inline-block; width: .6rem; transition: transform .15s ease; color: var(--ink-2); }
+.step-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .step-toggle .chev { transition: none; } }
+.cited { display: inline-block; margin-top: 2px; font-size: .8125rem; color: var(--ok); font-weight: 600; }
+.io[hidden] { display: none; }
+.io { margin: 6px 0 10px; }
+.io h4 { margin: 8px 0 4px; font: 600 .8125rem/1.2 var(--sans); color: var(--ink-2); }
+pre { margin: 0; padding: 10px 12px; background: var(--surface); border: 1px solid var(--rule); border-radius: 2px; font: .8125rem/1.5 var(--mono); max-height: 22rem; overflow: auto; white-space: pre; overflow-wrap: normal; }
+.errtext { margin: 6px 0 8px; padding: 8px 10px; border-left: 4px solid var(--stamp); background: var(--stamp-bg); font-size: .9375rem; }
+
+/* verdict ledger */
+.verdict-says { font: 1.125rem/1.6 var(--serif); max-width: 66ch; margin: 0 0 16px; }
+table.ledger { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--rule); }
+.ledger caption { text-align: left; padding: 0 0 6px; font-size: .8125rem; color: var(--ink-2); }
+.ledger th, .ledger td { text-align: left; vertical-align: top; padding: 10px 12px; border-top: 1px solid var(--rule); }
+.ledger thead th { border-top: 0; font: 600 .8125rem/1.2 var(--sans); color: var(--ink-2); border-bottom: 2px solid var(--ink); }
+.ledger thead th.col-model { color: var(--model); }
+.ledger tbody th { font-weight: 500; color: var(--ink-2); width: 8.5rem; }
+.ledger td.proposed { color: var(--model); }
+.ledger td.accepted.changed { border-left: 4px solid var(--stamp); background: var(--stamp-bg); }
+.struck { text-decoration: line-through; text-decoration-color: var(--stamp); text-decoration-thickness: 2px; }
+.none { color: var(--ink-2); font-style: italic; }
+.stamp { display: inline-block; border: 1.5px solid var(--stamp); color: var(--stamp); padding: 0 .4rem; border-radius: 2px; font-size: .8125rem; font-weight: 650; transform: rotate(-1.5deg); margin: 4px 0 0 10px; }
+.why { display: block; font-size: .8125rem; color: var(--ink-2); margin-top: 2px; }
+.val { font-weight: 600; }
+@media (max-width: 639px) {
+  .ledger, .ledger tbody, .ledger tr, .ledger th, .ledger td { display: block; width: auto !important; }
+  .ledger caption { display: block; width: auto; }
+  .ledger thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ledger tbody th { padding-bottom: 0; border-top: 0; }
+  .ledger td { border-top: 0; padding-top: 4px; }
+  .ledger td::before { content: attr(data-label); display: block; font-size: .8125rem; font-weight: 400; color: var(--ink-2); }
+  .ledger tbody tr { border-top: 1px solid var(--rule); }
+  .ledger tbody tr:first-child { border-top: 0; }
+}
+
+/* evidence, verification */
+ul.plain { list-style: none; margin: 0; padding: 0; }
+.ev { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.ev .claim { flex: 1 1 18rem; min-width: 0; }
+.ev.removed .claim { text-decoration: line-through; text-decoration-color: var(--stamp); color: var(--ink-2); }
+.chip { font: 650 .8125rem/1 var(--sans); padding: .35rem .55rem; border: 1.5px solid var(--model); color: var(--model); background: transparent; border-radius: 2px; cursor: pointer; }
+.chip:hover { background: var(--model); color: var(--paper); }
+.chip.inert { cursor: default; border-color: var(--rule); color: var(--ink-2); }
+.mark-ok { color: var(--ok); font-weight: 600; font-size: .8125rem; }
+.mark-bad { color: var(--stamp); font-weight: 600; font-size: .8125rem; }
+.vstatus { font: 1.0625rem/1.5 var(--serif); margin: 0 0 8px; max-width: 66ch; }
+.vstatus.passed { color: var(--ok); }
+.vstatus.changed { color: var(--stamp); }
+.issues { margin: 0 0 12px; padding-left: 1.2rem; }
+.issues li { margin: 4px 0; max-width: 70ch; }
+.removed-list { margin: 0 0 12px; }
+.removed-list dt { color: var(--ink-2); font-size: .8125rem; margin-top: 6px; }
+.removed-list dd { margin: 0; }
+h3.sub { font: 600 1.125rem/1.3 var(--serif); margin: 16px 0 6px; }
+
+dl.usage { display: flex; flex-wrap: wrap; gap: 8px 32px; margin: 0; padding-top: 12px; border-top: 2px solid var(--ink); }
+dl.usage div { min-width: 0; }
+dl.usage dt { font-size: .8125rem; color: var(--ink-2); }
+dl.usage dd { margin: 0; font: 600 1.25rem/1.2 var(--serif); }
+
+/* empty state & drop overlay */
+.empty { max-width: 56ch; }
+.empty h2 { font: 600 1.375rem/1.3 var(--serif); margin: 0 0 8px; }
+.empty p { margin: 0 0 12px; }
+code { font: .875em var(--mono); background: var(--surface); padding: .05rem .3rem; border: 1px solid var(--rule); border-radius: 2px; }
+body.dragging::after { content: "Drop trace files to load them"; position: fixed; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--paper) 88%, transparent); border: 4px dashed var(--model); font: 600 1.5rem var(--serif); color: var(--model); z-index: 10; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div>
+      <h1>Resolver trace viewer</h1>
+      <p class="lede">How the agent reached an answer for one UCC filing, step by step, and what verification changed afterwards.</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn primary" id="pick">Open trace files</button>
+      <button type="button" class="btn" id="synthetic">Load synthetic example</button>
+      <input type="file" id="file" accept=".json,application/json" multiple hidden>
+    </div>
+  </header>
+  <div id="notice" role="alert" hidden></div>
+  <div class="layout">
+    <aside aria-label="Loaded runs">
+      <h2>Runs</h2>
+      <ul id="runs"></ul>
+    </aside>
+    <main id="view" tabindex="-1"></main>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- synthetic example: invented names, marked as such ---------- */
+const SYNTHETIC = {
+  synthetic: true,
+  filing: {
+    state: "NY", filing_number: "SYN-0001", filing_date: "2025-06-01", filing_type: "UCC-1",
+    debtor_name: "Zephyrdale Operating LLC", secured_party: "Example Capital Funding",
+    collateral_description: "All assets", status: "active"
+  },
+  model: "synthetic-example", started_at: "2026-01-01T12:00:00+00:00",
+  usage: { input_tokens: 5120, output_tokens: 640, model_calls: 4 },
+  steps: [
+    { id: "s1", kind: "thought", text: "The debtor is named like a facility operator. I'll search CMS for the distinctive core, Zephyrdale, in New York." },
+    { id: "s2", kind: "tool", name: "search_cms_facilities", input: { name: "Zephyrdale", state: "NY" },
+      output: { matches: [{ ccn: "335999", provider_name: "Zephyrdale Center for Rehabilitation", legal_business_name: "Zephyrdale Operating LLC", provider_city: "Exampleton", provider_state: "NY", bed_count: 120, five_star_rating: 3, score: 0.71 }] }, ms: 84 },
+    { id: "s3", kind: "tool", name: "get_facility_ownership", input: { ccn: "335999", filing_date: "2025-06-01" },
+      output: { facility: { ccn: "335999", provider_name: "Zephyrdale Center for Rehabilitation", provider_state: "NY" },
+        owners: [{ owner_name: "Zephyrdale Operating LLC", owner_role: "5% OR GREATER DIRECT OWNERSHIP INTEREST", ownership_start_date: "2025-05-20" }],
+        chow_events: [],
+        timing: { filing_date: "2025-06-01", window_days: 183, owner_starts_near_filing: [{ date: "2025-05-20", days_from_filing: -12 }], cms_signal: "acquisition_financing", cms_owner_data_complete_through: "2025-12-31" } }, ms: 212 },
+    { id: "s4", kind: "tool", name: "classify_lender", input: { name: "Example Capital Funding", state: "NY" },
+      output: { secured_party: "Example Capital Funding", category: "real_estate", label: "HIGH", confidence: 0.95, matched_signal: "known healthcare lender", is_acquisition_relevant: true }, ms: 3 },
+    { id: "s5", kind: "tool", name: "get_related_ucc_filings", input: { debtor_name: "Zephyrdale Operating LLC", state: "NY" },
+      output: null, error: "OperationalError: connection reset by peer", ms: 1500 },
+    { id: "s6", kind: "thought", text: "The timing rule agrees with an acquisition. The related-filings lookup failed, so I can't say whether this loan repeats an earlier one." }
+  ],
+  verdict: {
+    category: "acquisition_financing",
+    facility_name: "Zephyrdale Center for Rehabilitation", ccn: "335999",
+    owner_entity: null, confidence: "low", needs_human_review: true,
+    reasoning: "CMS lists Zephyrdale Operating LLC as a direct owner starting 12 days before the filing, and the lender is a known healthcare lender. The related-filings lookup failed, so repeat filings are unchecked.",
+    evidence: [
+      { claim: "CMS facility matches the debtor name", step_id: "s2" },
+      { claim: "A direct owner started 12 days before the filing", step_id: "s3" },
+      { claim: "The lender is a known healthcare lender", step_id: "s4" }
+    ],
+    ungrounded: ["owner_entity 'Zephyrdale Holdings Group'"],
+    proposed: {
+      category: "acquisition_financing", facility_name: "Zephyrdale Center for Rehabilitation", ccn: "335999",
+      owner_entity: "Zephyrdale Holdings Group", confidence: "high", needs_human_review: false,
+      evidence: [
+        { claim: "CMS facility matches the debtor name", step_id: "s2" },
+        { claim: "A direct owner started 12 days before the filing", step_id: "s3" },
+        { claim: "The lender is a known healthcare lender", step_id: "s4" },
+        { claim: "No earlier filing by a different lender", step_id: "s5" }
+      ]
+    },
+    verification: { passed: false, issues: [
+      "not in the filing or any tool result, removed: owner_entity 'Zephyrdale Holdings Group'",
+      "1 evidence item(s) cite a step that doesn't exist or failed, removed"
+    ] },
+    audit: { supported: [
+      { step_id: "s2", claim: "CMS facility matches the debtor name", supported: true, reason: "The result lists Zephyrdale Center for Rehabilitation with a legal name equal to the debtor." },
+      { step_id: "s3", claim: "A direct owner started 12 days before the filing", supported: true, reason: "owner_starts_near_filing shows 2025-05-20, -12 days." },
+      { step_id: "s4", claim: "The lender is a known healthcare lender", supported: true, reason: "matched_signal is 'known healthcare lender'." }
+    ] }
+  }
+};
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : String(v));
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid == null || kid === false) continue;
+    e.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return e;
+}
+const human = s => String(s == null ? '' : s).replace(/_/g, ' ');
+const sentence = s => { const t = human(s); return t ? t[0].toUpperCase() + t.slice(1) : t; };
+const trunc = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+const num = n => (typeof n === 'number' ? n.toLocaleString('en-US') : '—');
+const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const pretty = v => { try { return JSON.stringify(v, null, 2); } catch (e) { return String(v); } };
+
+function compactArgs(inp) {
+  if (!inp || typeof inp !== 'object') return '';
+  return Object.entries(inp).map(([k, v]) => `${k}: ${trunc(typeof v === 'string' ? v : JSON.stringify(v), 40)}`).join(', ');
+}
+function peek(out, err) {
+  if (err) return 'failed';
+  if (out == null) return 'no output';
+  if (typeof out !== 'object') return trunc(String(out), 40);
+  const lists = Object.entries(out).filter(([, v]) => Array.isArray(v)).map(([k, v]) => `${k}: ${v.length}`);
+  return lists.length ? lists.join(', ') : `${Object.keys(out).length} fields`;
+}
+function parseUngrounded(list) {
+  const m = {};
+  for (const s of list || []) {
+    const str = String(s), i = str.indexOf(' ');
+    if (i < 0) continue;
+    let v = str.slice(i + 1).trim();
+    if (/^(['"])[\s\S]*\1$/.test(v)) v = v.slice(1, -1);
+    m[str.slice(0, i)] = v;
+  }
+  return m;
+}
+function loweredFrom(issues, now) {
+  for (const s of issues || []) {
+    const m = String(s).match(/(high|medium|low) confidence\b[\s\S]*?\blowered to (high|medium|low)/i);
+    if (m && m[2].toLowerCase() === now) return m[1].toLowerCase();
+  }
+  return null;
+}
+
+/* ---------- state ---------- */
+const runs = [];
+let current = -1;
+
+function addRun(obj, name) {
+  if (!obj || typeof obj !== 'object' || !Array.isArray(obj.steps) || !obj.filing || typeof obj.filing !== 'object') {
+    throw new Error('this is not a resolver trace (it needs "filing" and "steps")');
+  }
+  runs.push({ t: obj, name });
+  current = runs.length - 1;
+}
+function notice(messages) {
+  const box = $('#notice');
+  box.replaceChildren();
+  if (!messages.length) { box.hidden = true; return; }
+  box.hidden = false;
+  box.append(h('ul', null, messages.map(m => h('li', null, m))));
+}
+async function loadFiles(files) {
+  const problems = [];
+  for (const f of files) {
+    try { addRun(JSON.parse(await f.text()), f.name); }
+    catch (e) { problems.push(`Couldn't open ${f.name}: ${e instanceof SyntaxError ? 'the file is not valid JSON.' : e.message + '.'}`); }
+  }
+  notice(problems);
+  render();
+}
+
+/* ---------- rendering ---------- */
+function renderRuns() {
+  const ul = $('#runs');
+  ul.replaceChildren();
+  if (!runs.length) { ul.append(h('li', null, h('p', { class: 'who', style: 'padding:10px 0' }, 'No runs yet.'))); return; }
+  runs.forEach((r, i) => {
+    const f = r.t.filing, v = r.t.verdict || {};
+    const review = v.needs_human_review;
+    const btn = h('button', { type: 'button', class: 'run', 'aria-current': i === current ? 'true' : 'false', onclick: () => { current = i; render(); } },
+      h('span', { class: 'where' }, `${f.state || '??'} ${f.filing_number || ''}`.trim()),
+      h('span', { class: 'who' }, f.debtor_name || '(no debtor recorded)'),
+      h('span', { class: 'meta' },
+        h('span', null, sentence(v.category || 'no verdict')),
+        v.confidence ? h('span', null, `${v.confidence} confidence`) : null,
+        v.category ? h('span', { class: review ? 'tag-review' : 'tag-ok' }, review ? 'needs review' : 'no review needed') : null,
+        r.t.synthetic ? h('span', { class: 'tag-syn' }, 'synthetic') : null));
+    ul.append(h('li', null, btn));
+  });
+}
+
+function emptyState() {
+  return h('div', { class: 'empty' },
+    h('h2', null, 'No trace loaded'),
+    h('p', null, 'Drop one or more trace files anywhere on this page, or choose files. The agent saves them to ', h('code', null, 'agent/traces/'), ' each time it resolves a filing.'),
+    h('p', null, 'To see the layout first, load the synthetic example. Its names and numbers are invented.'),
+    h('div', { class: 'actions' },
+      h('button', { type: 'button', class: 'btn primary', onclick: () => $('#file').click() }, 'Open trace files'),
+      h('button', { type: 'button', class: 'btn', onclick: loadSynthetic }, 'Load synthetic example')));
+}
+
+function filingSection(t) {
+  const f = t.filing;
+  const rows = [['State', f.state], ['Filing number', f.filing_number], ['Filed', f.filing_date], ['Type', f.filing_type],
+    ['Secured party', f.secured_party], ['Collateral', f.collateral_description], ['Status', f.status],
+    ['Model', t.model], ['Run started', t.started_at]].filter(([, v]) => v != null && v !== '');
+  return h('section', { 'aria-labelledby': 'h-filing' },
+    h('h2', { class: 'docket-title', id: 'h-filing' }, f.debtor_name || 'Filing'),
+    h('dl', { class: 'facts' }, rows.map(([k, v]) => [h('dt', null, k), h('dd', null, String(v))])));
+}
+
+function citedCounts(v) {
+  const m = {};
+  for (const e of (v && v.evidence) || []) m[e.step_id] = (m[e.step_id] || 0) + 1;
+  return m;
+}
+
+function setOpen(li, open) {
+  const btn = $('.step-toggle', li), io = $('.io', li);
+  if (!btn || !io) return;
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  io.hidden = !open;
+}
+
+function timelineSection(t) {
+  const cited = citedCounts(t.verdict);
+  const ol = h('ol', { id: 'timeline', 'aria-label': 'Steps in order' });
+  t.steps.forEach(s => {
+    const kind = s.kind === 'tool' ? 'tool' : (s.kind === 'note' ? 'note' : 'thought');
+    const li = h('li', { class: `step ${kind}${s.error ? ' err' : ''}`, id: `step-${s.id}`, tabindex: kind === 'tool' ? null : '-1' });
+    const main = h('div', { class: 'step-main' });
+    if (kind === 'tool') {
+      const bodyId = `io-${s.id}`;
+      const btn = h('button', { type: 'button', class: 'step-toggle', 'aria-expanded': 'false', 'aria-controls': bodyId },
+        h('span', { class: 'chev', 'aria-hidden': 'true' }, '▸'),
+        h('span', { class: 'name' }, s.name || 'tool'),
+        h('span', { class: 'args' }, compactArgs(s.input)),
+        h('span', { class: 'peek' }, peek(s.output, s.error)),
+        h('span', { class: 'ms' }, s.ms != null ? `${num(s.ms)} ms` : ''));
+      const io = h('div', { class: 'io', id: bodyId, hidden: true });
+      io.append(h('h4', null, 'Arguments'), h('pre', { tabindex: '0', 'aria-label': `Arguments for ${s.id}` }, pretty(s.input)));
+      if (!s.error) io.append(h('h4', null, 'Output'), h('pre', { tabindex: '0', 'aria-label': `Output of ${s.id}` }, pretty(s.output)));
+      btn.addEventListener('click', () => setOpen(li, btn.getAttribute('aria-expanded') !== 'true'));
+      main.append(btn);
+      if (s.error) main.append(h('p', { class: 'errtext' }, `This call failed: ${s.error}`));
+      if (cited[s.id]) main.append(h('span', { class: 'cited' }, `Cited as evidence${cited[s.id] > 1 ? ` ${cited[s.id]} times` : ''}`));
+      main.append(io);
+    } else {
+      main.append(h('p', { class: 'who' }, kind === 'note' ? 'System note' : 'Model'), h('p', { class: 'prose' }, s.text || ''));
+    }
+    li.append(h('span', { class: 'sid' }, s.id), main);
+    ol.append(li);
+  });
+  return h('section', { 'aria-labelledby': 'h-steps' },
+    h('div', { class: 'tl-head' },
+      h('h2', { class: 'sec', id: 'h-steps', style: 'margin:0' }, 'What the agent did'),
+      h('div', { class: 'btns' },
+        h('button', { type: 'button', class: 'btn small', onclick: () => document.querySelectorAll('.step.tool').forEach(li => setOpen(li, true)) }, 'Open all'),
+        h('button', { type: 'button', class: 'btn small', onclick: () => document.querySelectorAll('.step.tool').forEach(li => setOpen(li, false)) }, 'Close all'))),
+    h('p', { class: 'hint' }, 'Keys: j and k move between steps, Enter opens or closes a tool call.'),
+    t.steps.length ? ol : h('p', null, 'This run recorded no steps.'));
+}
+
+/* verdict ledger: what the model proposed vs what verification left standing */
+function ledgerRows(v) {
+  const issues = (v.verification && v.verification.issues) || [];
+  const ung = parseUngrounded(v.ungrounded);
+  const exact = v.proposed && typeof v.proposed === 'object' ? v.proposed : null;
+  const defs = [
+    ['category', 'Category', x => sentence(x)],
+    ['facility_name', 'Facility', x => x],
+    ['ccn', 'CCN', x => x],
+    ['link_basis', 'Link to facility', x => ({ direct: 'Shown directly by a lookup', name_similarity: 'Shared name only', propco_opco_pair: 'Property company / operator pair (rule)', none: 'None' }[x] || x)],
+    ['owner_entity', 'Owner', x => x],
+    ['confidence', 'Confidence', x => x],
+    ['needs_human_review', 'Human review', x => (x ? 'required' : 'not required')]
+  ];
+  return defs.filter(d => d[0] !== 'link_basis' || 'link_basis' in v).map(([key, label, fmt]) => {
+    const a = v[key];
+    let p = a, known = true, changed = false, why = '';
+    if (exact && key in exact) {
+      p = exact[key]; changed = !same(p, a);
+      if (changed) why = key === 'needs_human_review' ? 'Verification found problems, so a person must look.'
+        : key in ung ? 'Removed: not in the filing or any tool result.'
+        : key === 'confidence' ? 'Lowered by verification.' : 'Changed by verification.';
+    } else if (key in ung) {
+      p = ung[key]; changed = true; why = 'Removed: not in the filing or any tool result.';
+    } else if (key === 'confidence') {
+      const from = loweredFrom(issues, a);
+      if (from) { p = from; changed = true; why = `Lowered from ${from}.`; }
+      else if (Object.keys(ung).length && a === 'low') { known = false; changed = true; why = 'Set to low because a field was removed.'; }
+    } else if (key === 'needs_human_review' && a === true && issues.length) {
+      known = false; changed = true; why = 'Verification found problems, so a person must look.';
+    }
+    return { key, label, fmt, a, p, known, changed, why };
+  });
+}
+function valNode(val, fmt, cls) {
+  if (val == null || val === '') return h('span', { class: 'none' }, 'none');
+  return h('span', { class: `val${cls ? ' ' + cls : ''}` }, fmt(val));
+}
+function verdictSection(t) {
+  const v = t.verdict;
+  if (!v) return h('section', { 'aria-labelledby': 'h-verdict' }, h('h2', { class: 'sec', id: 'h-verdict' }, 'Verdict'), h('p', null, 'This run recorded no verdict.'));
+  const tbody = h('tbody', null, ledgerRows(v).map(r => {
+    const pCell = h('td', { class: 'proposed', 'data-label': 'Model proposed' },
+      r.known ? valNode(r.p, r.fmt, r.changed ? 'struck' : '') : h('span', { class: 'none' }, 'not recorded'));
+    const aCell = h('td', { class: `accepted${r.changed ? ' changed' : ''}`, 'data-label': 'After verification' },
+      valNode(r.a, r.fmt, ''),
+      r.changed ? h('span', { class: 'stamp' }, 'Verification changed this') : null,
+      r.changed && r.why ? h('span', { class: 'why' }, r.why) : null);
+    return h('tr', null, h('th', { scope: 'row' }, r.label), pCell, aCell);
+  }));
+  const table = h('table', { class: 'ledger' },
+    h('caption', null, 'The model proposes an answer; deterministic checks decide what stands.'),
+    h('thead', null, h('tr', null, h('th', { scope: 'col' }, 'Field'), h('th', { scope: 'col', class: 'col-model' }, 'Model proposed'), h('th', { scope: 'col' }, 'After verification'))),
+    tbody);
+  return h('section', { 'aria-labelledby': 'h-verdict' },
+    h('h2', { class: 'sec', id: 'h-verdict' }, 'Verdict'),
+    v.reasoning ? h('p', { class: 'verdict-says' }, v.reasoning) : null,
+    table);
+}
+
+function auditMap(v) {
+  const m = {};
+  const list = v.audit && Array.isArray(v.audit.supported) ? v.audit.supported : [];
+  for (const a of list) if (a && typeof a === 'object') m[a.step_id + '|' + a.claim] = a;
+  return m;
+}
+function goToStep(id) {
+  const li = document.getElementById(`step-${id}`);
+  if (!li) return;
+  document.querySelectorAll('.step.target').forEach(x => x.classList.remove('target'));
+  li.classList.add('target');
+  if (li.classList.contains('tool')) setOpen(li, true);
+  li.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });
+  (li.querySelector('.step-toggle') || li).focus({ preventScroll: true });
+}
+function evidenceSection(t) {
+  const v = t.verdict;
+  if (!v) return null;
+  const stepIds = new Set(t.steps.map(s => s.id));
+  const audit = auditMap(v);
+  const kept = v.evidence || [];
+  const keptKeys = new Set(kept.map(e => e.step_id + '|' + e.claim));
+  const dropped = v.proposed && Array.isArray(v.proposed.evidence) ? v.proposed.evidence.filter(e => !keptKeys.has(e.step_id + '|' + e.claim)) : [];
+  const item = (e, removed) => {
+    const a = audit[e.step_id + '|' + e.claim];
+    const live = stepIds.has(e.step_id) && !removed;
+    return h('li', { class: `ev${removed ? ' removed' : ''}` },
+      h('span', { class: 'claim' }, e.claim),
+      live ? h('button', { type: 'button', class: 'chip', 'aria-label': `Go to step ${e.step_id}`, onclick: () => goToStep(e.step_id) }, e.step_id)
+           : h('span', { class: 'chip inert' }, e.step_id),
+      removed ? h('span', { class: 'mark-bad' }, 'Removed: the cited step failed or doesn’t exist') : null,
+      a ? h('span', { class: a.supported ? 'mark-ok' : 'mark-bad' }, a.supported ? 'Second reader: supported' : 'Second reader: not supported') : null);
+  };
+  return h('section', { 'aria-labelledby': 'h-ev' },
+    h('h2', { class: 'sec', id: 'h-ev' }, 'Evidence behind the verdict'),
+    kept.length || dropped.length
+      ? h('ul', { class: 'plain' }, kept.map(e => item(e, false)), dropped.map(e => item(e, true)))
+      : h('p', null, 'The verdict cites no evidence.'));
+}
+
+function verificationSection(t) {
+  const v = t.verdict;
+  if (!v) return null;
+  const ver = v.verification || {};
+  const issues = ver.issues || [];
+  const ung = parseUngrounded(v.ungrounded);
+  const passed = ver.passed === true || (ver.passed == null && !issues.length);
+  const kids = [h('h2', { class: 'sec', id: 'h-ver' }, 'What verification did')];
+  kids.push(h('p', { class: `vstatus ${passed ? 'passed' : 'changed'}` },
+    passed ? 'Passed. Every name and number in the verdict appears in the filing or a tool result, and nothing was changed.'
+           : `Found ${issues.length} ${issues.length === 1 ? 'problem' : 'problems'} and changed the verdict to match what the tools showed.`));
+  if (issues.length) kids.push(h('ul', { class: 'issues' }, issues.map(i => h('li', null, i))));
+  if (Object.keys(ung).length) {
+    kids.push(h('p', { class: 'who' }, 'Removed because the filing and tool results don’t contain it:'));
+    kids.push(h('dl', { class: 'removed-list' }, Object.entries(ung).map(([k, val]) => [h('dt', null, human(k)), h('dd', null, h('span', { class: 'struck val' }, val))])));
+  }
+  const au = v.audit;
+  if (au && typeof au === 'object') {
+    kids.push(h('h3', { class: 'sub' }, 'Second reader’s check'));
+    if (Array.isArray(au.supported)) {
+      kids.push(h('ul', { class: 'plain' }, au.supported.map(a => h('li', { class: 'ev' },
+        h('span', { class: 'claim' }, a.claim, a.reason ? h('span', { class: 'why' }, a.reason) : null),
+        a.step_id ? h('button', { type: 'button', class: 'chip', 'aria-label': `Go to step ${a.step_id}`, onclick: () => goToStep(a.step_id) }, a.step_id) : null,
+        h('span', { class: a.supported ? 'mark-ok' : 'mark-bad' }, a.supported ? 'Supported' : 'Not supported')))));
+      if (au.valid === false) {
+        kids.push(h('p', { class: 'who' }, 'The second reader did not give a usable answer for every claim, so the filing was sent to a person.'));
+      } else if (typeof au.category_follows === 'boolean') {
+        kids.push(h('p', { class: 'who' }, au.category_follows ? 'Second reader: the category follows from the evidence.' : 'Second reader: the category does NOT follow from the evidence.',
+          au.category_reason ? h('span', { class: 'why' }, ' ' + au.category_reason) : null));
+      }
+    } else {
+      kids.push(h('pre', { tabindex: '0', 'aria-label': 'Audit output' }, pretty(au)));
+    }
+  }
+  return h('section', { 'aria-labelledby': 'h-ver' }, kids);
+}
+
+function usageSection(t) {
+  const u = t.usage || {};
+  const tools = t.steps.filter(s => s.kind === 'tool');
+  const toolMs = tools.reduce((n, s) => n + (s.ms || 0), 0);
+  const item = (k, val) => h('div', null, h('dt', null, k), h('dd', null, val));
+  return h('section', { 'aria-label': 'Usage' },
+    h('dl', { class: 'usage' },
+      item('Model calls', num(u.model_calls)), item('Tokens in', num(u.input_tokens)), item('Tokens out', num(u.output_tokens)),
+      item('Tool calls', num(tools.length)),
+      item('Time in tools', toolMs >= 1000 ? `${(toolMs / 1000).toFixed(1)} s` : `${toolMs} ms`)));
+}
+
+function render() {
+  renderRuns();
+  const main = $('#view');
+  main.replaceChildren();
+  if (current < 0 || !runs[current]) { main.append(emptyState()); return; }
+  const t = runs[current].t;
+  if (t.synthetic) main.append(h('p', { class: 'banner', role: 'note' }, 'Synthetic example. The names, numbers and results are invented to show the layout. This is not real data.'));
+  [filingSection(t), timelineSection(t), verdictSection(t), evidenceSection(t), verificationSection(t), usageSection(t)]
+    .forEach(s => s && main.append(s));
+}
+
+function loadSynthetic() {
+  addRun(JSON.parse(JSON.stringify(SYNTHETIC)), 'synthetic example');
+  notice([]);
+  render();
+}
+
+/* ---------- wiring ---------- */
+$('#pick').addEventListener('click', () => $('#file').click());
+$('#file').addEventListener('change', e => { loadFiles(Array.from(e.target.files)); e.target.value = ''; });
+$('#synthetic').addEventListener('click', loadSynthetic);
+
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) { dragDepth++; document.body.classList.add('dragging'); } });
+window.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) document.body.classList.remove('dragging'); });
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging');
+  if (e.dataTransfer && e.dataTransfer.files.length) loadFiles(Array.from(e.dataTransfer.files));
+});
+
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+  const inTimeline = e.target.closest && e.target.closest('#timeline');
+  const vertical = (e.key === 'ArrowDown' || e.key === 'ArrowUp') && inTimeline && tag !== 'pre';
+  if (!(e.key === 'j' || e.key === 'k' || vertical)) return;
+  const stops = Array.from(document.querySelectorAll('#timeline .step')).map(li => $('.step-toggle', li) || li);
+  if (!stops.length) return;
+  const here = stops.findIndex(el => el === document.activeElement || el.contains(document.activeElement));
+  const dir = (e.key === 'j' || e.key === 'ArrowDown') ? 1 : -1;
+  const next = here < 0 ? (dir > 0 ? 0 : stops.length - 1) : Math.min(stops.length - 1, Math.max(0, here + dir));
+  e.preventDefault();
+  stops[next].focus();
+});
+
+(async function init() {
+  render();
+  const p = new URLSearchParams(location.search).get('trace');
+  if (!p) return;
+  try {
+    const url = new URL(p, location.href);
+    if (url.origin !== location.origin) throw new Error('only traces from this same site can be fetched');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`the server answered ${res.status}`);
+    addRun(await res.json(), p.split('/').pop());
+    render();
+  } catch (e) {
+    notice([`Couldn't fetch ${p}: ${e.message}. Opened from a file, browsers block this; drop the file onto the page instead, or serve the folder over http.`]);
+  }
+})();
+})();
+</script>
+</body>
+</html>

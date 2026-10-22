@@ -30,3 +30,7 @@ dashboard/frontend/storybook-static/
 # Internal decision log, kept local
 docs/tyler-questions.md
 dashboard/frontend/.vite/
+
+# Agent run traces: real filings, some against private individuals (public repo)
+agent/traces/
+.Rhistory
