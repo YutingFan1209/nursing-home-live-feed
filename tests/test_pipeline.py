@@ -97,3 +97,11 @@ def test_deduplicate_batch_keeps_different():
               "acquisition_date": "2026-02-02", "facility_count": 4, "deal_value_m": 51.2}
     result = deduplicate_batch([deal_a, deal_b])
     assert len(result) == 2
+
+
+def test_extractor_reads_json_after_a_preamble():
+    # 2026-10-22: 5 of 33 replies explained themselves before the array
+    from pipeline.extractor import _first_json
+    reply = 'This is a blocked deal [per the state], so I kept it.\n\n[{"acquiring_entity": "Example Care", "states": ["MA"]}]'
+    assert _first_json(reply) == [{"acquiring_entity": "Example Care", "states": ["MA"]}]
+    assert _first_json("No deals here.") is None

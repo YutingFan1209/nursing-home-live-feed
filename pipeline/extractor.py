@@ -223,10 +223,30 @@ def _call_claude_with_retry(article_text: str, article_url: str, published_date_
     raw = "".join(b.text for b in response.content if b.type == "text").strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
 
-    deals = json.loads(raw)
+    try:
+        deals = json.loads(raw)
+    except json.JSONDecodeError:
+        # Sometimes a sentence or two of reasoning comes before the array
+        # (5 of 33 articles on 2026-10-22): read the JSON that follows it
+        # (a bracket inside the prose, like "[sic]", just fails to parse and is skipped)
+        deals = _first_json(raw)
+        if deals is None:
+            raise
     if not isinstance(deals, list):
         deals = [deals]
     return deals
+
+
+def _first_json(text: str):
+    """The first JSON array or object in `text`, or None."""
+    decoder = json.JSONDecoder()
+    for i, ch in enumerate(text):
+        if ch in "[{":
+            try:
+                return decoder.raw_decode(text[i:])[0]
+            except json.JSONDecodeError:
+                continue
+    return None
 
 
 def _normalize_deal(raw: dict) -> Optional[dict]:
