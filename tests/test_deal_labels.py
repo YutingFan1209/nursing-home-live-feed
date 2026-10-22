@@ -450,3 +450,16 @@ def test_how_the_source_describes_an_unnamed_seller():
     loan = {"source_type": "rss", "deal_type": "acquisition_financing",
             "summary": "It was completed alongside a separate real estate acquisition financing from an unnamed lending partner."}
     assert seller_fields(loan, {"seller": None, "buyer": None})["seller_disclosure"] is None
+
+
+def test_pending_state_filing_shows_the_current_licensee_not_a_seller():
+    d = {"source_type": "con", "deal_type": "ownership_change", "ccns": ["105001"], "states": ["FL"],
+         "facility_names": ["Seaside Care"], "acquisition_date": "2026-08-01"}
+    cms = _with_sales({})
+    cms.licensee = {"105001": "SEASIDE OPERATIONS LLC"}
+    out = label(d, cms, d["facility_names"], today=TODAY)
+    assert out["current_licensee"] == "SEASIDE OPERATIONS LLC" and out["seller"] is None
+    old = {**d, "acquisition_date": "2025-06-01"}       # CMS may have recorded the change since
+    assert label(old, cms, d["facility_names"], today=TODAY)["current_licensee"] is None
+    own = {**d, "acquiring_entity": "Seaside Operations, LLC"}  # the licensee is the buyer
+    assert label(own, cms, d["facility_names"], today=TODAY)["current_licensee"] is None

@@ -91,9 +91,12 @@ class CmsIndex:
         self.truncated = defaultdict(list) # state -> [(key prefix, ccn)] for cut-off names
         self.events = defaultdict(list)    # ccn -> [(date, owner, source)]
         with conn.cursor() as cur:
-            cur.execute("SELECT ccn, provider_name, provider_state, bed_count FROM cms_facilities")
-            for ccn, name, state, beds in cur.fetchall():
+            self.licensee = {}             # ccn -> legal business name (the licensed company)
+            cur.execute("SELECT ccn, provider_name, provider_state, bed_count, legal_business_name FROM cms_facilities")
+            for ccn, name, state, beds, legal in cur.fetchall():
                 self.facility[ccn] = (name, state, beds)
+                if legal:
+                    self.licensee[ccn] = legal
                 self.by_name[(state, facility_key(name))].add(ccn)
                 if len(name or "") >= CMS_NAME_LIMIT:
                     # drop the cut-off last word: "...Rehabilitation Ce"
@@ -146,6 +149,11 @@ class CmsIndex:
                                   "source": "CMS change-of-ownership file",
                                   "facility": self.facility.get(c, (None,))[0]})
         return best[1] if best else None
+
+    def current_licensee(self, ccns) -> str | None:
+        """The one licensed company CMS lists today for these facilities."""
+        names = {getattr(self, "licensee", {}).get(c) for c in ccns or []} - {None}
+        return names.pop() if len(names) == 1 else None
 
     def beds(self, ccns, facility_count: int | None = None) -> int | None:
         """Total CMS certified beds, only when every facility in the record

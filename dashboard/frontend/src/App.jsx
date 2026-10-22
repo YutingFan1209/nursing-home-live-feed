@@ -163,6 +163,7 @@ const US_STATES = [
 const ENTITY_ROLES = [
   ["buyer",    d => [d.buyer]],
   ["seller",   d => [d.seller]],
+  ["licensee", d => [d.current_licensee]],
   ["borrower", d => [d.ucc_debtor]],
   ["lender",   d => [lenderKnown(d) ? d.lender : null]],
   ["operator", d => d.operator_names || []],
@@ -206,6 +207,7 @@ const CSV_COLUMNS = [
   ["buyer_description", d => d.buyer_description, "How the source describes an unnamed buyer, e.g. 'a national REIT'."],
   ["seller", d => d.seller, "Seller as named in the source, or CMS's when seller_disclosure is cms."],
   ["seller_disclosure", d => d.seller_disclosure, "named (the source names the seller); cms (the source doesn't, and CMS's change-of-ownership file names the seller of this facility within 6 months of the deal date); described (unnamed, but the source describes them); undisclosed (the source says the seller wasn't named)."],
+  ["current_licensee", d => d.current_licensee, "State filings made before closing that name no seller: the facility's licensee in CMS today. Not necessarily the seller (in a share transfer the licensee stays)."],
   ["seller_description", d => d.seller_description, "How the source describes an unnamed seller, e.g. 'an Indiana-based private owner'."],
   ["cms_sale_buyer", d => d.cms_sale?.buyer, "Buyer in CMS's change-of-ownership file for the sale this record is about (for UCC acquisition financing: the sale the loan paid for)."],
   ["cms_sale_seller", d => d.cms_sale?.seller, "Seller in CMS's change-of-ownership file for that sale."],
@@ -544,6 +546,7 @@ function cardColumns(d, facilities) {
     const missingSeller = d.seller_disclosure === "undisclosed" ? "Undisclosed"
       : d.seller_disclosure === "described" && d.seller_description ? d.seller_description : "Not reported";
     cols.push(seller ? { label, value: seller, note: d.seller_disclosure === "cms" ? "Per CMS, not the source" : null }
+      : d.current_licensee ? { label: "Current licensee", value: d.current_licensee, note: "Per CMS; the filing names no seller" }
       : { label, value: missingSeller, missing: true });
   }
 

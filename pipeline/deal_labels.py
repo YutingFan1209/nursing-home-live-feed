@@ -383,6 +383,26 @@ def seller_fields(d: dict, out: dict) -> dict:
     return {"seller_disclosure": None, "seller_description": None}
 
 
+# A state filing older than this may predate a licensee change CMS has since recorded
+LICENSEE_FRESH = timedelta(days=274)
+
+
+def current_licensee(d: dict, cms, today: date) -> str | None:
+    """For a state filing made before closing that names no seller: the
+    home's licensee in CMS today (2026-10-22). Not called the seller: in a
+    share transfer the licensee stays (Cliveden, Oklahoma stock transfers).
+    None once CMS shows a new owner, when it is the buyer, or for an old filing."""
+    if d.get("source_type") != "con" or d.get("deal_type") != "ownership_change" or d.get("seller") or not cms:
+        return None
+    if d.get("cms_event") or d.get("cms_sale"):
+        return None
+    when = _day(d.get("acquisition_date")) or _day(d.get("published_at")) or _day(d.get("created_at"))
+    if not when or today - when > LICENSEE_FRESH:
+        return None
+    name = cms.current_licensee(d.get("ccns"))
+    return None if not name or same_party(name, d.get("buyer")) else name
+
+
 # A CMS owner change this much before the deal date confirms it only when
 # CMS names the buyer (news often runs weeks after a closing)
 EARLY_EVENT = timedelta(days=60)
@@ -569,6 +589,7 @@ def label(d: dict, cms, facilities: list[str], today: date | None = None,
         out.update({"buyer": None, "buyer_disclosure": None, "buyer_description": None})
     out.update(seller_fields({**d, **out}, out) if out["deal_type"] in SALE_TYPES
                else {"seller_disclosure": "named" if out.get("seller") else None, "seller_description": None})
+    out["current_licensee"] = current_licensee({**d, **out}, cms, today or date.today())
     out["cms_confirmed_on"] = out["cms_event"]["date"] if out["cms_event"] else None
     merged = {**d, **out}
     out.update(status(merged, out["cms_event"], today))
