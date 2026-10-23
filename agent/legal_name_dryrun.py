@@ -2,7 +2,7 @@
 Dry run of the matcher's legal-name rule (matcher.ownership._legal_name_match)
 on every live UCC deal. Read-only session: nothing is linked or written.
 
-  PYTHONPATH=. venv/bin/python3 scripts/legal_name_dryrun.py [out.json]
+  venv/bin/python3 -m agent.legal_name_dryrun [out.json]
 
 Prints how many unmatched UCC deals the rule would newly link, and how it
 compares with the CMS matches the matched deals already have. With out.json,

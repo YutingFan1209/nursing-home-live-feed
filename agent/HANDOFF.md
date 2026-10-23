@@ -15,7 +15,7 @@ explain and defend every choice). Demo goes public before Nov 1, 2026.
 - Explain results in plain words. She needs to be able to defend them.
 
 ## Steps (stop and report after each)
-1. Run `python3 -m pytest tests/test_agent.py tests/test_agent_extras.py -q`. Expect 32 passed.
+1. Run `python3 -m pytest agent/tests -q`. Expect 32 passed.
 2. Run `venv/bin/python3 -m agent.run --selftest`. This is the first run of the NEW search SQL
    (word_similarity + ILIKE, replacing whole-string similarity) against the real DB, including a new
    "search recall" check. If it fails, show her the error and fix `agent/tools.py`.

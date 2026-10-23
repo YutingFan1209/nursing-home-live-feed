@@ -1,6 +1,6 @@
 """
 Offline tests for agent/score.py, agent/audit.py and agent/mcp_server.py.
-Synthetic names only. Run:  venv/bin/python3 -m pytest tests/test_agent_extras.py
+Synthetic names only. Run:  venv/bin/python3 -m pytest agent/tests/test_agent_extras.py
 (Needs the `mcp` package for the server tests; they skip without it.)
 """
 import asyncio

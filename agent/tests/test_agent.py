@@ -2,7 +2,7 @@
 Offline tests for agent/: a scripted fake model and stub tools, so no DB or
 API key is needed. All names below are synthetic.
 
-Run from the project root:  venv/bin/python3 -m pytest tests/test_agent.py
+Run from the project root:  venv/bin/python3 -m pytest agent/tests/test_agent.py
 (The SQL in agent/tools.py is NOT exercised here -- use `python -m agent.run --selftest`.)
 """
 from types import SimpleNamespace as NS

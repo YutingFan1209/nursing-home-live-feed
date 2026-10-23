@@ -78,10 +78,10 @@ venv/bin/python3 -m agent.holdout_baselines                   # matcher / name s
 venv/bin/python3 -m agent.holdout_eval --cost-ratio 10        # every batch-1 number, from saved traces, no model:
                                                               # 23/24, 21/24 strict, 9-0 McNemar p=0.004, 19/20 ranking,
                                                               # review-policy costs (current rule 0.50 vs 1.00)
-PYTHONPATH=. venv/bin/python3 scripts/legal_name_dryrun.py    # read-only: proposed 87 links among 590 unmatched UCC
+venv/bin/python3 -m agent.legal_name_dryrun                  # read-only: proposed 87 links among 590 unmatched UCC
                                                               # deals; after the one-word guard 84, applied 2026-10-22
                                                               # (so it now finds 0)
-venv/bin/python3 -m pytest tests -q                           # offline, no DB writes or API key
+venv/bin/python3 -m pytest agent/tests tests -q               # offline, no DB writes or API key
 # costs API money (about 33k input / 2.7k output tokens): #5 and #28 with the assessor tool
 venv/bin/python3 -m agent.run --filings agent/traces/holdout/batch2_both.csv --audit \
     --model claude-sonnet-5-5 --out agent/traces/holdout/run_batch2_deed
@@ -99,7 +99,7 @@ venv/bin/python3 -m agent.run --state PA --filing-number <n>   # one filing
 venv/bin/python3 -m agent.run --sample 5 --state PA            # 5 UCC-only deals CMS never matched (label by hand)
 venv/bin/python3 -m agent.run --known 20 --state PA --audit    # auto-labeled easy cases, with the audit pass
 venv/bin/python3 -m agent.score agent/traces/sample_summary.csv
-venv/bin/python3 -m pytest tests/test_agent.py tests/test_agent_extras.py   # offline, no DB or API key
+venv/bin/python3 -m pytest agent/tests                         # offline, no DB or API key
 ```
 
 ## Next: make the prompt the experiment (OPRO-style), once there are labels
