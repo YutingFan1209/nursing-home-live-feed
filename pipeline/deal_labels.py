@@ -90,8 +90,8 @@ CONSUMER_LENDER_RE = re.compile(
 # Audit 2026-10-21 noise: true filings that aren't nursing home deals.
 # A person's filing older than NY's two-year search window, from a lender
 # that doesn't finance nursing homes (M&T 2007, Banco Popular 2017). Kept:
-# nursing home and private credit lenders (Warren Cole's Capital Finance
-# filings for Elderwood) and any filing CMS dates put near a sale.
+# nursing home and private credit lenders (e.g. Capital Finance's filings
+# against an Elderwood owner) and any filing CMS dates put near a sale.
 PERSON_FILING_MAX_AGE = timedelta(days=730)
 HOME_LENDERS = ("Healthcare RE / HUD lender", "Private credit fund")
 # A syndicate's agent or a deal's nominee lends to a business the owner

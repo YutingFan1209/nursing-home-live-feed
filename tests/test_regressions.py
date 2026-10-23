@@ -563,7 +563,7 @@ def test_ny_individual_filter_keeps_recent_commercial_drops_old_and_consumer():
     from ucc.base import UCCFiling
     from ucc.ny_playwright import keep_individual_filing
     today = date(2026, 10, 20)
-    f = lambda lender, filed: UCCFiling(state="NY", debtor_name="WARREN COLE", secured_party_name=lender,
+    f = lambda lender, filed: UCCFiling(state="NY", debtor_name="GARRICK MOSSLEY", secured_party_name=lender,
                                         filing_number="1", filing_date=filed)
     assert keep_individual_filing(f("CIBC BANK USA, AS ADMINISTRATIVE AGENT", date(2025, 12, 31)), today)
     assert keep_individual_filing(f("", None), today)
@@ -748,7 +748,7 @@ def test_operator_as_secured_party_is_an_operations_transfer():
     assert not is_operator("HEALTHCARE FINANCING OF AMERICA, LLC", "INTEGRATIVE HEALTH & REHAB LLC")
     assert not is_operator("SOVRAN HEALTH & REHAB CENTER, LLC",            # the debtor itself
                            "The Laurels of Gahanna, LLC, Sovran Health & Rehab Center, LLC")
-    assert not is_operator("WASHINGTON OPERATIONS ASSOCIATES LL", "KENNETH ROZENBERG")  # a person's filing
+    assert not is_operator("WASHINGTON OPERATIONS ASSOCIATES LL", "EMRYS TALLOWAY")  # a person's filing
     deals = [{"source_type": "ucc", "deal_type": "financing", "ucc_state": "FL", "ucc_debtor": "EAST RIDGE RETIREMENT VILLAGE, INC.",
               "lender": "CUTLER BAY SNF OPERATING LLC", "acquisition_date": "2025-06-23", "ccns": ["105508"]}]
     categorize(deals, {"105508": {date(2010, 4, 19)}}, today=date(2025, 6, 30))
@@ -893,7 +893,7 @@ def test_true_filings_that_are_not_deals_are_non_deal_liens():
     old = {"source_type": "ucc", "ucc_state": "NY", "individual_filing": True, "deal_type": "financing",
            "acquisition_date": "2007-05-14", "lender": "MANUFACTURERS & TRADERS TRUST COMPANY", "lender_category": "Bank"}
     assert is_not_a_deal(old, today)
-    # A nursing home lender's filing against an owner stays (Warren Cole, Elderwood)
+    # A nursing home lender's filing against an owner stays (Elderwood)
     assert not is_not_a_deal({**old, "lender": "CAPITAL FINANCE, LLC", "lender_category": "Healthcare RE / HUD lender"}, today)
     assert not is_not_a_deal({**old, "lender": "BANK OF AMERICA, N.A., AS ADMINISTRATIVE AGENT"}, today)
     # So does one CMS dates put near a sale, and a recent one

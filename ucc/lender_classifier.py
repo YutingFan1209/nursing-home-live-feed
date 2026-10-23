@@ -267,7 +267,7 @@ EXCLUDE_PATTERNS.extend([
     r"\bhp financial\b",            # HP Financial Services (IT equipment)
     r"\bcisco systems\b",           # Cisco Systems Capital (networking)
     r"\bcrown credit\b",            # Crown Credit Company (forklift/industrial)
-    r"\bmatco tools\b",             # Matco Tools Corp (hand tools, seen in ROBERT BUTLER deals)
+    r"\bmatco tools\b",             # Matco Tools Corp (hand tools, seen in DORIAN PELLWICK deals)
     r"\bsnap.?on credit\b",         # Snap-on Credit LLC (tools)
     r"\bnew holland credit\b",      # New Holland Credit (farm/construction equipment)
     r"\bgreenpoint credit\b",       # GreenPoint Credit (consumer auto/personal)

@@ -465,7 +465,7 @@
   "financing_amount_m": null,
   "acquisition_date": "2026-03-30",
   "operator_names": [
-   "BENJAMIN LANDA"
+   "ALDEN VORSTRAND"
   ],
   "facility_names": [
    "BROOKHAVEN REHAB & HEALTH CARE CENTER L L C",
@@ -506,7 +506,7 @@
   ],
   "ucc_filing_number": "NYX-fcc8f85a680cb936",
   "ucc_state": "NY",
-  "ucc_debtor": "BENJAMIN LANDA",
+  "ucc_debtor": "ALDEN VORSTRAND",
   "ucc_filing_type": "UCC-1",
   "lender_category": "Healthcare RE / HUD lender",
   "deal_type": "financing",
@@ -529,7 +529,7 @@
    ]
   ],
   "_before_site": {
-   "headline": "Benjamin Landa \u2014 UCC-1 financing",
+   "headline": "Alden Vorstrand \u2014 UCC-1 financing",
    "tag": "Individual filing",
    "note": "card said \"Owner of <first facility_names>\" from fuzzy CMS matches"
   }
@@ -546,7 +546,7 @@
   "financing_amount_m": null,
   "acquisition_date": "2026-06-04",
   "operator_names": [
-   "ZACHARY FISHER"
+   "CORWIN HALBEK"
   ],
   "facility_names": [
    "MONTGOMERY NURSING AND REHABILITATION CENTER"
@@ -565,7 +565,7 @@
   ],
   "ucc_filing_number": "NYX-a92a30704d9509dc",
   "ucc_state": "NY",
-  "ucc_debtor": "ZACHARY FISHER",
+  "ucc_debtor": "CORWIN HALBEK",
   "ucc_filing_type": "UCC-1",
   "lender_category": "Equipment / non-deal lien",
   "deal_type": "non_deal_lien",
@@ -576,7 +576,7 @@
    ]
   ],
   "_before_site": {
-   "headline": "Zachary Fisher \u2014 likely non-deal lien",
+   "headline": "Corwin Halbek \u2014 likely non-deal lien",
    "tag": "Individual filing",
    "note": "card said \"Owner of <first facility_names>\" from fuzzy CMS matches"
   }
@@ -593,7 +593,7 @@
   "financing_amount_m": null,
   "acquisition_date": "2026-04-01",
   "operator_names": [
-   "ROBERT BUTLER"
+   "DORIAN PELLWICK"
   ],
   "facility_names": [
    "BETHEL HEALTH CARE CENTER"
@@ -610,13 +610,13 @@
   "ccns": null,
   "ucc_filing_number": "NYX-4b69ed94bbb63a15",
   "ucc_state": "NY",
-  "ucc_debtor": "ROBERT BUTLER",
+  "ucc_debtor": "DORIAN PELLWICK",
   "ucc_filing_type": "UCC-1",
   "lender_category": "Equipment / non-deal lien",
   "deal_type": "non_deal_lien",
   "_homes": [],
   "_before_site": {
-   "headline": "Robert Butler \u2014 likely non-deal lien",
+   "headline": "Dorian Pellwick \u2014 likely non-deal lien",
    "tag": "Individual filing",
    "note": "card said \"Owner of Bethel Health Care Center\" (a fuzzy match; his only CMS record is a CT owner)"
   }
@@ -633,7 +633,7 @@
   "financing_amount_m": null,
   "acquisition_date": "2003-01-27",
   "operator_names": [
-   "KENNETH ROZENBERG"
+   "EMRYS TALLOWAY"
   ],
   "facility_names": [
    "BRONX CENTER FOR REHABILITATION & HEALTH CARE",
@@ -712,7 +712,7 @@
   ],
   "ucc_filing_number": "NYX-4a09440f33b9cfa8",
   "ucc_state": "NY",
-  "ucc_debtor": "KENNETH ROZENBERG",
+  "ucc_debtor": "EMRYS TALLOWAY",
   "ucc_filing_type": "UCC-1",
   "lender_category": "Equipment / non-deal lien",
   "deal_type": "non_deal_lien",
@@ -851,7 +851,7 @@
    ]
   ],
   "_before_site": {
-   "headline": "Kenneth Rozenberg \u2014 UCC-1 financing",
+   "headline": "Emrys Talloway \u2014 UCC-1 financing",
    "tag": "Individual filing",
    "note": "card said \"Owner of <first 3 fuzzy facility_names> and N more\""
   }
@@ -868,7 +868,7 @@
   "financing_amount_m": null,
   "acquisition_date": "2022-03-01",
   "operator_names": [
-   "LEOPOLD FRIEDMAN"
+   "FENWICK ORSTAD"
   ],
   "facility_names": [
    "BRONX GARDENS REHABILITATION AND NURSING CENTER",
@@ -907,7 +907,7 @@
   ],
   "ucc_filing_number": "NYX-796f03460c45b6a0",
   "ucc_state": "NY",
-  "ucc_debtor": "LEOPOLD FRIEDMAN",
+  "ucc_debtor": "FENWICK ORSTAD",
   "ucc_filing_type": "UCC-1",
   "lender_category": null,
   "deal_type": "financing",
@@ -958,7 +958,7 @@
    ]
   ],
   "_before_site": {
-   "headline": "Leopold Friedman \u2014 UCC-1 financing",
+   "headline": "Fenwick Orstad \u2014 UCC-1 financing",
    "tag": "Individual filing",
    "note": "card said \"Owner of <first 3 fuzzy facility_names> and N more\""
   }

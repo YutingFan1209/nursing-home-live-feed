@@ -12,7 +12,7 @@ in the CMS ownership file, in the filing's own state: one home -> single_home, s
 Names are matched on first + last name, as main.py's UCC debtor check does
 (CMS "LAST, FIRST" vs the portal's "FIRST M LAST"). Only NY homes and
 ownership/control roles count: a common name that is a CMS owner only in
-another state (Robert Butler, CT) is not a match.
+another state (Dorian Pellwick, CT) is not a match.
 
     venv/bin/python3 -m pipeline.individual_owners   # refresh the table
 """
