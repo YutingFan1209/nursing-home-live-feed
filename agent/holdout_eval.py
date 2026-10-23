@@ -4,7 +4,8 @@ Score the frozen holdout. No model calls: everything comes from saved traces.
   venv/bin/python3 -m agent.holdout_eval [--cost-ratio 10]
 
 Systems, all on the same labeled filings:
-  matcher, name_sim       agent/traces/holdout/baselines.csv (agent.holdout_baselines)
+  matcher, name_sim,      agent/traces/holdout/baselines.csv (agent.holdout_baselines)
+  legal_exact
   agent                   run_full_a: the full setup (verify + audit)
   agent_repeat            run_full_b: the same setup run again (run-to-run noise)
   no_audit                run_full_a traces re-verified without the audit (offline: the audit
@@ -143,6 +144,7 @@ def main(argv=None) -> int:
                 row[f"{key}_accepted"] = bool(ver.get("passed")) and not verdict.get("needs_human_review")
         put("matcher", base[lab["draw"]]["matcher_ccn"])
         put("name_sim", base[lab["draw"]]["name_sim_ccn"])
+        put("legal_exact", base[lab["draw"]]["legal_exact_ccn"])
 
         ta = load_trace(trace_path("run_full_a", lab))
         put("agent", ta.verdict.get("ccn"), ta.verdict)
@@ -167,13 +169,14 @@ def main(argv=None) -> int:
         row["tokens_in"], row["tokens_out"] = ta.usage["input_tokens"], ta.usage["output_tokens"]
         rows.append(row)
 
-    systems = [("existing matcher", "matcher"), ("name similarity >= 0.5", "name_sim"), ("agent (full)", "agent"),
+    systems = [("existing matcher", "matcher"), ("name similarity >= 0.5", "name_sim"),
+               ("exact CMS legal name", "legal_exact"), ("agent (full)", "agent"),
                ("agent, repeat run", "agent_repeat"), ("agent, audit off", "no_audit"),
                ("agent, link rule off", "no_link_rule"), ("agent, CHOW tool off", "no_chow")]
     res = {"n_labeled": len(rows), "systems": [summarize(n, rows, k) for n, k in systems]}
     col = lambda k: [r[f"{k}_right"] for r in rows]
     res["paired"] = {f"agent vs {k}": mcnemar_exact(col("agent"), col(k))
-                     for k in ("matcher", "name_sim", "agent_repeat", "no_audit", "no_link_rule", "no_chow")}
+                     for k in ("matcher", "name_sim", "legal_exact", "agent_repeat", "no_audit", "no_link_rule", "no_chow")}
 
     fac = [r for r in rows if r["truth"] != "NONE"]
     in_c = [r for r in fac if r["truth_in_candidates"]]
