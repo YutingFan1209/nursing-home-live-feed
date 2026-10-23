@@ -14,7 +14,9 @@ as the source text. Checks:
      unless the debtor and the facility's licensed company are a property-company /
      operator pair with the same name core ("North Dade SNF Real Estate Company" and
      "North Dade SNF Operating Company"). The rule, not the model, decides that; such a
-     link is still capped at medium, and needs_human_review is left as the model set it
+     link is still capped at medium, and needs_human_review is left as the model set it.
+     The same holds when a lookup_property_owner record for that CCN, with its source
+     URL, names the debtor as the recorded owner of the facility's parcel
   5. timing: acquisition_financing / refinancing must agree with the
      deterministic rule in get_facility_ownership (pipeline/ucc_category.py);
      asserting either without having checked it caps confidence at medium
@@ -28,6 +30,7 @@ import json
 import re
 
 from agent.schemas import CATEGORIES, CONFIDENCE
+from matcher.ownership import legal_name_key
 from pipeline.grounding import _words, name_in_text
 
 TIMING_CATEGORIES = ("acquisition_financing", "refinancing")
@@ -79,6 +82,21 @@ def _companies_for(trace, ccn) -> set:
         if isinstance(s.output, dict) and (s.output.get("facility") or {}).get("ccn") == ccn:
             out.update(str(o["owner_name"]) for o in s.output.get("owners") or [] if o.get("owner_name"))
     return out
+
+
+def _recorded_owner(trace, ccn, debtors) -> dict | None:
+    """A lookup_property_owner record for this CCN, in the facility's city and with
+    its source URL, whose recorded owner is the debtor (case, punctuation and LLC-type
+    suffixes ignored)."""
+    keys = {legal_name_key(d) for d in debtors} - {""}
+    for s in trace.tool_steps():
+        if s.name != "lookup_property_owner" or s.error or not isinstance(s.output, dict):
+            continue
+        for r in s.output.get("records") or []:
+            if (r.get("ccn") == ccn and r.get("source_url") and r.get("city_matches")
+                    and keys & {legal_name_key(r.get("owner_name")), legal_name_key(r.get("owner2"))}):
+                return r
+    return None
 
 
 def _source_text(trace) -> str:
@@ -141,12 +159,20 @@ def verify_verdict(verdict: dict, trace) -> dict:
         v["confidence"] = "medium"
         issues.append("high confidence with no valid evidence, lowered to medium")
 
-    pair = None
+    pair = deed = None
     if v.get("ccn") and v.get("link_basis") != "direct":
-        debtors = [d.strip() for d in str(trace.filing.get("debtor_name") or "").split(",") if d.strip()]
-        pair = next((c for c in sorted(_companies_for(trace, v["ccn"]))
-                     for d in [str(trace.filing.get("debtor_name") or "")] + debtors if propco_opco_pair(d, c)), None)
-    if pair:
+        debtors = [str(trace.filing.get("debtor_name") or "")] + [
+            d.strip() for d in str(trace.filing.get("debtor_name") or "").split(",") if d.strip()]
+        deed = _recorded_owner(trace, v["ccn"], debtors)
+        pair = None if deed else next((c for c in sorted(_companies_for(trace, v["ccn"]))
+                                       for d in debtors if propco_opco_pair(d, c)), None)
+    if deed:
+        v["link_basis"] = "recorded_owner"
+        v["link_rule"] = (f"debtor is the recorded owner of parcel {deed.get('parcel_id')} at "
+                          f"{deed.get('situs_address')} ({deed['source_url']})")
+        if v.get("confidence") == "high":
+            v["confidence"] = "medium"
+    elif pair:
         v["link_basis"] = "propco_opco_pair"
         v["link_rule"] = f"debtor and {pair!r} share the name core {name_core(pair)!r}"
         if v.get("confidence") == "high":

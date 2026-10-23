@@ -1,7 +1,8 @@
 # agent/ -- UCC filing resolver
 
 One UCC-1 filing in; a verified verdict and a full execution trace out.
-Separate from the production pipeline (nothing in `main.py` imports it).
+Separate from the production pipeline (nothing in `main.py` imports it). One finding moved the
+other way: the exact legal-name rule is now in `matcher/ownership.py` (see "Holdout" below).
 
 ## The request journey (what to walk through)
 
@@ -10,13 +11,22 @@ Separate from the production pipeline (nothing in `main.py` imports it).
    and a system prompt with the domain rules. It picks a tool, we run it, the
    result goes back with a `step_id`. Repeat until `submit_verdict` or `max_steps`.
 3. **Tools** (`tools.py`, read-only): `search_cms_facilities`, `search_cms_owners`,
-   `get_facility_ownership`, `get_related_ucc_filings`, `search_deals`, `classify_lender`.
+   `search_chow_records`, `search_cms_by_address`, `get_facility_ownership`,
+   `get_related_ucc_filings`, `search_deals`, `classify_lender`, `lookup_property_owner`.
    Dates are never left to the model: `get_facility_ownership` runs the same
-   `_cms_signal()` rule `scripts/export_deals.py` uses.
+   `_cms_signal()` rule `scripts/export_deals.py` uses. `lookup_property_owner`
+   (`property_records.py`) reads the recorded owner of a home's parcel from public
+   assessor data: the Colorado statewide parcel composite and the South Kingstown, RI
+   assessor only. Every record carries its source URL; everywhere else it returns nothing,
+   and an empty result is not evidence either way.
 4. **Verify** (`verify.py`, no model): names/CCN must appear in the filing or a tool
    result (reuses `pipeline/grounding.py`); evidence must cite real steps; a
    timing category must agree with the deterministic rule. Failures blank the
-   field, lower confidence, and force `needs_human_review`.
+   field, lower confidence, and force `needs_human_review`. A property-company debtor
+   may be tied to a home only by a rule: either a matching propco/opco name pair, or an
+   assessor record (from `lookup_property_owner`, for that CCN, city matching) whose
+   owner equals the debtor's name. The second is cited with its parcel and URL and is
+   capped at medium confidence.
 5. **Audit** (`audit.py`, opt-in `--audit`): a second, fresh-context model call sees only
    the filing, the category and each evidence claim next to the exact output of the step
    it cites, and answers per claim. Code then gates the result: an unsupported claim lowers
@@ -50,10 +60,36 @@ right, and any **confident-wrong** filing. Tokens, not dollars.
 
 ## Same tools as an MCP server (`mcp_server.py`)
 
-`venv/bin/python3 -m agent.mcp_server` serves the six tools (+ `get_ucc_filing`) and two docs
+`venv/bin/python3 -m agent.mcp_server` serves the nine tools (+ `get_ucc_filing`) and two docs
 as read-only MCP tools/resources, so a researcher can use them from Claude Desktop (config
 snippet in the file). The agent and a person see identical tool results; the difference is who owns
 the loop (here, the client), so there is no trace or verification step. `pip install -r agent/requirements.txt`.
+
+## Holdout: reproducing every number in the report
+
+The frozen holdout (seed 20261022, 50 draws) lives in `agent/traces/holdout/` (git-ignored:
+debtor names and labels). Batch 1 is the 24 labeled filings behind every rate; the two
+property companies (#5, #28) were labeled later (`label_additions`, batch 2 in
+`manifest.json`) and are reported as filings, not a rate. Never tune on any of them.
+
+```bash
+venv/bin/python3 -m agent.holdout --n 50 --seed 20261022     # the freeze (already done; re-running overwrites)
+venv/bin/python3 -m agent.holdout_baselines                   # matcher / name similarity / exact legal name, no model
+venv/bin/python3 -m agent.holdout_eval --cost-ratio 10        # every batch-1 number, from saved traces, no model:
+                                                              # 23/24, 21/24 strict, 9-0 McNemar p=0.004, 19/20 ranking,
+                                                              # review-policy costs (current rule 0.50 vs 1.00)
+PYTHONPATH=. venv/bin/python3 scripts/legal_name_dryrun.py    # read-only: proposed 87 links among 590 unmatched UCC
+                                                              # deals; after the one-word guard 84, applied 2026-10-22
+                                                              # (so it now finds 0)
+venv/bin/python3 -m pytest tests -q                           # offline, no DB writes or API key
+# costs API money (about 33k input / 2.7k output tokens): #5 and #28 with the assessor tool
+venv/bin/python3 -m agent.run --filings agent/traces/holdout/batch2_both.csv --audit \
+    --model claude-sonnet-5-5 --out agent/traces/holdout/run_batch2_deed
+```
+
+The batch-1 traces (`run_full_a`, `run_full_b`, `run_nochow`) were made before
+`lookup_property_owner` existed; `holdout_eval` re-scores those saved traces and does not
+re-run the model, so its numbers are unaffected by the new tool.
 
 ## Run
 

@@ -993,3 +993,40 @@ def test_every_ucc_state_on_the_site_has_a_portal_link():
     from scripts.export_deals import UCC_PORTAL_URLS
     for state in ("NY", "KY", "OH", "PA", "NJ", "CA", "FL", "OR", "AR", "NM", "RI", "ID", "AZ", "CO", "MD"):
         assert UCC_PORTAL_URLS[state].startswith("https://"), state
+
+
+def test_ucc_debtor_matches_a_unique_cms_legal_name_2026_10_22():
+    """The matcher never read legal business names: "EPWORTH REHABILITATION
+    AND HEALTHCARE LLC" is Cedarwood's licensed company, but neither its
+    facility nor its owner names match. Exactly one home in the state, or no
+    legal-name answer."""
+    from matcher import ownership
+
+    class Cur:
+        def __init__(self, rows): self.rows, self.description = rows, []
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+        def execute(self, sql, params=None): self.sql = sql
+        def fetchall(self): return self.rows if "cms_facilities" in self.sql else []
+
+    class Conn:
+        def __init__(self, rows): self.rows = rows
+        def cursor(self): return Cur(self.rows)
+
+    cedarwood = ("395393", "CEDARWOOD REHABILITATION & HEALTHCARE CENTER", "Epworth Rehabilitation and Healthcare, LLC", "PA")
+    deal = {"extraction_model": "ucc_filing", "states": ["PA"],
+            "operator_names": ["EPWORTH REHABILITATION AND HEALTHCARE L.L.C."]}
+    m = ownership.match_deal(deal, Conn([cedarwood, ("395000", "OTHER", "Other Care LLC", "PA")]))
+    assert [(x["ccn"], x["match_method"], x["match_score"]) for x in m] == [("395393", "legal_name_exact", 100)]
+
+    # two homes with that legal name: no legal-name answer, fuzzy scoring runs instead
+    twin = ("395999", "SECOND HOME", "EPWORTH REHABILITATION AND HEALTHCARE LLC", "PA")
+    assert ownership._legal_name_match(deal, Conn([cedarwood, twin])) is None
+    # a name that only shares words isn't equal
+    assert ownership._legal_name_match({**deal, "operator_names": ["EPWORTH REALTY LLC"]}, Conn([cedarwood])) is None
+    # a one-word name is too thin once the suffix is gone: Corporation vs LLC
+    fair_oaks = ("555153", "FAIR OAKS HEALTHCARE CENTER", "MACKENZIE LLC", "CA")
+    assert ownership._legal_name_match({**deal, "states": ["CA"], "operator_names": ["MACKENZIE CORPORATION"]},
+                                       Conn([fair_oaks])) is None
+    # only UCC deals use it
+    assert ownership.match_deal({**deal, "extraction_model": "chow_direct"}, Conn([cedarwood])) == []

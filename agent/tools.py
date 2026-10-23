@@ -12,6 +12,8 @@ pipeline already has; nothing here writes to the database.
   search_deals              deals already in the feed (news, CHOW, EDGAR, CON)
   classify_lender           ucc/lender_classifier.py on a secured party, plus the
                             site's own lender rules from pipeline/deal_labels.py
+  lookup_property_owner     recorded owner of a facility's parcel, from public assessor
+                            records (agent/property_records.py; CO and South Kingstown RI)
 
 The date arithmetic is deliberately NOT left to the model: get_facility_ownership
 calls the same _cms_signal() / owner_start_dates() / complete_through() that
@@ -32,6 +34,7 @@ from typing import Any, Optional
 
 from pipeline.deal_labels import _HOME_BANK_RE, SMALL_BUSINESS_LENDER_RE
 from pipeline.ucc_category import ACQUISITION_WINDOW, _cms_signal, complete_through, owner_start_dates
+from agent import property_records
 from ucc.lender_classifier import classify_secured_party, to_confidence_label
 
 MAX_ROWS = 10
@@ -170,6 +173,17 @@ TOOL_SCHEMAS = [
             "name": {"type": "string"}, "state": {"type": ["string", "null"]},
         }, "required": ["name"]},
     },
+    {
+        "name": "lookup_property_owner",
+        "description": (
+            "For one CCN: the recorded owner of the land at the facility's CMS address, from public "
+            "assessor records, with each record's source URL. Use when the debtor looks like a property "
+            "company (Propco, Realty, Real Estate, Holdings) that no CMS record names: the property "
+            "company that owns a home's land is its recorded owner. Covers Colorado and South "
+            "Kingstown, RI only; elsewhere it returns no records, which says nothing either way."
+        ),
+        "input_schema": {"type": "object", "properties": {"ccn": {"type": "string"}}, "required": ["ccn"]},
+    },
 ]
 
 
@@ -183,6 +197,7 @@ class ToolBox:
         self._known_through: Optional[date] = None
         self._chow_rows: Optional[list] = None
         self.schemas = TOOL_SCHEMAS
+        self.property_fetch = property_records._get     # tests swap in saved pages
 
     @classmethod
     def from_config(cls) -> "ToolBox":
@@ -400,6 +415,20 @@ class ToolBox:
             "nursing_home_bank": bool(_HOME_BANK_RE.search(name or "")),
             "small_business_or_filing_agent": bool(SMALL_BUSINESS_LENDER_RE.search(name or "")),
         }
+
+    def tool_lookup_property_owner(self, ccn: str) -> dict:
+        rows = self._rows("SELECT ccn, provider_name, provider_address, provider_city, provider_state "
+                          "FROM cms_facilities WHERE ccn = %s", (ccn,))
+        if not rows:
+            return {"ccn": ccn, "records": [], "note": "no CMS facility with that CCN"}
+        f = rows[0]
+        out = property_records.lookup(f["provider_address"], f["provider_city"], f["provider_state"],
+                                      fetch=self.property_fetch)
+        # each record names the CCN, so verify.py can tie a recorded owner to this facility
+        for r in out.get("records", []):
+            r["ccn"] = f["ccn"]
+        return {"ccn": f["ccn"], "facility": f["provider_name"],
+                "facility_address": f"{f['provider_address']}, {f['provider_city']}, {f['provider_state']}", **out}
 
 
 def _mdy_or_none(iso: str) -> Optional[date]:

@@ -125,7 +125,11 @@ def main(argv=None) -> int:
                     help="cost of one wrong answer published without review, in units of one manual review")
     args = ap.parse_args(argv)
 
-    labels = [r for r in csv.DictReader((H / "holdout.csv").open(newline="")) if r["true_ccn"].strip()]
+    # batch-2 labels (property companies, added after the batch-1 runs) are scored separately
+    later = {str(a["draw"]) for a in json.loads((H / "manifest.json").read_text()).get("label_additions", [])
+             if a.get("batch") != 1}
+    labels = [r for r in csv.DictReader((H / "holdout.csv").open(newline=""))
+              if r["true_ccn"].strip() and r["draw"] not in later]
     base = {r["draw"]: r for r in csv.DictReader((H / "baselines.csv").open(newline=""))}
     rows = []
     for lab in labels:

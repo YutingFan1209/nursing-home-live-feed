@@ -84,6 +84,10 @@ def build_server(toolbox) -> "_Server":
     def classify_lender(name: str, state: Optional[str] = None) -> dict:
         return toolbox.call("classify_lender", {"name": name, "state": state})
 
+    @server.tool(description=_desc("lookup_property_owner"), annotations=READ_ONLY)
+    def lookup_property_owner(ccn: str) -> dict:
+        return toolbox.call("lookup_property_owner", {"ccn": ccn})
+
     @server.tool(description="Fetch one UCC filing from our database by state and filing number.", annotations=READ_ONLY)
     def get_ucc_filing(state: str, filing_number: str) -> dict:
         return toolbox.call("get_ucc_filing", {"state": state, "filing_number": filing_number})

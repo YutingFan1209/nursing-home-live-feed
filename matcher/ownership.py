@@ -7,6 +7,7 @@ Uses rapidfuzz for fuzzy string matching.
 
 import logging
 import difflib
+import re
 from datetime import date, timedelta
 from typing import Optional
 
@@ -41,6 +42,12 @@ def match_deal(deal: dict, conn) -> list[dict]:
     Find CMS ownership records that match a deal.
     Returns list of match dicts sorted by score descending.
     """
+    if deal.get("extraction_model") == "ucc_filing":
+        legal = _legal_name_match(deal, conn)
+        if legal:
+            logger.info(f"Legal-name match {legal['ccn']} for deal: {deal.get('acquiring_entity')}")
+            return [legal]
+
     candidate_records = _fetch_candidates(deal, conn)
     if not candidate_records:
         return []
@@ -74,6 +81,52 @@ def match_deal(deal: dict, conn) -> list[dict]:
     matches.sort(key=lambda x: x["match_score"], reverse=True)
     logger.info(f"Found {len(matches)} CMS match(es) for deal: {deal.get('acquiring_entity')}")
     return matches
+
+
+def legal_name_key(name: str) -> str:
+    """Case, punctuation and company suffixes dropped; the same key as the
+    holdout's exact-legal-name baseline (agent/holdout_baselines.py)."""
+    s = re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper())
+    s = re.sub(r"\b(L L C|LLC|INC|LP|L P|CORP|CORPORATION|CO|LTD|THE)\b", " ", s)
+    return " ".join(s.split())
+
+
+def _legal_name_match(deal: dict, conn) -> Optional[dict]:
+    """A UCC debtor is usually the licensed company itself, which CMS lists as
+    the home's legal business name ("EPWORTH REHABILITATION AND HEALTHCARE
+    LLC" runs Cedarwood), while the scoring below only reads owner and
+    facility names: 0 of 24 holdout filings matched (2026-10-22). Exact
+    equality with exactly one home in the deal's state, or nothing; that
+    rule was right on 14 of 24 with no wrong answers.
+
+    One-word keys are skipped: with the suffix gone, "MACKENZIE CORPORATION"
+    and "MACKENZIE LLC" both become "MACKENZIE", which could be two unrelated
+    companies (spot-check of the dry run, 2026-10-22)."""
+    states = deal.get("states") or []
+    keys = {k for n in deal.get("operator_names") or [] if len((k := legal_name_key(n)).split()) >= 2}
+    if not states or not keys:
+        return None
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT ccn, provider_name, legal_business_name, provider_state
+            FROM cms_facilities
+            WHERE provider_state = ANY(%s) AND legal_business_name IS NOT NULL
+        """, (states,))
+        hits = {row[0]: row for row in cur.fetchall() if legal_name_key(row[2]) in keys}
+    if len(hits) != 1:
+        return None
+    ccn, provider, legal, state = next(iter(hits.values()))
+    return {
+        "ccn":                  ccn,
+        "provider_name":        provider,
+        "owner_name":           legal,
+        "owner_type":           None,
+        "provider_state":       state,
+        "ownership_start_date": None,
+        "match_score":          100,
+        "match_method":         "legal_name_exact",
+        "matched_on_field":     "operator_names",
+    }
 
 
 def _fetch_candidates(deal: dict, conn) -> list[dict]:

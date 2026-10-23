@@ -198,7 +198,8 @@ def test_mcp_server_exposes_read_only_tools_and_docs():
     tools = {t.name: t for t in asyncio.run(server.list_tools())}
     assert set(tools) == {"search_cms_facilities", "search_cms_owners", "search_chow_records",
                           "search_cms_by_address", "get_facility_ownership",
-                          "get_related_ucc_filings", "search_deals", "classify_lender", "get_ucc_filing"}
+                          "get_related_ucc_filings", "search_deals", "classify_lender", "get_ucc_filing",
+                          "lookup_property_owner"}
     assert all(t.annotations.read_only_hint for t in tools.values())
     assert tools["get_facility_ownership"].input_schema["required"] == ["ccn"]
     res = asyncio.run(server.call_tool("get_facility_ownership", {"ccn": "335999", "filing_date": "2025-06-01"}))
@@ -224,3 +225,67 @@ def test_chow_search_finds_a_company_that_sold_its_home():
     got = tb.call("search_chow_records", {"name": "Zephyrdale Manor LLC", "state": "NY"})["matches"]
     assert [(m["ccn"], m["matched_as"]) for m in got] == [("335999", "seller")]
     assert tb.call("search_chow_records", {"name": "Zephyrdale Manor", "state": "PA"})["matches"] == []
+
+
+# ── property records (saved-response shapes, synthetic names) ──
+
+CO_RESPONSE = json.dumps({"features": [
+    {"attributes": {"parcel_id": "100", "account": "R1", "situsAdd": "2121 ZEPHYR DR", "sitAddCty": "ALPINE",
+                    "owner": "ZEPHYRDALE PROPCO LLC", "owner2": None, "saleDate": "4/28/2016", "countyName": "Boulder"}},
+    {"attributes": {"parcel_id": "101", "account": "R2", "situsAdd": "21210 ZEPHYR DR", "sitAddCty": "ALPINE",
+                    "owner": "SOMEONE ELSE", "owner2": None, "saleDate": None, "countyName": "Boulder"}}]})
+
+SK_FORM = '<input name="__VIEWSTATE" value="x"/><input name="ctl00$ImageButton1" value=""/>'
+SK_RESULTS = ('<tr><td>55 ZEPHYR WAY</td><td>ZEPHYR SHELL LLC</td><td><a href="Parcel.aspx?pid=7">x</a></td></tr>'
+              '<tr><td>557 ZEPHYR WAY</td><td>A PRIVATE PERSON</td><td><a href="Parcel.aspx?pid=8">x</a></td></tr>')
+SK_PARCEL = ('<span id="MainContent_lblOwner">ZEPHYR SHELL LLC</span><span id="MainContent_lblLocation">55 ZEPHYR WAY</span>'
+             '<span id="MainContent_lblSaleDate">08/06/2026</span><span id="MainContent_lblBp">1939/780</span>')
+
+
+def test_colorado_lookup_keeps_only_the_facility_house_number_and_its_query_url():
+    from agent import property_records as pr
+    seen = []
+    out = pr.lookup("2121 Zephyr Dr", "Alpine", "CO", fetch=lambda url, *a: seen.append(url) or CO_RESPONSE)
+    assert [r["owner_name"] for r in out["records"]] == ["ZEPHYRDALE PROPCO LLC"]
+    assert out["records"][0]["source_url"] == seen[0] and "2121+ZEPHYR" in seen[0]
+    assert out["records"][0]["city_matches"] and "accessed on" in out["attribution"]
+
+
+def test_south_kingstown_lookup_drops_neighbours_and_cites_the_parcel_page():
+    from agent import property_records as pr
+    pages = {"Search.aspx": [SK_FORM, SK_RESULTS]}
+    calls = []
+
+    def fetch(url, data=None, opener=None):
+        calls.append(url)
+        return pages["Search.aspx"].pop(0) if url.endswith("Search.aspx") else SK_PARCEL
+    out = pr.lookup("55 Zephyr Way", "Wakefield", "RI", fetch=fetch, pause=0)
+    assert [r["source_url"] for r in out["records"]] == [pr.VISION_SK + "Parcel.aspx?pid=7"]
+    assert out["records"][0]["owner_name"] == "ZEPHYR SHELL LLC" and out["records"][0]["book_page"] == "1939/780"
+    assert not any("pid=8" in c for c in calls)        # the private neighbour's page is never opened
+    assert pr.lookup("1 Main St", "Providence", "RI", fetch=fetch)["records"] == []
+
+
+def _deed_trace(owner, source_url="https://example.test/parcel/1", city_matches=True):
+    t = Trace(filing={**FILING, "debtor_name": "Zephyrdale Propco LLC"}, model="m")
+    t.add_tool("s1", "search_cms_facilities", {"name": "Zephyrdale"},
+               {"matches": [{"ccn": "065999", "provider_name": "Alpine Care", "legal_business_name": "Alpine Opco LLC"}]}, None, 5)
+    t.add_tool("s2", "lookup_property_owner", {"ccn": "065999"},
+               {"ccn": "065999", "records": [{"ccn": "065999", "owner_name": owner, "parcel_id": "100",
+                                              "situs_address": "2121 ZEPHYR DR", "city_matches": city_matches,
+                                              "source_url": source_url}]}, None, 5)
+    return t
+
+
+def test_recorded_owner_equal_to_debtor_is_a_grounded_link_capped_at_medium():
+    from agent.verify import verify_verdict
+    v = {"category": "financing", "ccn": "065999", "facility_name": "Alpine Care", "link_basis": "name_similarity",
+         "confidence": "high", "needs_human_review": False, "reasoning": "r",
+         "evidence": [{"claim": "debtor owns the parcel", "step_id": "s2"}]}
+    out = verify_verdict(v, _deed_trace("ZEPHYRDALE PROPCO, L.L.C."))
+    assert out["link_basis"] == "recorded_owner" and "https://example.test/parcel/1" in out["link_rule"]
+    assert out["confidence"] == "medium" and out["verification"]["passed"]
+    # a different owner, no source URL, or another city's parcel is no link
+    for t in (_deed_trace("OTHER LANDLORD LLC"), _deed_trace("ZEPHYRDALE PROPCO LLC", source_url=None),
+              _deed_trace("ZEPHYRDALE PROPCO LLC", city_matches=False)):
+        assert verify_verdict(v, t)["link_basis"] != "recorded_owner"

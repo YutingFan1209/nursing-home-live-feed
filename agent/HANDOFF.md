@@ -50,3 +50,23 @@ explain and defend every choice). Demo goes public before Nov 1, 2026.
   link_basis; `agent/audit.py` is a second fresh-context reader. "Verification passed" does not mean correct.
 - Trace viewer: open `agent/viewer/index.html` in a browser and drag a trace JSON from `agent/traces/` onto it.
 - Baseline: 3,306 UCC-only deals; 2,716 matched; 590 unmatched; 565 eligible for sampling.
+
+---
+
+# Round 2: FINISH UCC (nothing new; no new sources)
+
+Scope rule: UCC only. No CON, no news, no multi-agent. Same working style as above: one yes/no question at a time, ask before spending API money, deleting, committing or pushing, and never write to the database.
+
+## Order (stop and report after each)
+1. **Florida tax-roll scan for holdout #9.** Let it finish, then update that line in the holdout doc. Re-check the one county whose file has a different header. Report what you find, with the source link, before any label is written.
+2. **Verify the numbers the doc quotes.** Re-run `venv/bin/python3 -m agent.holdout_eval --cost-ratio 10` with no model calls. Confirm 23/24, 21/24 strict, 9-0 p=0.004 vs both rules, and 19/20 ranking. Re-derive the claim "any ratio above about 4 beats review-everything". If it cannot be shown from the doc's own table, remove or reword it to: "with zero errors observed, the current rule costs about half of reviewing everything".
+3. **Put the legal-name rule into the real matcher** (matcher/ or ucc/integrator.py), not only the baseline script: debtor name equals the CMS legal business name of exactly one home in the state. Show me the diff and the test, then run it WITHOUT writing to the database and report how many of the ~604 unmatched filings it would newly link. Ask before applying it for real.
+4. **Deed lookup tool (the one known gap).** Design first, build only after my yes. Goal: link a property-company debtor to a facility via a recorded deed or assessor record. Start with a tool that takes a facility address and returns the recorded owner for the two counties already solved by hand (Boulder CO, South Kingstown RI). Report what public sources exist per state before writing code. It must be read-only, and every output must carry its source URL so verify.py can ground it.
+5. **Re-score the two hard-half filings (#5 CO, #28 RI) with the new tool**, plus any that have independent sources. Report as "n filings", never as a rate.
+6. **Freeze and tidy.** Update the doc's limits section to match. Update `agent/README.md`. List the exact commands to reproduce every number. Do not push until I say.
+7. **Rehearsal pack:** a one-page Q&A for a judge (why this design, what failed, what is not shown), using only numbers that appear in the doc.
+
+## Do not
+- Claim a rate from fewer than 20 labeled filings.
+- Tune any prompt or tool against the 24 holdout filings. New work gets a NEW holdout (draw it with a new seed, record it in the manifest).
+- Put labels, traces or private-individual debtors in the public repo.
