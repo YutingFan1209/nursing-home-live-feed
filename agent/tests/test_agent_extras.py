@@ -201,6 +201,8 @@ def test_mcp_server_exposes_read_only_tools_and_docs():
                           "get_related_ucc_filings", "search_deals", "classify_lender", "get_ucc_filing",
                           "lookup_property_owner"}
     assert all(t.annotations.read_only_hint for t in tools.values())
+    # only the assessor lookup leaves our database
+    assert {n for n, t in tools.items() if t.annotations.open_world_hint} == {"lookup_property_owner"}
     assert tools["get_facility_ownership"].input_schema["required"] == ["ccn"]
     res = asyncio.run(server.call_tool("get_facility_ownership", {"ccn": "335999", "filing_date": "2025-06-01"}))
     assert json.loads(res.content[0].text)["args"] == {"ccn": "335999", "filing_date": "2025-06-01"}
@@ -289,3 +291,11 @@ def test_recorded_owner_equal_to_debtor_is_a_grounded_link_capped_at_medium():
     for t in (_deed_trace("OTHER LANDLORD LLC"), _deed_trace("ZEPHYRDALE PROPCO LLC", source_url=None),
               _deed_trace("ZEPHYRDALE PROPCO LLC", city_matches=False)):
         assert verify_verdict(v, t)["link_basis"] != "recorded_owner"
+
+
+def test_holdout_baselines_refuses_any_argument_before_touching_the_db(monkeypatch, capsys):
+    """`--help` once ran it and rewrote the frozen baselines.csv (2026-10-23)."""
+    from agent import holdout_baselines as hb
+    monkeypatch.setattr(hb.ToolBox, "from_config", lambda: (_ for _ in ()).throw(AssertionError("ran")))
+    assert hb.main(["--help"]) == 2
+    assert "nothing was run or written" in capsys.readouterr().out

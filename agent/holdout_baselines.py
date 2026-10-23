@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import csv
 import re
+import sys
 from pathlib import Path
 
 from agent.tools import ToolBox
@@ -34,7 +35,14 @@ def legal_key(name: str) -> str:
     return " ".join(s.split())
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
+    # It takes no options, and running it rewrites baselines.csv from today's
+    # cms_matches (since the 84 legal-name links of 2026-10-22, no longer the
+    # frozen matcher baseline): `--help` once did exactly that. Any argument stops it.
+    if argv:
+        print(__doc__)
+        print("Takes no arguments; nothing was run or written.")
+        return 2
     tb = ToolBox.from_config()
     rows = [r for r in csv.DictReader(HOLDOUT.open(newline="")) if r["true_ccn"].strip()]
     legal = {}
@@ -70,4 +78,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

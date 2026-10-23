@@ -72,16 +72,36 @@ debtor names and labels). Batch 1 is the 24 labeled filings behind every rate; t
 property companies (#5, #28) were labeled later (`label_additions`, batch 2 in
 `manifest.json`) and are reported as filings, not a rate. Never tune on any of them.
 
+### Reproduce every number
+
+No model calls unless marked. Checked 2026-10-23.
+
+| Number in the report | Command | What to look at |
+|---|---|---|
+| 184 tests pass (41 agent, 143 pipeline) | `venv/bin/python3 -m pytest agent/tests tests -q` | last line |
+| 23/24, CIs, coverage, 0 wrong; both rules 14/24 (name sim 4 wrong) | `venv/bin/python3 -m agent.holdout_eval --cost-ratio 10` | `systems` |
+| 9-0, p = 0.004 vs each rule; CHOW off 3-0, p = 0.25; audit/link rule off 0-0 | same | `paired` |
+| 20/20 recall, 19/20 ranking | same | `error_split` |
+| calibration table (2/2, 12/12, 5/5, 4 of 5 abstentions) | same | `calibration` |
+| review-policy costs (0.50 current vs 1.00 review everything) | same | `policies` |
+| re-verify reproduces all 24 saved verdicts | same | `reverify_reproduces_saved` |
+| ~437k input / 28k output tokens per run | same | `tokens` |
+| 21/24 strict | `venv/bin/python3 -c "import csv; r=list(csv.DictReader(open('agent/traces/holdout/per_filing.csv'))); print(sum(x['agent_right']=='True' and not (x['truth']=='NONE' and x['agent_category']!='not_a_nursing_home_deal') for x in r))"` | run after `holdout_eval` (it writes `per_filing.csv`) |
+| #5 abstained, #28 right with the assessor tool; ~33k / 2.7k tokens | `cat agent/traces/holdout/run_batch2_deed/sample_summary.csv` | `category`, `ccn`, token columns |
+| 87 proposed, 84 applied legal-name links | `venv/bin/python3 -m agent.legal_name_dryrun` | read-only; finds 0 now that the 84 are applied |
+| MCP: 10 read-only tools, 2 resources | `venv/bin/python3 -m pytest agent/tests -q -k mcp` | offline; stdio: `venv/bin/python3 -m agent.mcp_server` from any MCP client |
+
+Not reproducible from a repo command: the Florida tax-roll search for #9 (county NAL files from the
+[Florida DOR data portal](https://floridarevenue.com/property/dataportal/Pages/default.aspx),
+searched by hand for the owner name), and the dollar cost (the eval reports tokens, not dollars).
+
+**Do not re-run `agent.holdout_baselines`** (it has no `--help`; any call runs it). It re-reads
+`cms_matches` for the "existing matcher" column, and since the 84 legal-name links were applied
+that column is no longer the frozen 2026-10-22 baseline: re-run on 2026-10-23 the matcher showed
+13/24 instead of 4/24. The frozen values are in `agent/traces/holdout/matcher_rerun_2026-10-22.json`.
+
 ```bash
 venv/bin/python3 -m agent.holdout --n 50 --seed 20261022     # the freeze (already done; re-running overwrites)
-venv/bin/python3 -m agent.holdout_baselines                   # matcher / name similarity / exact legal name, no model
-venv/bin/python3 -m agent.holdout_eval --cost-ratio 10        # every batch-1 number, from saved traces, no model:
-                                                              # 23/24, 21/24 strict, 9-0 McNemar p=0.004, 19/20 ranking,
-                                                              # review-policy costs (current rule 0.50 vs 1.00)
-venv/bin/python3 -m agent.legal_name_dryrun                  # read-only: proposed 87 links among 590 unmatched UCC
-                                                              # deals; after the one-word guard 84, applied 2026-10-22
-                                                              # (so it now finds 0)
-venv/bin/python3 -m pytest agent/tests tests -q               # offline, no DB writes or API key
 # costs API money (about 33k input / 2.7k output tokens): #5 and #28 with the assessor tool
 venv/bin/python3 -m agent.run --filings agent/traces/holdout/batch2_both.csv --audit \
     --model claude-sonnet-5-5 --out agent/traces/holdout/run_batch2_deed
@@ -90,6 +110,10 @@ venv/bin/python3 -m agent.run --filings agent/traces/holdout/batch2_both.csv --a
 The batch-1 traces (`run_full_a`, `run_full_b`, `run_nochow`) were made before
 `lookup_property_owner` existed; `holdout_eval` re-scores those saved traces and does not
 re-run the model, so its numbers are unaffected by the new tool.
+
+`lookup_property_owner` covers Colorado (state parcel composite, every county) and South
+Kingstown, RI only. Its tests use saved responses; there is no live test. Colorado records cite
+the parcel query URL, South Kingstown records the parcel page.
 
 ## Run
 
@@ -110,5 +134,6 @@ the eval set: propose prompt variants, run each on the same filings, score with 
 never saw. Keep `tools.py`, `verify.py`, `audit.py` and the labels outside what it may edit, and
 freeze the evidence snapshot so scores stay comparable. Not built: it is only meaningful with labels.
 
-Not yet verified against the live DB / API: the SQL in `tools.py` (run `--selftest`)
-and real model behavior (run one filing). Tests use a scripted fake model.
+Tests use a scripted fake model. The live DB and model were exercised by the holdout runs
+(`agent/traces/holdout/run_*`); the MCP server was checked over stdio on 2026-10-23
+(real call: CCN 215197).

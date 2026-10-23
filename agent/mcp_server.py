@@ -36,6 +36,8 @@ from agent.tools import TOOL_SCHEMAS
 
 DOCS = Path(__file__).resolve().parent.parent / "docs"
 READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+# Same, but the tool reads outside websites (public assessor records), not only our database
+READ_ONLY_WEB = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=True)
 
 INSTRUCTIONS = """Read-only lookups over a research tracker of acquisitions of U.S. skilled nursing \
 facilities (CMS data, UCC-1 financing statements, news/CHOW/SEC deals). Search the distinctive core of a \
@@ -84,7 +86,7 @@ def build_server(toolbox) -> "_Server":
     def classify_lender(name: str, state: Optional[str] = None) -> dict:
         return toolbox.call("classify_lender", {"name": name, "state": state})
 
-    @server.tool(description=_desc("lookup_property_owner"), annotations=READ_ONLY)
+    @server.tool(description=_desc("lookup_property_owner"), annotations=READ_ONLY_WEB)
     def lookup_property_owner(ccn: str) -> dict:
         return toolbox.call("lookup_property_owner", {"ccn": ccn})
 
