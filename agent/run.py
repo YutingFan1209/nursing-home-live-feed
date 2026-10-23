@@ -17,8 +17,12 @@ import csv
 import sys
 from pathlib import Path
 
-from agent.loop import resolve_filing
+from agent.loop import SYSTEM_PROMPT, resolve_filing
 from agent.tools import ToolBox
+
+
+CHOW_LINE = ("- A debtor that isn't a current CMS owner may have sold its home: search_chow_records finds it as a "
+             "seller (a direct tie to that CCN before the sale date). ")
 
 
 def load_filing(conn, state: str, filing_number: str) -> dict:
@@ -139,6 +143,8 @@ def main(argv=None) -> int:
     p.add_argument("--filing-number")
     p.add_argument("--sample", type=int, help="run on N random unresolved UCC-only deals")
     p.add_argument("--known", type=int, help="run on N filings the pipeline already matched to a facility (labels auto-filled; the easy cases)")
+    p.add_argument("--filings", help="CSV with state,filing_number columns (e.g. the frozen holdout); only rows with true_ccn if it has that column")
+    p.add_argument("--no-chow", action="store_true", help="ablation: take search_chow_records and its prompt line away")
     p.add_argument("--max-steps", type=int, default=8)
     p.add_argument("--audit", action="store_true", help="add the independent audit call (agent/audit.py)")
     p.add_argument("--model")
@@ -160,14 +166,24 @@ def main(argv=None) -> int:
         filings = sample_filings(tb.conn, args.sample, args.state)
         if not filings:
             sys.exit("No unresolved UCC-only deals found for that filter")
+    elif args.filings:
+        with open(args.filings, newline="") as fh:
+            rows = [r for r in csv.DictReader(fh) if "true_ccn" not in r or r["true_ccn"].strip()]
+        filings = [load_filing(tb.conn, r["state"], r["filing_number"]) for r in rows]
     elif args.state and args.filing_number:
         filings = [load_filing(tb.conn, args.state, args.filing_number)]
     else:
         p.error("give --selftest, --known N, --sample N, or --state and --filing-number")
 
+    system_prompt = SYSTEM_PROMPT
+    if args.no_chow:
+        tb.schemas = [t for t in tb.schemas if t["name"] != "search_chow_records"]
+        system_prompt = SYSTEM_PROMPT.replace(CHOW_LINE, "- ")
+        assert system_prompt != SYSTEM_PROMPT, "the CHOW prompt line moved; update CHOW_LINE"
     rows = []
     for f in filings:
-        verdict, trace = resolve_filing(f, tb, model=args.model, max_steps=args.max_steps, audit=args.audit)
+        verdict, trace = resolve_filing(f, tb, model=args.model, max_steps=args.max_steps, audit=args.audit,
+                                        system_prompt=system_prompt)
         path = trace.save(args.out)
         print(trace.render_text(), f"\n  saved: {path}\n" + "-" * 70)
         rows.append({

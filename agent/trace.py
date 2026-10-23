@@ -35,6 +35,8 @@ class Trace:
     steps: list = field(default_factory=list)
     usage: dict = field(default_factory=lambda: {"input_tokens": 0, "output_tokens": 0, "model_calls": 0})
     verdict: Optional[dict] = None
+    raw_verdict: Optional[dict] = None   # submit_verdict as the model sent it, before verify/audit
+    audit_answer: Optional[dict] = None  # the auditor's raw answer, when --audit ran
 
     def _next_id(self) -> str:
         return f"s{len(self.steps) + 1}"
@@ -69,6 +71,7 @@ class Trace:
         return {
             "filing": self.filing, "model": self.model, "started_at": self.started_at,
             "usage": self.usage, "verdict": self.verdict,
+            "raw_verdict": self.raw_verdict, "audit_answer": self.audit_answer,
             "steps": [asdict(s) for s in self.steps],
         }
 

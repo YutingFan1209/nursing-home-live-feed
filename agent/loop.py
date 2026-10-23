@@ -75,7 +75,7 @@ def _tool_result_content(step_id: str, output, error: Optional[str]) -> str:
 
 def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = None,
                    effort: Optional[str] = None, max_steps: int = 8, max_tokens: int = 4000,
-                   audit: bool = False):
+                   audit: bool = False, system_prompt: str = SYSTEM_PROMPT):
     """Returns (verdict, trace). `toolbox` needs .schemas and .call(name, args).
     audit=True adds one fresh-context model call that checks each evidence
     claim against the step it cites (agent/audit.py)."""
@@ -94,7 +94,7 @@ def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = No
     for _ in range(max_steps):
         resp = client.messages.create(
             model=model, max_tokens=max_tokens, output_config={"effort": effort},
-            system=SYSTEM_PROMPT, tools=tools, messages=messages,
+            system=system_prompt, tools=tools, messages=messages,
         )
         trace.add_usage(resp.usage)
         if resp.stop_reason == "refusal":
@@ -144,11 +144,13 @@ def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = No
             "facility_name": None, "ccn": None, "owner_entity": None, "evidence": [],
             "reasoning": f"The agent did not submit a verdict within {max_steps} model calls.",
         }
+    trace.raw_verdict = dict(verdict)      # kept so verify/audit can be re-scored offline (ablations)
     verified = verify_verdict(verdict, trace)
     # Nothing to audit when the answer is "can't tell" or has no evidence left
     if audit and verified.get("category") != "unresolved" and verified.get("evidence"):
         try:
-            verified = apply_audit(verified, run_audit(verified, trace, client, model, effort))
+            trace.audit_answer = run_audit(verified, trace, client, model, effort)
+            verified = apply_audit(verified, trace.audit_answer)
         except Exception as e:  # an audit that can't run is a reason for review, not a crash
             trace.add_note(f"audit failed to run: {type(e).__name__}: {e}")
             verified = apply_audit(verified, None)
