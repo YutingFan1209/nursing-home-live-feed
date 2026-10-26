@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-26T18:10:14.644656+00:00</updated>
+  <updated>2026-10-26T19:32:12.816966+00:00</updated>
+  <entry>
+    <id>urn:uuid:c797b1af-62e6-47bc-bc38-0c3ba231786f</id>
+    <title>Dwight Capital finances acquisition of a facility in OH (OH)</title>
+    <link href="https://pulse2.com/dwight-capital-and-dwight-investment-management-close-607-million-in-seniors-housing-financings-during-q3-2026/"/>
+    <updated>2026-10-26T19:31:43.380481+00:00</updated>
+    <summary>$46.50M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
   <entry>
     <id>urn:uuid:c9059874-9149-48bc-83c6-e56a590099b6</id>
     <title>299 Commerce Realty LLC — UCC-1 financing (OH)</title>
@@ -46,20 +53,6 @@
     <link href="https://ucc.ohiosos.gov/company-profile/search/7030378"/>
     <updated>2026-10-26T17:39:16.809179+00:00</updated>
     <summary>Effective 2026-01-02; Facilities: PEARLVIEW PROPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d82c46ea-f324-4c06-b9a7-cbdab6283cd5</id>
-    <title>Mill Run Care Center Limited Liability Company — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/6879639"/>
-    <updated>2026-10-26T17:39:15.614359+00:00</updated>
-    <summary>Effective 2025-06-18; Facilities: Mill Run Care Center Limited Liability Company; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:dbef301f-88a1-49a3-853e-d3bc9bf82aae</id>
-    <title>AIRY ASSETS LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/6702014"/>
-    <updated>2026-10-26T17:39:14.879226+00:00</updated>
-    <summary>Effective 2024-10-28; Facilities: AIRY ASSETS LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:5de0dc70-17c0-4b6d-989d-d6edf7186125</id>
@@ -280,7 +273,7 @@
   </entry>
   <entry>
     <id>urn:uuid:5ae9b97a-6008-4039-b1e0-65528ece4a64</id>
-    <title>LEBANON VALLEY PROPERTY LLC — UCC-1 financing (PA)</title>
+    <title>LEBANON VALLEY PROPERTY LLC — acquisition financing (PA)</title>
     <link href="https://file.dos.pa.gov/search/ucc"/>
     <updated>2026-10-26T17:37:30.693276+00:00</updated>
     <summary>Effective 2024-12-27; Facilities: LEBANON VALLEY PROPERTY LLC; Source: State UCC-1 Filings</summary>
@@ -335,24 +328,31 @@
     <summary>Effective 2026-10-14; Facilities: BELVEDERE CENTER, GENESIS HEALTHCARE, THE; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
-    <id>urn:uuid:f84de87f-fbb4-4d86-9fcb-8b0e640b2479</id>
-    <title>LTC ACO, LLC — UCC-1 financing (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-10-26T17:30:58.104272+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: LTC ACO, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:da380f8c-53fa-48f4-afb1-a085e2ec1dc0</id>
-    <title>WSSH IP, LLC — UCC-1 financing (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-10-26T17:30:57.670133+00:00</updated>
-    <summary>Effective 2026-10-14; Facilities: WSSH IP, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:e13ef84e-8a51-4309-a34d-e540be558b39</id>
     <title>SUNBURY SKILLED NURSING AND REHABILITATION CENTER — UCC-1 financing (PA)</title>
     <link href="https://file.dos.pa.gov/search/ucc"/>
     <updated>2026-10-26T17:30:57.023219+00:00</updated>
     <summary>Effective 2026-10-14; Facilities: SUNBURY SKILLED NURSING AND REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a02d6bfd-62b7-4803-af64-8fe1063f0175</id>
+    <title>WALLINGFORD SKILLED NURSING AND REHABILITATION CEN — UCC-1 financing (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-10-26T17:30:56.200474+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: WALLINGFORD SKILLED NURSING AND REHABILITATION CEN; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:03afd078-dc38-494a-8e9b-dd78c4d6f8de</id>
+    <title>450 EAST PHILADELPHIA AVENUE OPCO, LLC — UCC-1 financing (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-10-26T17:30:55.262994+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: 450 EAST PHILADELPHIA AVENUE OPCO, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:73f98dfb-38b5-4181-879a-a080836a9a01</id>
+    <title>BETHLEHEM NORTH SKILLED NURSING AND REHABILITATION — UCC-1 financing (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-10-26T17:30:54.554589+00:00</updated>
+    <summary>Effective 2026-10-14; Facilities: BETHLEHEM NORTH SKILLED NURSING AND REHABILITATION; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
