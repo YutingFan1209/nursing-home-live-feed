@@ -80,6 +80,16 @@ def make_dedup_hash(deal: dict) -> str:
     else:
         parts.append("")
 
+    # A news loan has no buyer or price, so the key above is just state +
+    # month + facility count: Dwight's $46.5M Ohio acquisition loan hashed
+    # the same as an unrelated Dayton sale and was dropped (2026-10-26). Key
+    # loans on lender and amount too. Deals with a buyer or price keep the
+    # old key, so their stored hashes still match.
+    amount = deal.get("financing_amount_m")
+    if amount and not acquirer and not value:
+        parts.append(normalize_acquirer(deal.get("lender") or ""))
+        parts.append(f"{float(amount):.1f}")
+
     key = "|".join(parts)
     return hashlib.sha256(key.encode()).hexdigest()[:16]
 

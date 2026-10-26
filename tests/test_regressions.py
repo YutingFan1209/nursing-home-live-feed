@@ -37,6 +37,18 @@ def test_ucc_same_filing_hashes_stably():
     assert make_dedup_hash(_ucc_signal("OH001")) == make_dedup_hash(_ucc_signal("OH001"))
 
 
+def test_news_loans_hash_on_lender_and_amount():
+    # Dwight's $46.5M Ohio loan collided with an unrelated Dayton sale (2026-10-26)
+    sale = {"acquiring_entity": None, "states": ["OH"], "acquisition_date": None, "facility_count": 1, "deal_value_m": None}
+    loan = {**sale, "financing_amount_m": 46.5, "lender": "Dwight Capital"}
+    assert make_dedup_hash(loan) != make_dedup_hash(sale)
+    assert make_dedup_hash(loan) != make_dedup_hash({**loan, "financing_amount_m": 54.5})
+    assert make_dedup_hash(loan) == make_dedup_hash({**loan, "lender": "Dwight Capital LLC"})
+    # a deal with a buyer keeps its old key
+    bought = {**sale, "acquiring_entity": "Ensign Group"}
+    assert make_dedup_hash(bought) == make_dedup_hash({**bought, "financing_amount_m": 20, "lender": "CIBC"})
+
+
 # ── Lender classifier (NJ fix, 2026-09-22) ────────────────────
 # NJ's free search never returns a secured party; those filings must stay
 # relevant, while a missing name elsewhere means unknown/possible bug.
