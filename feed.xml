@@ -4,7 +4,21 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-23T22:22:20.495812+00:00</updated>
+  <updated>2026-10-26T16:11:02.177631+00:00</updated>
+  <entry>
+    <id>urn:uuid:6643cf6f-c79f-4f9d-882c-e8425eab25a3</id>
+    <title>Dwight Capital finances 4 facilities in IL (IL)</title>
+    <link href="https://pulse2.com/dwight-capital-and-dwight-investment-management-close-607-million-in-seniors-housing-financings-during-q3-2026/"/>
+    <updated>2026-10-26T15:57:22.817141+00:00</updated>
+    <summary>$47.20M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d8ad3153-3d4d-4d9d-b754-f4c6cede27bd</id>
+    <title>CIG 99 Barclay OpCo, LLC to acquire Chandler Hall Health Services from Chandler Hall Health Services, Inc. (PA)</title>
+    <link href="https://sais.health.pa.gov/CommonPOC/Licensing/IPA-NCF/InitialApplication.aspx?ipaappid=6139549&amp;IPA_PUBLIC=y"/>
+    <updated>2026-10-26T15:57:06.258434+00:00</updated>
+    <summary>Effective 2026-10-01; Facilities: Chandler Hall Health Services; Source: Pennsylvania DOH Nursing Home Licence Applications</summary>
+  </entry>
   <entry>
     <id>urn:uuid:ec1a04e4-82c7-4308-addc-a5d697817326</id>
     <title>AUTUMN LAKE HEALTHCARE AT BIRCH MANOR — acquisition financing (MD)</title>
@@ -340,19 +354,5 @@
     <link href="https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx"/>
     <updated>2026-10-21T21:11:20.718368+00:00</updated>
     <summary>Effective 2011-04-04; Facilities: AUTUMN LAKE HEALTHCARE AT PERRING PARKWAY; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4a29fff0-ac46-47c8-a8cb-564d59dbd041</id>
-    <title>AUTUMN LAKE HEALTHCARE AT LONG GREEN — UCC-1 financing (MD)</title>
-    <link href="https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx"/>
-    <updated>2026-10-21T21:11:20.225720+00:00</updated>
-    <summary>Effective 2011-04-04; Facilities: AUTUMN LAKE HEALTHCARE AT LONG GREEN; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:dc8f67fc-92ad-4dd1-822e-0505e9af2935</id>
-    <title>AXIS HEALTH AT MANOKIN OPCO LLC — UCC-1 financing (MD)</title>
-    <link href="https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx"/>
-    <updated>2026-10-21T21:11:17.669857+00:00</updated>
-    <summary>Effective 2023-10-02; Facilities: AXIS HEALTH AT MANOKIN OPCO LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
