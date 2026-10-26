@@ -913,6 +913,16 @@ def test_true_filings_that_are_not_deals_are_non_deal_liens():
     assert not is_not_a_deal({**fl, "ucc_debtor": "STUART FL PROPCO II LLC", "lender": "CAPITAL FUNDING, LLC"}, today)
     assert not is_not_a_deal({**fl, "ucc_debtor": "PINES NURSING HOME 2015, LLC", "lender": "OPTIMUMBANK"}, today)
     assert not is_not_a_deal({**fl, "ucc_debtor": "TAYLOR SNF PROPCO LLC", "lender": "FORBRIGHT BANK, AS AGENT"}, today)
+    # A deal's assisted living and physician companies, in any state (spot check 2026-10-26)
+    wo = {"source_type": "ucc", "ucc_state": "PA", "ccns": None, "deal_type": "financing",
+          "lender": "WHITE OAK HEALTHCARE FINANCE, LLC, AS ADMINISTRATIVE AGENT"}
+    for debtor in ("WSSH PHYSICIAN SERVICES MSO, LLC", "WSSH LTC ACO LEAD, LLC", "WSSH IP, LLC",
+                   "BETHEL ASSISTED LIVING LLC", "MOUNTAIN HOME AL OPCO LLC"):
+        assert is_not_a_deal({**wo, "ucc_debtor": debtor}, today)
+    assert not is_not_a_deal({**wo, "ucc_debtor": "1770 BARLEY RD. OPCO, LLC"}, today)
+    assert not is_not_a_deal({**wo, "ucc_debtor": "BETHEL SKILLED CARE LLC"}, today)
+    # linked to a home, it stays
+    assert not is_not_a_deal({**wo, "ucc_debtor": "BETHEL ASSISTED LIVING LLC", "ccns": ["555924"]}, today)
 
 
 def test_oh_lender_list_drops_the_homes_own_entities():

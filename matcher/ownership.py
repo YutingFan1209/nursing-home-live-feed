@@ -84,9 +84,13 @@ def match_deal(deal: dict, conn) -> list[dict]:
 
 
 def legal_name_key(name: str) -> str:
-    """Case, punctuation and company suffixes dropped; the same key as the
-    holdout's exact-legal-name baseline (agent/holdout_baselines.py)."""
+    """Case, punctuation and company suffixes dropped. The holdout's frozen
+    exact-legal-name baseline (agent/holdout_baselines.py) keeps the older
+    key without the spelled-out suffixes, which CMS sometimes cuts short
+    ("MILL RUN CARE CENTER LIMITED" for "... Limited Liability Company",
+    spot check 2026-10-26)."""
     s = re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper())
+    s = re.sub(r"\bLIMITED LIABILITY COMPANY\b|\bLIMITED( LIABILITY)?\s*$", " ", s)
     s = re.sub(r"\b(L L C|LLC|INC|LP|L P|CORP|CORPORATION|CO|LTD|THE)\b", " ", s)
     return " ".join(s.split())
 

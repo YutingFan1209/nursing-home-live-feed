@@ -109,6 +109,13 @@ _HOME_BANK_RE = re.compile(
 NOT_A_HOME_RE = re.compile(
     r"school|education|home ?care|home health|hospice|pharmacy|nursing services|staffing|spinal|"
     r"pediatric|mobility|allied health|nursing on demand|\bshop\b", re.I)
+# A nursing home deal's companion companies, filed the same day as its
+# homes: the assisted or independent living side and physician, ACO and IP
+# holding companies (spot check 2026-10-26: Bethel Assisted Living, Mountain
+# Home AL OpCo, WSSH Physician Services MSO). Only when linked to no home.
+COMPANION_ENTITY_RE = re.compile(
+    r"\b(ASSISTED LIVING|INDEPENDENT LIVING|MEMORY CARE|AL (OPCO|PROPCO|OPERATIONS|TENANT)|IL OPCO"
+    r"|PHYSICIAN SERVICES|MSO|ACO|IP,? (LLC|INC))\b", re.I)
 SMALL_BUSINESS_LENDER_RE = re.compile(
     r"bitty advance|ace funding|dash funding|seamless funding|lcf group|funding metrics|biz capital|"
     r"olympus lending|mazel tov|alternative funding group|funding strategy partners|middesk|copiers|"
@@ -133,6 +140,8 @@ def is_not_a_deal(d: dict, today: date = None) -> bool:
             and filed < ((today or date.today()) - PERSON_FILING_MAX_AGE).isoformat()
             and d.get("lender_category") not in HOME_LENDERS and not _DEAL_LENDER_RE.search(d.get("lender") or "")
             and not _HOME_BANK_RE.search(d.get("lender") or "")):
+        return True
+    if not d.get("ccns") and COMPANION_ENTITY_RE.search(d.get("ucc_debtor") or ""):
         return True
     if d.get("ucc_state") == "FL" and not d.get("ccns"):
         lender = d.get("lender") or ""
