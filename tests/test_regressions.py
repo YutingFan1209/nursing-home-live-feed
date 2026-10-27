@@ -1186,3 +1186,30 @@ def test_ucc_debtor_matches_a_unique_cms_legal_name_2026_10_22():
                                        Conn([fair_oaks])) is None
     # only UCC deals use it
     assert ownership.match_deal({**deal, "extraction_model": "chow_direct"}, Conn([cedarwood])) == []
+
+
+# ── WI / MO browser-session debtor search (added 2026-10-27) ──
+
+def test_wi_rows_and_search_name():
+    from ucc.wi import rows_to_filings, search_name
+    assert search_name("ARIA AT VILLA PINES, LLC") == "ARIA AT VILLA PINES"
+    assert search_name("Avina Holdings Co. Inc.") == "Avina Holdings"
+    f, = rows_to_filings([{"lienNumber": "250008123456", "filingType": "UCC1 Financing Statement",
+                           "filingDate": "08/08/2025 10:15", "lapseDate": "08/08/2030", "lienStatus": "Active",
+                           "city": "MILWAUKEE", "state": "WI", "fullName": "AVINA OF MILWAUKEE LLC",
+                           "securedPartyFullName": "CIBC BANK USA"},
+                          {"lienNumber": None, "fullName": "NO NUMBER LLC"}], "AVINA")
+    assert (f.debtor_name, f.secured_party_name, f.filing_type) == ("AVINA OF MILWAUKEE LLC", "CIBC BANK USA", "UCC-1")
+    assert f.filing_date == date(2025, 8, 8) and f.lapse_date == date(2030, 8, 8) and f.raw["address"] == "MILWAUKEE, WI"
+
+
+def test_mo_rows_need_a_secured_party_from_the_image():
+    from ucc.mo import rows_to_filings
+    rows = [{"fileNo": "20251209001618885", "debtor": "Aspire Senior Living Advance, LLC", "address": "ADVANCE, MO",
+             "date": "12/9/2025", "status": "Unlapsed",
+             "parsed": {"form": "UCC1", "secured_party": "Advance Real Estate, Inc.", "collateral": "Tenant Items"}},
+            {"fileNo": "20220609002451586", "debtor": "Aspire Senior Living Advance, LLC", "date": "6/9/2022",
+             "status": "Unlapsed"}]                     # older than 2 years: no image, so no lender
+    f, = rows_to_filings(rows, "ASPIRE SENIOR LIVING ADVANCE")
+    assert (f.secured_party_name, f.filing_type, f.filing_date) == ("Advance Real Estate, Inc.", "UCC-1", date(2025, 12, 9))
+    assert f.status == "active" and f.collateral_description == "Tenant Items"

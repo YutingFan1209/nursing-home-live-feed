@@ -126,6 +126,37 @@ venv/bin/python3 -m agent.score agent/traces/sample_summary.csv
 venv/bin/python3 -m pytest agent/tests                         # offline, no DB or API key
 ```
 
+## Backlog: widen CCN matching beyond UCC (added 2026-10-27)
+
+The resolver only sees UCC filings, and only on demand; the pipeline links
+CCNs with `matcher/ownership.py` (fuzzy name match + the exact legal-name
+rule). Records with no CCN, not dismissed, 2026-10-27:
+
+| Source | No CCN | Of |
+|---|---|---|
+| UCC filings | 582 | 3,679 (NY 120, FL 97, OH 96, PA 90, CA 39, MD 34, WI 17) |
+| News (Claude extraction) | 208 | 251 |
+| State notices (CON, licence lists) | 98 | 237 |
+| CMS CHOW / owner changes | 0 | 746 |
+
+1. **UCC leftovers:** run the resolver on the unmatched UCC deals, state by
+   state, starting with WI (17) and MO once loaded. Accepted answers go
+   through `verify.py`. Paid: ~$0.02–0.05 a filing, ask first.
+2. **News:** the biggest gap by share (83% unlinked). Needs an entry point
+   that takes a deal's buyer/seller/facility names and state instead of a
+   filing; the tools (CMS name, legal name, address, CHOW buyer/seller)
+   already fit. Label ~20 first; news extraction was the weakest source in
+   the accuracy audit.
+3. **State notices:** most name the home and town, so try a deterministic
+   name + city match against `cms_facilities` before any agent.
+4. **Propcos:** all methods abstain. Needs a deed/assessor lookup
+   (`property_records.py` covers a few counties); widen county coverage.
+5. **In the pipeline:** once 1–2 hold up on labels, call the resolver from
+   the pipeline for new unmatched deals only, with a per-run spend cap.
+
+Measure each step on frozen labels (holdout style), not on the simulator:
+simulator scores are stress tests only.
+
 ## Next: make the prompt the experiment (OPRO-style), once there are labels
 
 `SYSTEM_PROMPT` in `loop.py` is the editable artifact. With ~30+ hand-labeled filings frozen as
