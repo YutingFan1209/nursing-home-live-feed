@@ -4,7 +4,343 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-27T15:50:11.997977+00:00</updated>
+  <updated>2026-10-27T15:58:08.759695+00:00</updated>
+  <entry>
+    <id>urn:uuid:f08dc80e-6392-477d-8799-7217233f8a8b</id>
+    <title>NICK’S SNF OPCO LLC to acquire NICK'S HEALTH CARE CENTER from NICKS HEALTH CARE CENTER, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265698-nicks-snf-opco"/>
+    <updated>2026-10-27T15:57:52.542117+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: NICK'S HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:02647f0c-05de-4db5-a72b-45b3b368cf1e</id>
+    <title>WINDSOR REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire WINDSOR REHABILITATION &amp; HEALTH CARE CENTER from TRUMAN VALLEY HEALTH CARE, INC. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265683-windsor-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.530828+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: WINDSOR REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4c057736-63ca-4e53-8a69-cc644bccd9ae</id>
+    <title>STRAFFORD REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire STRAFFORD REHABILITATION &amp; HEALTH CARE CENTER from N &amp; R OF STRAFFORD, INC. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265656-strafford-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.519476+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: STRAFFORD REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8e4c34e4-044f-4e71-8f80-edf0fed79b5b</id>
+    <title>SOUTH HAMPTON REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire SOUTH HAMPTON REHABILITATION &amp; HEALTH CARE CENTER from N &amp; R OF SOUTH HAMPTON, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265618-south-hampton-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.508369+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: SOUTH HAMPTON REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4fab5055-ac59-4cb0-b5d3-368625794bec</id>
+    <title>FORSYTH REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire FORSYTH REHABILITATION &amp; HEALTH CARE CENTER from FORSYTH MANOR INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265605-forsyth-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.497242+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: FORSYTH REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:22647bab-48fa-42ca-90b9-1b655cc30ad1</id>
+    <title>KINGDOM CARE OPCO LLC to acquire KINGDOM CARE SENIOR LIVING from KINGDOM CARE SENIOR LIVING, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265581-kingdom-care-opco"/>
+    <updated>2026-10-27T15:57:52.486386+00:00</updated>
+    <summary>Effective 2026-03-01; Facilities: KINGDOM CARE SENIOR LIVING; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:561f34b7-b6ea-4a1f-a1ec-0a9a4346637e</id>
+    <title>HIDDEN LAKE OPCO LLC to acquire HIDDEN LAKE HEALTH CARE CENTER from HIDDEN LAKE HEALTH CARE CENTER, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265735-hidden-lake-opco"/>
+    <updated>2026-10-27T15:57:52.475274+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: HIDDEN LAKE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ef46c04e-f548-4a49-8550-1e2ea61230de</id>
+    <title>EASTVIEW SNF OPCO LLC to acquire EASTVIEW MANOR CARE CENTER from EASTVIEW MANOR, INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265730-eastview-snf-opco"/>
+    <updated>2026-10-27T15:57:52.464376+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: EASTVIEW MANOR CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:75de7d87-cf9e-4798-8e2c-fda6bb831f76</id>
+    <title>NATHAN RICHARD SNF OPCO LLC to acquire NATHAN RICHARD HEALTH CARE CENTER from NATHAN RICHARD HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265558-nathan-richard-snf-opco"/>
+    <updated>2026-10-27T15:57:52.453614+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: NATHAN RICHARD HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7ab3a2fd-a07e-4788-9c6f-3e58b7af52ac</id>
+    <title>CURRENT RIVER REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire CURRENT RIVER REHABILITATION &amp; HEALTH CARE CENTER from CURRENT RIVER NURSING CENTER, INC. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265504-current-river-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.442616+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: CURRENT RIVER REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:99f44ef8-504b-4a2c-8387-d04ee399e632</id>
+    <title>PORTAGEVILLE SNF OPCO LLC to acquire PORTAGEVILLE HEALTH CARE CENTER from PORTAGEVILLE HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265549-portageville-snf-opco"/>
+    <updated>2026-10-27T15:57:52.432330+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: PORTAGEVILLE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9855848b-da0d-4c6e-adb5-523fe61f87cc</id>
+    <title>GLENWOOD REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire GLENWOOD REHABILITATION &amp; HEALTH CARE CENTER from N &amp; R OF SEYMOUR, INC. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265608-glenwood-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.421619+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: GLENWOOD REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fbfb3199-3c23-4f9e-a547-4cbbf2d3b0fa</id>
+    <title>STONECREST SNF OPCO LLC to acquire STONECREST HEALTHCARE from MMA HEALTHCARE OF VIBURNUM INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265582-stonecrest-snf-opco"/>
+    <updated>2026-10-27T15:57:52.411067+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: STONECREST HEALTHCARE; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:882034d1-e0ce-41a0-8c64-991629debb32</id>
+    <title>WESTVIEW SNF OPCO LLC to acquire WESTVIEW NURSING HOME from MMA HEALTHCARE OF CENTER, INC. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265423-westview-snf-opco"/>
+    <updated>2026-10-27T15:57:52.400683+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: WESTVIEW NURSING HOME; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a6e3feab-c2bd-4a67-b49d-74a5e8799093</id>
+    <title>GREENVILLE SNF OPCO LLC to acquire GREENVILLE HEALTH CARE CENTER from GREENVILLE HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265547-greenville-snf-opco"/>
+    <updated>2026-10-27T15:57:52.390127+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: GREENVILLE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:03a2b682-8b11-45b8-a771-b968dca58aad</id>
+    <title>CRESTWOOD SNF OPCO LLC to acquire CRESTWOOD HEALTH CARE CENTER from CRESTWOOD HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265823-crestwood-snf-opco"/>
+    <updated>2026-10-27T15:57:52.379503+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: CRESTWOOD HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4f8776b2-5c69-45a4-9b99-f00e81ff6d9f</id>
+    <title>EDGEWOOD SNF OPCO LLC to acquire EDGEWOOD MANOR HEALTH CARE CENTER from EDGEWOOD MANOR HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265425-edgewood-snf-opco"/>
+    <updated>2026-10-27T15:57:52.368884+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: EDGEWOOD MANOR HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:06235bfc-8d0d-4dee-91a9-74634ef78635</id>
+    <title>GRAND MANOR SNF OPCO LLC to acquire GRAND MANOR HEALTH CARE CENTER from GRAND MANOR HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265717-grand-manor-snf-opco"/>
+    <updated>2026-10-27T15:57:52.358545+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: GRAND MANOR HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c6ab5e84-ba56-46a3-aa4c-1a8198adced7</id>
+    <title>ST ELIZABETH SNF OPCO LLC to acquire ST ELIZABETH CARE CENTER from MMA HEALTHCARE OF ST ELIZABETH INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265676-st-elizabeth-snf-opco"/>
+    <updated>2026-10-27T15:57:52.347992+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: ST ELIZABETH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:768669b0-a117-4875-8b42-8213ee067f29</id>
+    <title>PARKWAY SNF OPCO LLC to acquire PARKWAY HEALTH CARE CENTER from PARKWAY HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265532-parkway-snf-opco"/>
+    <updated>2026-10-27T15:57:52.337434+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: PARKWAY HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:eea181e6-5be1-46ec-bab3-0ab2b514b491</id>
+    <title>SARCOXIE SNF OPCO LLC to acquire SARCOXIE HEALTH CARE CENTER from SARCOXIE HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265649-sarcoxie-snf-opco"/>
+    <updated>2026-10-27T15:57:52.326303+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: SARCOXIE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:541717d7-403e-49b8-959e-47dc5adf8ced</id>
+    <title>REST HAVEN SNF OPCO LLC to acquire REST HAVEN HEALTH CARE CENTER from REST HAVEN HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265854-rest-haven-snf-opco"/>
+    <updated>2026-10-27T15:57:52.315461+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: REST HAVEN HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:125cf598-6386-4c28-b2ed-1808618e948b</id>
+    <title>BRIDGEWOOD SNF OPCO LLC to acquire BRIDGEWOOD HEALTH CARE CENTER from BRIDGEWOOD HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265822-bridgewood-snf-opco"/>
+    <updated>2026-10-27T15:57:52.304163+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: BRIDGEWOOD HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c13c6072-111c-46d3-ad92-46617e783717</id>
+    <title>CHARITON PARK SNF OPCO LLC to acquire CHARITON PARK HEALTH CARE CENTER from CHARITON PARK HEALTH CARE CENTER, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265526-chariton-park-snf-opco"/>
+    <updated>2026-10-27T15:57:52.293384+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: CHARITON PARK HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c55c29d7-3181-46c5-8c58-6346126e3333</id>
+    <title>OZARK MO HEALTHCARE LLC to acquire OZARK CARE &amp; REHAB CENTER from EBG HEALTH CARE IV, INC. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265753-ozark-mo-healthcare"/>
+    <updated>2026-10-27T15:57:52.283647+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: OZARK CARE &amp; REHAB CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7335a2ff-b285-4682-acc9-9d13a35ba0ba</id>
+    <title>KIRKWOOD WELLNESS &amp; REHABILITATION LLC to acquire KIRKWOOD WELLNESS &amp; REHABILITATION from GROVE HEALTHCARE LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265833-kirkwood-wellness-and-rehabilitation"/>
+    <updated>2026-10-27T15:57:52.273192+00:00</updated>
+    <summary>Effective 2026-08-01; Facilities: KIRKWOOD WELLNESS &amp; REHABILITATION; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:79febe4c-4992-4c93-ac7b-192f282653fb</id>
+    <title>WOODLAND HEALTHCARE LLC to acquire WOODLAND CARE &amp; REHAB CENTER from EBG HEALTH CARE III INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265749-woodland-healthcare"/>
+    <updated>2026-10-27T15:57:52.262407+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: WOODLAND CARE &amp; REHAB CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:aac4e9f7-b611-458a-85ca-dda7f2ddddfa</id>
+    <title>ODESSA SNF OPCO LLC to acquire ODESSA HEALTH CARE CENTER from ODESSA HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265501-odessa-snf-opco"/>
+    <updated>2026-10-27T15:57:52.251541+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: ODESSA HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5b2fab03-52ce-41be-937a-8f9b89fde463</id>
+    <title>MILAN SNF OPCO LLC to acquire MILAN HEALTH CARE CENTER from BKY HEALTHCARE OF MILAN, INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265238-milan-snf-opco"/>
+    <updated>2026-10-27T15:57:52.240662+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: MILAN HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:12de7726-3aaa-49dd-87b5-f42b4e9e2431</id>
+    <title>ML OP BUTLER LLC to acquire a facility in MO from MEDICALODGES INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265564-ml-op-butler"/>
+    <updated>2026-10-27T15:57:52.229593+00:00</updated>
+    <summary>Effective 2026-08-01; Facilities: ML OP BUTLER LLC; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:337aac83-c16d-422f-98a2-ec94e342ece4</id>
+    <title>BROOKFIELD SNF OPCO LLC to acquire BROOKFIELD HEALTH CARE CENTER from BROOKFIELD HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265644-brookfield-snf-opco"/>
+    <updated>2026-10-27T15:57:52.218625+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: BROOKFIELD HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c369dbd2-0aec-4bff-a6ce-06a0b877cbae</id>
+    <title>MARYVILLE REHABILITATION &amp; HEALTH CARE CENTER LLC to acquire MARYVILLE REHABILITATION &amp; HEALTH CARE CENTER from N &amp; R OF MARYVILLE LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265354-maryville-rehabilitation-and-health-care-center"/>
+    <updated>2026-10-27T15:57:52.207344+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: MARYVILLE REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a13a2616-2599-4cc3-9b3f-ea3e5d92db9e</id>
+    <title>LEGENDARY SNF OPCO LLC to acquire LEGENDARY HEALTH CARE CENTER from LEGENDARY HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265508-legendary-snf-opco"/>
+    <updated>2026-10-27T15:57:52.196757+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: LEGENDARY HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:30ae70d0-2217-4c6f-9008-7ae6f75520f4</id>
+    <title>HILLSIDE SNF OPCO LLC to acquire HILLSIDE HEALTH CARE CENTER from HILLSIDE HEALTH CARE CENTER, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265585-hillside-snf-opco"/>
+    <updated>2026-10-27T15:57:52.186075+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: HILLSIDE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bfe08d6f-7a4d-4cfc-9a6a-32b86c8c5fb9</id>
+    <title>GREGORY RIDGE SNF OPCO LLC to acquire GREGORY RIDGE HEALTH CARE CENTER from GREGORY RIDGE HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265721-gregory-ridge-snf-opco"/>
+    <updated>2026-10-27T15:57:52.175352+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: GREGORY RIDGE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a4f71d1d-456e-433a-8547-e927bb95dfc1</id>
+    <title>JEFFERSON MO HEALTHCARE LLC to acquire JEFFERSON CITY CARE &amp; REHAB CENTER from JEFFERSON CITY MANOR INC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265285-jefferson-mo-healthcare"/>
+    <updated>2026-10-27T15:57:52.164499+00:00</updated>
+    <summary>Effective 2026-09-01; Facilities: JEFFERSON CITY CARE &amp; REHAB CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:642984ef-fa69-409b-8254-01b3a4a33e9d</id>
+    <title>HERITAGE WELLNESS &amp; REHABILITATION LLC to acquire HERITAGE WELLNESS &amp; REHABILITATION from INDEPENDENCE HEALTHCARE LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265456-heritage-wellness-and-rehabilitation"/>
+    <updated>2026-10-27T15:57:52.153806+00:00</updated>
+    <summary>Effective 2026-08-01; Facilities: HERITAGE WELLNESS &amp; REHABILITATION; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:927dc6cd-6402-446a-8488-1586cd75bba5</id>
+    <title>SOUTH COUNTY SNF OPCO LLC to acquire SOUTH COUNTY HEALTH CARE CENTER from SOUTH COUNTY HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265509-south-county-snf-opco"/>
+    <updated>2026-10-27T15:57:52.143179+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: SOUTH COUNTY HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:02f09f7d-6d8b-4633-907d-f02e1cc34823</id>
+    <title>BRUNSWICK SNF OPCO LLC to acquire BRUNSWICK HEALTH CARE CENTER from BRUNSWICK HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265598-brunswick-snf-opco"/>
+    <updated>2026-10-27T15:57:52.132307+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: BRUNSWICK HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:483efa69-2148-40ba-8889-b96dd03b6758</id>
+    <title>CEG SNF OPCO LLC to acquire CARRIE ELLIGSON GIETNER HEALTH CARE CENTER from CARRIE ELLIGSON GIETNER HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265668-ceg-snf-opco"/>
+    <updated>2026-10-27T15:57:52.121654+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: CARRIE ELLIGSON GIETNER HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:995cf523-04d5-4a23-82b5-588549388425</id>
+    <title>STEELVILLE HEALTHCARE LLC to acquire STEELVILLE CARE &amp; REHAB CENTER from STEELVILLE SENIOR LIVING, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265866-steelville-healthcare"/>
+    <updated>2026-10-27T15:57:52.111368+00:00</updated>
+    <summary>Effective 2026-09-01; Facilities: STEELVILLE CARE &amp; REHAB CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5dfbf1cf-5366-4b61-be81-8a2f67b8f9b0</id>
+    <title>WELLSVILLE SNF OPCO LLC to acquire WELLSVILLE HEALTH CARE CENTER from WELLSVILLE HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265398-wellsville-snf-opco"/>
+    <updated>2026-10-27T15:57:52.100650+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: WELLSVILLE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5fed3fce-306d-4d15-ab31-b6000a0feb54</id>
+    <title>FAIR VIEW SNF OPCO LLC to acquire FAIR VIEW HEALTH CARE CENTER from FAIR VIEW HEALTH CARE CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265856-fair-view-snf-opco"/>
+    <updated>2026-10-27T15:57:52.089587+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: FAIR VIEW HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:35810d54-7dec-4555-8458-5cea55541197</id>
+    <title>JEFFERSON CITY WELLNESS &amp; REHABILITATION LLC to acquire CAPITOL RIVER WELLNESS &amp; REHABILITATION from JEFFERSON CITY NURSING AND REHABILITATION CENTER LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265530-jefferson-city-wellness-and-rehabilitation"/>
+    <updated>2026-10-27T15:57:52.078335+00:00</updated>
+    <summary>Effective 2025-11-01; Facilities: CAPITOL RIVER WELLNESS &amp; REHABILITATION; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:bb195db4-4bf2-4900-ac6f-5b45338f9610</id>
+    <title>CASSVILLE SNF OPCO LLC to acquire CASSVILLE HEALTH CARE CENTER from CASSVILLE HEALTH CARE CENTER, L.L.C. (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265460-cassville-snf-opco"/>
+    <updated>2026-10-27T15:57:52.065323+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: CASSVILLE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:05058905-6f7e-4df4-abaf-8e43630c625d</id>
+    <title>FOUR SEASONS SNF OPCO LLC to acquire FOUR SEASONS LIVING CENTER from FOUR SEASONS LIVING CENTER, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265149-four-seasons-snf-opco"/>
+    <updated>2026-10-27T15:57:52.051833+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: FOUR SEASONS LIVING CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c85104ee-b4f9-4b2c-aaf9-34caecea96f4</id>
+    <title>BERNARD SNF OPCO LLC to acquire BERNARD CARE CENTER from BERNARD CARE CENTER, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265500-bernard-snf-opco"/>
+    <updated>2026-10-27T15:57:52.035358+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: BERNARD CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:29837cfc-25cb-439b-9eda-3aa459c16ae4</id>
+    <title>HERITAGE SNF OPCO LLC to acquire HERITAGE CARE CENTER from HERITAGE CARE CENTER OF BERKELEY, LLC (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265534-heritage-snf-opco"/>
+    <updated>2026-10-27T15:57:51.473430+00:00</updated>
+    <summary>Effective 2026-06-01; Facilities: HERITAGE CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
   <entry>
     <id>urn:uuid:14a54bb5-3c75-4db0-b4ea-2ab8f567bda1</id>
     <title>Pending sale of Ivy at Deer Lodge · Buyer not disclosed (MT)</title>
@@ -18,341 +354,5 @@
     <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-discovery-care-centre-llc-20250421"/>
     <updated>2026-10-27T15:49:50.188657+00:00</updated>
     <summary>Effective 2025-04-21; Facilities: Discovery Care Centre, LLC; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8a088560-5878-421e-87b6-8ab7d09eb217</id>
-    <title>Pending sale of Copper Ridge Nursing and Rehabilitation · Buyer not disclosed (MT)</title>
-    <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-copper-ridge-nursing-and-rehabilitation-20260730"/>
-    <updated>2026-10-27T15:49:50.184744+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Copper Ridge Nursing and Rehabilitation; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4a39b958-4a72-4031-9cdf-191e4853f0c6</id>
-    <title>Pending sale of Deer Lodge Nursing and Rehabilitation Center · Buyer not disclosed (MT)</title>
-    <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-deer-lodge-nursing-and-rehabilitation-center-20260730"/>
-    <updated>2026-10-27T15:49:50.179982+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Deer Lodge Nursing and Rehabilitation Center; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f1f6dd0a-ee83-4c2d-9501-9e4b884fbc84</id>
-    <title>Pending sale of Skyline Heights Nursing and Rehabilitation · Buyer not disclosed (MT)</title>
-    <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-skyline-heights-nursing-and-rehabilitation-20260730"/>
-    <updated>2026-10-27T15:49:50.170585+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Skyline Heights Nursing and Rehabilitation; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c735b1a2-dcd0-4d81-90d0-0807c11be890</id>
-    <title>Pending sale of Yellowstone River Nursing and Rehabilitation · Buyer not disclosed (MT)</title>
-    <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-yellowstone-river-nursing-and-rehabilitation-20260730"/>
-    <updated>2026-10-27T15:49:50.166015+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Yellowstone River Nursing and Rehabilitation; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fc125773-d85f-44c3-b187-5a0775fd9b0a</id>
-    <title>Pending sale of Elkhorn Healthcare and Rehabilitation · Buyer not disclosed (MT)</title>
-    <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-elkhorn-healthcare-and-rehabilitation-20260730"/>
-    <updated>2026-10-27T15:49:50.161201+00:00</updated>
-    <summary>Effective 2026-07-30; Facilities: Elkhorn Healthcare and Rehabilitation; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3fb82b24-9648-478a-b662-d6149ad69c66</id>
-    <title>Pending sale of Northern Pines · Buyer not disclosed (MT)</title>
-    <link href="https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/#chow-northern-pines-20260528"/>
-    <updated>2026-10-27T15:49:50.156081+00:00</updated>
-    <summary>Effective 2026-05-28; Facilities: Northern Pines; Source: Montana DPHHS Certificate of Need Monthly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0295b691-0997-42cf-82fa-f93314ea794f</id>
-    <title>Health Concepts acquires Village House Nursing &amp; Rehabilitation Center and 4 more (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-HEALTH-CONCEPTS-20240809"/>
-    <updated>2026-10-27T15:49:50.144969+00:00</updated>
-    <summary>Effective 2024-12-12; Facilities: Village House Nursing &amp; Rehabilitation Center, South Kingstown Nurs. &amp; Rehab Ctr, Eastgate Nursing &amp; Rehabilitation Center, Bayberry Commons, Elmwood Nursing and Rehabilitation Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:65bf1f44-7cd1-47dd-b851-bea7d10d9f88</id>
-    <title>AdviniaCare acquires AdviniaCare Newport, LLC and 4 more from SUMMIT RI SNF, LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-ADVINIACARE-20250908"/>
-    <updated>2026-10-27T15:49:50.122801+00:00</updated>
-    <summary>Effective 2025-11-18; Facilities: AdviniaCare Newport, LLC, AdviniaCare Oakland Grove LLC, AdviniaCare Orchard, LLC, AdviniaCare Summit Commons, LLC, AdviniaCare Waterview Villas, LLC; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c6c363af-515f-49a9-b1ef-13655a850a65</id>
-    <title>Greenwood Propco RI LLC acquires Greenwood Operations DBA Greenwood Center (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-GREENWOOD-PROPCO-RI-LLC-20250820"/>
-    <updated>2026-10-27T15:49:50.112225+00:00</updated>
-    <summary>Effective 2025-12-04; Facilities: Greenwood Operations DBA Greenwood Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e9db5e97-7873-4c54-9cad-2bc5570579a5</id>
-    <title>Providence RI Property Holdings LLC and Pawtucket RI Property Holdings LLC to acquire Adviniacare Providence Dodge Rehab Center, LLC and 1 more (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-PROVIDENCE-RI-PROPERTY-HOLDINGS-LLC-AND-PAWTUCKET-RI-PROPERT-20250807"/>
-    <updated>2026-10-27T15:49:50.101140+00:00</updated>
-    <summary>Effective 2025-10-29; Facilities: Adviniacare Providence Dodge Rehab Center, LLC, Adviniacare Pawtucket Pleasant Rehab Center, LLC; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:959697f9-d230-44d3-8fdc-07bac9fb7413</id>
-    <title>Valley View Health &amp; Rehabilitation LLC to acquire a facility in RI (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-VALLEY-VIEW-HEALTH-REHABILITATION-LLC-20250409"/>
-    <updated>2026-10-27T15:49:50.071157+00:00</updated>
-    <summary>Effective 2025-05-29; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f772c5d5-8ebe-4298-87fc-915e36586dc5</id>
-    <title>Mayflower Healthcare LLC acquires Coventry Operations RI LLC DBA Respiratory and Reh and 2 more (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-MAYFLOWER-HEALTHCARE-LLC-20231108"/>
-    <updated>2026-10-27T15:49:50.060268+00:00</updated>
-    <summary>Effective 2025-05-08; Facilities: Coventry Operations RI LLC DBA Respiratory and Reh, Greenville Operations RI LLC DBA Greenville Skille, Warren Operations RI, LLC DBA Warren Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a435952d-87fb-4d27-9757-e53fdfef0c39</id>
-    <title>AdviniaCare at Warren, LLC and 642 Metacom Avenue, LLC to acquire Warren Operations RI, LLC DBA Warren Center from Warren Operations RI LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-ADVINIACARE-AT-WARREN-LLC-AND-642-METACOM-AVENUE-LLC-20260813"/>
-    <updated>2026-10-27T15:49:50.025577+00:00</updated>
-    <summary>Facilities: Warren Operations RI, LLC DBA Warren Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7227e524-f560-4ef5-8ec5-5dca6200f88d</id>
-    <title>AdviniaCare at Greenville, LLC and 735 Putnam Pike, LLC to acquire Greenville Operations RI LLC DBA Greenville Skille from Greenville Operations RI LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-ADVINIACARE-AT-GREENVILLE-LLC-AND-735-PUTNAM-PIKE-LLC-20260813"/>
-    <updated>2026-10-27T15:49:50.014334+00:00</updated>
-    <summary>Facilities: Greenville Operations RI LLC DBA Greenville Skille; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5d3a0935-5d1e-4a40-91ff-4c28470a25bd</id>
-    <title>AdviniaCare Respiratory at Coventry, LLC (Operator) and Rehabilitation and 10 Woodland Drive, LLC to acquire Coventry Operations RI LLC DBA Respiratory and Reh from Coventry Operations RI LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-ADVINIACARE-RESPIRATORY-AT-COVENTRY-LLC-OPERATOR-AND-REHABIL-20260813"/>
-    <updated>2026-10-27T15:49:50.002826+00:00</updated>
-    <summary>Facilities: Coventry Operations RI LLC DBA Respiratory and Reh; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ad5e1fbb-a354-4bf2-a575-9295291151e6</id>
-    <title>Westerly Nursing and Rehab LLC and 79 Beach Street LLC to acquire Royal of Westerly Nursing Center from Royal Westerly (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-WESTERLY-NURSING-AND-REHAB-LLC-AND-79-BEACH-STREET-LLC-20260724"/>
-    <updated>2026-10-27T15:49:49.991179+00:00</updated>
-    <summary>Facilities: Royal of Westerly Nursing Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a6d90330-f672-421f-9d75-bfc1149d29f7</id>
-    <title>Middletown Nursing and Rehab LLC and 193 Forest Avenue LLC to acquire Royal Middletown Nursing Center from Royal Middletown Nursing Center LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-MIDDLETOWN-NURSING-AND-REHAB-LLC-AND-193-FOREST-AVENUE-LLC-20260724"/>
-    <updated>2026-10-27T15:49:49.979617+00:00</updated>
-    <summary>Facilities: Royal Middletown Nursing Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:cb85f010-0578-4ad7-9021-dbd57d950484</id>
-    <title>Sunny View Opco LLC and Sunny View Propco LLC to acquire Sunny View Nursing Home from 83 Corona Street Eden Operations LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-SUNNY-VIEW-OPCO-LLC-AND-SUNNY-VIEW-PROPCO-LLC-20260521"/>
-    <updated>2026-10-27T15:49:49.968864+00:00</updated>
-    <summary>Facilities: Sunny View Nursing Home; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7055758a-8014-4ae3-a5a7-f07eade0b339</id>
-    <title>South County Opco LLC and South County Propco LLC to acquire South County Eden Operations LLC DBA Lakeside Nurs from South County Eden Operations LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-SOUTH-COUNTY-OPCO-LLC-AND-SOUTH-COUNTY-PROPCO-LLC-20260521"/>
-    <updated>2026-10-27T15:49:49.958050+00:00</updated>
-    <summary>Facilities: South County Eden Operations LLC DBA Lakeside Nurs; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e777f83f-2acd-4da3-ad6c-ac82f81a45f8</id>
-    <title>Kent Regency Center Opco, LLC to acquire Kent Regency Center (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-KENT-REGENCY-CENTER-OPCO-LLC-20260331"/>
-    <updated>2026-10-27T15:49:49.947272+00:00</updated>
-    <summary>Facilities: Kent Regency Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ad90516d-e73a-4103-bf7f-b1a44a7b6b5e</id>
-    <title>333 Green End Avenue Opco, LLC to acquire Grand Islander Center (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-333-GREEN-END-AVENUE-OPCO-LLC-20260331"/>
-    <updated>2026-10-27T15:49:49.935534+00:00</updated>
-    <summary>Facilities: Grand Islander Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6377b8d9-a8c6-47c7-b1be-2d923d0df942</id>
-    <title>100 Chambers Street Opco, LLC to acquire Grandview Center (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-100-CHAMBERS-STREET-OPCO-LLC-20260331"/>
-    <updated>2026-10-27T15:49:49.886107+00:00</updated>
-    <summary>Facilities: Grandview Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:979a66d8-dd88-45a7-beab-af7f1dda63f4</id>
-    <title>AdviniaCare Scallop Shell to acquire AdviniaCare Scallop Shell, LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-ADVINIACARE-SCALLOP-SHELL-20260109"/>
-    <updated>2026-10-27T15:49:49.873977+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: AdviniaCare Scallop Shell, LLC; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e2f8c2b5-55ed-47e0-b41d-1642ece31d84</id>
-    <title>Pascoag Crystal Lake Rehab Center LLC to acquire Crystal Lake Rehabilitation and Care Center (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-PASCOAG-CRYSTAL-LAKE-REHAB-CENTER-LLC-20250922"/>
-    <updated>2026-10-27T15:49:49.860408+00:00</updated>
-    <summary>Facilities: Crystal Lake Rehabilitation and Care Center; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:242ea19f-8e3e-4e94-a96d-a89bac86f0eb</id>
-    <title>Holiday Operator LLC and Holiday Property LLC to acquire Holiday Operator, LLC DBA Holiday Rehabilitation a (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-HOLIDAY-OPERATOR-LLC-AND-HOLIDAY-PROPERTY-LLC-20250922"/>
-    <updated>2026-10-27T15:49:49.844147+00:00</updated>
-    <summary>Effective 2026-06-11; Facilities: Holiday Operator, LLC DBA Holiday Rehabilitation a; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:47445325-b3e6-4ca7-bf1e-54c5b42c1530</id>
-    <title>Cortland dba Stillwater to acquire Stillwater Assisted Living and Skilled Nursing Com (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-CORTLAND-DBA-STILLWATER-20240329"/>
-    <updated>2026-10-27T15:49:49.352145+00:00</updated>
-    <summary>Facilities: Stillwater Assisted Living and Skilled Nursing Com; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5e917e44-c2fd-46b8-8476-ba247ba83111</id>
-    <title>MONTICELLOAM finances 12 facilities in MA, RI (MA, RI)</title>
-    <link href="https://skillednursingnews.com/2026/10/large-east-coast-nursing-home-chain-acquires-12-facility-portfolio-with-180m-in-financing/"/>
-    <updated>2026-10-27T15:45:05.281626+00:00</updated>
-    <summary>$180.00M financing; Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:234e94bb-1ccf-47a0-bc73-ce4da287a6ce</id>
-    <title>Pending lease: Madison Court (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-madison-canton-madison-county-20261022"/>
-    <updated>2026-10-27T15:44:57.799516+00:00</updated>
-    <summary>Effective 2026-10-22; Facilities: Madison Court; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:dd8ded6b-f452-4603-aa6b-f5e9618e1c4c</id>
-    <title>Pending lease: Rolling Hills Developmental Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-rolling-starkville-oktibbeha-county-20261022"/>
-    <updated>2026-10-27T15:44:57.795136+00:00</updated>
-    <summary>Effective 2026-10-22; Facilities: Rolling Hills Developmental Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:263bdbf3-46d1-4536-9ba5-c9d8d6b59e67</id>
-    <title>Pending lease: Lincoln Residential Center (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-lincoln-brookhaven-lincoln-county-20261022"/>
-    <updated>2026-10-27T15:44:57.790998+00:00</updated>
-    <summary>Effective 2026-10-22; Facilities: Lincoln Residential Center; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9db4af80-223a-4776-8931-a72bace12a23</id>
-    <title>Pending lease: Delta Manor (MS)</title>
-    <link href="https://msdh.ms.gov/page/30,0,84,863.html#chow-delta-clarksdale-coahoma-county-20261022"/>
-    <updated>2026-10-27T15:44:57.786244+00:00</updated>
-    <summary>Effective 2026-10-22; Facilities: Delta Manor; Source: Mississippi MSDH CON Weekly Reports</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c797b1af-62e6-47bc-bc38-0c3ba231786f</id>
-    <title>Dwight Capital finances acquisition of a facility in OH (OH)</title>
-    <link href="https://pulse2.com/dwight-capital-and-dwight-investment-management-close-607-million-in-seniors-housing-financings-during-q3-2026/"/>
-    <updated>2026-10-26T19:31:43.380481+00:00</updated>
-    <summary>$46.50M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c9059874-9149-48bc-83c6-e56a590099b6</id>
-    <title>299 Commerce Realty LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7063893"/>
-    <updated>2026-10-26T17:39:20.041436+00:00</updated>
-    <summary>Effective 2026-02-19; Facilities: 299 Commerce Realty LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:91bebf7f-66da-42e2-a33f-ba2812b2b112</id>
-    <title>5700 KARL ROAD, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7012585"/>
-    <updated>2026-10-26T17:39:19.310077+00:00</updated>
-    <summary>Effective 2025-12-09; Facilities: 5700 KARL ROAD, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c6b38bc6-0d51-4794-83d4-f31296b9a153</id>
-    <title>WILLOW NURSING LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7198148"/>
-    <updated>2026-10-26T17:39:18.780225+00:00</updated>
-    <summary>Effective 2026-08-04; Facilities: WILLOW NURSING LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6a69316c-0440-460b-ba02-b1859d3e80c0</id>
-    <title>NORTH LIMA 44 LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7198133"/>
-    <updated>2026-10-26T17:39:18.113757+00:00</updated>
-    <summary>Effective 2026-08-04; Facilities: NORTH LIMA 44 LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:edc86e56-c0cf-4390-abf6-5f28596d9afe</id>
-    <title>OBS OF OH LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7138448"/>
-    <updated>2026-10-26T17:39:17.637098+00:00</updated>
-    <summary>Effective 2026-05-19; Facilities: OBS OF OH LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5f3f1568-a70c-4fd6-9cf0-5a8e75bba2b8</id>
-    <title>PEARLVIEW PROPCO LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7030378"/>
-    <updated>2026-10-26T17:39:16.809179+00:00</updated>
-    <summary>Effective 2026-01-02; Facilities: PEARLVIEW PROPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5de0dc70-17c0-4b6d-989d-d6edf7186125</id>
-    <title>COLERAIN CARE CENTER PROPCO LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7262866"/>
-    <updated>2026-10-26T17:39:14.066024+00:00</updated>
-    <summary>Effective 2026-10-22; Facilities: COLERAIN CARE CENTER PROPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:399def03-5e18-417a-85b4-54faa5a1cdd6</id>
-    <title>LIBERTY PROPCO HOLDINGS LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7262935"/>
-    <updated>2026-10-26T17:39:13.131820+00:00</updated>
-    <summary>Effective 2026-10-22; Facilities: LIBERTY PROPCO HOLDINGS LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4b7aabf9-8f9d-4561-9952-c31fbf9ccbbb</id>
-    <title>Garden Lake SNF Realty Holdings LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7151915"/>
-    <updated>2026-10-26T17:39:11.960073+00:00</updated>
-    <summary>Effective 2026-06-04; Facilities: Garden Lake SNF Realty Holdings LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d819033e-df1f-4f17-8817-a3b5f970c17d</id>
-    <title>Garden Lake SNF Operation LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7151124"/>
-    <updated>2026-10-26T17:39:10.906394+00:00</updated>
-    <summary>Effective 2026-06-03; Facilities: Garden Lake SNF Operation LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9f1fd48f-cfb0-4f06-9256-ae4ddc920e5a</id>
-    <title>Merit House Realty LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7130343"/>
-    <updated>2026-10-26T17:39:10.200802+00:00</updated>
-    <summary>Effective 2026-05-08; Facilities: Merit House Realty LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7735d130-1e49-4483-bb87-795fb1282376</id>
-    <title>Merit House Rehab and Nursing LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7130150"/>
-    <updated>2026-10-26T17:39:09.648552+00:00</updated>
-    <summary>Effective 2026-05-08; Facilities: Merit House Rehab and Nursing LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:66ef08a2-8975-4121-8909-37344fb4269d</id>
-    <title>SOLON HOLDING, LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7147607"/>
-    <updated>2026-10-26T17:39:08.944243+00:00</updated>
-    <summary>Effective 2026-05-29; Facilities: SOLON HOLDING, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c65000f2-750f-4721-8bab-004810d670fc</id>
-    <title>AJ R&amp;R HOLDING COMPANY LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7103850"/>
-    <updated>2026-10-26T17:39:08.068379+00:00</updated>
-    <summary>Effective 2026-04-08; Facilities: AJ R&amp;R HOLDING COMPANY LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ca015428-ab71-4ec8-89b8-9d9e031f5e6e</id>
-    <title>CLYDEWATER OPCO HOLDCO LLC — UCC-1 financing (OH)</title>
-    <link href="https://ucc.ohiosos.gov/company-profile/search/7103832"/>
-    <updated>2026-10-26T17:39:07.167672+00:00</updated>
-    <summary>Effective 2026-04-08; Facilities: CLYDEWATER OPCO HOLDCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:59a9d4be-265f-4211-bd31-9bfc11e53043</id>
-    <title>MAHONING REALTY LLC — UCC-1 financing (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-10-26T17:37:45.025267+00:00</updated>
-    <summary>Effective 2025-09-12; Facilities: MAHONING REALTY LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
