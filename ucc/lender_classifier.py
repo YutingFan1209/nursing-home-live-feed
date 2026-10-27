@@ -307,6 +307,13 @@ EXCLUDE_PATTERNS.extend([
     r"\bkelley create\b",
 ])
 
+# Service suppliers on MO's first image-read run (2026-10-27): transport,
+# laundry, office equipment and HVAC liens on operators
+EXCLUDE_PATTERNS.extend([
+    r"\bexpress medical transportation\b", r"\bclean laundry funding\b",
+    r"\baccess systems\b", r"\brj kool\b",
+])
+
 # HUD loans are healthcare RE financing — acquisition relevant
 KNOWN_HEALTHCARE_REITS.update([
     "secretary of housing and urban development",

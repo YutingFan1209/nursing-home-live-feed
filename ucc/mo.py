@@ -86,9 +86,10 @@ def rows_to_filings(rows: list, query: str) -> list[UCCFiling]:
             filing_number=row["fileNo"],
             filing_date=_date(row.get("date")),
             filing_type="UCC-3" if form.startswith("UCC3") else "UCC-1",
-            collateral_description=(row.get("parsed") or {}).get("collateral"),
             status="lapsed" if (row.get("status") or "").lower() == "lapsed" else "active",
             source_url=SEARCH_PAGE,
-            raw={"query_name": query, "address": row.get("address"), "lapse_status": row.get("status")},
+            # Not collateral_description: main.py reads that field as facility names
+            raw={"query_name": query, "address": row.get("address"), "lapse_status": row.get("status"),
+                 "collateral": (row.get("parsed") or {}).get("collateral")},
         ))
     return filings

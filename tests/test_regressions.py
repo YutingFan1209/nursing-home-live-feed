@@ -1212,4 +1212,13 @@ def test_mo_rows_need_a_secured_party_from_the_image():
              "status": "Unlapsed"}]                     # older than 2 years: no image, so no lender
     f, = rows_to_filings(rows, "ASPIRE SENIOR LIVING ADVANCE")
     assert (f.secured_party_name, f.filing_type, f.filing_date) == ("Advance Real Estate, Inc.", "UCC-1", date(2025, 12, 9))
-    assert f.status == "active" and f.collateral_description == "Tenant Items"
+    assert f.status == "active" and f.raw["collateral"] == "Tenant Items"
+    assert f.collateral_description is None     # main.py would read it as facility names
+
+
+def test_mo_service_supplier_liens_are_not_deals():
+    from ucc.lender_classifier import classify_secured_party, LenderCategory
+    for name in ["Express Medical Transportation LLC", "Clean Laundry Funding, a division of Western State Bank",
+                 "Access Systems, Inc", "RJ Kool Company"]:
+        assert classify_secured_party(name).category == LenderCategory.EQUIPMENT_VENDOR, name
+    assert classify_secured_party("CAPITAL FINANCE, LLC, AS AGENT").category != LenderCategory.EQUIPMENT_VENDOR
