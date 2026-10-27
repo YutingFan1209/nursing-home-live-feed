@@ -279,6 +279,27 @@ Every state not covered above, checked the same way (single-page fetches, then a
 
 **What the backtest turned up instead:** the CMS monthly ownership file is itself a better post-closing signal than CHOW. Nationally, **211 facilities** got a new 5%+ direct owner with a start date in 2025-08 → 2026-08, and **116 of them aren't linked to any tracker deal.** Start dates run to 2026-08-01 in the 2026-09 refresh, so the lag is about 1–2 months, versus months for the CHOW file (still stuck at effective date 2026-02-01). Caveats: some new owners are restructurings or trust reshuffles rather than sales, and counting only *direct*-ownership roles undercounts. **Built 2026-09-30** as `scraper/cms_owner_changes.py` (see `docs/data-sources.md`, CMS Ownership Changes).
 
+## The 25 "CON but not built" states, re-searched (2026-10-27)
+
+AK, AR, CT, DC, DE, FL, GA, IA, IN, KY, MA, MN, MO, MT, NE, NV, OH, OR, RI, SC, TN, VA, VT, WA, WV all have a CON law, but most use it for beds and buildings only. This pass looked for *any* public record of a nursing home sale, CON or not.
+
+| State | Found | Buyer named? | Status |
+|---|---|---|---|
+| **RI** | OHSD [pending-requests Google Sheet](https://health.ri.gov/health-systems/ridoh-programs/health-systems-development-office): every change-in-effective-control request, one tab per year back to 2007 | ✅ applicant opco/propco, plus seller and beds | **Built** (`scraper/con_ri.py`) |
+| **MT** | DPHHS [yearly CON report PDF](https://dphhs.mt.gov/oig/licensure/healthcarefacilitylicensure/certificateofneed/): non-reviewable "CHOW" rows since 2025, plus monthly LOI legal notices | ❌ facility + town | **Built** (`scraper/con_mt.py`) |
+| **TN** | HFC [monthly agenda](https://www.tn.gov/hfc/commission-meeting-information/monthly-meeting-information.html): "Qualifying Applications – CHOWs – Nursing Homes" by facility, with a scanned letter per CHOW; ratified *after* the effective date | ⚠️ letter is scanned (likely names the licensee) | Not built: tn.gov 403s every non-browser client (bot wall) |
+| **MO** | No filing, but the state's licence list on [data.mo.gov (fenu-sipv)](https://data.mo.gov/Health/LTC-Directory/fenu-sipv) has licensee ("Entity Name"), licence effective date and CCN, updated ~monthly. 2026-10-05 copy: ~25 homes moved to "… SNF OPCO LLC" licensees on 6/1/2026 and an N&R batch on 7/1/2026, none in the feed | ✅ new licensee (an opco, not the parent) | Candidate: licence-list diff |
+| KY | Acquisitions need 30-day notice (KRS 216B.065); newsletter DOCX links 404'd to curl this pass | ? | Recheck in a browser |
+| MA | Buyer advertises in a local paper + the home's website (105 CMR 153.022); DPH posts only enforcement (e.g. RegalCare, 10/2026) | — | No public list |
+| CT | PA 23-122 CHOW approval; [data.ct.gov rm6f-b9qj](https://data.ct.gov/api/views/rm6f-b9qj/rows.csv?accessType=DOWNLOAD) registry is annual and has no licensee | — | No public list |
+| GA | DCH weekly tracking reports list letters of determination, almost all imaging | — | No |
+| WV | HCA exemption to acquire a SNF (§16-2D-11); no posted decisions found | — | FOIA archive only |
+| MN | MDH directory data file exists (site 403s scripts) | ? | Check licensee field in a browser |
+| IA, AK, NE, NV, VT, DC | CON is beds/new builds; sales notified privately | — | No |
+| AR, DE, FL, IN, OH, OR, SC, VA, WA | Unchanged from the 2026-09 research above | — | No |
+
+**Licence lists as the fallback.** Where the sale itself isn't published, a state licence list with a licensee column (and ideally a licence date) can show it: a new licensee on a CMS-listed home. Found so far: CA (CDPH facility file, `BUSINESS_NAME`), MO (above), NY (HFIS operator), FL (HealthFinder owner / owner-since). Each would be a weekly diff against the previous copy plus CMS legal names.
+
 ## Unverified / open items
 
 - **OK:** location of "The Notice" index page; how long the Aug/Sep 2026 issues take to post.

@@ -41,6 +41,8 @@ from scraper.con_phl import fetch_con_phl_notices, CON_PHL_SOURCE_NAME, CON_PHL_
 from scraper.con_me import fetch_con_me_cases, CON_ME_SOURCE_NAME, CON_ME_INDEX_URL
 from scraper.con_il import fetch_con_il_projects, CON_IL_SOURCE_NAME, CON_IL_INDEX_URL
 from scraper.con_hi import fetch_con_hi_deals, CON_HI_SOURCE_NAME, CON_HI_INDEX_URL
+from scraper.con_ri import fetch_con_ri_deals, CON_RI_SOURCE_NAME, CON_RI_INDEX_URL
+from scraper.con_mt import fetch_con_mt_deals, CON_MT_SOURCE_NAME, CON_MT_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
 from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
@@ -586,6 +588,35 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         )
         for deal in fetch_con_hi_deals(lambda url: _article_exists(url, conn)):
             deal["source_id"] = con_hi_source_id
+            new_articles.append(deal)
+
+        # Rhode Island OHSD: change-in-effective-control requests, buyer
+        # named, months before closing (public Google Sheet)
+        con_ri_source_id = _ensure_source(
+            type("S", (), {"name": CON_RI_SOURCE_NAME,
+                           "url": CON_RI_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("SELECT provider_name, provider_address, ccn FROM cms_facilities WHERE provider_state = 'RI'")
+            ri_homes = [row for row in cur.fetchall() if row[0]]
+        for deal in fetch_con_ri_deals(lambda url: _article_exists(url, conn), ri_homes):
+            deal["source_id"] = con_ri_source_id
+            new_articles.append(deal)
+
+        # Montana DPHHS: CHOW notices in the yearly CON report PDF (no buyer)
+        con_mt_source_id = _ensure_source(
+            type("S", (), {"name": CON_MT_SOURCE_NAME,
+                           "url": CON_MT_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("SELECT provider_name, provider_city, ccn FROM cms_facilities WHERE provider_state = 'MT'")
+            mt_homes = [row for row in cur.fetchall() if row[0]]
+        for deal in fetch_con_mt_deals(lambda url: _article_exists(url, conn), mt_homes):
+            deal["source_id"] = con_mt_source_id
             new_articles.append(deal)
 
         con_mi_source_id = _ensure_source(

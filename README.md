@@ -60,6 +60,8 @@ Filings a buyer makes with a state *before* a nursing home changes hands — usu
 | NY `scraper/con_ny.py` | PHHPC establishment exhibit, 2–4 weeks before the council vote | Yes | Agenda PDF → Claude (`ENABLE_CON_NY`) |
 | IL `scraper/con_il.py` | HFSRB county-home sale (most IL sales need no CON) | Yes | Scanned application → Claude |
 | HI `scraper/con_hi.py` | SHPDA CON application to acquire | Yes (address, not name) | HTML table, no Claude |
+| RI `scraper/con_ri.py` | OHSD change-in-effective-control request, months pre-close | Yes | Public Google Sheet (CSV), no Claude |
+| MT `scraper/con_mt.py` | DPHHS monthly CON report, CHOW rows | No | PDF table, no Claude |
 
 Scanned PDFs are transcribed by Claude (`pipeline/pdf_text.py`) — there's no system OCR on the pipeline machine. Research and build order for the other states: [`docs/con-feasibility.md`](docs/con-feasibility.md).
 

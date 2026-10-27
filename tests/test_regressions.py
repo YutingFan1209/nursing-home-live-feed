@@ -456,6 +456,55 @@ def test_hi_nursing_acquisitions_only():
     assert rows[0]["applicant"] == "Hawaii Health Systems Corporation-Oahu Region" and rows[0]["decision_url"]
 
 
+# ── Rhode Island OHSD change-in-effective-control sheet (2026-10-27) ──────
+
+from scraper.con_ri import decision_party, is_nursing_home, match_facility, parse_cec_rows
+
+
+def test_ri_cec_rows_nursing_homes_and_buyer():
+    sheet = (",Annual Report of Reviews 2026*,,,,,,,\n"
+             "Change in Effective Control,,,,,,,,\n"
+             "Applicant,Project Description,Date Application Filed/Resubmitted,Deficiency Letter,Review Commenced,"
+             "Comment Period**,HSC Recommendation***,State Agency's Decision,Audio\n"
+             '"Grove Opco, LLC",Change in Effective Control 10 Elm Street Operations d/b/a Elm Center,'
+             "3/31/2026,4/27/2026,STATUS: Pending Completeness Review,,,,\n"
+             "Home Agency LLC,\"Change in Effective Control of Helping Hands, a licensed home care provider located in "
+             'East Providence",2/19/2026,,,,,,\n'
+             '"Maple Health Center, Inc.",Change in Effective Control Maple Nursing & Rehabilitation Center,8/9/2024,TBD,'
+             "Review,,11/19/2024 Pine Concepts 6 CEC Applications Report Adopted,"
+             "12/12/2024 Pine Concepts 6 CEC Applications State agency decision letter,\n"
+             "Initial Licensure,,,,,,,,\n"
+             "Someone,Proposes a nursing facility,1/1/2026,,,,,,\n")
+    rows = parse_cec_rows(sheet)
+    assert [r["applicant"] for r in rows] == ["Grove Opco, LLC", "Home Agency LLC", "Maple Health Center, Inc."]
+    homes = [("Elm Center", "10 Elm Street"), ("Providence Pines Rehab Center", "1 Oak Road")]
+    # Matched by street address, though the text never says "nursing"
+    assert match_facility(rows[0], homes) == "Elm Center" and is_nursing_home(rows[0], "Elm Center")
+    # A town word ("Providence") is not a match; home care is not a nursing home
+    assert match_facility(rows[1], homes) is None and not is_nursing_home(rows[1], None)
+    # The applicant is the home's own company; the decision names the buyer
+    assert is_nursing_home(rows[2], None) and decision_party(rows[2]) == "Pine Concepts"
+    assert decision_party(rows[0]) is None
+
+
+# ── Montana DPHHS CON monthly reports (2026-10-27) ────────────────────────
+
+from scraper.con_mt import parse_chows
+
+
+def test_mt_chow_rows_split_from_run_together_cells():
+    text = ("Benefis Health System Great Falls Construct a new facility $13,065,106 5/6/26 May "
+            "Pine Ridge Cut Bank CHOW N/A 5/28/26 N/A N/A 5/29/26 NR N/A "
+            "Aspen Healthcare and Rehabilitation Clancy CHNOW N/A 7/30/26 Page 2 of 2 "
+            "Ivy at Deer Lodge Deer Lodge CHOW N/A 6/26/25")
+    rows = parse_chows(text, {"CUT BANK", "CLANCY", "DEER LODGE", "GREAT FALLS"})
+    assert [(r["facility"], r["town"], r["received"].date().isoformat()) for r in rows] == [
+        ("Pine Ridge", "Cut Bank", "2026-05-28"),
+        ("Aspen Healthcare and Rehabilitation", "Clancy", "2026-07-30"),
+        ("Ivy at Deer Lodge", "Deer Lodge", "2025-06-26"),
+    ]
+
+
 def test_stuck_tab_close_doesnt_hang_the_ucc_run(monkeypatch):
     """2026-10-13: NY finished all its searches, then hung for 10 minutes
     on two tabs' page.close() (a Turnstile frame was still on them).
