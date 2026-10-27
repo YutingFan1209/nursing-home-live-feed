@@ -4,7 +4,42 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-27T16:38:56.597860+00:00</updated>
+  <updated>2026-10-27T17:12:10.293616+00:00</updated>
+  <entry>
+    <id>urn:uuid:48c89d72-b869-417e-aa02-502c0c4ea50c</id>
+    <title>VILLA SPRINGFIELD REHABILITATION AND HEALTHCARE CENTER LLC — acquisition financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/4758244"/>
+    <updated>2026-10-27T17:11:16.169239+00:00</updated>
+    <summary>Effective 2018-09-20; Facilities: VILLA SPRINGFIELD REHABILITATION AND HEALTHCARE CENTER LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ae03e2c8-29b5-495a-a131-34ff04945390</id>
+    <title>Twilight Healthcare, LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7240706"/>
+    <updated>2026-10-27T17:11:16.151750+00:00</updated>
+    <summary>Effective 2026-09-24; Facilities: Twilight Healthcare, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2bc60b1b-b1b9-48f4-a2c7-1fb4d8d8e6e0</id>
+    <title>Shaker Gardens Opco LLC — acquisition financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/4652000"/>
+    <updated>2026-10-27T17:11:14.752656+00:00</updated>
+    <summary>Effective 2018-05-22; Facilities: Shaker Gardens Opco LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:07029dd3-20df-48dd-9f57-cc09dcd43aff</id>
+    <title>HAMILTON ASSETS LLC, HAMILTON NURSING LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/6930024"/>
+    <updated>2026-10-27T17:11:11.176800+00:00</updated>
+    <summary>Effective 2025-08-20; Facilities: HAMILTON ASSETS LLC, HAMILTON NURSING LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ff00b1d5-e881-46ed-9bf0-166159a667be</id>
+    <title>Hamilton Nursing LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7172778"/>
+    <updated>2026-10-27T17:11:10.238954+00:00</updated>
+    <summary>Effective 2026-06-30; Facilities: Hamilton Nursing LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:1e3ad8be-6936-4d6a-b2e5-c980e59ff5b1</id>
     <title>TAYLOR SNF OPCO LLC acquires VIVO HEALTHCARE TAYLOR from THE FANNIE E. TAYLOR HOME FOR THE AGED - CARE CENTER, INC. (FL)</title>
@@ -319,40 +354,5 @@
     <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265558-nathan-richard-snf-opco"/>
     <updated>2026-10-27T15:57:52.453614+00:00</updated>
     <summary>Effective 2026-06-01; Facilities: NATHAN RICHARD HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7ab3a2fd-a07e-4788-9c6f-3e58b7af52ac</id>
-    <title>CURRENT RIVER REHABILITATION &amp; HEALTH CARE CENTER LLC acquires CURRENT RIVER REHABILITATION &amp; HEALTH CARE CENTER from CURRENT RIVER NURSING CENTER, INC. (MO)</title>
-    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265504-current-river-rehabilitation-and-health-care-center"/>
-    <updated>2026-10-27T15:57:52.442616+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: CURRENT RIVER REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:99f44ef8-504b-4a2c-8387-d04ee399e632</id>
-    <title>PORTAGEVILLE SNF OPCO LLC acquires PORTAGEVILLE HEALTH CARE CENTER from PORTAGEVILLE HEALTH CARE CENTER LLC (MO)</title>
-    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265549-portageville-snf-opco"/>
-    <updated>2026-10-27T15:57:52.432330+00:00</updated>
-    <summary>Effective 2026-06-01; Facilities: PORTAGEVILLE HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9855848b-da0d-4c6e-adb5-523fe61f87cc</id>
-    <title>GLENWOOD REHABILITATION &amp; HEALTH CARE CENTER LLC acquires GLENWOOD REHABILITATION &amp; HEALTH CARE CENTER from N &amp; R OF SEYMOUR, INC. (MO)</title>
-    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265608-glenwood-rehabilitation-and-health-care-center"/>
-    <updated>2026-10-27T15:57:52.421619+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: GLENWOOD REHABILITATION &amp; HEALTH CARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fbfb3199-3c23-4f9e-a547-4cbbf2d3b0fa</id>
-    <title>STONECREST SNF OPCO LLC acquires STONECREST HEALTHCARE from MMA HEALTHCARE OF VIBURNUM INC (MO)</title>
-    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265582-stonecrest-snf-opco"/>
-    <updated>2026-10-27T15:57:52.411067+00:00</updated>
-    <summary>Effective 2026-06-01; Facilities: STONECREST HEALTHCARE; Source: Missouri DHSS Long-Term Care Licence List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:882034d1-e0ce-41a0-8c64-991629debb32</id>
-    <title>WESTVIEW SNF OPCO LLC acquires WESTVIEW NURSING HOME from MMA HEALTHCARE OF CENTER, INC. (MO)</title>
-    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265423-westview-snf-opco"/>
-    <updated>2026-10-27T15:57:52.400683+00:00</updated>
-    <summary>Effective 2026-06-01; Facilities: WESTVIEW NURSING HOME; Source: Missouri DHSS Long-Term Care Licence List</summary>
   </entry>
 </feed>
