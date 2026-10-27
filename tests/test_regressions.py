@@ -534,6 +534,26 @@ def test_tn_agenda_chows_and_application_parties():
     assert match_ccn(rows[0], homes) == "445506"
 
 
+def test_fl_licence_list_matched_to_cms_by_address():
+    """2026-10-27: Florida's AHCA list has no CCN. Homes match CMS by street
+    number + street in the same city ("ST PETERSBURG" is "SAINT PETERSBURG",
+    "490 SOUTH OLD WIRE RD" is "490 S OLD WIRE RD"), then by name; two AHCA
+    licences on one CMS home are left unmatched."""
+    from scraper.licence_lists import match_ccns
+    homes = [("APOLLO HEALTH AND REHABILITATION CENTER", "1000 24TH ST N", "SAINT PETERSBURG", "105001"),
+             ("CYPRESS CARE CENTER", "490 S OLD WIRE RD", "WILDWOOD", "105002"),
+             ("DEERFIELD BEACH HEALTH AND REHABILITATION CENTER", "401 E SAMPLE ROAD", "DEERFIELD BEACH", "105003"),
+             ("TWIN ONE", "1 MAIN ST", "OCALA", "105004")]
+    rows = [{"facility": "APOLLO HEALTHCARE & REHABILITATION CENTER", "address": "1000 24TH STREET N,", "city": "ST PETERSBURG"},
+            {"facility": "CYPRESS CARE CENTER AND REHAB", "address": "490 SOUTH OLD WIRE RD", "city": "WILDWOOD"},
+            {"facility": "DEERFIELD BEACH HEALTH AND REHABILITATION CENTER", "address": "", "city": "DEERFIELD BCH"},
+            {"facility": "TWIN ONE", "address": "1 MAIN ST", "city": "OCALA"},
+            {"facility": "TWIN ONE ANNEX", "address": "1 MAIN STREET", "city": "OCALA"},
+            {"facility": "NOT IN CMS", "address": "9 ELM ST", "city": "OCALA"}]
+    match_ccns(rows, homes)
+    assert [r["ccn"] for r in rows] == ["105001", "105002", "105003", None, None, None]
+
+
 def test_licence_list_new_licensee_not_spelling():
     """2026-10-27: MO's licence list names each home's licensee. Spelling,
     "#1" and 40-character truncation aren't a new licensee; CMS legal names
