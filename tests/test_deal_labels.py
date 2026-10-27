@@ -463,3 +463,53 @@ def test_pending_state_filing_shows_the_current_licensee_not_a_seller():
     assert label(old, cms, d["facility_names"], today=TODAY)["current_licensee"] is None
     own = {**d, "acquiring_entity": "Seaside Operations, LLC"}  # the licensee is the buyer
     assert label(own, cms, d["facility_names"], today=TODAY)["current_licensee"] is None
+
+
+# ── State records made after closing (2026-10-27 spot check) ─────────────
+
+def _licence(ccn, home, buyer, seller, when="2026-06-01", state="MO"):
+    return {"id": f"lic-{ccn}", "deal_type": "ownership_change", "source_type": "con", "status": "reported",
+            "source_url": f"https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-{ccn}-x",
+            "acquisition_date": when, "buyer": buyer, "seller": seller, "facility_names": [home],
+            "ccns": [ccn], "states": [state], "created_at": "2026-10-27T00:00:00"}
+
+
+def test_licence_and_tn_records_are_after_closing_not_pending():
+    from pipeline.deal_labels import status
+    d = _licence("265530", "CAPITOL RIVER WELLNESS", "JEFFERSON CITY WELLNESS LLC", "OLD LLC", when="2025-11-01")
+    s = status(d, None, TODAY)
+    assert s["status"] == "reported" and "before closing" not in s["status_detail"]
+    tn = {**d, "source_url": "https://www.tn.gov/hfc/commission-meeting-information/monthly-meeting-information.html"
+                             "#chow-iris-cove-20251210"}
+    assert "ratified" in status(tn, None, TODAY)["status_detail"]
+    # Montana's notices come before closing and still age into Unconfirmed
+    mt = {**d, "source_url": "https://dphhs.mt.gov/x#chow-ivy-20250626", "acquisition_date": "2025-06-26"}
+    assert status(mt, None, TODAY)["status"] == "unconfirmed"
+
+
+def test_tn_ratification_groups_with_chow_despite_holding_company_name():
+    tn = {**_licence("445481", "IRIS COVE", "MEMPHIS 2 OPCO HOLDCO LLC", None, when="2025-12-10"),
+          "source_url": "https://www.tn.gov/hfc/commission-meeting-information/monthly-meeting-information.html#chow-x"}
+    chow = {**_licence("445481", "IRIS COVE", "QUINCE SNF OPERATIONS LLC", None, when="2025-11-01"),
+            "id": "chow-1", "source_type": "chow", "source_url": "https://data.cms.gov/x", "status": "confirmed"}
+    assert same_deal(tn, chow) == "same CMS facility"
+    # two news stories naming different buyers for one home stay apart
+    a = {**tn, "source_type": "rss", "source_url": "https://news/x"}
+    assert same_deal(a, chow) is None
+
+
+def test_licence_batch_becomes_one_card():
+    rows = [_licence(f"26{i}", f"{n} HEALTH CARE CENTER", f"{n} SNF OPCO LLC", f"{n} HEALTH CARE CENTER LLC")
+            for i, n in enumerate(["REST HAVEN", "PARKWAY", "BRIDGEWOOD"])]
+    lone = _licence("269", "VENICE HEALTH AND REHABILITATION CENTER", "VENICE HEALTH AND REHAB LLC", "VENICE FL OPCO LLC")
+    deals = rows + [lone]
+    group(deals, {})
+    lead = next(d for d in rows if not d.get("grouped_into"))
+    assert lead["group_size"] == 3 and lead["facility_count"] == 3 and lead["buyer"] is None
+    assert "SNF OPCO" in "".join(t for t, _ in lead["headline"])
+    assert "restructuring" in lead["status_detail"]
+    assert lone["group_size"] == 1
+    # two homes on one template isn't a batch
+    pair = [_licence(f"27{i}", f"{n} CARE", f"{n} SNF OPCO LLC", f"{n} CARE LLC") for i, n in enumerate(["A1", "B2"])]
+    group(pair, {})
+    assert all(d["group_size"] == 1 for d in pair)

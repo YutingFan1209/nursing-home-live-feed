@@ -27,6 +27,7 @@ from datetime import date
 
 import re
 
+from pipeline.deal_labels import after_closing
 from pipeline.dedup import _completeness_score, normalize_acquirer
 
 WINDOW_DAYS = 183
@@ -64,9 +65,14 @@ def same_deal(a: dict, b: dict) -> str | None:
     if not da or not db or abs((da - db).days) > WINDOW_DAYS:
         return None
     ba, bb = a.get("buyer"), b.get("buyer")
-    if ba and bb and not _agree(ba, bb):
+    shared = set(a.get("ccns") or []) & set(b.get("ccns") or [])
+    # A state record made after a sale CMS's CHOW file has: the state names a
+    # holding company, CMS the operator (Iris Cove, TN, 2026-10-27)
+    ratifies = shared and {a.get("source_type"), b.get("source_type")} == {"chow", "con"} and (
+        after_closing(a) or after_closing(b))
+    if ba and bb and not _agree(ba, bb) and not ratifies:
         return None
-    if set(a.get("ccns") or []) & set(b.get("ccns") or []):
+    if shared:
         return "same CMS facility"
     if not (ba and bb):
         return None
@@ -91,6 +97,43 @@ def _source_entry(d: dict) -> dict:
             "headline": "".join(t for t, _ in d.get("headline") or [])}
 
 
+# Words of a licensee's name that aren't its home's name or a naming template
+_PLAIN = {"HEALTH", "HEALTHCARE", "CARE", "CENTER", "CENTRE", "REHAB", "REHABILITATION", "NURSING", "AND",
+          "OF", "AT", "LLC", "INC", "LP", "LTD", "CORP", "PLLC"}
+BATCH_MIN = 3
+
+
+def batch_key(d: dict) -> tuple | None:
+    """Licence-list records whose new licensees share a naming template
+    ("Rest Haven SNF Opco LLC", "Parkway SNF Opco LLC") on one date: one
+    owner moving many homes at once (2026-10-27: 32 Missouri homes to
+    "... SNF OPCO LLC" on 6/1/2026). The template is the licensee's name
+    less its home's and the previous licensee's words."""
+    if "#licensee-" not in (d.get("source_url") or "") or not d.get("buyer") or not d.get("acquisition_date"):
+        return None
+    place = set(name_key(" ".join((d.get("facility_names") or []) + [d.get("seller") or ""])).split())
+    rest = [w for w in name_key(d["buyer"]).split() if w not in place and w not in _PLAIN]
+    return (tuple(d.get("states") or []), d["acquisition_date"], " ".join(rest)) if rest else None
+
+
+def _batch_card(lead: dict, members: list[dict], key: tuple) -> None:
+    """One card for a licence batch: the homes, not one home's licensee."""
+    states, when, template = key
+    homes = sorted({f for d in members for f in d.get("facility_names") or []})
+    where = f" in {', '.join(states)}" if states else ""
+    lead.update({
+        "facility_names": homes, "facility_count": len(homes), "buyer": None, "seller": None,
+        "buyer_disclosure": None, "seller_disclosure": None,
+        "headline": [[f"{len(homes)} homes{where}", ""], [" move to new licensees named “… ", "muted"],
+                     [template, ""], ["”", "muted"]],
+    })
+    if lead.get("status") == "reported":
+        lead["status_detail"] = (
+            f"Reported: state licence list shows {len(homes)} homes licensed to new “… {template}” "
+            f"companies from {when}. One owner restructuring, or a sale of the group to one buyer; "
+            "CMS doesn't show a new owner yet.")
+
+
 def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
     """Set `sources` (every record and merged row behind the card) and
     `group_size` on each group's card, `grouped_into` on the others.
@@ -113,7 +156,17 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
             keys.add("buyer:" + name_key(d["buyer"]))
         for k in keys:
             buckets.setdefault(k, []).append(d)
+    batches = {}
+    for d in candidates:
+        if (k := batch_key(d)):
+            batches.setdefault(k, []).append(d)
+    batches = {k: rows for k, rows in batches.items() if len(rows) >= BATCH_MIN}
     reasons = {}
+    for rows in batches.values():
+        for b in rows[1:]:
+            if find(rows[0]["id"]) != find(b["id"]):
+                parent[find(rows[0]["id"])] = find(b["id"])
+                reasons[(rows[0]["id"], b["id"])] = "same licence batch"
     for rows in buckets.values():
         for i, a in enumerate(rows):
             for b in rows[i + 1:]:
@@ -128,7 +181,9 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
     by_id = {d["id"]: d for d in deals}
     n_groups = 0
     for members in groups.values():
-        lead = max(members, key=lambda d: (STATUS_RANK.get(d.get("status"), 0), _completeness_score(d),
+        # a state's after-the-fact record doesn't lead a CMS record of the same sale
+        lead = max(members, key=lambda d: (STATUS_RANK.get(d.get("status"), 0), not after_closing(d),
+                                           _completeness_score(d),
                                            d.get("created_at") or ""))
         sources = [_source_entry(d) for d in sorted(members, key=lambda d: _source_entry(d)["date"] or "")]
         for d in members:
@@ -142,6 +197,9 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
             for d in members:
                 if d is not lead:
                     d["grouped_into"] = lead["id"]
+            key = next((k for k, rows in batches.items() if any(r is lead for r in rows)), None)
+            if key:
+                _batch_card(lead, batches[key], key)
     for d in deals:
         if "sources" not in d:
             d["sources"] = [_source_entry(d)] + [{**m, "merged": True} for m in merged.get(d["id"], [])]

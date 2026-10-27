@@ -136,6 +136,8 @@ EXCLUDE_PATTERNS = [
     r"\bmaster trustee\b",         # Bond trustee role — hospital bond, not RE acquisition
     r"\bheidel.?berg materials\b", # Construction aggregate (clearly wrong sector)
     r"\bintegrated commercialization\b",  # Specialty pharma distribution
+    r"\bomnicare\b",               # Omnicare (CVS) long-term care pharmacy (OH, 2026-10-27)
+    r"\bpharmerica\b",             # PharMerica long-term care pharmacy
     r"\bbanyan capital solutions\b",      # Healthcare equipment leasing agent
     r"\bsolar mosaic\b",            # Residential solar financing — personal, not acquisition
     r"\bcredit union\b",            # Personal/consumer banking, not healthcare acquisition financing

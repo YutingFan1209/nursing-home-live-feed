@@ -323,7 +323,8 @@ def cms_event(d: dict, cms) -> dict | None:
     if same_party(ev["owner"], d.get("seller_entity")):
         return None
     buyer_side = [d.get("acquiring_entity")] + (d.get("operator_names") or [])
-    if (date.fromisoformat(ev["date"]) < when - EARLY_EVENT
+    early = AFTER_CLOSING_LOOKBACK if after_closing(d) else EARLY_EVENT
+    if (date.fromisoformat(ev["date"]) < when - early
             and not any(same_party(ev["owner"], b) for b in buyer_side)):
         return None
     return ev
@@ -356,7 +357,8 @@ def cms_sale(d: dict, cms) -> dict | None:
     # so only a sale on or after the deal date (or just before) counts
     if d.get("acquiring_entity") and not fits:
         return None
-    if not fits and date.fromisoformat(sale["date"]) < when - EARLY_EVENT:
+    early = AFTER_CLOSING_LOOKBACK if after_closing(d) else EARLY_EVENT
+    if not fits and date.fromisoformat(sale["date"]) < when - early:
         return None
     return sale
 
@@ -415,6 +417,20 @@ def current_licensee(d: dict, cms, today: date) -> str | None:
 # A CMS owner change this much before the deal date confirms it only when
 # CMS names the buyer (news often runs weeks after a closing)
 EARLY_EVENT = timedelta(days=60)
+# ...but a state record made after the sale took effect comes after CMS's
+# (2026-10-27: Fairfield Glade's CHOW was 70 days before TN's meeting)
+AFTER_CLOSING_LOOKBACK = timedelta(days=183)
+
+
+def after_closing(d: dict) -> str | None:
+    """What a state record made after the sale took effect shows, or None:
+    a licence list's new licensee, Tennessee's HFC ratifying a CHOW."""
+    url = d.get("source_url") or ""
+    if "#licensee-" in url:
+        return "State licence list shows a new licensee"
+    if "tn.gov/hfc/" in url and "#chow-" in url:
+        return "State commission ratified the change of ownership"
+    return None
 
 
 def same_party(a: str | None, b: str | None) -> bool:
@@ -449,6 +465,11 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
                else f"{event['owner_count']} new owners" if event.get("owner_count", 0) > 1 else "a new owner")
         return {"status": "confirmed", "status_detail":
                 f"Confirmed: {event['source']} shows {who}{where} from {event['date']}"}
+    # Made after the sale took effect: not "before closing", and no reason
+    # to doubt it closed (Capitol River, MO, licensed November 2025)
+    shown = after_closing(d) if src == "con" else None
+    if shown:
+        return {"status": "reported", "status_detail": f"Reported: {shown}; not yet confirmed by CMS"}
     future = when and when > today
     pending_words = _PENDING_RE.search(d.get("summary") or "") and not _DONE_RE.search(d.get("summary") or "")
     if src == "con" or future or pending_words:
