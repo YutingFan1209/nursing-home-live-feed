@@ -44,6 +44,7 @@ from scraper.con_hi import fetch_con_hi_deals, CON_HI_SOURCE_NAME, CON_HI_INDEX_
 from scraper.con_ri import fetch_con_ri_deals, CON_RI_SOURCE_NAME, CON_RI_INDEX_URL
 from scraper.con_mt import fetch_con_mt_deals, CON_MT_SOURCE_NAME, CON_MT_INDEX_URL
 from scraper.licence_lists import LISTS as LICENCE_LISTS, licence_list_deals
+from scraper.con_tn import fetch_con_tn_deals, CON_TN_SOURCE_NAME, CON_TN_INDEX_URL
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
 from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
@@ -631,6 +632,27 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             for deal in licence_list_deals(state, conn, lambda url: _article_exists(url, conn)):
                 deal["source_id"] = lic_source_id
                 new_articles.append(deal)
+
+        # Tennessee HFC: nursing home CHOWs on the monthly agenda (real Chrome:
+        # tn.gov answers only a browser)
+        con_tn_source_id = _ensure_source(
+            type("S", (), {"name": CON_TN_SOURCE_NAME,
+                           "url": CON_TN_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("SELECT provider_name, provider_city, ccn FROM cms_facilities WHERE provider_state = 'TN'")
+            tn_homes = [row for row in cur.fetchall() if row[0]]
+        try:
+            tn_deals = fetch_con_tn_deals(lambda url: _article_exists(url, conn), tn_homes)
+        except Exception as e:
+            logger.error(f"TN CON agendas failed: {e}")
+            health.source_failed("TN CON agendas", str(e))
+            tn_deals = []
+        for deal in tn_deals:
+            deal["source_id"] = con_tn_source_id
+            new_articles.append(deal)
 
         con_mi_source_id = _ensure_source(
             type("S", (), {"name": CON_MI_SOURCE_NAME,

@@ -505,6 +505,35 @@ def test_mt_chow_rows_split_from_run_together_cells():
     ]
 
 
+def test_tn_agenda_chows_and_application_parties():
+    """2026-10-27: Tennessee's HFC agenda lists nursing home CHOWs under
+    "Qualifying Applications - (CHOWS)"; December 2025's list is numbered
+    and one entry has no town. The CHOW application names the new licensee.
+    Etowah has two homes whose names share "Health and Rehabilitation"."""
+    from scraper.con_tn import parse_nursing_home_chows, parse_application, match_ccn
+    agenda = ("C. Consideration and Ratification\n2. Qualifying Applications – (CHOWS)\n \n"
+              "a. Assisted Care Living Facility\nCanterfield of Oak Ridge, Oak Ridge – License #399\n"
+              "b. Nursing Homes\n1. Good Samaritan Society-Fairfield Glade dba The Preserve at Fairfield Glade "
+              "– Lic. No. 389 2. Iris Cove Health & Rehabilitation fka Quince Nursing and\nRehabilitation "
+              "Center, LLC, Memphis – Lic. No. 197\n \n3. Applications - Change of Ownership\n")
+    rows = parse_nursing_home_chows(agenda)
+    assert [(r["facility"][:20], r["town"], r["number"]) for r in rows] == [
+        ("Good Samaritan Socie", None, "389"), ("Iris Cove Health & R", "Memphis", "197")]
+    app = ("Ownership of Building:\nName: Etowah Propco LLC    Phone Number: (646) 000-0000\n"
+           "c. Legal Entity checked in 1.a:\nName: Etowah Opco LLC    Phone Number: (423) 000-0000\n"
+           "b. If yes, list the name, address, and phone number of the holding company:\n"
+           "Name: Etowah Opco Holdco LLC    Phone Number: (646) 000-0000\n")
+    assert parse_application(app) == {"licensee": "Etowah Opco LLC", "holding": "Etowah Opco Holdco LLC",
+                                      "building_owner": "Etowah Propco LLC"}
+    homes = [("STARR REGIONAL HEALTH & REHABILITATION", "ETOWAH", "445277"),
+             ("ETOWAH HEALTH AND REHABILITATION", "ETOWAH", "445422"),
+             ("WYNDRIDGE HEALTH AND REHAB CTR", "CROSSVILLE", "445304"),
+             ("THE PRESERVE AT FAIRFIELD GLADE", "CROSSVILLE", "445506")]
+    assert match_ccn({"facility": "Etowah Health and Rehabilitation", "town": "Etowah"}, homes) == "445422"
+    assert match_ccn({"facility": "Wyndridge Health and Rehabilitation Center", "town": "Crossville"}, homes) == "445304"
+    assert match_ccn(rows[0], homes) == "445506"
+
+
 def test_licence_list_new_licensee_not_spelling():
     """2026-10-27: MO's licence list names each home's licensee. Spelling,
     "#1" and 40-character truncation aren't a new licensee; CMS legal names
