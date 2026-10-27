@@ -298,7 +298,7 @@ AK, AR, CT, DC, DE, FL, GA, IA, IN, KY, MA, MN, MO, MT, NE, NV, OH, OR, RI, SC, 
 | IA, AK, NE, NV, VT, DC | CON is beds/new builds; sales notified privately | — | No |
 | AR, DE, FL, IN, OH, OR, SC, VA, WA | Unchanged from the 2026-09 research above | — | No |
 
-**Licence lists as the fallback.** Where the sale itself isn't published, a state licence list with a licensee column (and ideally a licence date) can show it: a new licensee on a CMS-listed home. Found so far: CA (CDPH facility file, `BUSINESS_NAME`), MO (above), NY (HFIS operator), FL (HealthFinder owner / owner-since). Each would be a weekly diff against the previous copy plus CMS legal names.
+**Licence lists as the fallback.** Where the sale itself isn't published, a state licence list with a licensee column (and ideally a licence date) can show it: a new licensee on a CMS-listed home. Found so far: CA (CDPH facility file, `BUSINESS_NAME`), MO (above), NY (HFIS operator), FL (HealthFinder owner / owner-since). Each would be a weekly diff against the previous copy plus CMS legal names. **MO and CA built 2026-10-27** (`scraper/licence_lists.py`; MO 48 on its first run, CA baseline only since its list has no sale date). NY and FL not yet.
 
 ## Unverified / open items
 

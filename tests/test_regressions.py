@@ -505,6 +505,42 @@ def test_mt_chow_rows_split_from_run_together_cells():
     ]
 
 
+def test_licence_list_new_licensee_not_spelling():
+    """2026-10-27: MO's licence list names each home's licensee. Spelling,
+    "#1" and 40-character truncation aren't a new licensee; CMS legal names
+    that are street addresses aren't compared; a first run only reports
+    licences from the last year; a later run diffs against the snapshot,
+    and a changed home's snapshot waits until its record is stored."""
+    from datetime import date
+    from scraper.licence_lists import same_entity, detect_changes
+    assert same_entity("WAVERLY #1, INC", "WAVERLY 1 INC")
+    assert same_entity("LA BELLE MANOR, INC", "LABELLE MANOR INC")
+    assert same_entity("JEFFERSON CITY NURSING AND REHABILITATION", "Jefferson City Nursing and Rehabilitation Center, LLC")
+    assert not same_entity("MILAN SNF OPCO LLC", "BKY HEALTHCARE OF MILAN, INC")
+
+    def row(ccn, licensee, d):
+        return {"ccn": ccn, "licensee": licensee, "licence_date": d, "facility": "X", "city": "Y"}
+    rows = [row("265001", "MILAN SNF OPCO LLC", date(2026, 6, 1)),
+            row("265002", "OLD NAME LLC", date(2001, 1, 1)),           # old licence: not a recent sale
+            row("265003", "KIRKWOOD WELLNESS LLC", date(2026, 8, 1)),  # CMS has only an address
+            row("265004", "NEW BUYER LLC", date(2026, 7, 1)),          # CHOW file already has it
+            row("999999", "NOT IN CMS LLC", date(2026, 7, 1))]
+    cms = {"265001": ["BKY HEALTHCARE OF MILAN, INC"], "265002": ["DIFFERENT INC"],
+           "265003": ["711 SOUTH KIRKWOOD ROAD"], "265004": ["SELLER INC"]}
+    changes, snapshot = detect_changes("MO", rows, {}, cms, {"265004": ["New Buyer, LLC"]},
+                                       lambda url: False, today=date(2026, 10, 27))
+    assert [(c["ccn"], c["seller"]) for c in changes] == [("265001", "BKY HEALTHCARE OF MILAN, INC")]
+    assert sorted(r["ccn"] for r in snapshot) == ["265002", "265003", "265004"]
+
+    later = [row("265002", "FRESH OPCO LLC", None), row("265003", "KIRKWOOD WELLNESS, L.L.C.", None)]
+    previous = {"265002": "OLD NAME LLC", "265003": "KIRKWOOD WELLNESS LLC"}
+    changes, snapshot = detect_changes("CA", later, previous, cms, {}, lambda url: False)
+    assert [(c["ccn"], c["seller"]) for c in changes] == [("265002", "OLD NAME LLC")]
+    assert [r["ccn"] for r in snapshot] == ["265003"]
+    changes, snapshot = detect_changes("CA", later, previous, cms, {}, lambda url: True)
+    assert changes == [] and len(snapshot) == 2
+
+
 def test_stuck_tab_close_doesnt_hang_the_ucc_run(monkeypatch):
     """2026-10-13: NY finished all its searches, then hung for 10 minutes
     on two tabs' page.close() (a Turnstile frame was still on them).

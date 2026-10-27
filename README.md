@@ -62,6 +62,7 @@ Filings a buyer makes with a state *before* a nursing home changes hands — usu
 | HI `scraper/con_hi.py` | SHPDA CON application to acquire | Yes (address, not name) | HTML table, no Claude |
 | RI `scraper/con_ri.py` | OHSD change-in-effective-control request, months pre-close | Yes | Public Google Sheet (CSV), no Claude |
 | MT `scraper/con_mt.py` | DPHHS monthly CON report, CHOW rows | No | PDF table, no Claude |
+| MO, CA `scraper/licence_lists.py` | New licensee on a CMS-listed home in the state licence list (diffed against the last copy) | Yes (licensee) | Open-data CSV, no Claude |
 
 Scanned PDFs are transcribed by Claude (`pipeline/pdf_text.py`) — there's no system OCR on the pipeline machine. Research and build order for the other states: [`docs/con-feasibility.md`](docs/con-feasibility.md).
 
@@ -238,6 +239,7 @@ psql "$DATABASE_URL" -f db/migration_add_deal_merged_into.sql
 psql "$DATABASE_URL" -f db/migration_add_ca_entity_watch.sql
 psql "$DATABASE_URL" -f db/migration_add_legal_names.sql
 psql "$DATABASE_URL" -f db/migration_add_provider_address.sql
+psql "$DATABASE_URL" -f db/migration_add_licence_list_snapshot.sql
 
 # Python env (3.11+; runs on 3.14 — Google's API libraries dropped 3.10)
 python3 -m venv venv && source venv/bin/activate
