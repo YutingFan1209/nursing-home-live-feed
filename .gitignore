@@ -34,3 +34,6 @@ dashboard/frontend/.vite/
 # Agent run traces: real filings, some against private individuals (public repo)
 agent/traces/
 .Rhistory
+
+# test_csv_export.py writes files here for the manual Excel/Sheets check
+tests/output/

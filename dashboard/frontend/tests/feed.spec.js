@@ -159,3 +159,18 @@ test("(i) a UCC link that only reaches a search page copies the filing number", 
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("U260079323028");
   await expect(details.getByRole("status")).toContainText("paste it into the portal's search box");
 });
+
+test("(j) the CSV download has a UTF-8 BOM and the Excel download is a workbook", async ({ page }) => {
+  await open(page);
+  for (const [name, start] of [["↓ CSV", [0xEF, 0xBB, 0xBF]], ["↓ Excel", [0x50, 0x4B, 0x03, 0x04]]]) {
+    const download = page.waitForEvent("download");
+    await page.getByRole("button", { name }).click();
+    const file = await download;
+    const bytes = await new Promise(async resolve => {
+      const chunks = [];
+      (await file.createReadStream()).on("data", c => chunks.push(c)).on("end", () => resolve(Buffer.concat(chunks)));
+    });
+    expect([...bytes.subarray(0, start.length)]).toEqual(start);
+    expect(file.suggestedFilename()).toMatch(name === "↓ CSV" ? /\.csv$/ : /\.xlsx$/);
+  }
+});

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as Tabs from "@radix-ui/react-tabs";
+import { toCsv, toXlsx, CSV_TYPE, XLSX_TYPE } from "./export.js";
 import { SOURCE_LABEL, SOURCE_COLOR, STATUS_LABEL, STATUS_COLOR, displayStatus, primaryDate, otherDate,
   publication, statusMeaning, howCollected } from "./derive.js";
 
@@ -235,15 +236,18 @@ const CSV_COLUMNS = [
   ["publication", d => d.source_type === "rss" ? publication(d) : null, "News only: the publication, from the source URL's domain."],
 ];
 
-function downloadCsv(rows, name) {
-  const cell = v => v == null ? "" : /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
-  const url = URL.createObjectURL(new Blob([rows.map(r => r.map(cell).join(",")).join("\n")], { type: "text/csv" }));
-  const a = Object.assign(document.createElement("a"), { href: url, download: `${name}.csv` });
+function download(data, type, filename) {
+  const url = URL.createObjectURL(new Blob([data], { type }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: filename });
   a.click();
   URL.revokeObjectURL(url);
 }
-const downloadDeals = (deals, name) => downloadCsv(
-  [CSV_COLUMNS.map(([h]) => h), ...deals.map(d => CSV_COLUMNS.map(([, get]) => get(d)))], name || "nursing-home-deals");
+const downloadCsv = (rows, name) => download(toCsv(rows), CSV_TYPE, `${name}.csv`);
+const dealRows = deals => [CSV_COLUMNS.map(([h]) => h), ...deals.map(d => CSV_COLUMNS.map(([, get]) => get(d)))];
+const DATE_COLUMNS = ["date", "found_date", "cms_sale_date", "cms_confirmed_on", "primary_date"];
+const downloadDeals = (deals, name, format) => format === "xlsx"
+  ? toXlsx(dealRows(deals), { dateColumns: DATE_COLUMNS }).then(b => download(b, XLSX_TYPE, `${name || "nursing-home-deals"}.xlsx`))
+  : downloadCsv(dealRows(deals), name || "nursing-home-deals");
 const downloadDictionary = () => downloadCsv(
   [["column", "description"], ...CSV_COLUMNS.map(([h, , desc]) => [h, desc])], "nursing-home-deals-data-dictionary");
 
@@ -1579,13 +1583,18 @@ export default function App() {
               More filters{moreCount > 0 && ` (${moreCount})`} {moreOpen ? "▴" : "▾"}
             </button>
             {total > 0 && (
-              <button type="button" onClick={() => downloadDeals(
-                  // each card's grouped records too, right after it
-                  filtered.flatMap(d => d.group_size > 1 ? [d, ...allDeals.filter(x => x.grouped_into === d.id)] : [d]),
-                  currentName.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, ""))}
-                style={{ ...btnGhost, marginLeft: "auto" }} title="Download the filtered records as CSV">
-                ↓ CSV
-              </button>
+              <span style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
+                {["csv", "xlsx"].map(format => (
+                  <button key={format} type="button" onClick={() => downloadDeals(
+                      // each card's grouped records too, right after it
+                      filtered.flatMap(d => d.group_size > 1 ? [d, ...allDeals.filter(x => x.grouped_into === d.id)] : [d]),
+                      currentName.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, ""), format)}
+                    style={btnGhost}
+                    title={format === "csv" ? "Download the filtered records as CSV (UTF-8)" : "Download the filtered records as an Excel workbook (IDs kept as text)"}>
+                    ↓ {format === "csv" ? "CSV" : "Excel"}
+                  </button>
+                ))}
+              </span>
             )}
           </div>
           {moreOpen && (

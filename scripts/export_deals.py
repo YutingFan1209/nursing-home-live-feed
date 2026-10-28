@@ -216,7 +216,7 @@ def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | No
     can search for it themselves."""
     state, _, filing_number = source_url.removeprefix("ucc://").partition("/")
     if filing_number.startswith("NYX-") and not detail_url:
-        return UCC_PORTAL_URLS["NY"], f"NY UCC-1 filing — search the debtor's name on the state portal"
+        return UCC_PORTAL_URLS["NY"], f"NY UCC-1 filing - search the debtor's name on the state portal"
     if not detail_url and state.upper() in UCC_FILING_URLS:
         detail_url = UCC_FILING_URLS[state.upper()].format(n=quote(filing_number))
     if detail_url:
@@ -224,7 +224,7 @@ def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | No
     portal = UCC_PORTAL_URLS.get(state.upper())
     if not portal:
         return source_url, source_title
-    title = f"{state} UCC-1 filing #{filing_number} — search this number on the state portal"
+    title = f"{state} UCC-1 filing #{filing_number} - search this number on the state portal"
     return portal, title
 
 
