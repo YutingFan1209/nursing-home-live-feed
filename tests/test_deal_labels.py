@@ -513,3 +513,24 @@ def test_licence_batch_becomes_one_card():
     pair = [_licence(f"27{i}", f"{n} CARE", f"{n} SNF OPCO LLC", f"{n} CARE LLC") for i, n in enumerate(["A1", "B2"])]
     group(pair, {})
     assert all(d["group_size"] == 1 for d in pair)
+
+
+def test_state_notice_links_a_renamed_home_by_address_legal_name_or_two_words():
+    cms = fake_cms(facilities={"1": ("TIMBERLAND HEALTH AND WELLNESS CENTER", "AL", 90),
+                               "2": ("INDEPENDENCE REHAB AND NURSING", "PA", 120),
+                               "3": ("CYPRESS COVE CARE CENTER", "AL", 80),
+                               "4": ("HERITAGE MANOR", "OK", 60),
+                               "5": ("WEST PARK REHABILITATION AND NURSING CENTER", "PA", 100)})
+    cms.licensee = {"1": "ARABELLA HEALTH & WELLNESS OF BUTLER OPCO LLC"}
+    cms.address = {"2": "600 W CHELTENHAM AVENUE", "5": "4401 HAVERFORD AVENUE"}
+    assert cms.ccns_for_notice(["Arabella Health & Wellness of Butler"], ["AL"], "") == (["1"], "legal_name")
+    assert cms.ccns_for_notice(["Cheltenham Nursing and Rehab Center"], ["PA"],
+                               "600 W Cheltenham Opco, LLC is acquiring Cheltenham Nursing") == (["2"], "address")
+    assert cms.ccns_for_notice(["Cypress Cove Post Acute"], ["AL"], "") == (["3"], "name")
+    # one shared distinctive word is a different home
+    assert cms.ccns_for_notice(["Heritage Village Nursing Home"], ["OK"], "") == ([], None)
+    # the right street number in the wrong state links nothing
+    assert cms.ccns_for_notice(["X"], ["NJ"], "4401 Haverford Avenue LLC") == ([], None)
+    cms.facility["6"] = ("ATRIUM POST ACUTE CARE OF WAYNE", "NJ", 100)
+    # a short CMS name is not a cut-off one: Wayneview is a different home
+    assert cms.ccns_for_notice(["Atrium Post Acute Care of Wayneview"], ["NJ"], "") == ([], None)

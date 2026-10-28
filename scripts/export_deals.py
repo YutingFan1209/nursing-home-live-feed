@@ -405,6 +405,13 @@ def _add_labels(deal: dict, cms, homes: dict) -> None:
             # A facility name equal to exactly one CMS facility in the state
             deal["ccns"] = cms.ccns_by_name(facilities, deal.get("states")) or None
             deal["ccn_match"] = "exact_facility_name" if deal["ccns"] else None
+        if not deal.get("ccns") and cms and deal["source_type"] == "con":
+            # A renamed home, or a notice that gives only the address
+            title = deal.get("source_title") or ""
+            names = list(facilities or []) + ([title.split(":", 1)[1].strip()] if ":" in title else [])
+            ccns, basis = cms.ccns_for_notice(names, deal.get("states"), f"{title} {deal.get('summary') or ''}")
+            if ccns:
+                deal["ccns"], deal["ccn_match"] = ccns, f"notice_{basis}"
         deal["match_type"] = "ccn_matched" if deal.get("ccns") else "no_ccn"
         if cms and deal["source_type"] != "ucc":
             deal["beds"] = cms.beds(deal.get("ccns"), deal.get("facility_count"))

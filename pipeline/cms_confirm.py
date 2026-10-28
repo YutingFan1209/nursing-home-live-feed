@@ -79,6 +79,18 @@ def facility_names_agree(a: str, b: str) -> bool:
             or (len(short) >= 12 and long_.startswith(short)))
 
 
+def legal_key(name: str) -> str:
+    """facility_key without the words that tell an operating company from its home."""
+    k = re.sub(r"\b(OPCO|OPERATIONS|OPERATING|OPERATOR|CO|CORP|INCORPORATED|LIMITED|LP|PLLC)\b", " ",
+               facility_key(name))
+    return " ".join(k.split())
+
+
+def _street_in(address: str | None, text: str) -> bool:
+    m = re.match(r"(\d+)\s+([A-Za-z]+)", address or "")
+    return bool(m and text and re.search(rf"\b{m[1]}\s+{re.escape(m[2])}\b", text, re.I))
+
+
 def _mdy(s):
     m = re.match(r"(\d{2})/(\d{2})/(\d{4})$", s or "")
     return date(int(m[3]), int(m[1]), int(m[2])) if m else None
@@ -92,11 +104,15 @@ class CmsIndex:
         self.events = defaultdict(list)    # ccn -> [(date, owner, source)]
         with conn.cursor() as cur:
             self.licensee = {}             # ccn -> legal business name (the licensed company)
-            cur.execute("SELECT ccn, provider_name, provider_state, bed_count, legal_business_name FROM cms_facilities")
-            for ccn, name, state, beds, legal in cur.fetchall():
+            self.address = {}              # ccn -> street address
+            cur.execute("SELECT ccn, provider_name, provider_state, bed_count, legal_business_name, provider_address "
+                        "FROM cms_facilities")
+            for ccn, name, state, beds, legal, address in cur.fetchall():
                 self.facility[ccn] = (name, state, beds)
                 if legal:
                     self.licensee[ccn] = legal
+                if address:
+                    self.address[ccn] = address
                 self.by_name[(state, facility_key(name))].add(ccn)
                 if len(name or "") >= CMS_NAME_LIMIT:
                     # drop the cut-off last word: "...Rehabilitation Ce"
@@ -134,6 +150,43 @@ class CmsIndex:
                 if hit and len(hit) == 1:
                     out += [c for c in hit if c not in out]
         return out
+
+    def ccns_for_notice(self, facility_names, states, text: str) -> tuple[list[str], str | None]:
+        """For a state notice no exact name matched: a home the buyer has
+        renamed, or a notice that gives only the address. Only signals that
+        were right on every one of the 68 unlinked notices checked 2026-10-28:
+          address    - the notice's text has the CMS street number and first street
+                       word ("600 W Cheltenham" -> Independence Rehab and Nursing)
+          legal_name - a name in the notice is the home's CMS legal business name
+                       ("Arabella Health & Wellness of Butler" -> Timberland, whose
+                       licensee is "Arabella Health & Wellness of Butler Opco LLC")
+          name       - the same two or more distinctive words as the CMS name
+                       ("Cypress Cove Post Acute" -> "Cypress Cove Care Center")
+        Each must point to exactly one home in the notice's states. One shared
+        word is not enough: "Heritage Village Nursing Home" is not Heritage Manor."""
+        states = set(states or [])
+        in_states = [c for c, (_, st, _) in self.facility.items() if st in states]
+        tests = [
+            ("address", lambda c, n: _street_in(getattr(self, "address", {}).get(c), text)),
+            ("legal_name", lambda c, n: bool(getattr(self, "licensee", {}).get(c)) and
+                legal_key(n) == legal_key(self.licensee[c])),
+            ("name", lambda c, n: len(distinctive_key(n)) >= 2 and (
+                distinctive_key(n) == distinctive_key(self.facility[c][0])
+                # a cut-off last word only where CMS really cut the name off:
+                # "Atrium ... of Wayneview" is not "ATRIUM ... OF WAYNE" (another home)
+                or (len(self.facility[c][0] or "") >= CMS_NAME_LIMIT and same_facility_name(n, self.facility[c][0])))),
+        ]
+        for basis, test in tests:
+            hits = set()
+            for n in facility_names or [None]:
+                if n is None and basis != "address":
+                    continue
+                found = {c for c in in_states if test(c, n)}
+                if len(found) == 1:
+                    hits |= found
+            if hits:
+                return sorted(hits), basis
+        return [], None
 
     def sale(self, ccns, when: date | None) -> dict | None:
         """The CHOW-file sale at one of these facilities nearest the date,
