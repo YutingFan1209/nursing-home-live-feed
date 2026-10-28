@@ -154,6 +154,14 @@ rule). Records with no CCN, not dismissed, 2026-10-27:
 5. **In the pipeline:** once 1–2 hold up on labels, call the resolver from
    the pipeline for new unmatched deals only, with a per-run spend cap.
 
+**Step 2 started 2026-10-28: deal mode (`deals.py`).** Same loop and tools; input is a deal
+(buyer, seller, named homes, states, date, summary); the verdict lists every home the deal covers,
+each tied by `named_in_deal` (the CMS name is in the deal text) or `party_is_owner` (a named party is
+the CMS owner, licensed company or CHOW buyer/seller), checked by rule; anything else is
+`name_similarity` for a person. CCNs outside the deal's states or missing from tool results are
+dropped. No audit pass yet. `venv/bin/python3 -m agent.run --deals 10 --source rss` writes
+`deal_summary.csv` (fill `human_ccns` by hand). Not yet run against the model.
+
 Measure each step on frozen labels (holdout style), not on the simulator:
 simulator scores are stress tests only.
 

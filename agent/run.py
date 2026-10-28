@@ -6,6 +6,7 @@ CLI for the resolver. Run from the project root with the project venv:
   venv/bin/python3 -m agent.run --sample 5 --state PA     # NEW_SIGNAL deals CMS never matched (label by hand)
   venv/bin/python3 -m agent.run --known 20 --state PA     # filings the pipeline already matched (auto-labeled, easy)
   venv/bin/python3 -m agent.score agent/traces/sample_summary.csv
+  venv/bin/python3 -m agent.run --deals 10 --source rss    # news/EDGAR/state-notice deals with no CCN (agent/deals.py)
 
 Each run prints the trace and saves it to agent/traces/<state>_<filing>.json
 (the file the demo UI replays). Uses DATABASE_URL and ANTHROPIC_API_KEY from .env.
@@ -136,6 +137,40 @@ def selftest(tb: ToolBox) -> int:
     return 1 if fails else 0
 
 
+def run_deals(tb: ToolBox, args) -> int:
+    from agent.deals import resolve_deal, sample_deals
+    ids = [x.strip() for x in args.deal_ids.split(",")] if args.deal_ids else None
+    deals = sample_deals(tb.conn, len(ids) if ids else args.deals, args.source, ids)
+    if not deals:
+        sys.exit("No unlinked deals found for that filter")
+    rows = []
+    for d in deals:
+        verdict, trace = resolve_deal(d, tb, model=args.model, max_steps=max(args.max_steps, 10))
+        path = trace.save(args.out)
+        print(trace.render_text(), f"\n  outcome: {verdict['outcome']}  facilities: "
+              f"{[(f['ccn'], f['facility_name'], f['link_basis']) for f in verdict['facilities']]}"
+              f"\n  saved: {path}\n" + "-" * 70)
+        rows.append({
+            "deal_id": d["deal_id"], "source": d.get("source"), "states": " ".join(d.get("states") or []),
+            "buyer": d.get("acquiring_entity"), "seller": d.get("seller_entity"),
+            "named_facilities": " | ".join(d.get("facility_names") or []), "outcome": verdict["outcome"],
+            "ccns": " ".join(f["ccn"] for f in verdict["facilities"]),
+            "links": " | ".join(f"{f['facility_name']} ({f['link_basis']})" for f in verdict["facilities"]),
+            "confidence": verdict.get("confidence"), "needs_review": verdict.get("needs_human_review"),
+            "verified": verdict["verification"]["passed"], "model_calls": trace.usage["model_calls"],
+            "tool_calls": len(trace.tool_steps()), "input_tokens": trace.usage["input_tokens"],
+            "output_tokens": trace.usage["output_tokens"],
+            "human_ccns": "",   # fill by hand: space-separated CCNs, or NONE
+        })
+    out = Path(args.out) / "deal_summary.csv"
+    with out.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    print(f"summary: {out}")
+    return 0
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--selftest", action="store_true")
@@ -144,6 +179,9 @@ def main(argv=None) -> int:
     p.add_argument("--sample", type=int, help="run on N random unresolved UCC-only deals")
     p.add_argument("--known", type=int, help="run on N filings the pipeline already matched to a facility (labels auto-filled; the easy cases)")
     p.add_argument("--filings", help="CSV with state,filing_number columns (e.g. the frozen holdout); only rows with true_ccn if it has that column")
+    p.add_argument("--deals", type=int, help="run deal mode (agent/deals.py) on N random non-UCC deals with no CCN")
+    p.add_argument("--source", help="with --deals: rss, edgar or con (articles' source_type)")
+    p.add_argument("--deal-ids", help="deal mode on these deal ids, comma-separated")
     p.add_argument("--no-chow", action="store_true", help="ablation: take search_chow_records and its prompt line away")
     p.add_argument("--max-steps", type=int, default=8)
     p.add_argument("--audit", action="store_true", help="add the independent audit call (agent/audit.py)")
@@ -154,6 +192,9 @@ def main(argv=None) -> int:
     tb = ToolBox.from_config()
     if args.selftest:
         return selftest(tb)
+
+    if args.deals or args.deal_ids:
+        return run_deals(tb, args)
 
     labels = {}   # (state, filing_number) -> (ccn, source)
     if args.known:

@@ -73,22 +73,21 @@ def _tool_result_content(step_id: str, output, error: Optional[str]) -> str:
     return text
 
 
-def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = None,
-                   effort: Optional[str] = None, max_steps: int = 8, max_tokens: int = 4000,
-                   audit: bool = False, system_prompt: str = SYSTEM_PROMPT):
-    """Returns (verdict, trace). `toolbox` needs .schemas and .call(name, args).
-    audit=True adds one fresh-context model call that checks each evidence
-    claim against the step it cites (agent/audit.py)."""
-    if client is None:
-        client = _default_client()
+def _model_and_effort(model, effort):
     if model is None or effort is None:
         from config import get_config
         cfg = get_config()
         model, effort = model or cfg.claude_model, effort or cfg.claude_effort
+    return model, effort
 
-    trace = Trace(filing=filing, model=model)
-    tools = list(toolbox.schemas) + [VERDICT_TOOL]
-    messages = [{"role": "user", "content": build_user_prompt(filing)}]
+
+def run_loop(record: dict, user_prompt: str, toolbox, client, model: str, effort: str,
+             max_steps: int, max_tokens: int, system_prompt: str, verdict_tool: dict = VERDICT_TOOL):
+    """The tool loop itself, shared by filings and deals (agent/deals.py).
+    Returns (raw verdict or None, trace); checking it is the caller's job."""
+    trace = Trace(filing=record, model=model)
+    tools = list(toolbox.schemas) + [verdict_tool]
+    messages = [{"role": "user", "content": user_prompt}]
     verdict, nudged = None, False
 
     for _ in range(max_steps):
@@ -113,12 +112,12 @@ def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = No
                 trace.add_note("model stopped without submitting a verdict")
                 break
             nudged = True
-            messages.append({"role": "user", "content": "Call submit_verdict now with your best answer; use unresolved if you cannot tell."})
+            messages.append({"role": "user", "content": f"Call {verdict_tool['name']} now with your best answer; use unresolved if you cannot tell."})
             continue
 
         results = []
         for tu in tool_uses:
-            if tu.name == "submit_verdict":
+            if tu.name == verdict_tool["name"]:
                 verdict = dict(tu.input)
                 results.append({"type": "tool_result", "tool_use_id": tu.id, "content": "Verdict received."})
                 continue
@@ -137,6 +136,19 @@ def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = No
         if verdict is not None:
             break
         messages.append({"role": "user", "content": results})
+    return verdict, trace
+
+
+def resolve_filing(filing: dict, toolbox, client=None, model: Optional[str] = None,
+                   effort: Optional[str] = None, max_steps: int = 8, max_tokens: int = 4000,
+                   audit: bool = False, system_prompt: str = SYSTEM_PROMPT):
+    """Returns (verdict, trace). `toolbox` needs .schemas and .call(name, args).
+    audit=True adds one fresh-context model call that checks each evidence
+    claim against the step it cites (agent/audit.py)."""
+    client = client or _default_client()
+    model, effort = _model_and_effort(model, effort)
+    verdict, trace = run_loop(filing, build_user_prompt(filing), toolbox, client, model, effort,
+                              max_steps, max_tokens, system_prompt)
 
     if verdict is None:
         verdict = {
