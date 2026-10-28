@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-10-28T15:10:39.275439+00:00</updated>
+  <updated>2026-10-28T15:13:13.299065+00:00</updated>
   <entry>
     <id>urn:uuid:922245eb-df46-485a-b9ba-08042c50d77a</id>
     <title>RELIANT CARE GROUP, L.L.C. — UCC-1 financing (MO)</title>
@@ -18,13 +18,6 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-27T22:05:58.888276+00:00</updated>
     <summary>Effective 2026-08-12; Facilities: THE BAPTIST HOME; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f3e97620-9f12-4735-adda-1524505a40ac</id>
-    <title>ST. JOSEPH'S BLUFFS NURSING AND REHAB LLC — UCC-1 financing (MO)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-27T22:05:51.301676+00:00</updated>
-    <summary>Effective 2025-07-22; Facilities: ST. JOSEPH'S BLUFFS NURSING AND REHAB LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:0343016d-6a92-431d-8f6d-d59b538a3f92</id>
@@ -354,5 +347,12 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-27T20:21:35.047618+00:00</updated>
     <summary>Effective 2017-09-29; Facilities: NSH Port Washington LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7ad1c2b0-13c2-4cf6-9b0c-9ffd7c4dc042</id>
+    <title>NSH PLYMOUTH-SOUTHERN LLC — UCC-1 financing (WI)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-10-27T20:21:34.046247+00:00</updated>
+    <summary>Effective 2019-11-08; Facilities: NSH PLYMOUTH-SOUTHERN LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
