@@ -107,3 +107,15 @@ def test_no_verdict_is_unresolved_and_trace_saves_under_the_deal_id(tmp_path):
     v, trace = resolve_deal(DEAL, StubTools(), client=FakeClient(script), model="m", effort="low", max_steps=3)
     assert v["outcome"] == "unresolved" and v["confidence"] == "low"
     assert trace.save(tmp_path).name == "OH_deal7.json"
+
+
+def test_town_words_in_the_text_dont_make_another_home_named():
+    deal = deal_record({"deal_id": 8, "title": "[NJ CON] Real estate transfer: Atrium Post Acute Care of Wayneview",
+                        "facility_names": ["Atrium Post Acute Care of Wayneview"], "states": ["NJ"],
+                        "summary": "Facility: Atrium Post Acute Care of Wayneview, Wayne, NJ"})
+    t = Trace(filing=deal, model="m")
+    t.add_tool("s1", "search_cms_facilities", {}, {"matches": [
+        {"ccn": "315335", "provider_name": "ATRIUM POST ACUTE CARE OF WAYNE", "provider_state": "NJ"}]}, None, 1)
+    v = verify_deal_verdict({"outcome": "linked", "facilities": [fac("315335", "named_in_deal", "s1")],
+                             "confidence": "medium", "needs_human_review": False, "reasoning": "r"}, t)
+    assert v["facilities"][0]["link_basis"] == "name_similarity" and v["needs_human_review"] is True

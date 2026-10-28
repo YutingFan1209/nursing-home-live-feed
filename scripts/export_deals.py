@@ -592,7 +592,10 @@ def main():
         # matches had linked Ensign's St. Elizabeth Care Center to two
         # Providence hospitals and an 18-home Maryland portfolio to Snow Hill,
         # which isn't in it (audit 2026-10-21)
-        cur.execute("SELECT deal_id::text, ccn FROM cms_matches WHERE match_method IN ('chow_ccn_direct', 'cms_ownership_direct')")
+        # agent_deal_verified: tied by rule in agent/deals.py (a named party is the
+        # home's owner or CHOW buyer/seller), e.g. Valley Convalescent renamed Manresa
+        cur.execute("SELECT deal_id::text, ccn FROM cms_matches WHERE match_method IN "
+                    "('chow_ccn_direct', 'cms_ownership_direct', 'agent_deal_verified')")
         direct = set(cur.fetchall())
         cur.execute("SELECT ccn, provider_name, provider_city FROM cms_facilities")
         home = {ccn: (name, city) for ccn, name, city in cur.fetchall()}

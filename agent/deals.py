@@ -9,7 +9,8 @@ own tie to the deal, rather than one CCN. The checks are rules, as in verify.py:
   1. each CCN must appear in a tool result, with the facility's name and state
   2. the facility's state must be one of the deal's states (when the deal has any)
   3. its tie to the deal must be shown, not asserted:
-       named_in_deal  - the CMS name of the home is in the deal text
+       named_in_deal  - the CMS name agrees with a home the deal names (same
+                        distinctive words, as in pipeline/cms_confirm.py)
        party_is_owner - a buyer/seller/operator the deal names is the home's CMS
                         owner, licensed company or CHOW party (same legal name, or
                         same name core as in verify.propco_opco_pair)
@@ -29,7 +30,7 @@ from agent.loop import _default_client, _model_and_effort, run_loop
 from agent.schemas import CONFIDENCE
 from agent.verify import name_core
 from matcher.ownership import legal_name_key
-from pipeline.grounding import _words, name_in_text
+from pipeline.cms_confirm import CMS_NAME_LIMIT, distinctive_key, same_facility_name
 
 OUTCOMES = [
     "linked",                  # one or more named CMS facilities
@@ -120,11 +121,6 @@ def build_deal_prompt(deal: dict) -> str:
     return "Link this deal:\n" + json.dumps(body, indent=2, default=str)
 
 
-def _deal_text(deal: dict) -> str:
-    return " ".join(str(deal.get(k)) for k in ("title", "summary", "facility_names", "operator_names",
-                                               "acquiring_entity", "seller_entity") if deal.get(k))
-
-
 def _parties(deal: dict) -> list:
     out = [deal.get("acquiring_entity"), deal.get("seller_entity")] + list(deal.get("operator_names") or [])
     return [str(p) for p in out if p]
@@ -173,6 +169,21 @@ def _facts_for(trace, ccn: str) -> dict:
     return facts
 
 
+def _deal_homes(deal: dict) -> list:
+    """Homes the deal names: facility_names, plus a notice title's text after the colon."""
+    title = str(deal.get("title") or "")
+    return list(deal.get("facility_names") or []) + ([title.split(":", 1)[1].strip()] if ":" in title else [])
+
+
+def _names_agree(a: str, b: str) -> bool:
+    """The same distinctive words (pipeline/cms_confirm.py), allowing a cut-off last
+    word only when CMS really cut the name off at 50 characters."""
+    ka, kb = distinctive_key(a), distinctive_key(b)
+    if ka and ka == kb:
+        return True
+    return len(b or "") >= CMS_NAME_LIMIT and same_facility_name(a, b)
+
+
 def _same_party(a: str, b: str) -> bool:
     if legal_name_key(a) and legal_name_key(a) == legal_name_key(b):
         return True
@@ -190,7 +201,6 @@ def verify_deal_verdict(verdict: dict, trace) -> dict:
         issues.append("the verdict was incomplete (no valid outcome or confidence), treated as unresolved")
         v.update(outcome="unresolved", facilities=[], reasoning=v.get("reasoning") or "Incomplete verdict.")
 
-    deal_words = set(_words(_deal_text(deal)))
     deal_states = set(deal.get("states") or [])
     parties = _parties(deal)
     good_ids = {s.id for s in trace.tool_steps() if not s.error}
@@ -219,10 +229,13 @@ def verify_deal_verdict(verdict: dict, trace) -> dict:
             issues.append(f"CCN {ccn}: evidence citing no real successful step removed")
         f["evidence"] = ev
 
-        named = any(name_in_text(n, deal_words) for n in facts["names"])
+        # The CMS name must agree with a home the deal names, not just have its words
+        # somewhere in the text: "Atrium ... of Wayneview, Wayne NJ" holds every word of
+        # "ATRIUM POST ACUTE CARE OF WAYNE", another home
+        named = any(_names_agree(d, n) for d in _deal_homes(deal) for n in facts["names"])
         owner = next((c for c in sorted(facts["companies"]) for p in parties if _same_party(p, c)), None)
         if named:
-            f["link_basis"], f["link_rule"] = "named_in_deal", "the CMS name of the home is in the deal text"
+            f["link_basis"], f["link_rule"] = "named_in_deal", "the CMS name agrees with a home the deal names"
         elif owner:
             f["link_basis"], f["link_rule"] = "party_is_owner", f"{owner!r} is a party the deal names"
         else:
