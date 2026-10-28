@@ -185,3 +185,15 @@ test("(k) a UCC filing's collateral shows in Details, quoted", async ({ page }) 
   await expect(page.locator(`#details-${ri.id}`)).toContainText(
     "Collateral (as filed)All assets of Debtor, whether now owned or hereafter acquired, and all proceeds thereof. · quoted from the state's filing page");
 });
+
+test("(l) a UCC filing without a summary shows its written-from-record narrative", async ({ page }) => {
+  const d = { ...fixture.deals.find(x => x.id === IDS.individualUcc), summary: null,
+    ucc_narrative: "Likely refinancing: the borrower had an earlier loan from a different lender." };
+  await page.route(/deals\.json/, route => route.fulfill({
+    json: { ...fixture, deals: fixture.deals.map(x => x.id === d.id ? d : x) } }));
+  await page.goto("./?tab=financing");
+  await card(page, d.id).getByRole("button", { name: "Details" }).click();
+  const details = page.locator(`#details-${d.id}`);
+  await expect(details).toContainText("Narrative context" + d.ucc_narrative);
+  await expect(details).toContainText("From the filing and CMS records, not from a document.");
+});

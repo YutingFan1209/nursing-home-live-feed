@@ -534,3 +534,21 @@ def test_state_notice_links_a_renamed_home_by_address_legal_name_or_two_words():
     cms.facility["6"] = ("ATRIUM POST ACUTE CARE OF WAYNE", "NJ", 100)
     # a short CMS name is not a cut-off one: Wayneview is a different home
     assert cms.ccns_for_notice(["Atrium Post Acute Care of Wayneview"], ["NJ"], "") == ([], None)
+
+
+def test_ucc_narrative_says_only_why_the_filing_got_its_category():
+    from pipeline.deal_labels import ucc_narrative
+    base = {"source_type": "ucc", "ucc_state": "RI", "acquisition_date": "2026-10-13",
+            "ucc_debtor": "QUILLMARK REHAB LLC", "lender": "LARCHMERE CAPITAL LLC", "ccns": ["415099"]}
+    assert ucc_narrative({**base, "deal_type": "acquisition_financing",
+                          "cms_sale": {"buyer": "QUILLMARK REHAB LLC", "seller": "OLD OWNER LLC", "date": "2026-10-01"}},
+                         ["Zephyrdale Center"]) == \
+        "Likely purchase financing: CMS shows QUILLMARK REHAB LLC buying Zephyrdale Center from OLD OWNER LLC, effective Oct 1, 2026."
+    assert ucc_narrative({**base, "deal_type": "refinancing", "ucc_category_basis": "earlier_loan"}, []) == \
+        "Likely refinancing: the borrower had an earlier loan from a different lender."
+    assert ucc_narrative({**base, "deal_type": "financing"}, ["Zephyrdale Center"]) == \
+        "Linked to Zephyrdale Center; no sale in CMS records yet."
+    # an individual's filing never names a home from the person's other holdings
+    assert ucc_narrative({**base, "individual_filing": True, "deal_type": "financing"}, ["Zephyrdale Center"]) == \
+        "No sale in CMS records yet."
+    assert ucc_narrative({"source_type": "rss"}, []) is None

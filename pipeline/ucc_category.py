@@ -168,10 +168,13 @@ def categorize(deals: list[dict], owner_starts: dict, today: date = None, notice
         if not filed or not debtor or is_person(debtor):
             continue
         signal = _cms_signal(filed, d.get("ccns"), owner_starts, known_through)
+        if signal:
+            d["ucc_category_basis"] = "cms"
         if not signal and _lender_known(d):
             lender = norm(d.get("lender"))
             if any(f < filed and l != lender for f, l in by_debtor[(d.get("ucc_state"), norm(debtor))]):
                 signal = "refinancing"
+                d["ucc_category_basis"] = "earlier_loan"
         if signal != "acquisition_financing" and is_operator(d.get("lender"), debtor):
             signal = "operations_transfer"
         d["deal_type"] = signal or "financing"

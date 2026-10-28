@@ -596,6 +596,50 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
     return out
 
 
+# ── UCC narrative ────────────────────────────────────────────────────────
+
+def _long_date(s) -> str | None:
+    day = _day(s)
+    return f"{day:%b} {day.day}, {day.year}" if day else None
+
+
+
+
+def ucc_narrative(d: dict, facilities: list[str]) -> str | None:
+    """One line on why a UCC filing got its category, written only from
+    fields the record already has (the category rules in
+    pipeline/ucc_category.py, the lender classifier, CMS's sale record), so
+    nothing in it is invented. Borrower, lender, date and collateral are
+    already on the card, so they aren't repeated. UCC filings never go
+    through Claude, so they have no summary (2026-10-28)."""
+    if d.get("source_type") != "ucc":
+        return None
+    home = (facilities or [None])[0] if (d.get("ccns") and not d.get("individual_filing")) else None
+    sale, dt = d.get("cms_sale"), d.get("deal_type")
+    if dt == "acquisition_financing" and sale and sale.get("buyer"):
+        when = _long_date(sale.get("date"))
+        seller = f" from {sale['seller']}" if sale.get("seller") else ""
+        return (f"Likely purchase financing: CMS shows {sale['buyer']} buying {home or 'the home'}{seller}"
+                f"{f', effective {when}' if when else ''}.")
+    if dt == "acquisition_financing":
+        return f"Likely purchase financing: CMS shows a new owner at {home or 'the home'} within six months of the filing."
+    if dt == "refinancing" and d.get("ucc_category_basis") == "earlier_loan":
+        return "Likely refinancing: the borrower had an earlier loan from a different lender."
+    if dt == "refinancing":
+        return f"Likely refinancing: the owner of {home or 'the home'} was in place more than six months before the filing."
+    if dt == "operations_transfer":
+        return "Possible sale: the lender is itself a nursing home operator, usually the incoming one."
+    if dt == "non_deal_lien" and is_personal_loan(d):
+        return "Probably a personal loan, not a nursing home deal."
+    if dt == "non_deal_lien" and d.get("lender_category") == "Equipment / non-deal lien":
+        return "Probably an equipment or service supplier's lien, not deal financing."
+    if dt == "non_deal_lien":
+        return "Probably not deal financing, going by the borrower or lender."
+    if dt == "amendment":
+        return "Changes an earlier filing; not a new loan."
+    return f"Linked to {home}; no sale in CMS records yet." if home else "No sale in CMS records yet."
+
+
 # ── Everything, for one exported deal ────────────────────────────────────
 
 def label(d: dict, cms, facilities: list[str], today: date | None = None,
@@ -625,6 +669,7 @@ def label(d: dict, cms, facilities: list[str], today: date | None = None,
     out.update(status(merged, out["cms_event"], today))
     merged = {**d, **out}
     out["headline"] = headline(merged, facilities, show_individual_names)
+    out["ucc_narrative"] = ucc_narrative(merged, facilities)
     return out
 
 

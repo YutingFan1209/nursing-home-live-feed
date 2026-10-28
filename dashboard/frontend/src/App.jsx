@@ -743,9 +743,10 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
             {deal.source_type !== "ucc" && deal.ucc_confirmed && <Row label="Corroboration">Matches a state UCC-1 financing statement</Row>}
           </Section>
 
-          {deal.summary && (
+          {(deal.summary || deal.ucc_narrative) && (
             <Section title="Narrative context">
-              <p style={{ fontSize: 14, lineHeight: 1.55, color: "#3F4248" }}>{deal.summary}</p>
+              <p style={{ fontSize: 14, lineHeight: 1.55, color: "#3F4248" }}>{deal.summary || deal.ucc_narrative}</p>
+              {!deal.summary && <p style={{ fontSize: 13, color: "#5F636A", marginTop: 4 }}>From the filing and CMS records, not from a document.</p>}
             </Section>
           )}
 
