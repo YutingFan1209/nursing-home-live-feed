@@ -488,6 +488,7 @@ def main():
                 a.url AS source_url, a.title AS source_title, a.published_at::date::text AS published_at,
                 uf.detail_url AS ucc_detail_url,
                 uf.debtor_name AS ucc_debtor, uf.filing_type AS ucc_filing_type,
+                uf.collateral_text AS ucc_collateral, uf.collateral_source AS ucc_collateral_source,
                 -- Weak fuzzy facility-name matches on news and state filings are
                 -- mostly wrong homes (Golden Madera -> Bay Marina Post Acute,
                 -- Stephenson County -> Serenity Estates of Lena; 2026-10-12);
@@ -504,7 +505,8 @@ def main():
                 AND uf.filing_number = split_part(a.url, '/', 4)
                 AND s.source_type = 'ucc'
             WHERE d.stage NOT IN ('dismissed')
-            GROUP BY d.id, a.url, a.title, a.published_at, s.source_type, s.name, uf.detail_url, uf.debtor_name, uf.filing_type
+            GROUP BY d.id, a.url, a.title, a.published_at, s.source_type, s.name, uf.detail_url, uf.debtor_name, uf.filing_type,
+                     uf.collateral_text, uf.collateral_source
             ORDER BY COALESCE(d.acquisition_date, d.created_at::date) DESC, d.created_at DESC
         """)
         cols = [c[0] for c in cur.description]
@@ -536,7 +538,7 @@ def main():
                 # the filing number on click so the viewer can paste it
                 deal["ucc_search_page"] = deal["source_url"] == UCC_PORTAL_URLS.get(ucc_state.upper())
             else:
-                for k in ("ucc_detail_url", "ucc_debtor", "ucc_filing_type"):
+                for k in ("ucc_detail_url", "ucc_debtor", "ucc_filing_type", "ucc_collateral", "ucc_collateral_source"):
                     deal.pop(k, None)
                 deal["deal_type"] = "ownership_change" if deal["source_type"] in ("chow", "con") else _news_deal_type(deal)
             deals.append(deal)

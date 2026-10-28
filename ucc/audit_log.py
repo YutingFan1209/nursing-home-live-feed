@@ -76,19 +76,22 @@ def save_ucc_filings(filings: list[UCCFiling], conn) -> int:
         f.filing_type, f.collateral_description or "", f.status,
         f.raw.get("query_name", ""), f.raw.get("sp_address", ""),
         to_confidence_label(classify_secured_party(f.secured_party_name)) if f.secured_party_name else None,
-        _detail_url(f),
+        _detail_url(f), f.collateral_text, f.collateral_source,
     ) for f in filings]
     with conn.cursor() as cur:
         execute_values(cur, """
             INSERT INTO ucc_filings
                 (state, filing_number, debtor_name, secured_party,
                  filing_date, filing_type, collateral_description,
-                 status, query_name, sp_address, confidence, detail_url)
+                 status, query_name, sp_address, confidence, detail_url,
+                 collateral_text, collateral_source)
             VALUES %s
             ON CONFLICT (state, filing_number) DO UPDATE
             SET confidence = EXCLUDED.confidence,
                 secured_party = EXCLUDED.secured_party,
-                detail_url = COALESCE(EXCLUDED.detail_url, ucc_filings.detail_url)
+                detail_url = COALESCE(EXCLUDED.detail_url, ucc_filings.detail_url),
+                collateral_text = COALESCE(EXCLUDED.collateral_text, ucc_filings.collateral_text),
+                collateral_source = COALESCE(EXCLUDED.collateral_source, ucc_filings.collateral_source)
         """, rows)
     conn.commit()
 

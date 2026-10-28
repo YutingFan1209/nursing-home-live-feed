@@ -786,6 +786,27 @@ def test_ri_results_and_history_parsing():
     assert got["terminated"]
 
 
+def test_ri_history_keeps_the_initial_filings_collateral_verbatim():
+    # the page shows collateral in a read-only textarea (2026-10-28); an
+    # amendment's collateral box isn't the initial filing's
+    history = """<table id="MainContent_tblFilingHistory">
+      <tr><td align="center" colspan="4">UCC-1 Standard</td></tr>
+      <tr><td colspan="4">Debtor(s)</td></tr>
+      <tr><td colspan="2">QUILLMARK REHAB, LLC<BR>1 MAIN ST<BR>PROVIDENCE RI 02903</td></tr>
+      <tr><td colspan="4">Collateral Information</td></tr>
+      <tr><td colspan="4"><textarea readonly="readonly">
+All assets of Debtor, whether now owned or hereafter acquired,  and all proceeds thereof.</textarea></td></tr>
+      <tr><td align="center" colspan="4">UCC-3 AMENDMENT</td></tr>
+      <tr><td colspan="4">Collateral Information</td></tr>
+      <tr><td colspan="4"><textarea readonly="readonly">Equipment only.</textarea></td></tr>
+    </table>"""
+    got = ri.parse_history(history)
+    assert got["collateral"] == "All assets of Debtor, whether now owned or hereafter acquired,  and all proceeds thereof."
+    assert not got["terminated"]
+    no_collateral = history.split('<tr><td colspan="4">Collateral')[0] + "</table>"
+    assert ri.parse_history(no_collateral)["collateral"] is None
+
+
 def test_ri_results_url_sends_every_form_key():
     url = ri.results_url("CAPITAL FUNDING")
     for key in ("txtLast=", "chkDebtor=", "chkSecuredParty=S", "txtName=CAPITAL+FUNDING", "lstDisplay=10000"):

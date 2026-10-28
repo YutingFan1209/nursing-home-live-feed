@@ -174,3 +174,14 @@ test("(j) the CSV download has a UTF-8 BOM and the Excel download is a workbook"
     expect(file.suggestedFilename()).toMatch(name === "↓ CSV" ? /\.csv$/ : /\.xlsx$/);
   }
 });
+
+test("(k) a UCC filing's collateral shows in Details, quoted", async ({ page }) => {
+  const ri = { ...fixture.deals.find(d => d.id === IDS.individualUcc), ucc_state: "RI",
+    ucc_collateral: "All assets of Debtor, whether now owned or hereafter acquired, and all proceeds thereof." };
+  await page.route(/deals\.json/, route => route.fulfill({
+    json: { ...fixture, deals: fixture.deals.map(d => d.id === ri.id ? ri : d) } }));
+  await page.goto("./?tab=financing");
+  await card(page, ri.id).getByRole("button", { name: "Details" }).click();
+  await expect(page.locator(`#details-${ri.id}`)).toContainText(
+    "Collateral (as filed)All assets of Debtor, whether now owned or hereafter acquired, and all proceeds thereof. · quoted from the state's filing page");
+});

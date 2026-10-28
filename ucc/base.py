@@ -42,7 +42,9 @@ class UCCFiling:
     filing_date: Optional[date] = None
     lapse_date: Optional[date] = None
     filing_type: str = "UCC-1"     # UCC-1, UCC-3 (amendment/continuation/termination)
-    collateral_description: Optional[str] = None
+    collateral_description: Optional[str] = None  # main.py reads this as '|'-separated facility names
+    collateral_text: Optional[str] = None    # the filing's collateral description, verbatim
+    collateral_source: Optional[str] = None  # where it came from: page_text (more kinds later)
     status: str = "active"         # active | lapsed | terminated
     source_url: Optional[str] = None
     raw: dict = field(default_factory=dict)  # original record, for debugging/audit

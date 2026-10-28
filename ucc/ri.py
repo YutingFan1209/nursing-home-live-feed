@@ -73,11 +73,13 @@ def parse_results(html: str) -> list[dict]:
 
 
 def parse_history(html: str) -> dict:
-    """The initial filing's debtors, plus whether a later UCC-3 terminated it."""
+    """The initial filing's debtors and collateral text (verbatim from the
+    page's read-only box), plus whether a later UCC-3 terminated it.
+    Amendments that change the collateral aren't applied."""
     table = BeautifulSoup(html, "html.parser").select_one("#MainContent_tblFilingHistory")
     if not table:
         return {}
-    debtors, section, sections = [], None, 0
+    debtors, collateral, section, sections = [], [], None, 0
     for tr in table.select("tr"):
         tds = tr.select("td")
         text = tr.get_text(" ", strip=True)
@@ -88,12 +90,18 @@ def parse_history(html: str) -> dict:
         if text in ("Debtor(s)", "Secured Parties", "Collateral Information"):
             section = text
             continue
+        if sections == 1 and section == "Collateral Information":
+            box = tr.select_one("textarea")
+            text = (box.get_text() if box else tr.get_text("\n")).strip()
+            if text:
+                collateral.append(text)
         if sections == 1 and section == "Debtor(s)":
             for td in tds:
                 lines = [l.strip() for l in td.get_text("\n").split("\n") if l.strip()]
                 if lines:
                     debtors.append({"name": lines[0], "address": ", ".join(lines[1:])})
-    return {"debtors": debtors, "terminated": "UCC-3 TERMINATION" in table.get_text(" ").upper()}
+    return {"debtors": debtors, "collateral": "\n".join(collateral) or None,
+            "terminated": "UCC-3 TERMINATION" in table.get_text(" ").upper()}
 
 
 def search_secured_party(name: str, session: requests.Session = None, today: date = None,
@@ -129,6 +137,8 @@ def search_secured_party(name: str, session: requests.Session = None, today: dat
             filing_date=row["date"],
             lapse_date=row["date"] + timedelta(days=5 * 365 + 1),  # UCC-1s run 5 years
             filing_type="UCC-1",
+            collateral_text=history.get("collateral"),
+            collateral_source="page_text" if history.get("collateral") else None,
             status="terminated" if history.get("terminated") or row["filing_number"] in terminated else "active",
             source_url=BASE + "UCCSearch.aspx",  # the history page needs a search session
             raw={"address": debtors[0]["address"], "query_name": name, "ucc1_id": ucc1},
