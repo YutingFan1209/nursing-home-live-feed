@@ -417,6 +417,23 @@ def test_ucc_category_and_repeats():
     assert len(out) == len(deals) - 1                                 # persons and NJ aren't collapsed
 
 
+def test_collapse_repeats_keeps_sibling_collateral():
+    from pipeline.ucc_category import collapse_repeats
+
+    def ny(number, created, collateral=None):
+        return {"source_type": "ucc", "deal_type": "financing", "ucc_state": "NY", "ucc_filing_number": number,
+                "ucc_debtor": "GARDENS POST ACUTE LLC", "lender": "METROPOLITAN COMMERCIAL BANK",
+                "acquisition_date": "2025-07-18", "created_at": created, "ccns": [],
+                "ucc_collateral": collateral, "ucc_collateral_source": "filing_pdf_excerpt" if collateral else None}
+    out = collapse_repeats([ny("050", "a", "the 5% equity interests"), ny("062", "b")])
+    assert len(out) == 1 and out[0]["ucc_filing_number"] == "062"
+    assert out[0]["ucc_collateral"] == "the 5% equity interests"
+    assert out[0]["ucc_collateral_from"] == "050" and out[0]["ucc_collateral_source"] == "filing_pdf_excerpt"
+    # A row with its own collateral keeps it, unlabelled
+    out = collapse_repeats([ny("050", "a", "old"), ny("062", "b", "own")])
+    assert out[0]["ucc_collateral"] == "own" and "ucc_collateral_from" not in out[0]
+
+
 # ── Illinois HFSRB change-of-ownership projects (2026-10-12) ──────────────
 
 from scraper.con_il import is_chow_text, is_ltc_title, list_projects, _project_year

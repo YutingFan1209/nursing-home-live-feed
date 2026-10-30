@@ -200,5 +200,13 @@ def collapse_repeats(deals: list[dict]) -> list[dict]:
         keep["deal_type"] = group[0]["deal_type"]
         keep["ucc_also_filed"] = [d["acquisition_date"] for d in group[:-1]]
         keep["ccns"] = sorted({c for d in group for c in (d.get("ccns") or []) if c})
+        # Collateral read from one filing's PDF (NY 202507180258050) still
+        # shows when a later sibling is the row kept, labelled with its source
+        if not keep.get("ucc_collateral"):
+            donor = next((d for d in reversed(group[:-1]) if d.get("ucc_collateral")), None)
+            if donor:
+                keep["ucc_collateral"] = donor["ucc_collateral"]
+                keep["ucc_collateral_source"] = donor.get("ucc_collateral_source")
+                keep["ucc_collateral_from"] = donor.get("ucc_filing_number")
         drop.update(id(d) for d in group[:-1])
     return [d for d in deals if id(d) not in drop]

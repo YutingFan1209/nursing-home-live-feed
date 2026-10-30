@@ -216,7 +216,8 @@ const CSV_COLUMNS = [
   ["borrower", d => d.ucc_debtor, "UCC filings: the debtor named on the filing."],
   ["lender", d => d.lender, "Lender or secured party."],
   ["lender_category", d => d.lender_category, "UCC filings: kind of lender, from the secured party's name."],
-  ["collateral", d => d.ucc_collateral, "UCC filings: the collateral description, quoted exactly from the state's filing page. Rhode Island only so far; blank elsewhere."],
+  ["collateral", d => d.ucc_collateral, "UCC filings: the collateral description, quoted exactly from the state's filing page (Rhode Island), or an excerpt from a filing document read by hand ([…] marks omitted text). Blank elsewhere."],
+  ["collateral_from_filing", d => d.ucc_collateral_from, "UCC filings: when the collateral was read from an earlier filing for the same loan, that filing's number."],
   ["states", d => (d.states || []).join(" "), "Two-letter state codes."],
   ["facility_count", d => d.facility_count, "Number of facilities, as reported."],
   ["facilities", d => (d.facility_names || []).join("; "), "Facility names. For individual filings these are possible homes, not confirmed links."],
@@ -717,7 +718,12 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
             {deal.ucc_collateral && (
               <Row label="Collateral (as filed)">
                 <span style={{ whiteSpace: "pre-line" }}>{deal.ucc_collateral}</span>
-                <span style={{ color: "#5F636A" }}> · quoted from the state's filing page</span>
+                <span style={{ color: "#5F636A" }}>
+                  {deal.ucc_collateral_source === "filing_pdf_excerpt"
+                    ? " · excerpt from the filing document, […] marks omitted text"
+                    : " · quoted from the state's filing page"}
+                  {deal.ucc_collateral_from && ` · from filing ${deal.ucc_collateral_from}, filed the same day for the same loan`}
+                </span>
               </Row>
             )}
             <Row label="Facility type">{FACILITY_TYPE[deal.facility_type] || deal.facility_type}</Row>
