@@ -364,6 +364,21 @@ function NameList({ names, onPick, max = 4 }) {
   </>;
 }
 
+// Long collateral (a HUD filing's extension sheet) shows three lines and a toggle
+const COLLATERAL_CLAMP_CHARS = 240;
+function ClampedText({ text }) {
+  const [all, setAll] = useState(false);
+  const long = text.length > COLLATERAL_CLAMP_CHARS;
+  const clamp = long && !all ? { display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" } : {};
+  return <>
+    <span style={{ whiteSpace: "pre-line", ...clamp }}>{text}</span>
+    {long && (
+      <button type="button" aria-expanded={all} onClick={() => setAll(a => !a)} style={{ ...linkBtn, ...lnk, fontSize: 13 }}>
+        {all ? "show less" : "show all"}</button>
+    )}
+  </>;
+}
+
 function Field({ label, children }) {
   return <div><div style={dl}>{label}</div><div style={dv}>{children}</div></div>;
 }
@@ -717,7 +732,7 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
             {fmtM(deal.financing_amount_m) && <Row label="Loan amount">{fmtM(deal.financing_amount_m)}</Row>}
             {deal.ucc_collateral && (
               <Row label="Collateral (as filed)">
-                <span style={{ whiteSpace: "pre-line" }}>{deal.ucc_collateral}</span>
+                <ClampedText text={deal.ucc_collateral} />
                 <span style={{ color: "#5F636A" }}>
                   {deal.ucc_collateral_source === "filing_pdf_excerpt"
                     ? " · excerpt from the filing document, […] marks omitted text"

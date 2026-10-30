@@ -186,6 +186,21 @@ test("(k) a UCC filing's collateral shows in Details, quoted", async ({ page }) 
     "Collateral (as filed)All assets of Debtor, whether now owned or hereafter acquired, and all proceeds thereof. · quoted from the state's filing page");
 });
 
+test("(k2) long collateral starts at three lines and expands", async ({ page }) => {
+  const long = Array.from({ length: 12 }, (_, i) => `(${i + 1}) all equipment, inventory and general intangibles of the Healthcare Facility;`).join("\n");
+  const ri = { ...fixture.deals.find(d => d.id === IDS.individualUcc), ucc_state: "RI", ucc_collateral: long };
+  await page.route(/deals\.json/, route => route.fulfill({
+    json: { ...fixture, deals: fixture.deals.map(d => d.id === ri.id ? ri : d) } }));
+  await page.goto("./?tab=financing");
+  await card(page, ri.id).getByRole("button", { name: "Details" }).click();
+  const details = page.locator(`#details-${ri.id}`);
+  const text = details.getByText("(1) all equipment", { exact: false });
+  const clamped = (await text.boundingBox()).height;
+  await details.getByRole("button", { name: "show all" }).click();
+  expect((await text.boundingBox()).height).toBeGreaterThan(clamped * 2);
+  await expect(details.getByRole("button", { name: "show less" })).toHaveAttribute("aria-expanded", "true");
+});
+
 test("(l) a UCC filing without a summary shows its written-from-record narrative", async ({ page }) => {
   const d = { ...fixture.deals.find(x => x.id === IDS.individualUcc), summary: null,
     ucc_narrative: "Likely refinancing: the borrower had an earlier loan from a different lender." };
