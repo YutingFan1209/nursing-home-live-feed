@@ -10,5 +10,71 @@
       "two_sales_of_one_home"
     ],
     "why": "Willow Creek Post Acute (TX): two CHOW records in CMS's file, Dec 2025 and Apr 2026 (reviewed 2026-10-21)"
+  },
+  "1d2d6a30": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Bolivar Medical Center Long Term Care (MS) = CMS 25A188 Bolivar Medical Center LTC, Cleveland: same unit, CMS abbreviates (reviewed 2026-11-02)"
+  },
+  "30eff266": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Oak Crest Health & Wellness (AL) = CMS 015050 Stonehaven H&R, whose legal name is Oak Crest Health & Wellness Opco LLC; buyer Stonehaven (reviewed 2026-11-02)"
+  },
+  "6e364e08": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Hale Ola Kino by Arcadia (HI): notice names the address 1314 Kalakaua Ave, which is CMS 125069 of the same name (reviewed 2026-11-02)"
+  },
+  "8d492ec7": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "York Manor Nursing Home (OK) = CMS 375132 Heartway at York Manor, Muskogee: the only York Manor in OK, renamed under Heartway (reviewed 2026-11-02)"
+  },
+  "959697f9": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Valley View Health & Rehabilitation (RI) = CMS 415079 'Cedar Haven Operations Holding LLC Valley View Health', Woonsocket (user-approved link 2026-10-28) (reviewed 2026-11-02)"
+  },
+  "98347ce7": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Brighton Senior Living at Lakeland Manor (OK) = CMS 375379 Ardmore Center, legal name Darlene Investment Group Lakeland Manor (user-approved link 2026-10-28) (reviewed 2026-11-02)"
+  },
+  "b59fc4ab": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Valley Convalescent and Rehabilitation Center (CA) = CMS 056178 Manresa Healthcare Center, Watsonville: legal name Lazer Holdings LLC (the buyer), Santa Cruz County, 919 Freedom Blvd (notice: Freedom Propco LLC) (reviewed 2026-11-02)"
+  },
+  "f8ed81d9": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Heritage Village Nursing Home (OK) = CMS 375199 Heartway at Heritage Village, legal name Heritage Village Nursing Center LLC (reviewed 2026-11-02)"
+  },
+  "ff5c3ebc": {
+    "checks": [
+      "home_not_named"
+    ],
+    "why": "Academy Health Center, Inc. (MS), leased to Lamar Health and Rehabilitation Center = CMS 255338 Lamar Healthcare & Rehab, Lumberton; CMS lists Academy Health Center Inc as an owner. Madison is the company's address (reviewed 2026-11-02)"
+  },
+  "16f8046c": {
+    "checks": [
+      "two_sales_of_one_home"
+    ],
+    "why": "Red Bay (AL) CCN 015201: two real sales in a row, Generations to SouthCare (Nov 2025) then SouthCare to Arabella (Jan 2026 notice) (reviewed 2026-11-02)"
+  },
+  "8aa4f140": {
+    "checks": [
+      "two_sales_of_one_home"
+    ],
+    "why": "Vernon (AL) CCN 015227: two real sales in a row, Generations to SouthCare (Nov 2025) then SouthCare to Arabella (Jan 2026 notice) (reviewed 2026-11-02)"
   }
 }
