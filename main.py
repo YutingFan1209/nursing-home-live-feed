@@ -1804,9 +1804,12 @@ def _store_cms_matches(deal_id, matches: list[dict], conn):
     with conn.cursor() as cur:
         # keep scripts/enrich_ucc_facility_names.py's rows: a recheck
         # doesn't reproduce them, and enrichment won't redo a deal whose
-        # facility name it already set
+        # facility name it already set. Also keep links a person approved
+        # (scripts/approve_link.py) or the agent verified: the recheck had
+        # been wiping them (2 of 19 approved 2026-10-28 gone by 11-02)
         cur.execute("""
             DELETE FROM cms_matches WHERE deal_id = %s AND match_method NOT LIKE 'ucc_debtor%%'
+              AND match_method <> 'manual_reviewed' AND match_method NOT LIKE 'agent\\_%%'
         """, (deal_id,))
         # CMS lists one person once per role (officer, director, managing
         # employee...), and this table doesn't keep the role, so those rows

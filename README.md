@@ -205,6 +205,7 @@ git checkout main
 |---|---|
 | `scripts/export_deals.py <path>` | Export `deals.json` + `feed.xml` (positional path; `feed.xml` goes next to it) |
 | `scripts/predeploy_check.py <export>` | Compare an export with the live site; stops on suspicious batches |
+| `scripts/approve_link.py <deal> <ccn> "why" [--replace]` | Link a record to a home after checking its address; the export and consistency check then trust it |
 | `scripts/ingest_manual_ucc.py <STATE> <csv>` | Load a hand-filled UCC worklist from `Manual/` |
 | `scripts/ingest_lender_rows.py` | Load lender-search results gathered in a browser (OR, OH) |
 | `scripts/ca_ucc_import.py data/DataRequest*.zip` | Import California's weekly UCC bulk data |

@@ -595,10 +595,15 @@ def main():
         # Providence hospitals and an 18-home Maryland portfolio to Snow Hill,
         # which isn't in it (audit 2026-10-21)
         # agent_deal_verified: tied by rule in agent/deals.py (a named party is the
-        # home's owner or CHOW buyer/seller), e.g. Valley Convalescent renamed Manresa
-        cur.execute("SELECT deal_id::text, ccn FROM cms_matches WHERE match_method IN "
-                    "('chow_ccn_direct', 'cms_ownership_direct', 'agent_deal_verified')")
-        direct = set(cur.fetchall())
+        # home's owner or CHOW buyer/seller), e.g. Valley Convalescent renamed Manresa.
+        # manual_reviewed: a person checked the link (scripts/approve_link.py)
+        cur.execute("SELECT deal_id::text, ccn, match_method FROM cms_matches WHERE match_method IN "
+                    "('chow_ccn_direct', 'cms_ownership_direct', 'agent_deal_verified', 'manual_reviewed')")
+        direct, reviewed = set(), {}
+        for deal_id, ccn, method in cur.fetchall():
+            direct.add((deal_id, ccn))
+            if method == "manual_reviewed":
+                reviewed.setdefault(deal_id, set()).add(ccn)
         cur.execute("SELECT ccn, provider_name, provider_city FROM cms_facilities")
         home = {ccn: (name, city) for ccn, name, city in cur.fetchall()}
         unnamed = 0
@@ -613,6 +618,12 @@ def main():
             unnamed += len(deal["ccns"]) - len(keep)
             deal["ccns"] = keep or None
         print(f"Dropped {unnamed} links to homes a record doesn't name")
+        # Links a person checked, so scripts/consistency_check.py doesn't flag
+        # them again (it can't see the address or review behind a link)
+        for deal in deals:
+            ok = sorted(set(deal.get("ccns") or []) & reviewed.get(deal["id"], set()))
+            if ok:
+                deal["ccn_reviewed"] = ok
 
         # UCC financing -> acquisition financing / refinancing, and one row
         # per repeated loan (pipeline/ucc_category.py). Holding companies

@@ -3,13 +3,14 @@ scripts/consistency_check.py
 
 Check every record in a deals.json export against itself and CMS's list of
 homes: the mistakes the 2026-10-21 audit found by hand, looked for on the
-whole site at once. predeploy_check.py runs it, and stops a deploy when a
-new or changed record has one of them.
+whole site at once. predeploy_check.py runs it on the whole export and
+stops a deploy while any record has one of them, new or already live.
 
     venv/bin/python3 scripts/consistency_check.py /tmp/deals.json
 
-A record looked at and found right goes in consistency_exceptions.json with
-the reason, so it isn't flagged again.
+A home link a person checked is written as manual_reviewed
+(scripts/approve_link.py) and isn't flagged again. Any other record looked
+at and found right goes in consistency_exceptions.json with the reason.
 """
 import json
 import os
@@ -65,8 +66,14 @@ def issues(export: dict) -> list[tuple[str, str, str]]:
                 out.append(("home_in_other_state", d["id"], f"{c} {f['name']} is in {f['state']}, record says {sorted(states)}"))
             # News and notices only link homes they name (CHOW and CMS
             # records come with the CCN; UCC links have their own rules)
+            # A notice linked by its street address or the home's CMS legal
+            # name (export's ccn_match), or a link a person reviewed, is
+            # tied by more than the name, so it isn't flagged (2026-11-02:
+            # 10 of 11 flags were links like these)
             if (src in ("rss", "edgar", "gmail", "con") and d.get("extraction_model") != "cms_owner_change"
                     and d.get("match_type") not in ("chow_ccn_direct", "cms_ownership_direct")
+                    and d.get("ccn_match") not in ("notice_address", "notice_legal_name")
+                    and c not in (d.get("ccn_reviewed") or [])
                     and not _linked_by_name(d, f)):
                 out.append(("home_not_named", d["id"], f"{c} {f['name']}, {f.get('city')}"))
         ad = d.get("acquisition_date") or ""

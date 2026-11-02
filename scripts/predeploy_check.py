@@ -77,8 +77,14 @@ def check(new: dict, live: dict) -> tuple[dict, list[str]]:
                      Counter(d.get("lender") for d in added if d.get("lender")).most_common(10)))
         lines.append("sample new headlines:")
         lines += [f"  - {headline(d)[:110]}" for d in added[:12]]
-    for k, i, x in found:
-        lines.append(f"  {k}: {i[:8]} {headline(a[i])[:60]} | {x}")
+    # Both kinds block: a flag already live is unfinished review, not a pass
+    # (2026-11-02: one wrong link sat among 12 "expected" flags for 9 deploys)
+    already = {(k, i) for k, i, _ in unexcused(issues(live), load_exceptions())}
+    for label, group in (("new in this deploy", [f for f in found if f[:2] not in already]),
+                         ("already live, still unreviewed", [f for f in found if f[:2] in already])):
+        if group:
+            lines.append(f"consistency issues {label} ({len(group)}):")
+            lines += [f"  {k}: {i[:8]} {headline(a[i])[:60]} | {x}" for k, i, x in group]
     for d in a.values():
         if re.search(r"\bacquired\b", headline(d)):
             lines.append(f"  'acquired' headline: {d['id'][:8]} {headline(d)[:100]}")
