@@ -104,11 +104,13 @@ _HOME_BANK_RE = re.compile(
     r"|METROPOLITAN NATIONAL BANK|FORTRESS CREDIT", re.I)
 # Florida's daily file is matched on words like "Nursing" and "Rehab": a
 # filing linked to no home is kept unless it's plainly another business
-# (nursing schools, home care, hospice, pharmacy) or another kind of loan
+# (nursing schools, home care, hospice, pharmacy, sports and physical therapy
+# clinics: Premier Athletic Rehab Center, 2026-11-02) or another kind of loan
 # (merchant cash advances, copiers, a person as lender)
 NOT_A_HOME_RE = re.compile(
     r"school|education|home ?care|home health|hospice|pharmacy|nursing services|staffing|spinal|"
-    r"pediatric|mobility|allied health|nursing on demand|\bshop\b", re.I)
+    r"pediatric|mobility|allied health|nursing on demand|\bshop\b|"
+    r"athletic|physical therap|physiotherap|sports medicine", re.I)
 # A nursing home deal's companion companies, filed the same day as its
 # homes: the assisted or independent living side and physician, ACO and IP
 # holding companies (spot check 2026-10-26: Bethel Assisted Living, Mountain
