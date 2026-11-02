@@ -20,6 +20,7 @@ Center Long Term Care").
 
 import html
 import io
+import json
 import logging
 import re
 from datetime import date, datetime, timedelta, timezone
@@ -33,13 +34,18 @@ from pipeline.run_health import health
 logger = logging.getLogger(__name__)
 
 CON_MS_SOURCE_NAME = "Mississippi MSDH CON Weekly Reports"
+# The pre-redesign index page (404 since ~2026-10-30). Kept only as the prefix
+# of stored record keys (record_url), so past records still dedupe.
 CON_MS_INDEX_URL = "https://msdh.ms.gov/page/30,0,84,863.html"
-CON_MS_ARCHIVE_URL = "https://msdh.ms.gov/page/30,0,84,637.html"
+# Since the redesign each year's reports sit on their own page, linked by year
+# from the archive page, the current year included
+CON_MS_ARCHIVE_URL = ("https://msdh.ms.gov/resources/public-health-forms/license-application-forms/"
+                      "health-facility-licenses/certificates-of-need/certificate-of-need-documents-archive")
 CON_MS_RECENCY_DAYS = 365
 # Enough to cover the 30-day post-completion window with room for missed runs
 RECENT_REPORTS = 6
 
-_REPORT_LINK_RE = re.compile(r'href="([^"]+\.pdf)"[^>]*>\s*CON Weekly Report for ([A-Za-z]+ \d{1,2}, \d{4})\s*</a>')
+_REPORT_LABEL_RE = re.compile(r"CON Weekly Report for ([A-Za-z]+ \d{1,2}, \d{4})")
 _SECTION_START_RE = re.compile(r"Change of Ownership \(CHOW\) Applications", re.I)
 _HEADER_END_RE = re.compile(r"Withdra\s*w?\s*n\s+", re.I)
 _ITEM_RE = re.compile(r"Transaction:\s*(?P<tx>.*?)Location:\s*(?P<loc>.*?Mississippi)", re.S)
@@ -75,18 +81,44 @@ def _get(url: str, timeout: int = 60):
     return resp
 
 
+def _page_links(page_url: str) -> list[tuple[str, str]]:
+    """(label, absolute url) for every link in the page's content. The site
+    is an Inertia app: the content is JSON in the root div's data-page
+    attribute, not HTML links."""
+    m = re.search(r'data-page="([^"]+)"', _get(page_url).text)
+    if not m:
+        return []
+    links = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            if isinstance(o.get("url"), str) and (o.get("label") or o.get("text")):
+                links.append((str(o.get("label") or o.get("text")).strip(), urljoin(page_url, o["url"])))
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+
+    walk(json.loads(html.unescape(m.group(1))).get("props", {}).get("page", {}))
+    return links
+
+
 def _reports_on(page_url: str) -> list[tuple[date, str]]:
-    page = _get(page_url).text
-    return [(datetime.strptime(d, "%B %d, %Y").date(), urljoin(page_url, href))
-            for href, d in _REPORT_LINK_RE.findall(page)]
+    reports = []
+    for label, url in _page_links(page_url):
+        m = _REPORT_LABEL_RE.search(label)
+        if m and url.lower().endswith(".pdf"):
+            reports.append((datetime.strptime(m.group(1), "%B %d, %Y").date(), url))
+    return reports
 
 
-def _archive_page_for(year: int) -> str | None:
-    """The archive index lists weekly-report pages first, labelled by year."""
-    page = _get(CON_MS_ARCHIVE_URL).text
-    for href, label in re.findall(r'href="([^"]+)"[^>]*>(.*?)</a>', page, re.S):
-        if re.sub(r"<[^>]+>|\s+", "", label) == str(year):
-            return urljoin(CON_MS_ARCHIVE_URL, href)
+def _year_page_for(year: int) -> str | None:
+    """The archive page labels each year's weekly-report page by the year alone
+    (2025's is ".../con-weekly-reports-2025-1", so the URL can't be guessed)."""
+    for label, url in _page_links(CON_MS_ARCHIVE_URL):
+        if label == str(year) and "con-weekly-reports" in url:
+            return url
     return None
 
 
@@ -163,22 +195,25 @@ def fetch_con_ms_deals(is_known, backfill: bool) -> list[dict]:
     """
     today = date.today()
     try:
-        reports = _reports_on(CON_MS_INDEX_URL)
+        page = _year_page_for(today.year)
+        reports = _reports_on(page) if page else []
     except Exception as e:
         logger.error(f"MS CON weekly report page fetch failed: {e}")
         health.source_failed("MS CON weekly reports", f"index fetch failed: {e}")
         return []
+    # Early January the new year's page has few reports or none yet
+    if backfill or len(reports) < RECENT_REPORTS:
+        try:
+            last_year = _year_page_for(today.year - 1)
+            if last_year:
+                reports += _reports_on(last_year)
+        except Exception as e:
+            logger.warning(f"MS CON {today.year - 1} archive fetch failed: {e}")
     if not reports:
         health.source_failed("MS CON weekly reports", "0 weekly reports listed (layout change?)")
         return []
     cutoff = today - timedelta(days=CON_MS_RECENCY_DAYS)
     if backfill:
-        try:
-            archive = _archive_page_for(today.year - 1)
-            if archive:
-                reports += _reports_on(archive)
-        except Exception as e:
-            logger.warning(f"MS CON {today.year - 1} archive fetch failed: {e}")
         reports = [r for r in reports if r[0] >= cutoff]
     reports = sorted(set(reports), reverse=True)
     if not backfill:

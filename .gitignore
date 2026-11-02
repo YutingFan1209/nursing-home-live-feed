@@ -40,3 +40,9 @@ tests/output/
 
 # Built Claude Desktop extension (venv/bin/python3 -m agent.mcpb.build)
 agent/mcpb/dist/
+
+# Raw state data kept locally (CO bulk rows include private individuals; MD scrape output)
+Manual/co_ucc_bulk_results.csv
+Manual/in_ucc_worklist.xlsx
+md_ucc_checkpoint.json
+md_ucc_today_*.json
