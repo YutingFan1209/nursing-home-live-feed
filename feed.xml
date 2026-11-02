@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-02T16:51:26.908402+00:00</updated>
+  <updated>2026-11-02T17:00:17.040545+00:00</updated>
+  <entry>
+    <id>urn:uuid:4f8179b2-df60-4349-97f0-1d5a1c74b266</id>
+    <title>Elizabeth West Virginia Realco, LLC — UCC-1 financing (WV)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-11-02T16:56:45.137829+00:00</updated>
+    <summary>Effective 2025-09-29; Facilities: Elizabeth West Virginia Realco, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5763f8fd-ea53-440a-8392-0e64cef24f87</id>
+    <title>EWV Holdings, LLC — UCC-1 financing (WV)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-11-02T16:56:45.035248+00:00</updated>
+    <summary>Effective 2025-09-29; Facilities: EWV Holdings, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:aab681d3-5cca-489e-a344-d589adad44f2</id>
+    <title>Fairmont Rehabilitation and Healthcare Center LLC — acquisition financing (WV)</title>
+    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
+    <updated>2026-11-02T16:56:45.025667+00:00</updated>
+    <summary>Effective 2025-05-19; Facilities: Fairmont Rehabilitation and Healthcare Center LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:475bddd2-5be3-4413-bcdd-277f01b38f56</id>
     <title>SONOMA POST ACUTE — acquisition financing (CA)</title>
@@ -67,13 +88,6 @@
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
     <updated>2026-11-02T16:36:22.972467+00:00</updated>
     <summary>Effective 2017-01-27; Facilities: SANTA ROSA POST ACUTE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:076944ac-6cc2-4ea9-bdac-7c07587953eb</id>
-    <title>SANTA PAULA POST ACUTE — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-11-02T16:36:22.961756+00:00</updated>
-    <summary>Effective 2021-12-02; Facilities: SANTA PAULA POST ACUTE; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:b7d9939f-d0c3-42d8-b510-322a56cbde01</id>
@@ -340,19 +354,5 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-29T14:28:12.924886+00:00</updated>
     <summary>Effective 2025-06-16; Facilities: EUSON LINDSAY HEALTH HOLDINGS LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b5ed28c7-9584-4d76-b99e-9d5d1d88bce0</id>
-    <title>IGNITE MEDICAL RESORT CHESTERTON — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:28:10.827303+00:00</updated>
-    <summary>Effective 2026-03-25; Facilities: IGNITE MEDICAL RESORT CHESTERTON, IGNITE MEDICAL RESORT CROWN POINT LLC, IGNITE MEDICAL RESORT DYER LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:097c6e18-d20a-44af-849c-703a0c1ce181</id>
-    <title>Standard Bearer acquires Englewood Heights Nursing and Rehabilitation (FL)</title>
-    <link href="https://investor.ensigngroup.net/news/news-details/2026/The-Ensign-Group-Reports-Third-Quarter-2026-Results-Raises-2026-Annual-Earnings-Guidance/default.aspx"/>
-    <updated>2026-10-29T14:12:57.758912+00:00</updated>
-    <summary>Facilities: Englewood Heights Nursing and Rehabilitation; Source: Google Alerts (Gmail)</summary>
   </entry>
 </feed>
