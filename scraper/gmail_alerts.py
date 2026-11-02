@@ -6,9 +6,6 @@ Authentication:
 - First run: opens browser for OAuth, saves token to gmail_token.json
 - Subsequent runs: uses saved token automatically, auto-refreshes
 - On AWS: upload gmail_token.json to Secrets Manager
-- Marking processed emails read needs the gmail.modify permission; a token
-  without it still reads alerts. Grant it once with
-  venv/bin/python3 -m scraper.gmail_alerts --reauth
 """
 
 import os
@@ -21,23 +18,21 @@ from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
-MODIFY_SCOPE = SCOPES[0]
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 CREDS_FILE = os.environ.get('GMAIL_CREDENTIALS_FILE', 'gmail_credentials.json')
 TOKEN_FILE  = os.environ.get('GMAIL_TOKEN_FILE', 'gmail_token.json')
 ALERT_SENDER = 'googlealerts-noreply@google.com'
 
 
-def _get_gmail_service(reauth: bool = False):
+def _get_gmail_service():
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
     from google_auth_oauthlib.flow import InstalledAppFlow
     from googleapiclient.discovery import build
 
     creds = None
-    if os.path.exists(TOKEN_FILE) and not reauth:
-        # The token's own scopes: an older read-only token keeps working
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE)
+    if os.path.exists(TOKEN_FILE):
+        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -48,23 +43,13 @@ def _get_gmail_service(reauth: bool = False):
             creds = flow.run_local_server(port=0)
         with open(TOKEN_FILE, 'w') as f:
             f.write(creds.to_json())
-    return build('gmail', 'v1', credentials=creds), MODIFY_SCOPE in (creds.scopes or [])
-
-
-# Alert email id -> its article URLs, from this run's fetch
-_EMAIL_URLS: dict[str, list[str]] = {}
-_SERVICE = None
+    return build('gmail', 'v1', credentials=creds)
 
 
 def fetch_alert_articles(days_back: int = 5) -> list[dict]:
     """Fetch article URLs from recent Google Alert emails."""
-    global _SERVICE
     try:
-        service, can_modify = _get_gmail_service()
-        _SERVICE = service if can_modify else None
-        if not can_modify:
-            health.note("Gmail token is read-only: processed alert emails not marked read "
-                        "(run venv/bin/python3 -m scraper.gmail_alerts --reauth)")
+        service = _get_gmail_service()
     except Exception as e:
         logger.error(f"Gmail authentication failed: {e}")
         health.source_failed("Gmail alerts", f"authentication failed: {e}")
@@ -91,9 +76,7 @@ def fetch_alert_articles(days_back: int = 5) -> list[dict]:
     for msg in messages:
         health.attempted("Gmail alert email parse")
         try:
-            found = _extract_articles_from_email(service, msg['id'])
-            _EMAIL_URLS[msg['id']] = [a['url'] for a in found]
-            for art in found:
+            for art in _extract_articles_from_email(service, msg['id']):
                 if art['url'] not in seen:
                     seen.add(art['url'])
                     articles.append(art)
@@ -103,24 +86,6 @@ def fetch_alert_articles(days_back: int = 5) -> list[dict]:
 
     logger.info(f"Extracted {len(articles)} unique article URLs from alerts")
     return articles
-
-
-def mark_processed(is_processed) -> int:
-    """Mark this run's alert emails read once every article in them has
-    been stored (is_processed(url)), so the inbox shows what's done. An
-    email whose articles weren't all reached (text cap, a crash) stays
-    unread and is read again next run."""
-    if _SERVICE is None:
-        return 0
-    done = [m for m, urls in _EMAIL_URLS.items() if all(is_processed(u) for u in urls)]
-    if done:
-        try:
-            _SERVICE.users().messages().batchModify(userId='me', body={'ids': done, 'removeLabelIds': ['UNREAD']}).execute()
-        except Exception as e:
-            logger.warning(f"Couldn't mark alert emails read: {e}")
-            health.failed("Gmail mark read", e)
-            return 0
-    return len(done)
 
 
 def _extract_articles_from_email(service, message_id: str) -> list[dict]:
@@ -249,10 +214,3 @@ def _parse_email_date(date_str: Optional[str]) -> Optional[datetime]:
 def _unquote(s: str) -> str:
     from urllib.parse import unquote
     return unquote(s)
-
-
-if __name__ == "__main__":
-    import sys
-    if "--reauth" in sys.argv:
-        _, ok = _get_gmail_service(reauth=True)
-        print("Gmail token saved" + (", can mark emails read" if ok else ", still read-only"))

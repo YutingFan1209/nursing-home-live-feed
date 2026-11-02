@@ -32,7 +32,7 @@ from scraper.cms_owner_changes import (
     fetch_cms_owner_change_deals, refresh_ownership_if_stale, refresh_provider_info_if_stale,
     ensure_source as ensure_cms_owner_change_source,
 )
-from scraper.gmail_alerts import fetch_alert_articles, mark_processed as mark_alert_emails_read
+from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
 from scraper.con_pa import fetch_con_pa_deals, CON_PA_SOURCE_NAME, CON_PA_INDEX_URL, _norm as _con_pa_norm
@@ -306,9 +306,6 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
                 conn.commit()
 
         logger.info(f"Extracted and stored {new_deals} new deals")
-        marked = mark_alert_emails_read(lambda url: _article_exists(url, conn))
-        if marked:
-            logger.info(f"Gmail alerts: {marked} processed emails marked read")
 
         # Step 2d — One sale stored twice by different sources (CON filing,
         # news, CHOW): merge the clear cases among this run's new deals,
