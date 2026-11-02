@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { countPage, countEvent, countFilters } from "./analytics.js";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as Tabs from "@radix-ui/react-tabs";
 import { toCsv, toXlsx, CSV_TYPE, XLSX_TYPE } from "./export.js";
@@ -247,10 +248,10 @@ function download(data, type, filename) {
 const downloadCsv = (rows, name) => download(toCsv(rows), CSV_TYPE, `${name}.csv`);
 const dealRows = deals => [CSV_COLUMNS.map(([h]) => h), ...deals.map(d => CSV_COLUMNS.map(([, get]) => get(d)))];
 const DATE_COLUMNS = ["date", "found_date", "cms_sale_date", "cms_confirmed_on", "primary_date"];
-const downloadDeals = (deals, name, format) => format === "xlsx"
+const downloadDeals = (deals, name, format) => (countEvent(`download/${format}`), format === "xlsx")
   ? toXlsx(dealRows(deals), { dateColumns: DATE_COLUMNS }).then(b => download(b, XLSX_TYPE, `${name || "nursing-home-deals"}.xlsx`))
   : downloadCsv(dealRows(deals), name || "nursing-home-deals");
-const downloadDictionary = () => downloadCsv(
+const downloadDictionary = () => countEvent("download/dictionary") || downloadCsv(
   [["column", "description"], ...CSV_COLUMNS.map(([h, , desc]) => [h, desc])], "nursing-home-deals-data-dictionary");
 
 // Easter egg: the Konami code sends a flock of little houses up the page.
@@ -1096,6 +1097,11 @@ function Methodology({ chowDate, corrections, onBack }) {
         <a href="https://github.com/YutingFan1209/nursing-home-live-feed/commits/gh-pages/deals.json" target="_blank" rel="noreferrer" style={lnk}>deals.json</a>
         {" "}(each entry in that history is a fixed snapshot), along with the record's permalink.</p>
 
+      <h3 style={h}>Visit counts</h3>
+      <p style={p}>The site counts page views, downloads, outbound link clicks and which filters are used, with{" "}
+        <a href="https://www.goatcounter.com" target="_blank" rel="noreferrer" style={lnk}>GoatCounter</a>.
+        It sets no cookies and stores nothing that identifies you; search text and company names are never sent.</p>
+
       <h3 style={h}>Data dictionary</h3>
       <p style={p}>Columns in the CSV download.{" "}
         <button type="button" onClick={downloadDictionary} style={{ ...linkBtn, ...lnk, textDecoration: "underline", verticalAlign: "middle" }}>
@@ -1334,6 +1340,14 @@ export default function App() {
     const qs = params.toString();
     window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
   }, [...filterDeps, focusId, view, facilityCcn]);
+
+  useEffect(() => { countPage({ id: focusId, ccn: facilityCcn, view }); }, [focusId, view, facilityCcn]);
+  // Filters count once they settle, so typing a search counts once
+  const countedFilters = useRef({});
+  useEffect(() => {
+    const t = setTimeout(() => { countFilters(currentFilters, countedFilters.current); countedFilters.current = currentFilters; }, 2000);
+    return () => clearTimeout(t);
+  }, filterDeps);
 
   // Record and methodology pages are real history entries, so Back works
   useEffect(() => {
