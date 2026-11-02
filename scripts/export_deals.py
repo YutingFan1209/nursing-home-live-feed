@@ -44,6 +44,7 @@ from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline.ucc_category import categorize, collapse_repeats, complete_through, owner_start_dates
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
+from scraper.con_ms import CON_MS_INDEX_URL
 from pipeline.cms_confirm import CmsIndex, facility_names_agree, same_facility_name
 from pipeline.deal_groups import group
 
@@ -542,6 +543,14 @@ def main():
                     deal.pop(k, None)
                 deal["deal_type"] = "ownership_change" if deal["source_type"] in ("chow", "con") else _news_deal_type(deal)
             deals.append(deal)
+
+        # Mississippi's record key is its old report index, gone since MSDH's
+        # 2026-10 redesign: link the week's report PDF named in the text
+        cur.execute("SELECT url, substring(raw_text FROM 'Source: (https?://\\S+\\.pdf)') FROM articles WHERE url LIKE %s",
+                    (CON_MS_INDEX_URL + "#%",))
+        ms_pdfs = {u: pdf for u, pdf in cur.fetchall() if pdf}
+        for deal in deals:
+            deal["source_url"] = ms_pdfs.get(deal["source_url"], deal["source_url"])
 
         cur.execute("SELECT MAX(last_fetched_at) FROM sources")
         pipeline_ran_at = cur.fetchone()[0]

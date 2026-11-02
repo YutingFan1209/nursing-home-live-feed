@@ -312,6 +312,9 @@ EXCLUDE_PATTERNS.extend([
 EXCLUDE_PATTERNS.extend([
     r"\bexpress medical transportation\b", r"\bclean laundry funding\b",
     r"\baccess systems\b", r"\brj kool\b",
+    # Any laundry company is a service supplier (PWS The Laundry Company on
+    # two CA homes, 2026-11-02); no nursing home lender has the word
+    r"\blaundry\b",
 ])
 
 # HUD loans are healthcare RE financing — acquisition relevant

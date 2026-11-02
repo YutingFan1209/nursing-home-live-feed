@@ -1257,6 +1257,6 @@ def test_mo_rows_need_a_secured_party_from_the_image():
 def test_mo_service_supplier_liens_are_not_deals():
     from ucc.lender_classifier import classify_secured_party, LenderCategory
     for name in ["Express Medical Transportation LLC", "Clean Laundry Funding, a division of Western State Bank",
-                 "Access Systems, Inc", "RJ Kool Company"]:
+                 "Access Systems, Inc", "RJ Kool Company", "PWS THE LAUNDRY COMPANY"]:
         assert classify_secured_party(name).category == LenderCategory.EQUIPMENT_VENDOR, name
     assert classify_secured_party("CAPITAL FINANCE, LLC, AS AGENT").category != LenderCategory.EQUIPMENT_VENDOR
