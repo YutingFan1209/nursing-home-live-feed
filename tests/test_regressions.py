@@ -1260,3 +1260,20 @@ def test_mo_service_supplier_liens_are_not_deals():
                  "Access Systems, Inc", "RJ Kool Company", "PWS THE LAUNDRY COMPANY"]:
         assert classify_secured_party(name).category == LenderCategory.EQUIPMENT_VENDOR, name
     assert classify_secured_party("CAPITAL FINANCE, LLC, AS AGENT").category != LenderCategory.EQUIPMENT_VENDOR
+
+
+def test_alert_emails_marked_read_only_when_all_articles_stored():
+    from scraper import gmail_alerts as g
+    calls = []
+
+    class Svc:
+        def users(self): return self
+        def messages(self): return self
+        def batchModify(self, userId, body): calls.append(body); return self
+        def execute(self): return {}
+
+    g._SERVICE, g._EMAIL_URLS = Svc(), {"done": ["a", "b"], "half": ["a", "c"], "empty": []}
+    assert g.mark_processed(lambda u: u in {"a", "b"}) == 2
+    assert calls == [{"ids": ["done", "empty"], "removeLabelIds": ["UNREAD"]}]
+    g._SERVICE = None  # a read-only token marks nothing
+    assert g.mark_processed(lambda u: True) == 0
