@@ -6,6 +6,7 @@ Synthetic names only. Run:  venv/bin/python3 -m pytest agent/tests/test_agent_ex
 import asyncio
 import json
 from types import SimpleNamespace as NS
+from unittest import mock
 
 import pytest
 
@@ -191,10 +192,17 @@ def test_mcp_server_exposes_read_only_tools_and_docs():
     from agent.mcp_server import build_server
 
     class TB:
-        def call(self, name, args):
-            return {"echo": name, "args": args}
+        def __init__(self):
+            self.calls = []
 
-    server = build_server(TB())
+        def call(self, name, args):
+            self.calls.append((name, args))
+            if name == "get_ucc_filing":
+                return {"filing": None}
+            return {"facility": None, "note": "no CMS facility with CCN 335999"}
+
+    tb = TB()
+    server = build_server(tb)
     tools = {t.name: t for t in asyncio.run(server.list_tools())}
     assert set(tools) == {"search_cms_facilities", "search_cms_owners", "search_chow_records",
                           "search_cms_by_address", "get_facility_ownership",
@@ -204,10 +212,33 @@ def test_mcp_server_exposes_read_only_tools_and_docs():
     # only the assessor lookup leaves our database
     assert {n for n, t in tools.items() if t.annotations.open_world_hint} == {"lookup_property_owner"}
     assert tools["get_facility_ownership"].input_schema["required"] == ["ccn"]
-    res = asyncio.run(server.call_tool("get_facility_ownership", {"ccn": "335999", "filing_date": "2025-06-01"}))
-    assert json.loads(res.content[0].text)["args"] == {"ccn": "335999", "filing_date": "2025-06-01"}
+    # every tool publishes a typed outputSchema
+    assert all(t.output_schema and t.output_schema.get("type") == "object" for t in tools.values())
+    asyncio.run(server.call_tool("get_facility_ownership", {"ccn": "335999", "filing_date": "2025-06-01"}))
+    assert tb.calls[-1] == ("get_facility_ownership", {"ccn": "335999", "filing_date": "2025-06-01"})
     uris = {str(r.uri) for r in asyncio.run(server.list_resources())}
     assert uris == {"nursing-home://methodology", "nursing-home://how-it-works"}
+    templates = {t.uri_template for t in asyncio.run(server.list_resource_templates())}
+    assert templates == {"nursing-home://facility/{ccn}", "nursing-home://ucc/{state}/{filing_number}"}
+
+
+def test_mcp_resolve_prompt_is_the_agents_method_without_agent_only_lines():
+    pytest.importorskip("mcp")
+    from agent.mcp_server import _client_method
+    from agent.prompts import SYSTEM_PROMPT
+
+    text = _client_method()
+    assert "submit_verdict" not in text and "step_id" not in text
+    # everything else is the agent's prompt word for word
+    assert text.split("Rules:")[0] == SYSTEM_PROMPT.split("Rules:")[0]
+
+
+def test_mcp_http_refuses_non_loopback_host():
+    pytest.importorskip("mcp")
+    from agent.mcp_server import main
+
+    with pytest.raises(SystemExit):
+        main(["--http", "--host", "0.0.0.0"])
 
 
 # ── tools that need no database ───────────────────────────────
@@ -266,6 +297,44 @@ def test_south_kingstown_lookup_drops_neighbours_and_cites_the_parcel_page():
     assert out["records"][0]["owner_name"] == "ZEPHYR SHELL LLC" and out["records"][0]["book_page"] == "1939/780"
     assert not any("pid=8" in c for c in calls)        # the private neighbour's page is never opened
     assert pr.lookup("1 Main St", "Providence", "RI", fetch=fetch)["records"] == []
+
+
+def test_mcp_property_owner_schema_holds_for_every_saved_page_shape():
+    """lookup_property_owner reads outside sites, so the DB parity test skips it; its typed
+    MCP output is checked here instead, on the saved pages above (CO, South Kingstown, no source)."""
+    pytest.importorskip("mcp")
+    from mcp import Client
+    from agent.mcp_server import build_server
+    from agent.tools import ToolBox
+
+    facilities = {"065999": ("2121 Zephyr Dr", "Alpine", "CO"), "415999": ("55 Zephyr Way", "Wakefield", "RI"),
+                  "415998": ("1 Main St", "Providence", "RI")}
+    tb = ToolBox(NS(set_session=lambda **kw: None))
+    tb._rows = lambda sql, params: [{"ccn": params[0], "provider_name": "Alpine Care",
+                                     "provider_address": facilities[params[0]][0],
+                                     "provider_city": facilities[params[0]][1],
+                                     "provider_state": facilities[params[0]][2]}]
+    sk_pages = [SK_FORM, SK_RESULTS]
+
+    def fetch(url, data=None, opener=None):
+        if "Search.aspx" in url:
+            return sk_pages.pop(0)
+        return SK_PARCEL if "Parcel.aspx" in url else CO_RESPONSE
+    tb.property_fetch = fetch
+
+    async def run():
+        out = {}
+        async with Client(build_server(tb)) as client:
+            for ccn in facilities:
+                res = await client.call_tool("lookup_property_owner", {"ccn": ccn})
+                assert not res.is_error, res.content[0].text
+                out[ccn] = res.structured_content
+        return out
+    with mock.patch("agent.property_records.time.sleep"):      # the polite pause between parcel pages
+        got = asyncio.run(run())
+    assert [r["owner_name"] for r in got["065999"]["records"]] == ["ZEPHYRDALE PROPCO LLC"]
+    assert got["415999"]["records"][0]["book_page"] == "1939/780"
+    assert got["415998"]["records"] == [] and "no public property-record source" in got["415998"]["note"]
 
 
 def _deed_trace(owner, source_url="https://example.test/parcel/1", city_matches=True):

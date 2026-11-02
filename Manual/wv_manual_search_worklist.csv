@@ -1,48 +1,48 @@
 query_name,found_y_n,debtor_name,secured_party,filing_number,filing_date,lapse_date,notes
-SECRETARY OF HOUSING AND URBAN DEVELOPMENT,,,,,,,
-UNITED STATES DEPARTMENT OF HOUSING,,,,,,,
-GREYSTONE,,,,,,,
-LUMENT,,,,,,,
-NEWPOINT,,,,,,,
-BERKADIA,,,,,,,
-LANCASTER POLLARD,,,,,,,
-ORIX REAL ESTATE CAPITAL,,,,,,,
-DWIGHT CAPITAL,,,,,,,
-MONTICELLO,,,,,,,
-GMCC,,,,,,,
-CAPITAL FUNDING,,,,,,,
-CAPITAL FINANCE,,,,,,,
-MIDCAP,,,,,,,
-WHITE OAK HEALTHCARE,,,,,,,
-OXFORD FINANCE,,,,,,,
-CIBC,,,,,,,
-BANKWELL,,,,,,,
-METROPOLITAN COMMERCIAL BANK,,,,,,,
-OMEGA HEALTHCARE,,,,,,,
-SABRA,,,,,,,
-CTW INVESTMENT,,,,,,,
-CARETRUST,,,,,,,
-NATIONAL HEALTH INVESTORS,,,,,,,
-LTC PROPERTIES,,,,,,,
-WELLTOWER,,,,,,,
-VENTAS,,,,,,,
-SECRETARY OF U.S. DEPARTMENT OF HOUSING,,,,,,,
-FORBRIGHT,,,,,,,
-VALLEY NATIONAL BANK,,,,,,,
-VNB NEW YORK,,,,,,,
-EAST WEST BANK,,,,,,,
-IKARIA,,,,,,,
-VIUM CAPITAL,,,,,,,
-TEXAS CAPITAL BANK,,,,,,,
-POPULAR BANK,,,,,,,
-BANK HAPOALIM,,,,,,,
-ONB DHF,,,,,,,
-DMT SPE,,,,,,,
-ECAPITAL,,,,,,,
-MERCHANTS BANK OF INDIANA,,,,,,,
-BOKF,,,,,,,
-ISRAEL DISCOUNT BANK,,,,,,,
-DIME COMMUNITY BANK,,,,,,,
-CONNECTONE,,,,,,,
-YAKAR,,,,,,,
-DBF SPE,,,,,,,
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"Summers Nursing & Rehabilitation Center, LLC; Cabell Health Care Center, LLC; Guardian Elder Care at Fairmont, LLC; GEC Fairmont Real Estate, LLC; Fairmont Rehabilitation and Healthcare Center LLC; 200 Whitman Avenue PROPCO LLC; 200 Whitman Avenue OPCO LLC; EWV Holdings, LLC; Elizabeth West Virginia Realco, LLC","Secretary of Housing and Urban Development; Secretary of Housing and Urban Development, Office of Residential Care Facilities; Secretary of Housing and Urban Development, ORCF","2020E071600114; 2021E092700053; 2024E032600041; 2024E032600049; 2025E051900014; 2023E073100031; 2023E073100033; 2025E092900047; 2025E092900051","02/12/2025; 04/01/2026; 03/26/2024; 03/26/2024; 05/19/2025; 07/31/2023; 07/31/2023; 09/29/2025; 09/29/2025",,"Consolidated active nursing-home filing chains across HUD and HUD/ORCF name variants. Excluded terminated 2022 Fairmont chains, terminated Elizabeth filing 2025E092900036, and non-nursing housing results. Summers and Cabell dates reflect recent continuations; the other dates are the retained active UCC-1 filings."
+UNITED STATES DEPARTMENT OF HOUSING,n,,,,,,"Exact United States Department of Housing name variants produced no additional nursing-home filing chains; qualifying HUD/ORCF results are consolidated in the Secretary of Housing and Urban Development row to avoid duplication."
+GREYSTONE,n,,,,,,"Only identified result was Elkins Manor, a Section 8 elderly/multifamily housing property rather than a nursing home."
+LUMENT,n,,,,,,"Results were residential/multifamily housing entities, including West Virginia Homes and Cross Lanes Partners; no nursing-home debtor identified."
+NEWPOINT,y,"200 Whitman Avenue PROPCO LLC; 200 Whitman Avenue OPCO LLC","Newpoint Real Estate Capital LLC; Secretary of Housing and Urban Development, Office of Residential Care Facilities","2023E073100031; 2023E073100033","07/31/2023",,"Both active UCC-1 filings relate to Autumn Lake Healthcare at Crystal Springs, a nursing home at 200 Whitman Avenue, Elkins. Canterbury Trace LLC was excluded as multifamily housing."
+BERKADIA,n,,,,,,"AAMCI Pleasant Valley II LLC corresponds to Pleasant Valley Apartments; other matches were housing entities, not nursing homes."
+LANCASTER POLLARD,n,,,,,,"Fox Nursing Home appeared only in an expired/terminated filing chain; no currently active qualifying nursing-home filing retained."
+ORIX REAL ESTATE CAPITAL,n,,,,,,"Results were housing/multifamily entities, including West Virginia Homes; no nursing-home debtor identified."
+DWIGHT CAPITAL,n,,,,,,"Only recent-window result was Unity Housing Apartments LP; excluded as non-nursing-home."
+MONTICELLO,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+GMCC,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+CAPITAL FUNDING,y,"Summers Nursing & Rehabilitation Center, LLC; Cabell Health Care Center, LLC","Capital Funding, LLC; Secretary of Housing and Urban Development","2020E071600114; 2021E092700053","02/12/2025; 04/01/2026",,"Active filing chains with recent continuations. Additional 2026 property-company debtors require facility-address verification before inclusion."
+CAPITAL FINANCE,y,Fairmont Rehabilitation and Healthcare Center LLC,"Capital Finance, LLC, as Administrative Agent",2025E042500013,04/25/2025,,"Active UCC-1; filing-date search window 01/01/2025-10/27/2026. Related debtor Stallion WV II Holdco LLC appears under filing 2025E042500015 on the same date."
+MIDCAP,n,,,,,,"Results were Whitaker National Corp and National Emergency Services West Virginia; excluded under nursing-home-only rule."
+WHITE OAK HEALTHCARE,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+OXFORD FINANCE,n,,,,,,"Only result was Synergy Surgicalists W.V., Inc.; excluded under nursing-home-only rule."
+CIBC,n,,,,,,"CIBC BANK USA exact term returned no filings in the selected window."
+BANKWELL,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+METROPOLITAN COMMERCIAL BANK,n,,,,,,"Only result was Hillbilly Truck Repair LLC; excluded under nursing-home-only rule."
+OMEGA HEALTHCARE,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+SABRA,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+CTW INVESTMENT,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+CARETRUST,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+NATIONAL HEALTH INVESTORS,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+LTC PROPERTIES,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+WELLTOWER,y,"161 Bakers Ridge Road Operations LLC; 1539 Country Club Road Operations LLC; 1543 Country Club Road Manor Operations LLC; 1631 Ritter Drive Operations LLC; 101 13th Street Operations LLC; 1000 Lincoln Drive Operations LLC; 1000 Association Drive Operations LLC; 201 Wood Street Operations LLC; 422 23rd Street Operations LLC; 590 North Poplar Fork Road Operations LLC; 200 South Ritchie Avenue Operations LLC; Diane Drive Operations LLC; 8 Rose Street Operations LLC; 825 Summit Street Operations LLC; 840 Lee Road Operations LLC; Genesis WV Holdings LLC; Romney Health Care Center Limited Partnership; Saddle Shop Road Operations LLC; Sunbridge Salem Health Care LLC; Sunbridge Dunbar Health Care LLC; Sunbridge Beckley Health Care LLC; Stillwell Road Operations LLC; Three Mile Curve Operations LLC; Route 92 Operations LLC; HC 63 Operations LLC; Sunbridge Putnam Health Care LLC","Welltower Inc., as Collateral Agent","2016E080100015; 2016E080100016; 2016E080100017; 2016E080100018; 2016E080300033; 2016E080300034; 2016E080300035; 2016E080400043; 2016E080400046; 2016E080400052; 2016E080400053; 2016E080500053; 2016E080500054; 2016E080500056; 2016E080500057; 2016E080900062; 2016E080900063; 2016E080900065; 2016E080900067; 2016E080900068; 2016E080900071; 2016E080900072; 2016E080900073; 2016E080900074; 2016E080900130; 2016E081000043","05/27/2026; 06/16/2026",,"26 active Welltower/Genesis healthcare operating-entity filing chains, principally continued 05/27/2026; 1000 Association Drive chain also continued 06/16/2026. HC 63 is Hampshire Center SNF/NF and Sunbridge Putnam is Putnam Center; remaining address-named and Sunbridge/Genesis entities are retained as nursing-facility operating entities, with final facility-name mapping still available if needed."
+VENTAS,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+SECRETARY OF U.S. DEPARTMENT OF HOUSING,n,,,,,,"No matching secured-party term under this wording; HUD variants are handled separately."
+FORBRIGHT,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+VALLEY NATIONAL BANK,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+VNB NEW YORK,y,"200 Whitman Avenue OPCO LLC; 200 Whitman Avenue PROPCO LLC","VNB New York, LLC",2021E062500022,04/15/2026,,"Active filing chain with 2026 continuation. OPCO is Autumn Lake Healthcare at Crystal Springs, an active 84-bed SNF/NF at 200 Whitman Avenue, Elkins."
+EAST WEST BANK,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+IKARIA,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+VIUM CAPITAL,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+TEXAS CAPITAL BANK,y,"Glasgow Hills of Journey LLC; Riverside Valley of Journey LLC; Morgantown Heights of Journey LLC","Texas Capital Bank, as Lender","2024E080500005; 2024E080500006; 2024E080500007",08/05/2024,,"Active UCC-1 filing chains. All three debtors are verified West Virginia nursing-home/SNF operating entities; the filings were amended 10/10/2024. Other Texas Capital results were non-nursing businesses or terminated chains."
+POPULAR BANK,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+BANK HAPOALIM,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+ONB DHF,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+DMT SPE,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+ECAPITAL,n,,,,,,"Only match was eCapital Freight Factoring (East) Corp; excluded as unrelated to the intended healthcare lender."
+MERCHANTS BANK OF INDIANA,n,,,,,,"Exact secured-party term selected; zero filing results in the current search window."
+BOKF,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+ISRAEL DISCOUNT BANK,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+DIME COMMUNITY BANK,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+CONNECTONE,n,,,,,,"No matching secured-party term in 01/01/2025-10/27/2026 search."
+YAKAR,n,,,,,,"No matching secured-party term in active-filings search."
+DBF SPE,n,,,,,,"No matching secured-party term in active-filings search."

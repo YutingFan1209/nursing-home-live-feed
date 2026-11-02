@@ -88,7 +88,7 @@ Two ways in, depending on what the portal allows:
 | RI | Headless lender search (`ucc/ri.py`) | Borrower read from each filing's history page |
 | ID | Headless debtor search (`ucc/id.py`) | No lender mode; ~80 buyer and owner names |
 
-**By hand:** AZ, CO, IN, MD, WV and NH (the 47 lenders) and ME (owner names) can't be automated within our rules: captcha, bot check, robots.txt or terms of use. Worklists are in `Manual/`; fill one in and load it with `scripts/ingest_manual_ucc.py` ([`docs/manual-ucc-searches.md`](docs/manual-ucc-searches.md)). IL and VT (captcha, debtor search only) and AK (robots.txt) are off. Every other state is in [`docs/ucc-feasibility.md`](docs/ucc-feasibility.md).
+**By hand:** AZ, CO, IN, MD, WV and NH (the 47 lenders) and ME (owner names) can't be automated within our rules: captcha, bot check, robots.txt or terms of use. Worklists are in `Manual/`; fill one in and load it with `scripts/ingest_manual_ucc.py` ([`docs/manual-ucc-searches.md`](docs/manual-ucc-searches.md)). IL and VT (captcha, debtor search only) are off. AK is open but not run yet. Every other state is in [`docs/ucc-feasibility.md`](docs/ucc-feasibility.md).
 
 Run states separately (`--ucc-states KY`, or `--ucc-only --ucc-states AR,RI`); nothing commits until the whole UCC step returns. See [`docs/data-sources.md`](docs/data-sources.md) for search-name sourcing.
 

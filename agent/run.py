@@ -7,6 +7,7 @@ CLI for the resolver. Run from the project root with the project venv:
   venv/bin/python3 -m agent.run --known 20 --state PA     # filings the pipeline already matched (auto-labeled, easy)
   venv/bin/python3 -m agent.score agent/traces/sample_summary.csv
   venv/bin/python3 -m agent.run --deals 10 --source rss    # news/EDGAR/state-notice deals with no CCN (agent/deals.py)
+  venv/bin/python3 -m agent.run --state PA --filing-number <n> --via-mcp   # every tool call over MCP (agent/mcp_toolbox.py)
 
 Each run prints the trace and saves it to agent/traces/<state>_<filing>.json
 (the file the demo UI replays). Uses DATABASE_URL and ANTHROPIC_API_KEY from .env.
@@ -187,6 +188,9 @@ def main(argv=None) -> int:
     p.add_argument("--audit", action="store_true", help="add the independent audit call (agent/audit.py)")
     p.add_argument("--model")
     p.add_argument("--out", default="agent/traces")
+    p.add_argument("--via-mcp", action="store_true",
+                   help="send every tool call through a live MCP server (agent/mcp_toolbox.py) instead of ToolBox")
+    p.add_argument("--mcp-bundle", help="with --via-mcp: an unpacked .mcpb directory, run with uv as Desktop does")
     args = p.parse_args(argv)
 
     tb = ToolBox.from_config()
@@ -221,9 +225,15 @@ def main(argv=None) -> int:
         tb.schemas = [t for t in tb.schemas if t["name"] != "search_chow_records"]
         system_prompt = SYSTEM_PROMPT.replace(CHOW_LINE, "- ")
         assert system_prompt != SYSTEM_PROMPT, "the CHOW prompt line moved; update CHOW_LINE"
+    tools = tb
+    if args.via_mcp:
+        if args.no_chow:
+            p.error("--no-chow and --via-mcp don't combine")
+        from agent.mcp_toolbox import MCPToolBox
+        tools = MCPToolBox(args.mcp_bundle)
     rows = []
     for f in filings:
-        verdict, trace = resolve_filing(f, tb, model=args.model, max_steps=args.max_steps, audit=args.audit,
+        verdict, trace = resolve_filing(f, tools, model=args.model, max_steps=args.max_steps, audit=args.audit,
                                         system_prompt=system_prompt)
         path = trace.save(args.out)
         print(trace.render_text(), f"\n  saved: {path}\n" + "-" * 70)

@@ -1,48 +1,48 @@
 query_name,found_y_n,debtor_name,secured_party,filing_number,filing_date,lapse_date,notes
-SECRETARY OF HOUSING AND URBAN DEVELOPMENT,,,,,,,
-UNITED STATES DEPARTMENT OF HOUSING,,,,,,,
-GREYSTONE,,,,,,,
-LUMENT,,,,,,,
-NEWPOINT,,,,,,,
-BERKADIA,,,,,,,
-LANCASTER POLLARD,,,,,,,
-ORIX REAL ESTATE CAPITAL,,,,,,,
-DWIGHT CAPITAL,,,,,,,
-MONTICELLO,,,,,,,
-GMCC,,,,,,,
-CAPITAL FUNDING,,,,,,,
-CAPITAL FINANCE,,,,,,,
-MIDCAP,,,,,,,
-WHITE OAK HEALTHCARE,,,,,,,
-OXFORD FINANCE,,,,,,,
-CIBC,,,,,,,
-BANKWELL,,,,,,,
-METROPOLITAN COMMERCIAL BANK,,,,,,,
-OMEGA HEALTHCARE,,,,,,,
-SABRA,,,,,,,
-CTW INVESTMENT,,,,,,,
-CARETRUST,,,,,,,
-NATIONAL HEALTH INVESTORS,,,,,,,
-LTC PROPERTIES,,,,,,,
-WELLTOWER,,,,,,,
-VENTAS,,,,,,,
-SECRETARY OF U.S. DEPARTMENT OF HOUSING,,,,,,,
-FORBRIGHT,,,,,,,
-VALLEY NATIONAL BANK,,,,,,,
-VNB NEW YORK,,,,,,,
-EAST WEST BANK,,,,,,,
-IKARIA,,,,,,,
-VIUM CAPITAL,,,,,,,
-TEXAS CAPITAL BANK,,,,,,,
-POPULAR BANK,,,,,,,
-BANK HAPOALIM,,,,,,,
-ONB DHF,,,,,,,
-DMT SPE,,,,,,,
-ECAPITAL,,,,,,,
-MERCHANTS BANK OF INDIANA,,,,,,,
-BOKF,,,,,,,
-ISRAEL DISCOUNT BANK,,,,,,,
-DIME COMMUNITY BANK,,,,,,,
-CONNECTONE,,,,,,,
-YAKAR,,,,,,,
-DBF SPE,,,,,,,
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"MHRC, LLC; MULBERRY HEALTH & RETIREMENT COMMUNITY, INC.; GREENWOOD MEADOWS, L.L.C.; ARBOR TRACE H&L PROPERTY LLC; LANDMARK-BOULDERS OF INDIANAPOLIS, LTD., L.P.",SECRETARY OF HOUSING AND URBAN DEVELOPMENT,"202509303387892; 202509303387893; 202509303387894; 202608213515611; 202608213515615; 202608273517681; 202608273517682; 202608273517683","09/26/2025; 08/19/2026; 08/26/2026","09/26/2030; 08/19/2031; 08/26/2031","Confirmed nursing-home filing groups: Mulberry Health & Rehabilitation Center, Greenwood Meadows, and Arbor Trace Health & Living Community are skilled nursing facilities. Hospital-only debtors are omitted from the debtor summary and identified in the filing-level pairing table. Reviewed all 68 unique initial filings dated 01/01/2025 through the database current-through date of 10/14/2026; excluded apartments, senior housing, assisted-living-only facilities, behavioral health, and other hospital-only filings."
+UNITED STATES DEPARTMENT OF HOUSING,n,,,,,,"Five historical filings returned; none was dated 01/01/2025 through the database current-through date of 10/14/2026."
+GREYSTONE,y,36 VALLEY HOLDINGS LLC; SHADY NOOK OPERATIONS LLC,GREYSTONE FUNDING COMPANY LLC,202411213260727; 202411213260731,11/19/2024,11/19/2029,"Confirmed nursing-home match: both filings relate to Shady Nook Care Center in Lawrenceburg; reviewed 14 unique initial filings returned in the 10/22/2024-10/13/2026 window. Other recent debtors were apartments, self-storage, or non-SNF entities; source reviewed 10/22/2026"
+LUMENT,n,,,,,,"Reviewed 11 unique initial filings in the 10/22/2024-10/13/2026 window; debtors were multifamily/apartment, affordable or senior housing, assisted living, or other non-SNF entities. No known nursing-home entity or address matched; source reviewed 10/22/2026"
+NEWPOINT,n,,,,,,"Reviewed 2 unique filings in the 10/22/2024-10/13/2026 window; both debtors were Gene B. Glick multifamily apartment entities (Copper Gate and Governor's Pointe), not nursing homes; source reviewed 10/22/2026"
+BERKADIA,y,"ALBANY HEALTH CARE MANAGEMENT, L.L.C.; TLC MASTER TENANT LLC; ALBANY HEALTHCARE OPERATIONS COMPANY, L.L.C.; RIVERVIEW HOSPITAL","BERKADIA COMMERCIAL MORTGAGE LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT, ACTING BY AND THROUGH THE FEDERAL HOUSING COMMISSIONER, OFFICE OF RESIDENTIAL CARE FACILITIES","202412303273298; 202412303273299; 202412303273300; 202412303273370",12/27/2024,12/27/2029,"Confirmed nursing-home transaction: Albany Health Care & Rehabilitation Center, 910 W Walnut St, Albany, IN 47320, is a Medicare/Medicaid skilled nursing facility; Indiana records identify Riverview Hospital as owner and Albany Healthcare Operations Company LLC as prior owner. TLC Master Tenant LLC shares the Marion, IN management group and appears in the same consecutive HUD ORCF/Berkadia filing set. Reviewed 18 unique initial filings in the 10/22/2024-10/13/2026 window; excluded apartment and senior-housing-only debtors; source reviewed 10/22/2026"
+LANCASTER POLLARD,n,,,,,,"No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026"
+ORIX REAL ESTATE CAPITAL,n,,,,,,"No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026"
+DWIGHT CAPITAL,n,,,,,,"Reviewed 11 unique initial filings in the 10/22/2024-10/13/2026 window. Debtors were assisted-living or residential-care entities/propcos (including Wyndmoor facilities and Towne Centre Assisted Living) or other non-SNF development entities; no confirmed skilled nursing-home match under the nursing-home-only rule; source reviewed 10/22/2026"
+MONTICELLO,n,,,,,,"Reviewed 2 unique initial filings in the 10/22/2024-10/13/2026 window. Both named Hendricks County Hospital d/b/a Hendricks Regional Health at 1000 E Main St, Danville, not a known nursing-home entity or address; source reviewed 10/22/2026"
+GMCC,n,,,,,,"No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026"
+CAPITAL FUNDING,y,ESPECIALLY KIDZ MANAGEMENT LLC,"CAPITAL FUNDING, LLC; CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS","202606183490663; 202608063509013; 202608083509706","06/17/2026; 08/05/2026","06/17/2031; 08/05/2031","Confirmed nursing-home-related debtor: Especially Kidz Management corresponds to Especially Kidz Health & Rehab, a 130-bed Indiana nursing facility. Hospital-only debtors are omitted from the debtor summary and identified in the filing-level pairing table. Reviewed 19 unique initial filings in the 10/22/2024-10/13/2026 window; excluded behavioral-health and unconfirmed address-only LLCs under the nursing-home-only rule; source reviewed 10/22/2026"
+CAPITAL FINANCE,y,Trilogy Healthcare of Greenville LLC; Trilogy Healthcare Operations of Springfield LLC,"Capital Finance, LLC, as Administrative Agent",202503073299545; 202505053322579,03/05/2025; 05/02/2025,03/05/2030; 05/02/2030,"Reviewed 4 filings. Included 2 confirmed Trilogy nursing-home operating entities. Excluded Three Rivers Residential Care LLC and Three Rivers Behavioral Health LLC under the strict confirmed-nursing-home-only rule."
+MIDCAP,n,,,,,,"Reviewed 21 unique filings returned by the secured-party search. Debtors were manufacturing, recycling, automotive finance/sales, industrial, or individuals; no confirmed nursing-home entity or nursing-home address matched."
+WHITE OAK HEALTHCARE,n,,,,,,No filings found for secured-party search from 10/22/2024.
+OXFORD FINANCE,n,,,,,,"Reviewed 10 unique filings. Debtors were outpatient/ambulatory care, dermatology, clinical research, home care, eye care, physical therapy, behavioral recovery, or unconfirmed non-nursing-home entities; no confirmed nursing-home entity or address matched."
+CIBC,y,"IGNITE MEDICAL RESORT DYER, LLC; IGNITE MEDICAL RESORT CHESTERTON, LLC; IGNITE MEDICAL RESORT CROWN POINT, LLC",CIBC BANK USA,202603253455425; 202603253455428; 202603253455429,03/25/2026,03/25/2031,"Reviewed 20 filings. Included three confirmed Ignite Medical Resort skilled nursing facilities in Indiana; excluded non-nursing-home debtors."
+BANKWELL,y,"ENVIVE OF MUNCIE LLC; MUNCIE NURSING HOLDCO LLC; ENVIVE OF LIBERTY LLC; ENVIVE OF BROOKVILLE LLC; Majestic Care of Connersville LLC; 1029 East 5th SNF Realty LLC","Bankwell Bank; Bankwell Bank, as Agent","202501023274846; 202501023274848; 202501033275683; 202501033275693; 202501173281107; 202501173281108; 202604153464740; 202604153464771; 202604153464810; 202604153464819","01/02/2025; 01/17/2025; 04/15/2026","01/02/2030; 01/17/2030; 04/15/2031","Reviewed all 27 results. Included 10 filings tied to confirmed nursing-home operators/entities or an explicitly named SNF property. The hospital-only debtor is omitted from the debtor summary and identified in the filing-level pairing table. Excluded industrial/insurance debtors, generic holding companies, behavioral-recovery entities, and ABA Grateful Care IN LLC, which is a behavioral-analysis provider rather than a nursing home."
+METROPOLITAN COMMERCIAL BANK,y,"203 W FRANCISCAN DRIVE SNF REALTY LLC; MAJESTIC CARE OF CROWN POINT LLC; BOYD NURSING AND REHABILITATION LLC; SENECA PLACE LLC; 12800 PRINCELAND DR SNF REALTY LLC; 3526 DUTCHMANS LANE SNF REALTY LLC; 2400 COLLEGE AVE IN REALTY LLC; MAJESTIC CARE OF GOSHEN LLC; MAJESTIC CARE OF GOSHEN HOLDINGS LLC; CARMEL SNF AL REALTY LLC; SOUTHPORT SNF REALTY LLC; MAJESTIC CARE OF CARMEL LLC; MAJESTIC CARE OF SOUTHPORT LLC; 2111 NORTON LANE SNF LLC; 1100 S CURRY PIKE SNF LLC; MAJESTIC CARE OF BEDFORD LLC; MAJESTIC CARE OF BLOOMINGTON LLC","METROPOLITAN COMMERCIAL BANK; METROPOLITAN COMMERCIAL BANK, AS ADMINISTRATIVE AGENT","202502123290972; 202502123290973; 202502123290974; 202502133291102; 202502133291212; 202508053367760; 202508053367764; 202508053367765; 202508053367779; 202609033520340; 202609033520354; 202609033520373; 202609093521686; 202609293529589; 202610123535191; 202610143536419; 202610143536420; 202610143536422; 202610143536423; 202610193537622","02/11/2025; 08/04/2025; 09/03/2026; 09/04/2026; 09/29/2026; 10/12/2026; 10/13/2026","02/11/2030; 08/04/2030; 09/03/2031; 09/04/2031; 09/29/2031; 10/12/2031; 10/13/2031","Completed review of all 47 filings returned for the secured-party starts-with search in the 10/22/2024-10/13/2026 window. Included 20 filings tied to confirmed nursing-home operators or explicitly named SNF realty entities. Excluded child-care, assisted-living-only, therapy, staffing, hospital-only, and unconfirmed holding/property entities under the strict nursing-home-only rule; source reviewed 10/22/2026."
+OMEGA HEALTHCARE,n,,,,,,No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026.
+SABRA,y,"IGNITE MEDICAL RESORT CROWN POINT, LLC; IGNITE MEDICAL RESORT DYER, LLC","SABRA HEALTH CARE HOLDINGS III, LLC",202311073125606,11/07/2023,11/07/2028,"Confirmed nursing-home filing for two Ignite Medical Resort skilled-nursing facilities. The initial filing predates the search window but was returned because it has 2026 collateral and secured-party amendments; source reviewed 10/22/2026."
+CTW INVESTMENT,n,,,,,,No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026.
+CARETRUST,n,,,,,,No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026.
+NATIONAL HEALTH INVESTORS,n,,,,,,No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026.
+LTC PROPERTIES,n,,,,,,No filings returned for a secured-party starts-with search in the 10/22/2024-10/13/2026 window; source reviewed 10/22/2026.
+WELLTOWER,n,,,,,,"Reviewed one filing for VB Carmel Real Estate LLC / Viva Bene North End. Indiana project records identify it as the Viva Bene senior-living development at 320 N End Dr, Carmel, but not a confirmed nursing-home entity or address; excluded under the strict nursing-home-only rule. Filing 202602123438766; source reviewed 10/22/2026."
+VENTAS,n,,,,,,No filings found in Indiana UCC search for the requested date window.
+SECRETARY OF U.S. DEPARTMENT OF HOUSING,y,EUSON LINDSAY HEALTH HOLDINGS LLC; DECATUR COUNTY MEMORIAL HOSPITAL,Secretary of U.S. Department of Housing & Urban Development - Office of Residential Care Facilities,202506183346199; 202506183346200; 202506183346203,06/16/2025,06/16/2030,Included three filings tied to confirmed skilled-nursing operations; excluded Residential Care XIII LLC / Aster Place because it is assisted living only.
+FORBRIGHT,y,NORTHWEST INDIANA HOLDCO LLC; NORTHWEST REHABILITATION AND HEALTHCARE CENTER LLC,"Forbright Bank, as Agent",202604303471535; 202604303471536; 202604303471537; 202610083533236; 202610083533237; 202610093534797,04/30/2026; 10/08/2026; 10/09/2026,04/30/2031; 10/08/2031; 10/09/2031,"All six filings are nursing-home related: three name Angola, University Park, or Waldron Rehabilitation and Healthcare Center as additional secured parties; two form a Northwest rehabilitation-center/holdco pair. Hospital-only debtors are omitted from the debtor summary and identified in the filing-level pairing table."
+VALLEY NATIONAL BANK,y,5024 WESTERN LLC; BRIARCLIFF HEALTH CARE-SOUTH BEND LLC; PULASKI MEMORIAL HOSPITAL,VALLEY NATIONAL BANK,202509223384840; 202509233385277; 202509243385501; 202509243385822,09/22/2025,09/22/2030,"Included four filings tied to Briarcliff Health & Rehabilitation Center, a confirmed nursing home. Excluded unrelated detox, utility/industrial real-estate, and unverified entities. Filings 202509233385277 and 202509243385822 were later terminated on 10/14/2025."
+VNB NEW YORK,y,VERNON HEALTH OPERATIONS LLC; PUTNAM COUNTY HOSPITAL,"VNB New York, LLC",202507283364484; 202507303365526,07/28/2025,07/28/2030,"Both filings relate to Vernon Health & Rehabilitation, a confirmed 71-bed nursing home; Vernon Health Operations LLC has operational/managerial control and Putnam County Hospital is the direct owner."
+EAST WEST BANK,n,,,,,,Seven filings reviewed for 01/01/2025-10/13/2026; none involved a confirmed nursing-home entity or address.
+IKARIA,n,,,,,,No filings found for 01/01/2025-10/13/2026.
+VIUM CAPITAL,y,EUSON LINDSAY HEALTH HOLDINGS LLC; DECATUR COUNTY MEMORIAL HOSPITAL,"VIUM CAPITAL MORTGAGE, LLC",202506183346199; 202506183346200; 202506183346203,06/16/2025,06/16/2030,"Included three filings tied to confirmed skilled-nursing operations; excluded 202502143291855 (Residential Care XIII LLC / Aster Place) because it is assisted living only."
+TEXAS CAPITAL BANK,n,,,,,,"22 filings dated 01/01/2025-10/13/2026 reviewed; none were confirmed nursing-home entities or addresses."
+POPULAR BANK,y,"1015 MAGAZINE STREET, LLC; 11400 MEHL AVENUE, LLC; 11515 TROOST AVENUE, LLC; 1155 EASTERN PARKWAY, LLC; 120 LIFE CARE WAY, LLC; 1621 COIT ROAD REALTY, LLC; 1622 EAST 28TH STREET, LLC; 1720 ALBER STREET, LLC; 203 BRUCE COURT, LLC; 2041 SILVA LANE, LLC; 2800 HIGHWAY TT, LLC; 2901 WEST 37TH AVENUE, LLC; 300 FAIRGROUNDS ROAD, LLC; 300 NORTH WASHINGTON STREET, LLC; 3090 FIVE POINTS HARTFORD ROAD REALTY, LLC; 3121 GLANZMAN ROAD REALTY, LLC; 500 EAST PICKWICK DRIVE, LLC; 505 WEST WOLFE STREET, LLC; 524 ANDERSON ROAD, LLC; 548 SOUTH 100 WEST, LLC; 5544 EAST STATE BOULEVARD, LLC; 5601 PLUM CREEK DRIVE REALTY, LLC; 620 WEST STRUB ROAD REALTY, LLC; 640 WEST ELLSWORTH STREET, LLC; 704 5TH AVENUE EAST, LLC; 787 NORTH DETROIT STREET, LLC; 8200 NATIONAL AVENUE REALTY, LLC; 8400 CLEARVISTA PLACE, LLC; 902 MANOR DRIVE, LLC; 945 WEST RUSSELL STREET, LLC; 981 BEECHWOOD AVENUE, LLC; Strawberry Fields REIT, LTD","Popular Bank, as Agent","202606183490472; 202606183490473; 202606183490475; 202606183490476; 202606183490477; 202606183490478; 202606183490479; 202606183490480; 202606183490481; 202606183490482; 202606183490483; 202606183490484; 202606183490485; 202606183490486; 202606183490487; 202606183490488; 202606183490489; 202606183490490; 202606183490492; 202606183490493; 202606183490494; 202606183490495; 202606183490496; 202606183490497; 202606183490498; 202606183490499; 202606183490500; 202606183490501; 202606183490502; 202606183490503; 202606183490504; 202606183490505; 202606183490506; 202606183490507; 202606183490508; 202606183490509; 202606183490510; 202606183490511; 202606183490512; 202606183490513; 202606183490514; 202606183490515; 202606183490516; 202606183490517; 202606183490518",06/18/2026,06/18/2031,"45 related filings in a Strawberry Fields REIT skilled-nursing portfolio. Excluded three unrelated results: Earlhurst Apartments Condominium Association, St. Clair Darden Health System, and Pulaski Memorial Hospital."
+BANK HAPOALIM,n,,,,,,"No filings found for 01/01/2025-10/13/2026."
+ONB DHF,n,,,,,,"One filing found (202602023434742) for Adams County Memorial Hospital; excluded because it is a hospital, not a confirmed nursing-home entity/address."
+DMT SPE,n,,,,,,"Four filings reviewed. Excluded Adams County Memorial Hospital and Sugar Grove senior-apartment/ALF entities; no confirmed nursing-home entity/address."
+ECAPITAL,n,,,,,,"22 filings reviewed for 01/01/2025-10/13/2026. Debtors were unrelated logistics/energy entities, Adams County Memorial Hospital, Hancock Regional Hospital, or United Surgeons; no confirmed nursing-home entity/address."
+MERCHANTS BANK OF INDIANA,n,,,,,,"Completed review of all initial filings dated 01/01/2025 through the database current-through date of 10/14/2026. The remaining debtors were apartments, affordable or senior housing, assisted-living-only entities, and unrelated businesses; no confirmed skilled nursing-home entity or address matched. Magnolia Health Systems XX/IX and Hoosier Enterprises VII were verified as assisted-living/residential-only and excluded."
+BOKF,n,,,,,,"Reviewed 12 initial filings dated 01/01/2025 through the database current-through date of 10/14/2026. Debtors were industrial real estate, mortgage, education finance, school facilities, construction, farm retail, recycling, or other non-nursing-home entities; no confirmed nursing-home entity or address matched."
+ISRAEL DISCOUNT BANK,n,,,,,,"Reviewed all 20 returned filings. Only filing 202511043400744 fell within the 01/01/2025-10/14/2026 window; debtor REIS-NICHOLS, INC. is a jewelry business, not a nursing home."
+DIME COMMUNITY BANK,y,"2 CHASE PARK PROPCO LLC; 222 PARKVIEW PROPCO LLC; CHASE CENTER OPERATIONS LLC; PILGRIM MANOR OPERATIONS LLC; ADAMS COUNTY MEMORIAL HOSPITAL","DIME COMMUNITY BANK","202510023388903; 202510023388904; 202510023388907",10/01/2025,10/01/2030,"All three recent filings are nursing-home related. Chase Center is a confirmed Indiana nursing home at 2 Chase Park, Logansport; Pilgrim Manor is a confirmed skilled nursing facility at 222 Parkview St, Plymouth."
+CONNECTONE,n,,,,,,"Reviewed both returned filings. Only filing 202610013530605 fell within the 01/01/2025-10/14/2026 window; debtor 300 E LASALLE AVE NOTE LLC relates to the 300 East LaSalle apartment and mixed-use property in South Bend, not a nursing home."
+YAKAR,n,,,,,,"No Indiana UCC filings found for a secured-party starts-with search; database current through 10/14/2026."
+DBF SPE,n,,,,,,"No Indiana UCC filings found for a secured-party starts-with search; database current through 10/14/2026."

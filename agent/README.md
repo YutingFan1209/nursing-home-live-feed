@@ -60,10 +60,44 @@ right, and any **confident-wrong** filing. Tokens, not dollars.
 
 ## Same tools as an MCP server (`mcp_server.py`)
 
-`venv/bin/python3 -m agent.mcp_server` serves the nine tools (+ `get_ucc_filing`) and two docs
-as read-only MCP tools/resources, so a researcher can use them from Claude Desktop (config
-snippet in the file). The agent and a person see identical tool results; the difference is who owns
-the loop (here, the client), so there is no trace or verification step. `pip install -r agent/requirements.txt`.
+The resolver's tools, served read-only over MCP so a researcher can ask the same questions from
+Claude Desktop or any MCP client. The agent and a person see identical tool results; the difference
+is who owns the loop (here, the client), so there is no trace or verification step.
+`pip install -r agent/requirements.txt`.
+
+| What | Detail |
+|---|---|
+| 10 tools | the agent's nine + `get_ucc_filing`; all read-only (`lookup_property_owner` is marked open-world: it reads assessor sites) |
+| Typed results | every tool has an `outputSchema` and returns validated `structuredContent` (`mcp_models.py`, `extra="forbid"`) |
+| 2 prompts | `resolve_ucc_filing(state, filing_number)`: the agent's own system prompt (`prompts.py`) minus its two agent-only lines, plus the filing; `ownership_history(ccn)` |
+| Resources | `methodology`, `how-it-works`, and templates `nursing-home://facility/{ccn}`, `nursing-home://ucc/{state}/{filing_number}` |
+| Transports | stdio (default); `--http` serves Streamable HTTP at `http://127.0.0.1:8765/mcp`. No auth, so loopback only: other hosts are refused, and a forged `Host` header gets 421 (DNS-rebinding check) |
+
+```bash
+venv/bin/python3 -m agent.mcp_server                    # stdio
+venv/bin/python3 -m agent.mcp_server --http             # Streamable HTTP on 127.0.0.1:8765
+venv/bin/python3 -m pytest agent/tests/test_mcp_parity.py   # needs the DB; no model calls
+```
+
+**Parity, free:** `test_mcp_parity.py` replays every distinct tool call in the frozen holdout
+traces (149 calls + each filing's `get_ucc_filing`) through a real MCP session and checks each typed
+result equals the direct `ToolBox` answer; a second test does the same over a stdio subprocess.
+`agent.mcpb.build` won't pack unless it passes (`MCP_PARITY_REQUIRED=1` turns a skip into a
+failure). `lookup_property_owner` isn't replayed (it reads outside sites); its typed output is
+checked offline on the saved Colorado and South Kingstown pages in `test_agent_extras.py`.
+
+**The agent over MCP, paid:** `agent.run ... --via-mcp` swaps `ToolBox` for `MCPToolBox`
+(`mcp_toolbox.py`): the server runs as a stdio subprocess, the agent is offered the tools as MCP
+lists them, and every call crosses the protocol. `--mcp-bundle <unpacked .mcpb>` runs the built
+bundle with uv instead, as Desktop does.
+
+**As a Claude Desktop extension:** `venv/bin/python3 -m agent.mcpb.build` packs
+`agent/mcpb/dist/nursing-home-ownership.mcpb` (manifest v0.4, uv runtime, icon from `mcpb/icon.py`;
+needs Node for `npx`). Double-click it to install; Desktop asks for the database URL (kept in the
+keychain, never in the bundle) and installs the Python packages itself, so no venv or Python is
+needed on that machine. It still needs a reachable tracker database: on this Mac that means
+`nh-test-db` running. Rebuild after changing any file the server imports (the list is `FILES` in
+`agent/mcpb/build.py`). Unsigned: see the note in `build.py` (mcpb 2.1.2 can't verify signatures).
 
 ## Holdout: reproducing every number in the report
 

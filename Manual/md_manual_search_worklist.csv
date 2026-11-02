@@ -1,48 +1,48 @@
 query_name,found_y_n,debtor_name,secured_party,filing_number,filing_date,lapse_date,notes
-SECRETARY OF HOUSING AND URBAN DEVELOPMENT,,,,,,,
-UNITED STATES DEPARTMENT OF HOUSING,,,,,,,
-GREYSTONE,,,,,,,
-LUMENT,,,,,,,
-NEWPOINT,,,,,,,
-BERKADIA,,,,,,,
-LANCASTER POLLARD,,,,,,,
-ORIX REAL ESTATE CAPITAL,,,,,,,
-DWIGHT CAPITAL,,,,,,,
-MONTICELLO,,,,,,,
-GMCC,,,,,,,
-CAPITAL FUNDING,,,,,,,
-CAPITAL FINANCE,,,,,,,
-MIDCAP,,,,,,,
-WHITE OAK HEALTHCARE,,,,,,,
-OXFORD FINANCE,,,,,,,
-CIBC,,,,,,,
-BANKWELL,,,,,,,
-METROPOLITAN COMMERCIAL BANK,,,,,,,
-OMEGA HEALTHCARE,,,,,,,
-SABRA,,,,,,,
-CTW INVESTMENT,,,,,,,
-CARETRUST,,,,,,,
-NATIONAL HEALTH INVESTORS,,,,,,,
-LTC PROPERTIES,,,,,,,
-WELLTOWER,,,,,,,
-VENTAS,,,,,,,
-SECRETARY OF U.S. DEPARTMENT OF HOUSING,,,,,,,
-FORBRIGHT,,,,,,,
-VALLEY NATIONAL BANK,,,,,,,
-VNB NEW YORK,,,,,,,
-EAST WEST BANK,,,,,,,
-IKARIA,,,,,,,
-VIUM CAPITAL,,,,,,,
-TEXAS CAPITAL BANK,,,,,,,
-POPULAR BANK,,,,,,,
-BANK HAPOALIM,,,,,,,
-ONB DHF,,,,,,,
-DMT SPE,,,,,,,
-ECAPITAL,,,,,,,
-MERCHANTS BANK OF INDIANA,,,,,,,
-BOKF,,,,,,,
-ISRAEL DISCOUNT BANK,,,,,,,
-DIME COMMUNITY BANK,,,,,,,
-CONNECTONE,,,,,,,
-YAKAR,,,,,,,
-DBF SPE,,,,,,,
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"CLINTON NURSING HOME LIMITED PARTNERSHIP; SANDTOWN-WINCHESTER NURSING HOME,LLC; BAY MANOR NURSING HOME, INC.; OLD COURT NURSING CENTER, LLC; FROSTBURG SNF REALTY, LLC; FROSTBURG SNF OPERATOR, LLC; SOUTH MOUNTAIN SNF REALTY, LLC; RIVERSIDE SNF OPERATOR, LLC; OAKWOOD SNF LLC; 2131 DAVIDSONVILLE OPCO LLC; ROCKVILLE SNF REALTY, LLC; ROCKVILLE SNF OPERATOR LLC; FOREST HILL SNF OPERATOR, LLC; RANDALLSROWN NURSING & REHAB LLC; BETHESDA SNF OPERATOR, LLC; BEL AIR SNF OPERATOR, LLC","PRUDENTIAL HUNTOON PAIGE ASSOCIATES, LTD, A DELAWARE CORPORATION; SECRETARY OF HOUSING AND URBAN DEVELOPMENT; CAPITAL FUNDING, LLC AND ITS SUCCESSORS AND ASSIGNS; CENTENNIAL MORTGAGE, INC.; CAPITAL FUNDING, LLC; HOUSING & HEALTHCARE FINANCE, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT - OFFICE OF RESIDENTIAL CARE FACILITIES; NEWPOINT REAL ESTATE CAPITAL LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT, OFFICE OF RESIDENTIAL CARE FACILITIES; SECRETARY OF HOUSING AND URBAN DEVELOPMENT, ORCF; GREYSTONE FUNDING COMPANY LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT - OFFICE OF RESIDENTIAL CARE FACILITIES; LUMENT REAL ESTATE CAPITAL LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT ORCF; SECRETARY OF HOUSING AND URBAN DEVELOPMENT, OFFICE OF RESIDENTIAL CARE FACILITIES",0000000181227720; 0000000181453551; 0000000181472848; 170426-1340000; 191218-1500002; 191218-1505001; 191218-1539001; 210222-1558001; 230731-1658000; 230803-1317000; 250325-1611000; 250325-1731000; 250915-1300002; 251016-0927000; 260904-1319003; 260904-1318001,4/28/2005; 8/29/2012; 5/21/2013; 4/26/2017; 12/18/2019; 2/22/2021; 7/31/2023; 8/3/2023; 3/25/2025; 9/15/2025; 10/16/2025; 9/4/2026,4/28/2030; 8/29/2027; 5/21/2028; 4/26/2027; 12/18/2029; 2/22/2031; 7/31/2028; 8/3/2028; 3/25/2030; 9/15/2030; 10/16/2030; 9/4/2031,Retained 16 current filings tied to nursing-home/SNF debtors or verified facility-address entities.
+UNITED STATES DEPARTMENT OF HOUSING,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+GREYSTONE,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+LUMENT,y,"ROCKVILLE SNF REALTY, LLC; ROCKVILLE SNF OPERATOR LLC",LUMENT REAL ESTATE CAPITAL LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT ORCF,250325-1611000; 250325-1731000,3/25/2025,3/25/2030,Retained 2 current filings tied to nursing-home/SNF debtors or verified facility-address entities.
+NEWPOINT,y,"FROSTBURG SNF REALTY, LLC; FROSTBURG SNF OPERATOR, LLC; SOUTH MOUNTAIN SNF REALTY, LLC; RIVERSIDE SNF OPERATOR, LLC; OAKWOOD SNF LLC","HOUSING & HEALTHCARE FINANCE, LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT - OFFICE OF RESIDENTIAL CARE FACILITIES; NEWPOINT REAL ESTATE CAPITAL LLC; SECRETARY OF HOUSING & URBAN DEVELOPMENT, OFFICE OF RESIDENTIAL CARE FACILITIES; SECRETARY OF HOUSING AND URBAN DEVELOPMENT, ORCF",191218-1500002; 191218-1505001; 191218-1539001; 210222-1558001; 230731-1658000,12/18/2019; 2/22/2021; 7/31/2023,12/18/2029; 2/22/2031; 7/31/2028,Retained 5 current filings tied to nursing-home/SNF debtors or verified facility-address entities.
+BERKADIA,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+LANCASTER POLLARD,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+ORIX REAL ESTATE CAPITAL,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+DWIGHT CAPITAL,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+MONTICELLO,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+GMCC,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+CAPITAL FUNDING,y,"SW NURSING HOME LIMITED PARTNERSHIP; SANDTOWN-WINCHESTER NURSING HOME,LLC; OLD COURT NURSING CENTER, LLC; PLEASANT VIEW NURSING HOME; PLEASANT VIEW NURSING HOME OF MOUNT AIRY INC; HOLLY HILL NURSING, LLC; 1801 WENTWORTH OPCO LLC; 8710 EMGE OPCO LLC; 7355 FURNACE BRANCH ROAD EAST OPCO LLC; 6116 BELAIR ROAD OPCO LLC; FOREST HILL SNF OPERATOR, LLC; BETHESDA SNF OPERATOR, LLC; 2700 SOUTH HAVEN ROAD OPCO LLC; 901 ARCOLA AVENUE OPCO LLC; BEL AIR SNF OPERATOR, LLC; 14200 LAUREL PARK DRIVE OPCO LLC; 313 HOSPITAL DRIVE OPCO LLC; 1502 FREDERICK ROAD OPCO LLC","CAPITAL FUNDING,LLC AND ITS SUCCESSORS AND ASSIGNS; SECRETARY OF HOUSING AND URBAN DEVELOPEMENT; CAPITAL FUNDING, LLC AND ITS SUCCESSORS AND ASSIGNS; SECRETARY OF HOUSING AND URBAN DEVELOPMENT; CAPITAL FUNDING, LLC; LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS; CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS, AS AGENT ON BEHALF OF LENDERS",0000000181453550; 0000000181453551; 170426-1340000; 220131-1108001; 220328-0958000; 220401-1415009; 220502-1237003; 220707-1257000; 220707-1258001; 220707-1258002; 220727-1339001; 220727-1339002; 220727-1338000; 220727-1338001; 220729-1229001; 220729-1229002; 220729-1229003,8/29/2012; 4/26/2017; 1/31/2022; 3/28/2022; 4/1/2022; 5/2/2022; 7/7/2022; 7/27/2022; 7/29/2022,8/29/2027; 4/26/2027; 1/31/2027; 3/28/2027; 4/1/2027; 5/2/2027; 7/7/2027; 7/27/2027; 7/29/2027,Retained 17 current filings tied to nursing-home/SNF debtors or verified facility-address entities.
+CAPITAL FINANCE,y,"BETHESDA SNF OPERATOR, LLC; BEL AIR SNF OPERATOR, LLC; FOREST HILL SNF OPERATOR, LLC; 14200 LAUREL PARK DRIVE OPCO LLC; 1502 FREDERICK ROAD OPCO LLC; 2700 SOUTH HAVEN ROAD OPCO LLC; 313 HOSPITAL DRIVE OPCO LLC; 6116 BELAIR ROAD OPCO LLC; 7355 FURNACE BRANCH ROAD EAST OPCO LLC; 901 ARCOLA AVENUE OPCO LLC; 11974 EDGEHILL TERRACE OPCO LLC; 520 KERR AVENUE OPCO LLC; CAROLINE OPERATIONS HOLDCO LLC; MANOKIN OPERATIONS HOLDCO LLC; LA 10 OPCO HOLDCO LLC; CHESTERTOWN NURSING AND REHAB, LLC; DENTON NURSING AND REHAB, LLC; HARTLEY NURSING AND REHAB, LLC; MD4 HOLDCO, LLC; PINES NURSING AND REHAB, LLC; ACADEMY MD OPCO LLC; GRANITE MD OPCO LLC; GWYNNFALLS MD OPCO LLC; SUMMIT HILLS MD OPCO LLC; WOODSIDE PARK MD OPCO LLC; ACADEMY MD HOLDCO LLC; GRANITE MD HOLDCO LLC; GWYNNFALLS MD HOLDCO LLC; SUMMIT HILLS MD HOLDCO LLC; WOODSIDE PARK MD HOLDCO LLC; CATONSVILLE MD OPCO LLC; LIBERTY RD RANDALLSTOWN MD OPCO LLC; SILVER SPRING MD OPCO LLC; WILKENS AVE BALTIMORE MD OPCO LLC; TAKOMA PARK MD OPCO LLC; AXIS HEALTH AT CAROLINE OPCO LLC; AXIS HEALTH AT MANOKIN OPCO LLC; CHESTERTOWN MD OPCO LLC; DENTON MD OPCO LLC; EASTON MD OPCO LLC; POCOMOKE CITY MD OPCO LLC; CRESCENT CITIES SNF LLC","CAPITAL FINANCE, LLC, AS AGENT; CAPITAL FINANCE, LLC, AS ADMINISTRATIVE AGENT; ACADEMY MD OPCO LLC; GRANITE MD OPCO LLC; SUMMIT HILLS MD OPCO LLC; GWYNNFALLS MD OPCO LLC; WOODSIDE PARK MD OPCO LLC; 520 KERR AVENUE OPCO LLC; 11974 EDGEHILL TERRACE OPCO LLC; CHESTERTOWN NURSING AND REHAB, LLC; DENTON NURSING AND REHAB, LLC; PINES NURSING AND REHAB, LLC; HARTLEY NURSING AND REHAB, LLC",220601-1822000; 220601-1822001; 220601-1822002; 220609-1555000; 220609-1555001; 220609-1555002; 220609-1555003; 220609-1555004; 220609-1556000; 220609-1556001; 220725-1550000; 220725-1552000; 220725-1552001; 220725-1553000; 220729-0936001; 221213-1610000; 221213-1611001; 221213-1615002; 221213-1617000; 221213-1617001; 230427-1633000; 230427-1633001; 230427-1633002; 230427-1633003; 230427-1633004; 230427-1634000; 230427-1634001; 230427-1634002; 230427-1634003; 230427-1634004; 230803-1909000; 230803-1909001; 230803-1909002; 230803-1909003; 230803-1910000; 231002-1759000; 231002-1759001; 231006-1532000; 231006-1533000; 231006-1534000; 231006-1535000; 250918-1500004; 251120-1715001; 260903-1655001; 260903-1655002,6/1/2022; 6/9/2022; 7/25/2022; 7/29/2022; 12/13/2022; 4/27/2023; 8/3/2023; 10/2/2023; 10/6/2023; 9/18/2025; 11/20/2025; 9/3/2026,6/1/2027; 6/9/2027; 7/25/2027; 7/29/2027; 12/13/2027; 4/27/2028; 8/3/2028; 10/2/2028; 10/6/2028; 9/18/2030; 11/20/2030; 9/3/2031,Retained 45 current filings tied to nursing-home/SNF debtors or verified facility-address entities.
+MIDCAP,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+WHITE OAK HEALTHCARE,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+OXFORD FINANCE,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+CIBC,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+BANKWELL,y,OAKWOOD SNF LLC; 10200 LA PLATA OPCO LLC; 10200 LA PLATA OPCO HOLDCO LLC,"BANKWELL BANK, AS AGENT",210713-1359003; 240517-1622000; 240517-1623000,7/13/2021; 5/17/2024,7/13/2031; 5/17/2029,Retained 3 current filings tied to nursing-home/SNF debtors or verified facility-address entities.
+METROPOLITAN COMMERCIAL BANK,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+OMEGA HEALTHCARE,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+SABRA,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+CTW INVESTMENT,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+CARETRUST,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+NATIONAL HEALTH INVESTORS,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+LTC PROPERTIES,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+WELLTOWER,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+VENTAS,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+SECRETARY OF U.S. DEPARTMENT OF HOUSING,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+FORBRIGHT,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+VALLEY NATIONAL BANK,n,,,,,,26 filings reviewed; no current nursing-home filing retained.
+VNB NEW YORK,y,"ROBOSSON ROAD REALTY, LLC; RANDALLSTOWN NURSING & REHAB LLC; SYKESVILLE MD OPCO LLC; 1881 TELEGRAPH ROAD OPCO LLC; 3332 MAIN STREET OPCO LLC; 3415 GREENCASTLE ROAD OPCO LLC; 7309 SECOND AVENUE OPCO LLC; 515 BRIGHTFIELD ROAD OPCO LLC; 2501 MUSGROVE ROAD OPCO LLC; 8700 JONES MILL ROAD OPCO LLC; 7001 CHARLES STREET OPCO LLC; 7309 SECOND AVENUE HOLDCO LLC; 1881 TELEGRAPH ROAD HOLDCO LLC; 3332 MAIN STREET HOLDCO LLC; 3415 GREENCASTLE ROAD HOLDCO LLC","VNB NEW YORK, LLC",190812-1015002; 200701-1626000; 220803-0859000; 220803-0906000; 220803-0913000; 220803-0917000; 230606-1622000; 230606-1630000; 230606-1727000; 230606-1730000; 241023-1407000; 241023-1418000; 241023-1431000; 241023-1437000; 241023-1441000; 241023-1444000; 241023-1449000; 241023-1454001,8/12/2019; 7/1/2020; 8/3/2022; 6/6/2023; 10/23/2024,,Retained 18 current filings tied to nursing-home/SNF debtors or verified facility-address entities. All 17 previously flagged OPCO/HOLDCO records were verified against nursing-home sources; the nine facility addresses map to Copper Ridge; Calvert Manor Center for Rehabilitation and Health; Autumn Lake Healthcare at Long View; Autumn Lake Healthcare at Oak Manor; Autumn Lake Healthcare at Birch Manor; Powerback Rehabilitation Brightwood; Autumn Lake Healthcare at Silver Spring; Autumn Lake Healthcare at Chevy Chase; Autumn Lake Healthcare at Ruxton.
+EAST WEST BANK,n,,,,,,38 filings reviewed; no current nursing-home filing retained.
+IKARIA,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+VIUM CAPITAL,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+TEXAS CAPITAL BANK,n,,,,,,18 filings reviewed; no current nursing-home filing retained.
+POPULAR BANK,n,,,,,,8 filings reviewed; no current nursing-home filing retained.
+BANK HAPOALIM,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+ONB DHF,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+DMT SPE,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+ECAPITAL,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+MERCHANTS BANK OF INDIANA,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+BOKF,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+ISRAEL DISCOUNT BANK,n,,,,,,3 filings reviewed; no current nursing-home filing retained.
+DIME COMMUNITY BANK,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+CONNECTONE,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.
+YAKAR,n,,,,,,Search completed; no current nursing-home filing retained after excluding expired chains and non-nursing housing or care settings.
+DBF SPE,n,,,,,,No exact secured-party match or no qualifying nursing-home filing.

@@ -1,48 +1,48 @@
 query_name,found_y_n,debtor_name,secured_party,filing_number,filing_date,lapse_date,notes
-SECRETARY OF HOUSING AND URBAN DEVELOPMENT,,,,,,,
-UNITED STATES DEPARTMENT OF HOUSING,,,,,,,
-GREYSTONE,,,,,,,
-LUMENT,,,,,,,
-NEWPOINT,,,,,,,
-BERKADIA,,,,,,,
-LANCASTER POLLARD,,,,,,,
-ORIX REAL ESTATE CAPITAL,,,,,,,
-DWIGHT CAPITAL,,,,,,,
-MONTICELLO,,,,,,,
-GMCC,,,,,,,
-CAPITAL FUNDING,,,,,,,
-CAPITAL FINANCE,,,,,,,
-MIDCAP,,,,,,,
-WHITE OAK HEALTHCARE,,,,,,,
-OXFORD FINANCE,,,,,,,
-CIBC,,,,,,,
-BANKWELL,,,,,,,
-METROPOLITAN COMMERCIAL BANK,,,,,,,
-OMEGA HEALTHCARE,,,,,,,
-SABRA,,,,,,,
-CTW INVESTMENT,,,,,,,
-CARETRUST,,,,,,,
-NATIONAL HEALTH INVESTORS,,,,,,,
-LTC PROPERTIES,,,,,,,
-WELLTOWER,,,,,,,
-VENTAS,,,,,,,
-SECRETARY OF U.S. DEPARTMENT OF HOUSING,,,,,,,
-FORBRIGHT,,,,,,,
-VALLEY NATIONAL BANK,,,,,,,
-VNB NEW YORK,,,,,,,
-EAST WEST BANK,,,,,,,
-IKARIA,,,,,,,
-VIUM CAPITAL,,,,,,,
-TEXAS CAPITAL BANK,,,,,,,
-POPULAR BANK,,,,,,,
-BANK HAPOALIM,,,,,,,
-ONB DHF,,,,,,,
-DMT SPE,,,,,,,
-ECAPITAL,,,,,,,
-MERCHANTS BANK OF INDIANA,,,,,,,
-BOKF,,,,,,,
-ISRAEL DISCOUNT BANK,,,,,,,
-DIME COMMUNITY BANK,,,,,,,
-CONNECTONE,,,,,,,
-YAKAR,,,,,,,
-DBF SPE,,,,,,,
+SECRETARY OF HOUSING AND URBAN DEVELOPMENT,y,"12th Street Operations LLC; BLAKE AVENUE OPERATIONS LLC; CENTCORD MASTER LLC; COLOROW CARE CENTER, LLC; CONSTITUTION NURSING AND REHABILITATION CENTER LLC; CUCHARRAS OPERATIONS, LLC; LAKEWOOD VILLA OPERATIONS, LLC; LOIS LANE OPERATIONS, LLC; Meadowbrook Blvd. Operations LLC; POWERS SNF, LLC; SWEETWATER AURORA OPCO LLC; THE CENTER AT CENTENNIAL REAL ESTATE CO LLC; THE CENTER AT CENTENNIAL, LLC; VALLEY VIEW CARE CENTER, LLC; WELD LTC INVESTORS, LLC",GREYSTONE FUNDING COMPANY LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT; SECRETARY OF HOUSING AND URBAN DEVELOPMENT - OFFICE OF RESIDENTIAL CARE FACILITIES; SECRETARY OF HOUSING AND URBAN DEVELOPMENT - ORCF; SECRETARY OF HOUSING AND URBAN DEVELOPMENT-OFFICE OF RESIDENTIAL CARE FACILITIES; Secretary of Housing and Urban Development - Office of Residential Care Facilities,20182067549; 20182067550; 20182068605; 20182071748; 20202041869; 20202042656; 20202042667; 20202118669; 20202118674; 20202118679; 20202118692; 20202118699; 20202118704; 20212116522; 20252049332; 20262046770; 20262046800; 20262047004,05/06/2020; 05/07/2020; 05/12/2026; 05/21/2025; 07/26/2018; 07/31/2018; 08/09/2018; 10/20/2020; 11/24/2021,05/06/2030; 05/07/2030; 05/12/2031; 05/21/2030; 07/26/2028; 07/31/2028; 08/09/2028; 10/20/2030; 11/24/2026,"18 currently active confirmed nursing-home/SNF filing(s). 14 matched an active CMS facility by exact name/address; 4 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+UNITED STATES DEPARTMENT OF HOUSING,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+GREYSTONE,y,SWEETWATER AURORA OPCO LLC,GREYSTONE FUNDING COMPANY LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT - ORCF,20252049332,05/21/2025,05/21/2030,"1 currently active confirmed nursing-home/SNF filing(s). 1 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+LUMENT,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+NEWPOINT,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+BERKADIA,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+LANCASTER POLLARD,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+ORIX REAL ESTATE CAPITAL,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+DWIGHT CAPITAL,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+MONTICELLO,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+GMCC,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+CAPITAL FUNDING,y,"1111 Bonforte OpCo, LLC; Canyon View Care Center LLC; Colonial Rehabilitation and Nursing, LLC; Creekside Village Rehabilitation and Nursing, LLC; Crestmoor Care Center LLC; EBEN EZER LUTHERAN CARE CENTER; ELK RIDGE HEALTH AND REHABILITATION CENTER LLC; Eastern Rio Blanco County Health Service District; Falcon Heights Rehabilitation and Nursing, LLC; Fountain View Rehabilitation and Nursing, LLC; HOPE SPRINGS CARE CENTER LLC; Kiowa Hills Rehabilitation and Nursing, LLC; Poudre Canyon Rehabilitation and Nursing, LLC; South Platte Rehabilitation and Nursing, LLC; Sterling Rehabilitation and Nursing, LLC; Thornton Care Center LLC; Vista Ridge Care and Rehabilitation LLC; Wellsprings Care Center LLC","CAPITAL FUNDING, LLC; Capital Funding, LLC, its successors and assigns, as Agent on behalf of Lenders; LEAF CAPITAL FUNDING, LLC AND/OR ITS ASSIGNS; LEAF Capital Funding LLC; LEAF Capital Funding, LLC and/or Its Assigns; Secretary of U.S. Department of Housing and Urban Development - Office of Residential Care Facilities",20222023701; 20232039792; 20242042066; 20242081376; 20242081382; 20242081383; 20242081385; 20242081390; 20242081392; 20242081396; 20242081411; 20242093945; 20242093946; 20242093948; 20242093949; 20252065559; 20262052548; 20262072477; 20262084432,03/08/2022; 04/25/2023; 05/09/2024; 05/28/2026; 06/19/2025; 07/24/2026; 08/24/2026; 09/06/2024; 10/14/2024,03/08/2027; 04/25/2028; 05/09/2029; 05/28/2031; 06/19/2030; 07/24/2031; 08/24/2031; 09/06/2029; 10/14/2029,"19 currently active confirmed nursing-home/SNF filing(s). 16 matched an active CMS facility by exact name/address; 3 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+CAPITAL FINANCE,y,Cottonwood Rehabilitation and Healthcare Center LLC; Pine Ridge Rehabilitation and Healthcare Center LLC; Rio Grande Rehabilitation and Healthcare Center LLC; River Valley Rehabilitation and Healthcare Center LLC; Rock Creek Rehabilitation and Healthcare Center LLC; The Valley Rehabilitation and Healthcare Center LLC; Trinidad Rehabilitation and Healthcare Center LLC; Vista Grande Rehabilitation and Healthcare Center LLC,"Capital Finance, LLC, as Administrative Agent",20222090891; 20222090892; 20222090893; 20222090894; 20222090896; 20222090898; 20222090900; 20242078418; 20252127897; 20252127903; 20252127910; 20252127912; 20252127913,08/27/2024; 09/02/2022; 12/05/2025,08/27/2029; 09/02/2027; 12/05/2030,"13 currently active confirmed nursing-home/SNF filing(s). 13 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+MIDCAP,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+WHITE OAK HEALTHCARE,y,"2800 Palo Parkway Operations LLC; 290 South Monaco Parkway Operations LLC; Riverbend Health and Rehabilitation Center, LLC","White Oak Healthcare Finance, LLC, as Administrative Agent; White Oak Healthcare REIT II, LLC, as Administrative Agent",20232001697; 20232001699; 20232010859,01/04/2023; 01/31/2023,01/04/2028; 01/31/2028,"3 currently active confirmed nursing-home/SNF filing(s). 2 matched an active CMS facility by exact name/address; 1 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+OXFORD FINANCE,y,"Colonial Rehabilitation and Nursing, LLC; Creekside Village Rehabilitation and Nursing, LLC; Falcon Heights Rehabilitation and Nursing, LLC; Fountain View Rehabilitation and Nursing, LLC; Kiowa Hills Rehabilitation and Nursing, LLC; Poudre Canyon Rehabilitation and Nursing, LLC; South Platte Rehabilitation and Nursing, LLC; Sterling Rehabilitation and Nursing, LLC",Oxford Finance LLC,20242076103; 20242076105; 20242076106; 20242076107; 20242076108; 20242076109; 20242076110; 20242076111,08/20/2024,08/20/2029,"8 currently active confirmed nursing-home/SNF filing(s). 8 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+CIBC,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+BANKWELL,y,"Front Range Health & Rehabilitation, LLC; Red Rocks Health & Rehabilitation, LLC","Bankwell Bank, as Agent",20222046592; 20222046593,05/05/2022,05/05/2027,"2 currently active confirmed nursing-home/SNF filing(s). 2 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+METROPOLITAN COMMERCIAL BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+OMEGA HEALTHCARE,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+SABRA,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+CTW INVESTMENT,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+CARETRUST,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+NATIONAL HEALTH INVESTORS,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+LTC PROPERTIES,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+WELLTOWER,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+VENTAS,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+SECRETARY OF U.S. DEPARTMENT OF HOUSING,y,"CONTINUUM AT SHARMAR, INC.; COTTONWOOD REHABILITATION AND HEALTHCARE CENTER LLC; HOPE SPRINGS CARE CENTER LLC; PINE RIDGE REHABILITATION AND HEALTHCARE CENTER LLC; RIO GRANDE REHABILITATION AND HEALTHCARE CENTER LLC; THE VALLEY REHABILITATION AND HEALTHCARE CENTER LLC; VISTA GRANDE REHABILITATION AND HEALTHCARE CENTER LLC","CAPITAL FUNDING, LLC; SECRETARY OF U.S. DEPARTMENT OF HOUSING AND URBAN DEVELOPMENT, C/O OFFICE OF INSURED HEALTH CARE FACILITIES; Secretary of U.S. Department of Housing & Urban Development - Office of Residential Care Facilities; Secretary of U.S. Department of Housing and Urban Development - Office of Residential Care Facilities; VIUM CAPITAL MORTGAGE, LLC",20112036380; 20252065559; 20252127293; 20252127299; 20252127309; 20252127316; 20252127319,06/19/2025; 09/22/2011; 12/04/2025,06/19/2030; 09/22/2031; 12/04/2030,"7 currently active confirmed nursing-home/SNF filing(s). 6 matched an active CMS facility by exact name/address; 1 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+FORBRIGHT,y,"STELLAR BEAR CREEK, LLC","FORBRIGHT BANK, AS AGENT",20252120136,11/14/2025,11/14/2030,"1 currently active confirmed nursing-home/SNF filing(s). 1 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+VALLEY NATIONAL BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+VNB NEW YORK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+EAST WEST BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+IKARIA,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+VIUM CAPITAL,y,COTTONWOOD REHABILITATION AND HEALTHCARE CENTER LLC; PINE RIDGE REHABILITATION AND HEALTHCARE CENTER LLC; RIO GRANDE REHABILITATION AND HEALTHCARE CENTER LLC; THE VALLEY REHABILITATION AND HEALTHCARE CENTER LLC; VISTA GRANDE REHABILITATION AND HEALTHCARE CENTER LLC,"Secretary of U.S. Department of Housing & Urban Development - Office of Residential Care Facilities; VIUM CAPITAL MORTGAGE, LLC",20252127293; 20252127299; 20252127309; 20252127316; 20252127319,12/04/2025,12/04/2030,"5 currently active confirmed nursing-home/SNF filing(s). 5 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+TEXAS CAPITAL BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+POPULAR BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+BANK HAPOALIM,y,River Valley Rehabilitation and Healthcare Center LLC; Rock Creek Rehabilitation and Healthcare Center LLC; Trinidad Rehabilitation and Healthcare Center LLC,"Bank Hapoalim B.M., as Administrative Agent",20252039414; 20252039415; 20252039417; 20252039423; 20252039424; 20252039426,05/01/2025,05/01/2030,"6 currently active confirmed nursing-home/SNF filing(s). 6 matched an active CMS facility by exact name/address; 0 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+ONB DHF,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+DMT SPE,y,"FRANKLIN PARK HEALTH AND REHAB LLC; Front Range Health & Rehabilitation, LLC; GRANDVIEW HEALTH AND REHAB LLC; HIGH PLAINS POST ACUTE LLC; LARCHWOOD HEALTH AND REHAB LLC; Red Rocks Health & Rehabilitation, LLC",DMT SPE I LLC,20222034524; 20222034525; 20262053438; 20262053441; 20262087367; 20262087370,04/05/2022; 06/01/2026; 09/01/2026,04/05/2027; 06/01/2031; 09/01/2031,"6 currently active confirmed nursing-home/SNF filing(s). 2 matched an active CMS facility by exact name/address; 4 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+ECAPITAL,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+MERCHANTS BANK OF INDIANA,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+BOKF,y,"B.S.M.C. Limited Liability Company; Centre Avenue Rehab Real Estate, LLC; D.C.H.I. Limited Liability Company; East El Paso SNF, LLC; Lakewood Villa Holding, LLC; Lakewood Villa Operations, LLC; Lexicon Care, Inc.; M & C GENEVA, LLC; Summit Rehabilitation and Care Community","BOKF, NA d/b/a BOK Financial; BOKF, NA dba BOK Financial; BOKF, NA dba Bank of Oklahoma",20142014744; 20142014747; 20172047887; 20192063590; 20192088826; 20242024198,02/17/2014; 03/15/2024; 05/22/2017; 07/17/2019; 09/27/2019,02/17/2029; 03/15/2029; 05/22/2027; 07/17/2029; 09/27/2029,"6 currently active confirmed nursing-home/SNF filing(s). 5 matched an active CMS facility by exact name/address; 1 additional filing(s) had explicit nursing-home/SNF entity names. Active means an active secured party and debtor, an unexpired lapse date, and no termination through 10/26/2026."
+ISRAEL DISCOUNT BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+DIME COMMUNITY BANK,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+CONNECTONE,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+YAKAR,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.
+DBF SPE,n,,,,,,No confirmed nursing-home/SNF filing among currently active Colorado records as of 10/26/2026.

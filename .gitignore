@@ -37,3 +37,6 @@ agent/traces/
 
 # test_csv_export.py writes files here for the manual Excel/Sheets check
 tests/output/
+
+# Built Claude Desktop extension (venv/bin/python3 -m agent.mcpb.build)
+agent/mcpb/dist/
