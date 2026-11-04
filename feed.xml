@@ -4,7 +4,70 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-04T15:10:54.785121+00:00</updated>
+  <updated>2026-11-04T16:19:51.879638+00:00</updated>
+  <entry>
+    <id>urn:uuid:7f323744-2e11-4464-b58a-2425e60fb7ef</id>
+    <title>BOLD QUAIL 4 OPERATIONS HOLDINGS, LLC acquires THE EARLWOOD and 1 more from BQ OPERATIONS HOLDINGS LLC (CA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-bold-quail-4-operations-holdings-llc-2026-07-15"/>
+    <updated>2026-11-04T16:09:19.757605+00:00</updated>
+    <summary>Effective 2026-07-15; Facilities: THE EARLWOOD, DEVONSHIRE CARE CENTER; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d977398e-45c3-4507-a2a0-78b30fe8fcd1</id>
+    <title>VENTAS REALTY LIMITED PARTNERSHIP acquires LIBERTY HEIGHTS and 1 more (CO, IL)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-ventas-realty-limited-partnership-2026-07-07"/>
+    <updated>2026-11-04T16:09:19.746987+00:00</updated>
+    <summary>Effective 2026-07-07; Facilities: LIBERTY HEIGHTS, LINCOLNWOOD PLACE; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:991900ae-271e-4c7c-af90-3bca7c99bba9</id>
+    <title>SEABURY, INC. acquires POMPERAUG WOODS HEALTH CENTER (CT)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-seabury-inc-2026-05-15"/>
+    <updated>2026-11-04T16:09:19.735990+00:00</updated>
+    <summary>Effective 2026-05-15; Facilities: POMPERAUG WOODS HEALTH CENTER; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:64ce679f-d29b-41ff-bc5d-fecdb45586ff</id>
+    <title>KENSINGTON SNF HOLDCO LLC acquires Turtle Creek Rehabilitation and Wellness Center (MD)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-kensington-snf-holdco-llc-2026-04-01"/>
+    <updated>2026-11-04T16:09:19.724454+00:00</updated>
+    <summary>Effective 2026-04-01; Facilities: Turtle Creek Rehabilitation and Wellness Center; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:791a3244-892d-411d-9c0c-36aa08824ee2</id>
+    <title>JOURNEY PEACH GA HOLDCO LLC acquires Reserve at Fort Gaines of Journey LLC, The from GBD LLC (GA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-journey-peach-ga-holdco-llc-2026-02-01"/>
+    <updated>2026-11-04T16:09:19.712179+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: Reserve at Fort Gaines of Journey LLC, The; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:14da6e8d-8792-41a0-9dd3-28b40f29d67b</id>
+    <title>MEADOWSSUNSETPA, LLC acquires The Meadows on Sunset Post Acute from SUMMIT CARE LLC (CA)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-meadowssunsetpa-llc-2026-02-01"/>
+    <updated>2026-11-04T16:09:19.699166+00:00</updated>
+    <summary>Effective 2026-02-01; Facilities: The Meadows on Sunset Post Acute; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:059da4a2-1139-45ae-adba-9af56cbea89a</id>
+    <title>ENCORE PORT HOLDINGS LLC acquires ENCORE AT WEST MEADOW L.L.C. (DE)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-encore-port-holdings-llc-2025-12-15"/>
+    <updated>2026-11-04T16:09:19.684090+00:00</updated>
+    <summary>Effective 2025-12-15; Facilities: ENCORE AT WEST MEADOW L.L.C.; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a568997f-d299-44f6-9650-ff44695d48c8</id>
+    <title>ENDEAR CARE HOLDCO LLC acquires ARABELLA HEALTH &amp; WELLNESS OF PENSACOLA (FL)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-endear-care-holdco-llc-2025-12-01"/>
+    <updated>2026-11-04T16:09:19.667557+00:00</updated>
+    <summary>Effective 2025-12-01; Facilities: ARABELLA HEALTH &amp; WELLNESS OF PENSACOLA; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7d6d3eca-a798-4008-ad69-a06aa334deab</id>
+    <title>MNC SOUTH, LLC acquires MANILA HEALTHCARE CENTER (AR)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-mnc-south-llc-2025-12-01"/>
+    <updated>2026-11-04T16:09:18.590944+00:00</updated>
+    <summary>Effective 2025-12-01; Facilities: MANILA HEALTHCARE CENTER; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
   <entry>
     <id>urn:uuid:730aa39a-b6e3-444f-b9f0-8454099447ae</id>
     <title>SHH Holdings, LLC (Saber PropCo JV) acquires 5 facilities</title>
@@ -21,7 +84,7 @@
   </entry>
   <entry>
     <id>urn:uuid:fd0064f3-66c8-4b29-a067-7e9661f5287d</id>
-    <title>PACS Group to acquire 11 facilities in TX (TX)</title>
+    <title>PACS Group acquires 11 facilities in TX (TX)</title>
     <link href="https://www.rutlandherald.com/news/business/pacs-group-inc-reports-third-quarter-2026-results/article_4a74a93f-a975-5ef3-9a9f-0fa9b057e321.html"/>
     <updated>2026-11-04T14:59:17.971770+00:00</updated>
     <summary>Effective 2026-11-01; Source: Google Alerts — Nursing Home Acquisition</summary>
@@ -291,68 +354,5 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-29T14:47:59.796657+00:00</updated>
     <summary>Effective 2025-08-04; Facilities: 12800 Princeland Dr SNF Realty LLC, Boyd Nursing and Rehabilitation LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:1c0df178-e2a4-46ee-a06b-21195286e9d3</id>
-    <title>Boyd Nursing and Rehabilitation LLC, Seneca Place LLC, 12800 Princeland DR SNF Realty LLC, 3526 Dutchmans Lane SNF Realty LLC — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:57.343003+00:00</updated>
-    <summary>Effective 2025-08-04; Facilities: Boyd Nursing and Rehabilitation LLC, Seneca Place LLC, 12800 Princeland DR SNF Realty LLC, 3526 Dutchmans Lane SNF Realty LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:61a7e8a2-182a-41c1-8315-fd161900f579</id>
-    <title>Majestic Child Care of Crown Point LLC — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:55.920734+00:00</updated>
-    <summary>Effective 2025-02-11; Facilities: Majestic Child Care of Crown Point LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:897353be-b053-4d2c-a6b6-dbe291f82b70</id>
-    <title>MAJESTIC CARE OF CONNERSVILLE — acquisition financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:53.084958+00:00</updated>
-    <summary>Effective 2026-04-15; Facilities: MAJESTIC CARE OF CONNERSVILLE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:239f2c18-df51-4a63-b6db-15009ec0c653</id>
-    <title>MAJESTIC CARE OF CONNERSVILLE — acquisition financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:51.893228+00:00</updated>
-    <summary>Effective 2026-04-15; Facilities: MAJESTIC CARE OF CONNERSVILLE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bf301c2f-cf4d-49b1-adbe-3e3a1b238626</id>
-    <title>ENVIVE OF BROOKVILLE — acquisition financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:50.830898+00:00</updated>
-    <summary>Effective 2025-01-17; Facilities: ENVIVE OF BROOKVILLE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:adca3917-3132-4e0d-bae1-15bf51cc4424</id>
-    <title>ENVIVE OF LIBERTY — acquisition financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:49.871229+00:00</updated>
-    <summary>Effective 2025-01-17; Facilities: ENVIVE OF LIBERTY; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6be8dd5e-b228-4141-a80b-ac16c551c902</id>
-    <title>MUNCIE NURSING HOLDCO LLC — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:48.885536+00:00</updated>
-    <summary>Effective 2025-01-02; Facilities: MUNCIE NURSING HOLDCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:76aee7c4-af54-494f-9235-062578f03f77</id>
-    <title>ENVIVE OF MUNCIE — acquisition financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:47.928335+00:00</updated>
-    <summary>Effective 2025-01-02; Facilities: ENVIVE OF MUNCIE; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ad469dc7-92ac-46c2-b355-ed6bd6724135</id>
-    <title>TRILOGY HEALTHCARE OPERATIONS OF SPRINGFIELD, LLC — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:46.121930+00:00</updated>
-    <summary>Effective 2025-05-02; Facilities: TRILOGY HEALTHCARE OPERATIONS OF SPRINGFIELD, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
