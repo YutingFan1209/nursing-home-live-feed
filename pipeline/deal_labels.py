@@ -301,7 +301,12 @@ _PENDING_RE = re.compile(
     r"(court |final |regulatory )?approval (is |was )?expected|expected .{0,40}approval|awaiting .{0,40}approval|"
     r"subject to .{0,40}approval|asked to (give final approval|approve|confirm))\b", re.I)
 _DONE_RE = re.compile(r"\b(completed|closed (on )?the|closed on|closed (its|their)|has acquired|finalized|took over|closed sale|"
-                      r"(sale|deal|transaction) (that )?closed)\b", re.I)
+                      r"(sale|deal|transaction) (that )?closed|"
+                      # 2026-11-04: "all 11 had closed as of Nov 1", "The sale is closed", "is the new owner
+                      # of". Not "has closed" ("does not say whether the deal has closed") and not a bare
+                      # "acquired" ("acquired Genesis ... with final court approval expected")
+                      r"(had|have) closed|closed as of|(sale|deal|transaction) (is|was|has been) closed|"
+                      r"is (now )?the new owner)\b", re.I)
 
 
 def cms_event(d: dict, cms) -> dict | None:
@@ -493,6 +498,9 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
                     f"Unconfirmed: {what.lower()} on {since.isoformat()}, over 6 months ago; {check}. "
                     "It may not have closed, or the records may not have caught up."}
         tail = (f"; expected to close {when.isoformat()}" if future
+                # 2026-11-04: the date has passed; CMS's records lag the closing by months
+                else f"; expected to close {when.isoformat()}, a date that has passed; "
+                     "waiting for CMS records to show the new owner" if when
                 else "; completion not yet confirmed by CMS")
         return {"status": "expected", "status_detail": f"Expected: {what}{tail}"}
     return {"status": "reported", "status_detail": "Reported: news or company filing, not yet confirmed by CMS"}

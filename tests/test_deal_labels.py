@@ -552,3 +552,15 @@ def test_ucc_narrative_says_only_why_the_filing_got_its_category():
     assert ucc_narrative({**base, "individual_filing": True, "deal_type": "financing"}, ["Zephyrdale Center"]) == \
         "No sale in CMS records yet."
     assert ucc_narrative({"source_type": "rss"}, []) is None
+
+
+def test_done_phrasings_beat_pending_words():
+    # 2026-11-04: news cards stayed "Expected" although the summary said the deal had closed
+    from pipeline.deal_labels import _DONE_RE
+    for s in ("signed a definitive agreement to acquire ... PACS reports that all 11 had closed as of Nov 1, 2026.",
+              "The buyers plan to rebrand the campus. The sale is closed.",
+              "WSSH is the new owner of Genesis HealthCare after a court approved the sale; it plans to operate it."):
+        assert _DONE_RE.search(s), s
+    for s in ("Sagora is acquiring Wilshire; the article does not say whether the deal has closed.",
+              "101 W. State Street acquired Genesis HealthCare, with final court approval expected October 14, 2026."):
+        assert not _DONE_RE.search(s), s

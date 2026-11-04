@@ -200,13 +200,18 @@ def _source_freshness(cur, chow_file_date: str | None) -> dict:
             r["cadence"] = "Monthly file"
             r["file_loaded"] = loaded.isoformat() if loaded else None
             r["next_due"] = (loaded + timedelta(days=25)).isoformat() if loaded else None
+    # Newest ownership start date in the loaded file: how far CMS's records reach
+    # (the site's "waiting for CMS records" note on passed close dates)
+    cur.execute("SELECT MAX(ownership_start_date) FROM cms_ownership_records WHERE ownership_start_date <= CURRENT_DATE")
+    through = cur.fetchone()[0]
     cur.execute("""
         SELECT d.states[1], MAX(d.created_at)
         FROM deals d JOIN articles a ON a.id = d.article_id JOIN sources s ON s.id = a.source_id
         WHERE s.source_type = 'ucc' AND d.states[1] IS NOT NULL
         GROUP BY 1 ORDER BY 2 DESC""")
     ucc = {st: ts.isoformat() for st, ts in cur.fetchall()}
-    return {"sources": rows, "ucc_last_new_filing": ucc}
+    return {"sources": rows, "ucc_last_new_filing": ucc,
+            "cms_ownership_through": through.isoformat() if through else None}
 
 
 def _ucc_display_fields(source_url: str, source_title: str, detail_url: str | None):

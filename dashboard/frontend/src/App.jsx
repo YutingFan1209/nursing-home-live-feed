@@ -3,7 +3,7 @@ import { countPage, countEvent, countFilters } from "./analytics.js";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as Tabs from "@radix-ui/react-tabs";
 import { toCsv, toXlsx, CSV_TYPE, XLSX_TYPE } from "./export.js";
-import { SOURCE_LABEL, SOURCE_COLOR, STATUS_LABEL, STATUS_COLOR, displayStatus, primaryDate, otherDate,
+import { SOURCE_LABEL, SOURCE_COLOR, STATUS_LABEL, STATUS_COLOR, displayStatus, primaryDate, otherDate, closePassed,
   publication, statusMeaning, howCollected } from "./derive.js";
 
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL || "https://www.medicare.gov/care-compare/details/nursing-home";
@@ -525,7 +525,7 @@ const bedsNote = (n) => n ? `${Number(n).toLocaleString()} beds` : null;
 
 // The four columns of a collapsed card: who, counterparty, where, when.
 // Each is { label, value, missing, note, ccn }.
-function cardColumns(d, facilities) {
+function cardColumns(d, facilities, cmsThrough) {
   const ucc = d.source_type === "ucc";
   const financing = ucc || FINANCING_TYPES.has(d.deal_type);
   const states = (d.states || []).join(", ");
@@ -597,8 +597,14 @@ function cardColumns(d, facilities) {
   // 4. Role-labeled date
   const p = primaryDate(d);
   cols.push({ label: p.role, value: fmtFull(p.date) || "Not reported", missing: !p.date,
-    note: d.found_date ? `Found ${fmtFull(d.found_date)}` : null });
+    note: closePassed(d) ? passedNote(d, p, cmsThrough) : d.found_date ? `Found ${fmtFull(d.found_date)}` : null });
   return cols;
+}
+
+// "Close date passed", for an expected deal whose closing date is behind us
+function passedNote(d, p, cmsThrough) {
+  const when = p.role === "Expected close" ? "Close date passed" : `Expected close ${fmtFull(closePassed(d))} passed`;
+  return `${when} · waiting for CMS records${cmsThrough ? ` (CMS data through ${fmtFull(cmsThrough)})` : ""}`;
 }
 
 function Column({ col }) {
@@ -652,12 +658,12 @@ function Row({ label, children }) {
 
 const missingText = (t) => <span style={{ color: "var(--color-text-muted)", fontStyle: "italic" }}>{t}</span>;
 
-export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness }) {
+export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness, cmsThrough }) {
   const detailsId = `details-${deal.id}`;
   const individual = deal.individual_filing;
   const ccns = deal.ccns?.filter(Boolean) || [];
   const status = displayStatus(deal);
-  const cols = cardColumns(deal, facilities);
+  const cols = cardColumns(deal, facilities, cmsThrough);
   const other = otherDate(deal);
   const names = deal.facility_names || [];
 
@@ -744,7 +750,7 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
             )}
             <Row label="Facility type">{FACILITY_TYPE[deal.facility_type] || deal.facility_type}</Row>
             {(() => { const p = primaryDate(deal); return <Row label={p.role}>{p.date ? fmtFull(p.date) : missingText("Not reported")}</Row>; })()}
-            {other && <Row label={other.role}>{fmtFull(other.date)}</Row>}
+            {other && <Row label={other.role}>{fmtFull(other.date)}{closePassed(deal) === other.date && ` · ${passedNote(deal, other, cmsThrough)}`}</Row>}
             {deal.published_at && primaryDate(deal).date !== deal.published_at.slice(0, 10) && <Row label="Published">{fmtFull(deal.published_at)}</Row>}
             <Row label="Found by tracker">{deal.found_date ? fmtFull(deal.found_date) : missingText("Not recorded")}</Row>
             {deal.ucc_also_filed?.length > 0 && <Row label="Same loan also filed">{deal.ucc_also_filed.join(", ")}</Row>}
@@ -1605,7 +1611,7 @@ export default function App() {
                 <DealCard deal={focused} expanded={expanded.has(focused.id)} onToggle={toggleExpand}
                   searchForms={searchForms} onEntity={(n) => { go({}); pickEntity(n); }}
                   history={expanded.has(focused.id) ? historyFor(focused) : null}
-                  facilities={facilities} chowFreshness={chowFreshness} />
+                  facilities={facilities} chowFreshness={chowFreshness} cmsThrough={freshness.cms_ownership_through} />
               </>) : <p style={{ fontSize: 15, color: "#5F636A", padding: "24px 0" }}>This record isn't in the current data. It may have been
                   removed as out of scope or merged with another record.</p>}
           </section>
@@ -1784,7 +1790,7 @@ export default function App() {
               searchForms={searchForms}
               onEntity={pickEntity}
               history={expanded.has(deal.id) ? historyFor(deal) : null}
-              facilities={facilities} chowFreshness={chowFreshness} />
+              facilities={facilities} chowFreshness={chowFreshness} cmsThrough={freshness.cms_ownership_through} />
           ))
         )}
 

@@ -64,6 +64,13 @@ export function otherDate(d) {
   return null;
 }
 
+// An expected deal whose closing date has passed: the sale has most likely
+// closed and CMS hasn't recorded the new owner yet (2026-11-04)
+export function closePassed(d, today = new Date().toISOString().slice(0, 10)) {
+  const a = day(d.acquisition_date);
+  return d.status === "expected" && a && a < today && !d.source_name?.startsWith("New York") ? a : null;
+}
+
 // Publication for news, from the source URL's domain
 export function publication(d) {
   try {
