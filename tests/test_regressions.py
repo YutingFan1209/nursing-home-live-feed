@@ -1260,3 +1260,26 @@ def test_mo_service_supplier_liens_are_not_deals():
                  "Access Systems, Inc", "RJ Kool Company", "PWS THE LAUNDRY COMPANY"]:
         assert classify_secured_party(name).category == LenderCategory.EQUIPMENT_VENDOR, name
     assert classify_secured_party("CAPITAL FINANCE, LLC, AS AGENT").category != LenderCategory.EQUIPMENT_VENDOR
+
+
+# ── Fuzzy dedup revived removed records (fixed 2026-11-05) ────
+# A Q3 earnings repost fuzzy-matched a dismissed or merged row, which was kept
+# and then re-staged by CMS matching: 4 removed records came back in one run.
+def test_fuzzy_dedup_only_compares_live_rows():
+    from pipeline.dedup import find_and_resolve_fuzzy_duplicate
+    seen = []
+
+    class Cur:
+        description = [("id",), ("acquiring_entity",)]
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+        def execute(self, sql, args=None): seen.append(sql)
+        def fetchone(self): return ("new", "LTC Properties")
+        def fetchall(self): return []
+
+    class Conn:
+        def cursor(self): return Cur()
+
+    find_and_resolve_fuzzy_duplicate("new", Conn())
+    candidates = seen[-1]
+    assert "stage <> 'dismissed'" in candidates and "merged_into IS NULL" in candidates

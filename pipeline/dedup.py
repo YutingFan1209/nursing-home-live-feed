@@ -278,10 +278,15 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn, ccns=None) -> str:
     normalized_new = normalize_acquirer(acquirer)
     new_ccns = {c for c in (ccns or []) if c}
 
+    # Live rows only (2026-11-05): matching a dismissed or merged row kept it
+    # (or deleted it) and the stage update after brought it back on the site;
+    # Q3 earnings reposts revived 4 removed records in one run. A repeat of
+    # something removed now arrives as a new record the deploy check lists.
     with conn.cursor() as cur:
         cur.execute(f"""
             SELECT {_DEAL_FIELDS} FROM deals
             WHERE id != %s AND acquiring_entity IS NOT NULL AND acquiring_entity != ''
+              AND stage <> 'dismissed' AND merged_into IS NULL
         """, (deal_id,))
         cols = [d[0] for d in cur.description]
         others = [dict(zip(cols, r)) for r in cur.fetchall()]
