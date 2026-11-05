@@ -56,7 +56,7 @@ Ratings: 🟢 free, no login, no bot wall seen on the search page · 🟡 free b
 | **SC** | [ucconline.sc.gov](https://ucconline.sc.gov/UCCFiling/UCCMainPage.aspx) | **Paid:** $5 per search plus a $10 Electronic Records Access fee (checked 2026-10-12); same UCCFiling software as MD | Loads, no wall; no robots.txt | 🟡 Paid |
 | **SD** | SOS UCC | $300/year search subscription | n/a | 🟡 (flat fee, small state) |
 | **TN** | [tnbear UCC search](https://tnbear.tn.gov/UCC/Ecommerce/UCCSearch.aspx) | Free search by debtor or document no. (one guide quotes $15 for official searches) | Doesn't load at all, from a plain client or a person's own Chrome (2026-10 and 2026-11-04) | 🟡 Unreachable; recheck later |
-| **TX** | SOS Portal | **$1 per search**, account | n/a | 🟡 (cheap, but ~1,000 names = ~$1,000 a full run) |
+| **TX** | SOS Portal | **$1 per search**, account | n/a | 🔴 Declined 2026-11-05 (user: no Texas UCC or records request; Texas coverage is the free TULIP owner diff, `scraper/tx_tulip.py`) |
 | **UT** | ucc.utah.gov | $12/search | n/a | 🔴 |
 | **VT** | [bizfilings UCC search](https://bizfilings.vermont.gov/uccsearch) ("Lien Records Search") | Free, but the public search is by **debtor name only** (Individual or Organization); the app also lists UCC data sales and a subscription | **reCAPTCHA on every search** ("User validation required to continue", 2026-10-21); no robots.txt | 🔴 Not automatable, like IL. Routes if wanted: manual searches, or asking the SOS about its UCC data sale |
 | **VA** | [SCC CIS UCC search](https://cis.scc.virginia.gov/UCCOnlineSearch/UCCSearch) | Free; results list secured parties | Cookie-consent redirect + **reCAPTCHA** | 🟡 |

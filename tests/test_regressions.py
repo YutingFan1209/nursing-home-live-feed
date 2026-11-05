@@ -607,6 +607,31 @@ def test_licence_list_new_licensee_not_spelling():
     assert changes == [] and len(snapshot) == 2
 
 
+def test_tx_tulip_rows_and_baseline():
+    """2026-11-05: Texas's TULIP search lists each nursing facility (closed
+    ones dropped); its page names the "Owner". No date, so a first read is
+    only the baseline (a hospital district differing from CMS isn't a
+    sale); a later read with a new owner is."""
+    from scraper.tx_tulip import parse_detail, parse_result_row
+    from scraper.licence_lists import detect_changes
+    assert parse_detail("License Status: LICENSED\n\nOwnership Information\n\nOwner: South Limestone Hospital District\n\nCompact") \
+        == "South Limestone Hospital District"
+    assert parse_detail("Ownership Information\n") is None
+    cells = ["Avir at Azalea Heights", "LICENSED", "SNF/NF", "Nursing", "", "", "3505 Old Jacksonville Rd",
+             "Tyler", "Smith", "75701"]
+    assert parse_result_row(cells, "u")["address"] == "3505 Old Jacksonville Rd"
+    assert parse_result_row(["Gone Manor", "CLOSED"] + cells[2:], "u") is None
+
+    rows = [{"ccn": "675001", "licensee": "West Wharton County Hospital District", "licence_date": None,
+             "facility": "Avir at Azalea Heights", "city": "Tyler"}]
+    cms = {"675001": ["AZALEA HEIGHTS OPCO LLC"]}
+    changes, snapshot = detect_changes("TX", rows, {}, cms, {}, lambda url: False)
+    assert changes == [] and len(snapshot) == 1
+    changes, _ = detect_changes("TX", [{**rows[0], "licensee": "Newton County Hospital District"}],
+                                {"675001": "West Wharton County Hospital District"}, cms, {}, lambda url: False)
+    assert [(c["ccn"], c["seller"]) for c in changes] == [("675001", "West Wharton County Hospital District")]
+
+
 def test_stuck_tab_close_doesnt_hang_the_ucc_run(monkeypatch):
     """2026-10-13: NY finished all its searches, then hung for 10 minutes
     on two tabs' page.close() (a Turnstile frame was still on them).

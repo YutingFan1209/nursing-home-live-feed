@@ -29,6 +29,12 @@ no such date, so its first run only stores the baseline).
       like FL) and no change date (Facility Open Date is the home's
       original opening, 1901 for many), so like CA its first run only
       stores the baseline. NY's pre-closing PHHPC exhibits are con_ny.py.
+  TX  HHSC TULIP LTC Provider Search (tx_tulip.py): each nursing facility's
+      "Owner" (licence holder), read page by page in headless Chromium,
+      about 45 minutes, so only when the last read is over 25 days old.
+      No CCN (matched like NY) and no date, so the first read is the
+      baseline. Many owners are hospital districts with a private operator,
+      whose sale doesn't show here.
 
 The new licensee is usually an operating company ("Milan SNF Opco LLC"),
 not the parent, so these are facility-level records: buyer = licensee,
@@ -79,9 +85,17 @@ LISTS = {
         "csv_url": "https://health.data.ny.gov/api/views/vn5v-hh5r/rows.csv?accessType=DOWNLOAD",
         "label": "New York's facility list (DOH HFIS, health.data.ny.gov)",
     },
+    "TX": {
+        "source_name": "Texas HHSC TULIP LTC Provider Search",
+        "page_url": "https://tulip.hhs.texas.gov/TULIP/s/ltc-provider-search",
+        "csv_url": "https://tulip.hhs.texas.gov/TULIP/s/ltc-provider-search",
+        "label": "Texas's provider search (HHSC TULIP)",
+    },
 }
+# TX reads ~1,281 pages; reread only when the last read is this old
+TX_REREAD_DAYS = 25
 # Lists without a CCN column, matched to CMS by address and name
-NO_CCN_STATES = ("FL", "NY")
+NO_CCN_STATES = ("FL", "NY", "TX")
 FL_BASE = "https://quality.healthfinder.fl.gov"
 
 _ENTITY_NOISE_RE = re.compile(
@@ -292,6 +306,13 @@ def match_ccns(rows: list[dict], cms_homes: list[tuple[str, str, str, str]]) -> 
 def fetch_licence_list(state: str) -> list[dict] | None:
     cfg = LISTS[state]
     try:
+        if state == "TX":
+            from scraper.tx_tulip import fetch_tx_rows
+            rows = fetch_tx_rows()
+            if len(rows) < 1000:  # 1,281 homes on 2026-11-05
+                health.source_failed("TX licence list", f"only {len(rows)} homes with an owner (layout change?)")
+                return None
+            return rows
         if state == "FL":
             text = _fetch_fl_csv()
         else:
@@ -312,6 +333,12 @@ def fetch_licence_list(state: str) -> list[dict] | None:
 def licence_list_deals(state: str, conn, is_known) -> list[dict]:
     """Diff one state's list against the stored snapshot; write the snapshot
     rows that are settled; return the new-licensee records."""
+    if state == "TX":
+        with conn.cursor() as cur:
+            cur.execute("""SELECT max(seen_at) > now() - make_interval(days => %s)
+                           FROM licence_list_snapshot WHERE state = 'TX'""", (TX_REREAD_DAYS,))
+            if cur.fetchone()[0]:
+                return []
     rows = fetch_licence_list(state)
     if rows is None:
         return []
