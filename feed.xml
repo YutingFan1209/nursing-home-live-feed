@@ -4,7 +4,21 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-04T16:19:51.879638+00:00</updated>
+  <updated>2026-11-05T16:36:20.647918+00:00</updated>
+  <entry>
+    <id>urn:uuid:d5d2e456-4eca-46e0-94d3-5dad46836c31</id>
+    <title>Genesis Healthcare sells to 101 W State Street Holdings, LLC</title>
+    <link href="https://www.stocktitan.net/sec-filings/OHI/10-q-omega-healthcare-investors-inc-quarterly-earnings-report-cd9f5be80538.html"/>
+    <updated>2026-11-05T16:30:28.012446+00:00</updated>
+    <summary>Effective 2026-10-14; $1000.00M; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:9cc2faf3-acb9-4344-8bce-8a9d0b97429c</id>
+    <title>FRANCIS PLACE OPERATOR LLC acquires FRANCIS PLACE REHAB AND HEALTHCARE CENTER from ST ANDREW'S AT FRANCIS PLACE (MO)</title>
+    <link href="https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-265195-francis-place-operator"/>
+    <updated>2026-11-05T16:29:51.935014+00:00</updated>
+    <summary>Effective 2026-10-15; Facilities: FRANCIS PLACE REHAB AND HEALTHCARE CENTER; Source: Missouri DHSS Long-Term Care Licence List</summary>
+  </entry>
   <entry>
     <id>urn:uuid:7f323744-2e11-4464-b58a-2425e60fb7ef</id>
     <title>BOLD QUAIL 4 OPERATIONS HOLDINGS, LLC acquires THE EARLWOOD and 1 more from BQ OPERATIONS HOLDINGS LLC (CA)</title>
@@ -91,7 +105,7 @@
   </entry>
   <entry>
     <id>urn:uuid:a26ce8a7-7bb8-48a6-818c-65873e2c26bb</id>
-    <title>Omega Healthcare Investors acquires 6 facilities in TX (TX)</title>
+    <title>Omega Healthcare Investors acquires 6 facilities in FL, SC, TX (FL, SC, TX)</title>
     <link href="https://www.morningstar.com/news/business-wire/20261103941431/omega-reports-third-quarter-2026-results-and-recent-developments"/>
     <updated>2026-11-04T14:59:17.886543+00:00</updated>
     <summary>Effective 2026-07-01; $73.40M; Source: Google Alerts — Nursing Home Acquisition</summary>
@@ -340,19 +354,5 @@
     <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
     <updated>2026-10-29T14:48:03.135930+00:00</updated>
     <summary>Effective 2026-09-03; Facilities: MAJESTIC CARE OF GOSHEN; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:01bdc7fa-dabf-4d25-8a38-8c9d713e1449</id>
-    <title>3526 Dutchmans Lane SNF Realty LLC, Seneca Place LLC — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:48:01.292669+00:00</updated>
-    <summary>Effective 2025-08-04; Facilities: 3526 Dutchmans Lane SNF Realty LLC, Seneca Place LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:59fe5772-bcbe-4e02-8323-d9ec8afb07c7</id>
-    <title>12800 Princeland Dr SNF Realty LLC, Boyd Nursing and Rehabilitation LLC — UCC-1 financing (IN)</title>
-    <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
-    <updated>2026-10-29T14:47:59.796657+00:00</updated>
-    <summary>Effective 2025-08-04; Facilities: 12800 Princeland Dr SNF Realty LLC, Boyd Nursing and Rehabilitation LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
