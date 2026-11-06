@@ -74,6 +74,12 @@ UCC_PORTAL_URLS = {
     "AZ": "https://apps.azsos.gov/apps/ucc/search/",
     "CO": "https://www.coloradosos.gov/ucc/pages/home.xhtml",
     "MD": "https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx",
+    # Browser-session states. WI/MO/IN/WV shipped ucc://XX/... until 2026-11-06
+    "WI": "https://wims.dfi.wi.gov/uccsearch",
+    "MO": "https://bsd.sos.mo.gov/LienFiling/LienSearch.aspx",
+    "IN": "https://bsd.sos.in.gov/PublicUCCSearch",
+    "WV": "https://apps.wv.gov/SOS/UCC/Search",
+    "MA": "https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx",
 }
 
 # Per-filing pages that can be built from the filing number alone, so no

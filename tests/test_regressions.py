@@ -1210,7 +1210,8 @@ def test_every_ucc_state_on_the_site_has_a_portal_link():
     """AZ, CO and MD records shipped the raw ucc://XX/... key, which no
     browser opens (2026-10-21); any state with UCC records needs a page."""
     from scripts.export_deals import UCC_PORTAL_URLS
-    for state in ("NY", "KY", "OH", "PA", "NJ", "CA", "FL", "OR", "AR", "NM", "RI", "ID", "AZ", "CO", "MD"):
+    for state in ("NY", "KY", "OH", "PA", "NJ", "CA", "FL", "OR", "AR", "NM", "RI", "ID", "AZ", "CO", "MD",
+                  "WI", "MO", "IN", "WV", "MA"):
         assert UCC_PORTAL_URLS[state].startswith("https://"), state
 
 

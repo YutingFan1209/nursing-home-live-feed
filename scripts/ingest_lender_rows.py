@@ -24,7 +24,8 @@ from ucc.base import UCCFiling
 from ucc.lender_search import filter_lender_hits, norm_name
 
 PORTALS = {"OR": "https://secure.sos.state.or.us/ucc/searchHome.action",
-           "OH": "https://ucc.ohiosos.gov/search"}
+           "OH": "https://ucc.ohiosos.gov/search",
+           "MA": "https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"}
 
 
 def _date(s: str):
