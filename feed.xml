@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-06T17:43:42.580141+00:00</updated>
+  <updated>2026-11-06T18:21:38.032725+00:00</updated>
+  <entry>
+    <id>urn:uuid:210cb9b6-ec16-4f1e-ac1d-22509361d49c</id>
+    <title>PARKVIEW OPCO LLC — UCC-1 financing (MO)</title>
+    <link href="https://bsd.sos.mo.gov/LienFiling/LienSearch.aspx"/>
+    <updated>2026-11-06T17:51:11.431725+00:00</updated>
+    <summary>Effective 2026-10-30; Facilities: PARKVIEW OPCO LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:f598245f-156c-47e8-ab2b-92ae6d47de81</id>
     <title>MARQUIS COMPANIES I, INC. — UCC-1 financing (OR)</title>
@@ -347,12 +354,5 @@
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:29.962827+00:00</updated>
     <summary>Effective 2025-06-25; Facilities: BOSTON MASTER TENANT II LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d38dfd6b-f8fd-4703-8870-f165a690baaa</id>
-    <title>2021 WOB LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:29.765159+00:00</updated>
-    <summary>Effective 2025-06-25; Facilities: 2021 WOB LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
