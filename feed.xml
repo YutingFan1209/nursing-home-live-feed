@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-06T15:50:39.185822+00:00</updated>
+  <updated>2026-11-06T17:43:42.580141+00:00</updated>
+  <entry>
+    <id>urn:uuid:f598245f-156c-47e8-ab2b-92ae6d47de81</id>
+    <title>MARQUIS COMPANIES I, INC. — UCC-1 financing (OR)</title>
+    <link href="https://secure.sos.state.or.us/ucc/searchHome.action"/>
+    <updated>2026-11-06T16:29:48.277842+00:00</updated>
+    <summary>Effective 2026-10-05; Facilities: MARQUIS COMPANIES I, INC.; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:ab6eb23f-2db1-476f-98fd-f42537686c41</id>
     <title>DARTMOUTH STREET LIMITED PARTNERSHIP — UCC-1 financing (MA)</title>
@@ -347,12 +354,5 @@
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:29.765159+00:00</updated>
     <summary>Effective 2025-06-25; Facilities: 2021 WOB LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:da6fb687-e4d1-48db-9476-5f0d0d3285b1</id>
-    <title>PLYMOUTH SNF OPERATIONS, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:28.677724+00:00</updated>
-    <summary>Effective 2026-07-29; Facilities: PLYMOUTH SNF OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
