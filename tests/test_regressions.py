@@ -1420,3 +1420,76 @@ def test_nc_licence_xlsx_rows():
     rows = parse_nc_xlsx(buf.getvalue())
     assert rows == [{"ccn": None, "licensee": "SunBridge Regency-North Carolina LLC", "licence_date": None,
                      "facility": "Abbotts Creek Center", "city": "Lexington", "address": "877 Hill Everhart Rd."}]
+
+
+def test_oh_licence_csv_cr_records_and_two_owners():
+    """ODH's CSV export ends records in a bare CR and has HTML after the last
+    one; a home listed with two owners keeps both."""
+    from scraper.licence_lists import parse_oh_csv
+    cols = ["NAME", "FACID", "STATEID", "MCARE_ID", "TELEPHONE", "FAXPHONE", "FACEMAIL", "ABBREV", "ADDRESS",
+            "FAC_CITY", "FAC_ST", "FAC_ZIP", "FACTYPE", "OPERSTDESC", "CLOSEDDATE", "CNTYNAME", "LIC_BED_TOTAL",
+            "OPENDATE", "BED_EFFECTIVE_DATE", "CERT_BED_TOTAL", "OWNCOMP", "OWNPHONE", "OWNADDR", "OWNCITY",
+            "OWNST", "OWNZIP", "PRIMARYOWN", "OWNEROFCODE"]
+
+    def rec(name, facid, owner, status="ACTIVE"):
+        r = dict.fromkeys(cols, "")
+        r.update(NAME=name, FACID=facid, ADDRESS="1 MAIN ST", FAC_CITY="XENIA", OPERSTDESC=status, OWNCOMP=owner)
+        return "\r" + ",".join(f'"{r[c]}"' for c in cols)
+
+    text = (",".join(f'"{c}"' for c in cols)
+            + rec("REST HAVEN", "OHL1", "VOIERS ENTERPRISES, INC.") + rec("REST HAVEN", "OHL1", "REST HAVEN  NURSING HOME, INC.")
+            + rec("ABACO", "OHL2", 'LONGTERM ""LODGING"", INC.') + rec("GONE", "OHL3", "X LLC", status="CLOSED")
+            + '\r\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><form name="Form1">')
+    rows = {r["facility"]: r for r in parse_oh_csv(text)}
+    assert set(rows) == {"REST HAVEN", "ABACO"}
+    assert rows["REST HAVEN"]["licensee"] == "REST HAVEN NURSING HOME, INC. / VOIERS ENTERPRISES, INC."
+    assert rows["ABACO"]["licensee"] == 'LONGTERM "LODGING", INC.'
+    assert rows["ABACO"]["licence_date"] is None and rows["ABACO"]["address"] == "1 MAIN ST"
+
+
+def test_mi_licence_rows_take_licensee_and_original_effective_date():
+    from datetime import date
+    from scraper.licence_lists import BROWSER_STATES, licence_list_deals, parse_browser_file
+    state, rows = parse_browser_file({"state": "MI", "rows": [
+        {"licenseName": "ABERDEEN REHABILITATION", "addressLine1": "5500 FORT ST", "city": "TRENTON",
+         "licenseeEntityName": "SANA HEALTH, INC.", "originalEffectiveDate": "2008-06-25T00:00:00",
+         "primaryStatus": "ACTIVE"},
+        {"licenseName": "NO LICENSEE", "addressLine1": "1 A ST", "city": "X", "licenseeEntityName": None,
+         "primaryStatus": "ACTIVE"}]})
+    assert state == "MI" and state in BROWSER_STATES
+    assert rows == [{"ccn": None, "licensee": "SANA HEALTH, INC.", "licence_date": date(2008, 6, 25),
+                     "facility": "ABERDEEN REHABILITATION", "city": "TRENTON", "address": "5500 FORT ST"}]
+    # main.py's loop must not try to fetch a browser-only state
+    assert licence_list_deals("MI", None, lambda u: False) == []
+
+
+def test_ky_and_wi_licence_xlsx_rows():
+    """KY: nursing beds only (hospital acute rows dropped). WI: date row
+    before the header, CCN from CERTIFICATION, owner kind suffix dropped."""
+    import io
+    from datetime import datetime
+    from openpyxl import Workbook
+    from scraper.licence_lists import parse_ky_xlsx, parse_wi_xlsx
+
+    def xlsx(rows):
+        wb = Workbook()
+        for r in rows:
+            wb.active.append(r)
+        buf = io.BytesIO()
+        wb.save(buf)
+        return buf.getvalue()
+
+    ky = parse_ky_xlsx(xlsx([
+        ["License #", "Facility Name", "Address", "City", "OWNER", "NF", "NH"],
+        [100295, "AUBURN  NURSING", "139 PEARL STREET", "AUBURN", "AUBURN OPCO LLC", 66, None],
+        [100999, "SOME HOSPITAL", "1 A ST", "X", "HOSPITAL INC", None, None]]))
+    assert ky == [{"ccn": None, "licensee": "AUBURN OPCO LLC", "licence_date": None,
+                   "facility": "AUBURN NURSING", "city": "AUBURN", "address": "139 PEARL STREET"}]
+    wi = parse_wi_xlsx(xlsx([
+        [datetime(2026, 10, 22)],
+        ["OWNER", "LIC#", "PROVIDER", "STREET", "CITY", "CERTIFICATION"],
+        ["BEDROCK HCS AT ABBOTSFORD LLC (FOR PROFIT CORPORATION)", "2874", "ABBOTSFORD HCC", "600 E ELM ST",
+         "ABBOTSFORD", "525435"],
+        ["NO CCN HOME LLC (FOR PROFIT CORPORATION)", "1", "STATE ONLY", "1 B ST", "X", ""]]))
+    assert wi == [{"ccn": "525435", "licensee": "BEDROCK HCS AT ABBOTSFORD LLC", "licence_date": None,
+                   "facility": "ABBOTSFORD HCC", "city": "ABBOTSFORD", "address": "600 E ELM ST"}]

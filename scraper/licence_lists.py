@@ -35,6 +35,25 @@ no such date, so its first run only stores the baseline).
       No CCN (matched like NY) and no date, so the first read is the
       baseline. Many owners are hospital districts with a private operator,
       whose sale doesn't show here.
+  KY  OIG "Long Term Care Directory" XLSX, updated the 1st of each month:
+      OWNER per licence (nursing facility and nursing home beds; hospital
+      swing units drop out at CMS matching). No CCN (matched by address)
+      and the licensure effective date renews yearly, so the first read is
+      the baseline.
+  WI  DHS "Nursing Home Directory" XLSX (a date row, then OWNER, LIC#,
+      PROVIDER, ..., CERTIFICATION = CCN). Owner carries a "(FOR PROFIT
+      CORPORATION)" style suffix, dropped. No change date: baseline first.
+  MI  LARA statewide licensing search (statelicensing.apps.lara.state.mi.us):
+      licensee and the licence's original effective date, but only on each
+      home's detail record. Read in the person's own Chrome
+      (scripts/mi_licence_browser.js, ~15 min), then
+      scripts/licence_browser.py ingest. No CCN (matched like NY).
+  OH  ODH EID "FACILITY LISTING" report with owners, its own CSV export,
+      read in the person's own Chrome (scripts/oh_licence_browser.js).
+      Owner company per home, no CCN, no change date (OPENDATE is the
+      home's opening), so the first read is the baseline.
+  MI and OH are browser-only (BROWSER_STATES): main.py skips them; they run
+  every two weeks by hand (2026-11-09, user).
 
 The new licensee is usually an operating company ("Milan SNF Opco LLC"),
 not the parent, so these are facility-level records: buyer = licensee,
@@ -91,6 +110,30 @@ LISTS = {
         "csv_url": "https://info.ncdhhs.gov/dhsr/data/Nhlist_a.xlsx",
         "label": "North Carolina's licence list (DHSR)",
     },
+    "KY": {
+        "source_name": "Kentucky OIG Long-Term Care Directory",
+        "page_url": "https://chfs.ky.gov/agencies/os/oig/dhc/Pages/hcf.aspx",
+        "csv_url": "https://chfs.ky.gov/agencies/os/oig/dhc/Documents/Long%20Term%20Care%20Directory.xlsx",
+        "label": "Kentucky's long-term care directory (OIG)",
+    },
+    "WI": {
+        "source_name": "Wisconsin DHS Nursing Home Directory",
+        "page_url": "https://www.dhs.wisconsin.gov/guide/nursing-home.htm",
+        "csv_url": "https://www.dhs.wisconsin.gov/guide/nhdirexcel.xlsx",
+        "label": "Wisconsin's nursing home directory (DHS)",
+    },
+    "MI": {
+        "source_name": "Michigan LARA Nursing Home Licence Search",
+        "page_url": "https://statelicensing.apps.lara.state.mi.us/",
+        "csv_url": "https://statelicensing.apps.lara.state.mi.us/",
+        "label": "Michigan's licence search (LARA)",
+    },
+    "OH": {
+        "source_name": "Ohio ODH Nursing Home Facility Listing (EID)",
+        "page_url": "https://publicapps.odh.ohio.gov/eid/reports/EID_Report_Criteria.aspx",
+        "csv_url": "https://publicapps.odh.ohio.gov/eid/reports/EID_Report_Criteria.aspx",
+        "label": "Ohio's facility listing with owners (ODH)",
+    },
     "TX": {
         "source_name": "Texas HHSC TULIP LTC Provider Search",
         "page_url": "https://tulip.hhs.texas.gov/TULIP/s/ltc-provider-search",
@@ -101,7 +144,9 @@ LISTS = {
 # TX reads ~1,281 pages; reread only when the last read is this old
 TX_REREAD_DAYS = 25
 # Lists without a CCN column, matched to CMS by address and name
-NO_CCN_STATES = ("FL", "NY", "TX", "NC")
+NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "MI", "OH")
+# Read in the person's own Chrome (scripts/licence_browser.py), not by main.py
+BROWSER_STATES = ("MI", "OH")
 FL_BASE = "https://quality.healthfinder.fl.gov"
 
 _ENTITY_NOISE_RE = re.compile(
@@ -192,6 +237,88 @@ def parse_nc_xlsx(content: bytes) -> list[dict]:
                      "facility": r["DBA Name"], "city": r.get("Site City") or r.get("Facility City", ""),
                      "address": r.get("Site Address") or r.get("Facility Address", "")})
     return rows
+
+
+def parse_ky_xlsx(content: bytes) -> list[dict]:
+    """OIG's monthly directory: one sheet, header row first."""
+    from openpyxl import load_workbook
+    sheet = load_workbook(io.BytesIO(content), read_only=True).worksheets[0]
+    it = sheet.iter_rows(values_only=True)
+    header = [str(v or "").strip() for v in next(it)]
+    rows = []
+    for values in it:
+        r = dict(zip(header, values))
+        if not (r.get("NF") or r.get("NH")) or not str(r.get("OWNER") or "").strip():
+            continue
+        rows.append({"ccn": None, "licensee": " ".join(str(r["OWNER"]).split()), "licence_date": None,
+                     "facility": " ".join(str(r["Facility Name"]).split()), "city": str(r["City"] or "").strip(),
+                     "address": str(r["Address"] or "").strip()})
+    return rows
+
+
+# "BEDROCK HCS AT ABBOTSFORD LLC (FOR PROFIT CORPORATION)": the kind of owner
+_WI_KIND_RE = re.compile(r"\s*\([A-Z /,-]*\)\s*$")
+
+
+def parse_wi_xlsx(content: bytes) -> list[dict]:
+    """DHS's nursing home directory: a date row, then the header."""
+    from openpyxl import load_workbook
+    sheet = load_workbook(io.BytesIO(content), read_only=True).worksheets[0]
+    header, rows = None, []
+    for values in sheet.iter_rows(values_only=True):
+        cells = [str(v).strip() if v is not None else "" for v in values]
+        if header is None:
+            if "OWNER" in cells and "CERTIFICATION" in cells:
+                header = cells
+            continue
+        r = dict(zip(header, cells))
+        if not r["CERTIFICATION"].isdigit() or not r["OWNER"]:
+            continue
+        rows.append({"ccn": r["CERTIFICATION"].zfill(6),
+                     "licensee": _WI_KIND_RE.sub("", " ".join(r["OWNER"].split())),
+                     "licence_date": None, "facility": r["PROVIDER"], "city": r["CITY"], "address": r["STREET"]})
+    return rows
+
+
+def parse_mi_json(data: dict) -> list[dict]:
+    """scripts/mi_licence_browser.js output: one detail record per home."""
+    return [{"ccn": None, "licensee": (r.get("licenseeEntityName") or "").strip(),
+             "licence_date": _date(r.get("originalEffectiveDate") or ""),
+             "facility": (r.get("licenseName") or "").strip(), "city": (r.get("city") or "").strip(),
+             "address": (r.get("addressLine1") or "").strip()}
+            for r in data["rows"]
+            if (r.get("primaryStatus") or "ACTIVE") == "ACTIVE" and (r.get("licenseeEntityName") or "").strip()]
+
+
+def parse_oh_csv(text: str) -> list[dict]:
+    """ODH's CSV export: records end in a bare carriage return, and the
+    page's HTML follows the last one. One row per owner; a home with two
+    owners keeps both names."""
+    homes = {}
+    reader = csv.reader(io.StringIO(text.split("<!DOCTYPE", 1)[0], newline=""))
+    header = next(reader)
+    if header[:2] != ["NAME", "FACID"]:
+        raise ValueError(f"unexpected OH header {header[:4]}")
+    for values in reader:
+        r = dict(zip(header, values))
+        if not r.get("FACID", "").startswith("OHL") or r["OPERSTDESC"] != "ACTIVE" or not r["OWNCOMP"].strip():
+            continue
+        home = homes.setdefault(r["FACID"], {"ccn": None, "licensee": [], "licence_date": None,
+                                             "facility": r["NAME"].strip(), "city": r["FAC_CITY"].strip(),
+                                             "address": r["ADDRESS"].strip()})
+        owner = " ".join(r["OWNCOMP"].split())
+        if owner not in home["licensee"]:
+            home["licensee"].append(owner)
+    return [{**h, "licensee": " / ".join(sorted(h["licensee"]))} for h in homes.values()]
+
+
+def parse_browser_file(data: dict) -> tuple[str, list[dict]]:
+    """A saved scripts/{mi,oh}_licence_browser.js result -> (state, rows)."""
+    if data.get("state") == "MI":
+        return "MI", parse_mi_json(data)
+    if data.get("state") == "OH":
+        return "OH", parse_oh_csv(data["csv"])
+    raise ValueError(f"not a licence-list browser file (state={data.get('state')!r})")
 
 
 def record_url(state: str, row: dict) -> str:
@@ -348,6 +475,22 @@ def fetch_licence_list(state: str) -> list[dict] | None:
                 health.source_failed("NC licence list", f"only {len(rows)} homes (layout change?)")
                 return None
             return rows
+        if state == "WI":
+            resp = cffi_requests.get(cfg["csv_url"], impersonate="chrome", timeout=180)
+            resp.raise_for_status()
+            rows = parse_wi_xlsx(resp.content)
+            if len(rows) < 250:  # 330 homes in the 10/2026 directory
+                health.source_failed("WI licence list", f"only {len(rows)} homes (layout change?)")
+                return None
+            return rows
+        if state == "KY":
+            resp = cffi_requests.get(cfg["csv_url"], impersonate="chrome", timeout=180)
+            resp.raise_for_status()
+            rows = parse_ky_xlsx(resp.content)
+            if len(rows) < 200:  # 280+ nursing homes in the 11/2026 directory
+                health.source_failed("KY licence list", f"only {len(rows)} homes (layout change?)")
+                return None
+            return rows
         if state == "FL":
             text = _fetch_fl_csv()
         else:
@@ -365,16 +508,21 @@ def fetch_licence_list(state: str) -> list[dict] | None:
     return rows
 
 
-def licence_list_deals(state: str, conn, is_known) -> list[dict]:
+def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = None,
+                       write_snapshot: bool = True) -> list[dict]:
     """Diff one state's list against the stored snapshot; write the snapshot
-    rows that are settled; return the new-licensee records."""
-    if state == "TX":
+    rows that are settled; return the new-licensee records. rows: a list
+    read elsewhere (BROWSER_STATES); fetched here when None."""
+    if rows is None and state in BROWSER_STATES:
+        return []
+    if state == "TX" and rows is None:
         with conn.cursor() as cur:
             cur.execute("""SELECT max(seen_at) > now() - make_interval(days => %s)
                            FROM licence_list_snapshot WHERE state = 'TX'""", (TX_REREAD_DAYS,))
             if cur.fetchone()[0]:
                 return []
-    rows = fetch_licence_list(state)
+    if rows is None:
+        rows = fetch_licence_list(state)
     if rows is None:
         return []
     with conn.cursor() as cur:
@@ -403,6 +551,8 @@ def licence_list_deals(state: str, conn, is_known) -> list[dict]:
         for ccn, buyer in cur.fetchall():
             chow_buyers.setdefault(ccn, []).append(buyer)
     changes, snapshot = detect_changes(state, rows, previous, cms_names, chow_buyers, is_known)
+    if not write_snapshot:
+        snapshot = []
     with conn.cursor() as cur:
         for row in snapshot:
             cur.execute("""INSERT INTO licence_list_snapshot (state, ccn, licensee, licence_date, seen_at)

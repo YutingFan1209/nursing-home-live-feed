@@ -629,7 +629,8 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             deal["source_id"] = con_mt_source_id
             new_articles.append(deal)
 
-        # Missouri + California licence lists: a new licensee on a CMS-listed home
+        # State licence lists: a new licensee on a CMS-listed home (MI/OH are
+        # browser-only: licence_list_deals returns nothing for them here)
         for state, cfg in LICENCE_LISTS.items():
             lic_source_id = _ensure_source(
                 type("S", (), {"name": cfg["source_name"],
