@@ -53,6 +53,12 @@ _NEW_OPERATOR_RE = re.compile(r"\bas the (new )?operator\b|\bnew operator\b", re
 _PCT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*%\s*(?:of the\s+)?(?:ownership|membership|interest|stock|shares)", re.I)
 
 
+def facility_name(name: str) -> str:
+    """'Woodside Manor Nursing Home Inc' -> 'Woodside Manor Nursing Home': the
+    dataset gives some homes their corporate name, which reads as a company."""
+    return re.sub(r",?\s+(Inc\.?|LLC|L\.L\.C\.|Corp\.?|Corporation)$", "", name.strip(), flags=re.I).strip()
+
+
 def record_url(project: str) -> str:
     return f"{CON_NY_APPS_INDEX_URL}#project-{project}"
 
@@ -94,7 +100,7 @@ def fetch_rows(since: date) -> list[dict]:
 def to_deal(row: dict, kind: str) -> dict:
     project = row["con_project_number"]
     received = datetime.fromisoformat(row["application_received_date"][:10]).date()
-    facility = (row.get("facility_name") or row.get("main_site_facility_name") or "").strip()
+    facility = facility_name(row.get("facility_name") or row.get("main_site_facility_name") or "")
     current = (row.get("current_operator_name") or "").strip()
     proposed = (row.get("proposed_operator_name") or "").strip()
     desc = (row.get("project_description") or "").strip().rstrip(".")

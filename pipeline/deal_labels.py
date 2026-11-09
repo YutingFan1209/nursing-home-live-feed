@@ -59,7 +59,9 @@ _CONTROL_RE = re.compile(
     r"\bpassive parent\b|\bactive parent\b|\bno purchase price\b|\bmember substitution\b"
     r"|\bwithout (a|any) (sale|purchase)\b|\b(internal|corporate) reorganization\b"
     # a new manager isn't a new owner (Trustwell "assumed management of")
-    r"|\b(assumed|assumes|assuming|took over|takes over) (the )?management\b", re.I)
+    r"|\b(assumed|assumes|assuming|took over|takes over) (the )?management\b"
+    # NY CON member-interest transfers (scraper/con_ny_apps.py)
+    r"|\bthe operator stays the same\b", re.I)
 
 _ACQ_FIN_RE = re.compile(
     r"\bacquisition financing\b|\bfor the (acquisition|purchase) of\b|\bto (acquire|purchase)\b"
