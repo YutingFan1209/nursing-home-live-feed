@@ -114,6 +114,8 @@ const FACILITY_TYPE = {
 
 // Ownership changes, plus the two events that move control without a sale.
 // Everything else is a loan or lien of some kind.
+// Short source names for the tab line (full name in each tab's hover text)
+const SOURCE_TAB = { chow: "CMS", con: "CON", ucc: "UCC-1", edgar: "SEC", rss: "News" };
 const OWNERSHIP_TYPES = new Set(["ownership_change", "control_change", "lease"]);
 const TABS = [
   { key: "", label: "Ownership changes" },
@@ -704,7 +706,7 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }} title={SOURCE[deal.source_type]?.tip}>
             <SourceDot type={deal.source_type} />{SOURCE_LABEL[deal.source_type] || deal.source_type}
           </span>
-          <span aria-hidden="true" style={{ color: "#8A8D93" }}>·</span>
+          <span aria-hidden="true" style={{ color: "#6B6B6B" }}>·</span>
           <span>{typeLabel(deal)}</span>
           <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontWeight: 600, color: STATUS_COLOR[status] }}>{STATUS_LABEL[status] || status}</span>
@@ -884,7 +886,7 @@ function StatesMap({ counts, selected, onPick, what }) {
               style={{ gridColumn: c + 1, gridRow: r + 1, aspectRatio: "1", padding: 0,
                 border: selected === s ? "2px solid #1F2328" : "1px solid transparent",
                 borderRadius: 4, background: bg, cursor: v ? "pointer" : "default",
-                color: dark ? "#fff" : (v ? "#1F2328" : "#8A8D93"),
+                color: dark ? "#fff" : (v ? "#1F2328" : "#6B6B6B"),
                 fontSize: 11, fontWeight: 600, lineHeight: 1, font: "inherit" }}>
               <span style={{ fontSize: 11, fontWeight: 600 }}>{s}</span>
             </button>
@@ -1334,7 +1336,7 @@ export default function App() {
   const [aboutOpen, setAboutOpen] = useState(false);  // "About this data" under the count line
   const [panel, setPanel]         = useState("");  // "map" | "schedule" inside About this data
   const aboutBtn = useRef(null), aboutPanel = useRef(null), moreBtn = useRef(null), morePanel = useRef(null);
-  const [moreOpen, setMoreOpen]   = useState(!!(initial.sourceType || initial.ccnStatus || initial.dateFrom || initial.dateTo || initial.scope));
+  const [moreOpen, setMoreOpen]   = useState(!!(initial.ccnStatus || initial.dateFrom || initial.dateTo || initial.scope));
   const LIMIT = 20;
 
   useKonami(useCallback(() => setParade(true), []));
@@ -1459,6 +1461,11 @@ export default function App() {
     for (const d of filterDeals(allDeals, { ...currentFilters, state: "" })) for (const s of new Set(d.states || [])) c[s] = (c[s] || 0) + 1;
     return c;
   }, [panel, allDeals, ...filterDeps]);
+  const sourceCounts = useMemo(() => {
+    const c = {};
+    for (const d of filterDeals(allDeals, { ...currentFilters, sourceType: "" })) c[d.source_type] = (c[d.source_type] || 0) + 1;
+    return c;
+  }, [allDeals, ...filterDeps]);
   const tabCounts = useMemo(() => Object.fromEntries(TABS.map(t => [t.key, filteredAnyTab.filter(d => inTab(d, t.key)).length])),
     [filteredAnyTab]);
 
@@ -1550,7 +1557,7 @@ export default function App() {
   }
 
   const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || liens || scope || entity || since;
-  const moreCount = [sourceType, ccnStatus, dateFrom || dateTo, scope].filter(Boolean).length;
+  const moreCount = [ccnStatus, dateFrom || dateTo, scope].filter(Boolean).length;
 
   // Opening a company view replaces the other filters -- it's a profile,
   // not a refinement of whatever list you were looking at.
@@ -1682,12 +1689,6 @@ export default function App() {
           {moreOpen && (
             <div id="nh-more" ref={morePanel} style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end",
               borderTop: "1px solid #E3E0D8", marginTop: 12, paddingTop: 12 }}>
-              <label style={fieldLabel}>Source
-                <select value={sourceType} onChange={resetPage(setSourceType)} style={ctl}>
-                  <option value="">All sources</option>
-                  {Object.entries(SOURCE).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
-                </select>
-              </label>
               <label style={fieldLabel}>CCN status
                 <select value={ccnStatus} onChange={resetPage(setCcnStatus)} style={ctl}>
                   <option value="">Any</option>
@@ -1736,7 +1737,22 @@ export default function App() {
               );
             })}
           </Tabs.List>
-          {stats && <span style={{ fontSize: 13, color: "#5F636A", marginLeft: "auto", padding: "6px 0" }}><SourceLegend /></span>}
+          <span aria-hidden="true" className="src-divider" style={{ width: 1, height: 20, background: "#D6D2C8" }} />
+          <div role="group" aria-label="Source" className="src-tabs" style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+            {Object.keys(SOURCE_LABEL).map(k => {
+              const active = sourceType === k, n = sourceCounts[k] || 0;
+              return (
+                <button key={k} type="button" aria-pressed={active} title={SOURCE[k]?.tip}
+                  onClick={() => { setSourceType(active ? "" : k); setOffset(0); }}
+                  style={{ font: "inherit", fontSize: 15, minHeight: 44, padding: "0 8px", background: "none", border: "none", cursor: "pointer",
+                    display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap", fontWeight: active ? 600 : 400,
+                    color: active ? "#1F2328" : n ? "#5F636A" : "#6B6B6B", marginBottom: -1,
+                    borderBottom: `2px solid ${active ? "#1F2328" : "transparent"}` }}>
+                  <SourceDot type={k} />{SOURCE_TAB[k]} <span style={{ color: n ? "#5F636A" : "#6B6B6B", fontWeight: 400 }}>{n.toLocaleString()}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {TABS.map(t => (
@@ -1812,7 +1828,11 @@ export default function App() {
           </div>
         ) : deals.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
-            <div style={{ fontSize: 14, color: "#5F636A" }}>No records match these filters</div>
+            <div style={{ fontSize: 14, color: "#5F636A" }}>
+              {sourceType && !(sourceCounts[sourceType] > 0)
+                ? <>No {SOURCE_LABEL[sourceType]} records in {TABS.find(t => t.key === tab)?.label.toLowerCase()} yet. More are on the way as we add states and sources.</>
+                : "No records match these filters"}
+            </div>
             {hasFilters && <button type="button" onClick={clearAll} style={{ ...btnGhost, marginTop: 16 }}>Clear filters</button>}
           </div>
         ) : (
