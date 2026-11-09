@@ -1493,3 +1493,18 @@ def test_ky_and_wi_licence_xlsx_rows():
         ["NO CCN HOME LLC (FOR PROFIT CORPORATION)", "1", "STATE ONLY", "1 B ST", "X", ""]]))
     assert wi == [{"ccn": "525435", "licensee": "BEDROCK HCS AT ABBOTSFORD LLC", "licence_date": None,
                    "facility": "ABBOTSFORD HCC", "city": "ABBOTSFORD", "address": "600 E ELM ST"}]
+
+
+def test_ne_roster_text_licensee_wraps_and_ccn():
+    """NE's roster PDF text: street and phone split over lines, a licensee
+    that wraps, the CCN after the facility type; a home without a Medicare
+    ID (veterans' home) is left out."""
+    from scraper.licence_lists import parse_ne_text
+    text = ("ALBION ( BOONE )  - \n68620\nGood Samaritan Society - Albion\n1222\n South \n7\nth Street\n(\n402\n) \n"
+            "395-5050\n     FAX: (\n402\n) \n395-2303\nEVANGELICAL LUTHERAN GOOD \nSAMARITAN SOCIETY\n"
+            "Gina Rankin, Administrator\nSNF/NF Dual \nCertification\n285197\n034001\nMedicare - \n0\n"
+            "BELLEVUE ( SARPY )  - \n68123\nEastern Nebraska Veterans Home\n12505\nHARRISON TULL DR\n(\n402\n) \n"
+            "595-2180\nSTATE OF NEBRASKA\nJohn Doe, Administrator\nNF Only\nNH\n0101\n")
+    assert parse_ne_text(text) == [{"ccn": "285197", "licensee": "EVANGELICAL LUTHERAN GOOD SAMARITAN SOCIETY",
+                                    "licence_date": None, "facility": "Good Samaritan Society - Albion",
+                                    "city": "ALBION", "address": "1222 South 7 th Street"}]

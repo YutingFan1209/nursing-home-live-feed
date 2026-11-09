@@ -43,6 +43,11 @@ no such date, so its first run only stores the baseline).
   WI  DHS "Nursing Home Directory" XLSX (a date row, then OWNER, LIC#,
       PROVIDER, ..., CERTIFICATION = CCN). Owner carries a "(FOR PROFIT
       CORPORATION)" style suffix, dropped. No change date: baseline first.
+  NE  DHHS Licensure Unit "Long Term Care Facilities" roster PDF (nursing
+      homes by town, "Updated" about monthly): Licensee and Medicare ID
+      (CCN) per home. Read from the PDF's text. Homes without a Medicare
+      ID (veterans' homes, state facilities) are left out. No change date:
+      baseline first.
   MI  LARA statewide licensing search (statelicensing.apps.lara.state.mi.us):
       licensee and the licence's original effective date, but only on each
       home's detail record. Read in the person's own Chrome
@@ -121,6 +126,12 @@ LISTS = {
         "page_url": "https://www.dhs.wisconsin.gov/guide/nursing-home.htm",
         "csv_url": "https://www.dhs.wisconsin.gov/guide/nhdirexcel.xlsx",
         "label": "Wisconsin's nursing home directory (DHS)",
+    },
+    "NE": {
+        "source_name": "Nebraska DHHS Nursing Home Roster",
+        "page_url": "https://dhhs.ne.gov/licensure/Pages/Rosters-of-Facilities-and-Services.aspx",
+        "csv_url": "https://dhhs.ne.gov/licensure/Documents/LTCRoster.pdf",
+        "label": "Nebraska's nursing home roster (DHHS)",
     },
     "MI": {
         "source_name": "Michigan LARA Nursing Home Licence Search",
@@ -277,6 +288,37 @@ def parse_wi_xlsx(content: bytes) -> list[dict]:
         rows.append({"ccn": r["CERTIFICATION"].zfill(6),
                      "licensee": _WI_KIND_RE.sub("", " ".join(r["OWNER"].split())),
                      "licence_date": None, "facility": r["PROVIDER"], "city": r["CITY"], "address": r["STREET"]})
+    return rows
+
+
+# "AINSWORTH ( BROWN )  - " then the ZIP: the start of each home in NE's roster
+_NE_HOME_RE = re.compile(r"^([A-Z][A-Z .'-]+?) \( ?[A-Z .'-]+ ?\)\s+-\s*\n(\d{5})\n", re.M)
+
+
+def parse_ne_pdf(content: bytes) -> list[dict]:
+    """Each home's text runs: name, street (split over lines), phone and
+    fax ("988-7115"), licensee (may wrap), "Name, Administrator", facility
+    type, Medicare ID."""
+    from pypdf import PdfReader
+    return parse_ne_text("\n".join(page.extract_text() for page in PdfReader(io.BytesIO(content)).pages))
+
+
+def parse_ne_text(text: str) -> list[dict]:
+    starts = list(_NE_HOME_RE.finditer(text))
+    rows = []
+    for i, m in enumerate(starts):
+        block = text[m.end(): starts[i + 1].start() if i + 1 < len(starts) else len(text)]
+        lines = [line.strip() for line in block.split("\n")]
+        adm = next((j for j, line in enumerate(lines) if re.search(r",\s*(Interim )?Administrator\b", line)), None)
+        if adm is None or "(" not in lines:
+            continue
+        phones = [j for j, line in enumerate(lines[:adm]) if re.fullmatch(r"\d{3}-\d{4}", line)]
+        ccn = next((line for line in lines[adm + 1:adm + 6] if re.fullmatch(r"\d{2}[0-9A-Z]\d{3}", line)), None)
+        licensee = " ".join(" ".join(lines[phones[-1] + 1:adm]).split()) if phones else ""
+        if not ccn or not licensee:
+            continue
+        rows.append({"ccn": ccn, "licensee": licensee, "licence_date": None, "facility": lines[0],
+                     "city": m.group(1).strip(), "address": " ".join(" ".join(lines[1:lines.index("(")]).split())})
     return rows
 
 
@@ -481,6 +523,14 @@ def fetch_licence_list(state: str) -> list[dict] | None:
             rows = parse_wi_xlsx(resp.content)
             if len(rows) < 250:  # 330 homes in the 10/2026 directory
                 health.source_failed("WI licence list", f"only {len(rows)} homes (layout change?)")
+                return None
+            return rows
+        if state == "NE":
+            resp = cffi_requests.get(cfg["csv_url"], impersonate="chrome", timeout=180)
+            resp.raise_for_status()
+            rows = parse_ne_pdf(resp.content)
+            if len(rows) < 140:  # 169 homes with a Medicare ID in the 10/2026 roster
+                health.source_failed("NE licence list", f"only {len(rows)} homes (layout change?)")
                 return None
             return rows
         if state == "KY":
