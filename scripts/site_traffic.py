@@ -64,7 +64,8 @@ def main() -> None:
                 print(f"  {c:4}  {p}")
     for kind, rows in groups.items():
         print(f"\n{kind}: " + ", ".join(f"{p} ({c})" for c, p in rows))
-    for name, label in (("toprefs", "Came from"), ("locations", "Countries")):
+    for name, label in (("toprefs", "Came from"), ("locations", "Countries"), ("locations/US", "US states"),
+                        ("browsers", "Browsers"), ("systems", "Systems")):
         rows = [(s.get("name") or "direct / unknown", s["count"]) for s in get(f"/stats/{name}", **rng).get("stats", [])]
         if rows:
             print(f"\n{label}: " + ", ".join(f"{n} ({c})" for n, c in rows[:8]))
