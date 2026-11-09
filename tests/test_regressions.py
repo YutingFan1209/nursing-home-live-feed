@@ -1309,3 +1309,36 @@ def test_fuzzy_dedup_only_compares_live_rows():
     find_and_resolve_fuzzy_duplicate("new", Conn())
     candidates = seen[-1]
     assert "stage <> 'dismissed'" in candidates and "merged_into IS NULL" in candidates
+
+
+# --- PA licence applications: 5%+ owner list (2026-11-09) ---
+
+def test_pa_con_typed_owner_answer_wins_over_attachment(monkeypatch):
+    """Chandler Hall typed its owners and attached a management agreement:
+    the typed answer is what gets read, and no attachment is fetched."""
+    import scraper.con_pa as con_pa
+    seen = {}
+    monkeypatch.setattr(con_pa, "_read_owners", lambda block: seen.setdefault("block", block) and [])
+
+    class NoFetch:
+        def get(self, *a, **k):
+            raise AssertionError("attachment fetched although the owners were typed")
+
+    app = {"owners_file": "Management Agreement.pdf", "owners_text": "Lynn Jerath (indirect owner)"}
+    con_pa.fetch_owners(NoFetch(), 1, app)
+    assert seen["block"] == {"type": "text", "text": "Lynn Jerath (indirect owner)"}
+
+    seen.clear()
+    con_pa.fetch_owners(NoFetch(), 1, {"owners_file": "", "owners_text": "See attached"})
+    assert not seen
+
+
+def test_pa_con_owners_reach_summary_and_operator_names():
+    import scraper.con_pa as con_pa
+    app = {"facility": "Cedar Haven", "city": "Lebanon", "county": "Lebanon", "applicant": "Cedar Haven Healthcare Center LLC",
+           "start_date": None, "previous_license": "", "previous_name": "", "beds": "", "landlord": "", "landlord_state": "",
+           "manager": "", "owners": [{"name": "PA 5785 LLC", "kind": "organization"},
+                                     {"name": "Gabriel Sebbag", "kind": "person"}]}
+    deal = con_pa._application_deal(1, "09/21/2026", app)
+    assert "Owners with 5% or more, per the application's ownership list: PA 5785 LLC; Gabriel Sebbag." in deal["raw_text"]
+    assert "PA 5785 LLC" in deal["operator_names"] and "Gabriel Sebbag" not in deal["operator_names"]

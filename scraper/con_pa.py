@@ -21,10 +21,19 @@ when its comment period ends and decided ones drop off after a few weeks
 than a week. Application pages stay reachable by ID after they leave the
 list, so known IDs can be backfilled (BACKFILL_APP_IDS).
 
-Parsed without Claude (pre_extracted, like OK/MS). See
+The application form itself is parsed without Claude (pre_extracted, like
+OK/MS). Its "persons having ownership of 5% or more" answer is usually an
+attached PDF ("Application Attachment Ownership List.pdf"); since
+2026-11-09 Claude reads that list (one call per new application, a few
+cents) and the owners go into the summary, organizations also into
+operator_names. The attachment link (the page's own "View Attachment"
+button) only serves the file inside the session the public application
+page starts, so both are fetched in one curl_cffi session. See
 docs/con-feasibility.md "Remaining states", Pennsylvania detail.
 """
 
+import base64
+import json
 import logging
 import re
 from datetime import date, datetime, timezone
@@ -32,6 +41,7 @@ from datetime import date, datetime, timezone
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cffi_requests
 
+from config import get_config
 from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
@@ -43,7 +53,23 @@ _APP_URL = "https://sais.health.pa.gov/CommonPOC/Licensing/IPA-NCF/InitialApplic
 # Seen on the list 2026-09-30, gone from it by 2026-10-05
 BACKFILL_APP_IDS = (6813083, 6827525)
 
+_ATTACH_URL = ("https://sais.health.pa.gov/CommonPOC/Licensing/AttachViewer.aspx?tn=IPA_APP_NCF"
+               "&fn=OWN5PERCENT_FILENAME&blob=OWN5PERCENT_BLOB&idColumn=IPAAPPID&id={}&compress=no")
+
 _FIELD = "ContentPlaceHolder1_"
+
+# Owner lists are a page or two; more is some other document attached there
+OWNER_PDF_PAGES = 3
+
+OWNERS_PROMPT = (
+    "This is the list of owners with a 5% or greater direct or indirect interest, "
+    "attached to a Pennsylvania nursing home licence application. List every owner "
+    "of the applicant named in it as JSON: [{\"name\": ..., \"kind\": \"organization\" | \"person\" | \"trust\"}]. "
+    "Copy names exactly as written, without addresses, percentages or titles; for a "
+    "trust give the trust's name, not its trustees. Leave out the applicant itself and any "
+    "management company, landlord or contact person and their people: only owners of the "
+    "applicant. Output only the JSON array (empty if no owner is named)."
+)
 
 
 def _get(url: str):
@@ -110,7 +136,71 @@ def _parse_application(html: str) -> dict:
         "previous_license": val("CHOWLicNo"), "previous_name": val("CHOWLegalName"),
         "beds": val("BedCapacity"), "landlord": val("LeasedName"),
         "landlord_state": val("LeasedState"), "manager": val("ManagementName"),
+        "owners_file": val("own5PercentOrigFileName"),
+        "owners_text": (soup.find(id=_FIELD + "clobOwn5Percent").get_text("\n", strip=True)
+                        if soup.find(id=_FIELD + "clobOwn5Percent") else ""),
+        "owners": [],
     }
+
+
+def _read_owners(content: dict) -> list[dict]:
+    """Claude's reading of the 5% owner list; content is a Claude content
+    block (the PDF, or the typed answer as text)."""
+    from pipeline.pdf_text import client
+    response = client.messages.create(
+        model=get_config().claude_model,
+        max_tokens=2000,
+        output_config={"effort": "low"},
+        messages=[{"role": "user", "content": [content, {"type": "text", "text": OWNERS_PROMPT}]}],
+    )
+    text = "".join(b.text for b in response.content if b.type == "text").strip()
+    match = re.search(r"\[.*\]", text, re.S)
+    if not match:
+        raise ValueError(f"no JSON list in the answer: {text[:200]!r}")
+    owners = json.loads(match.group(0))
+    return [{"name": " ".join(o["name"].split()), "kind": o.get("kind") or "organization"}
+            for o in owners if isinstance(o, dict) and (o.get("name") or "").strip()]
+
+
+def _first_pages(content: bytes, n: int):
+    from pipeline.pdf_text import _first_pages as first
+    return first(content, n)
+
+
+def fetch_owners(session, app_id: int, app: dict) -> list[dict]:
+    """Owners with 5%+ for one application, read from its attachment (or the
+    typed answer). [] when there's none or it can't be read."""
+    typed = app["owners_text"]
+    try:
+        # A typed answer wins: the attachment is sometimes another document
+        # (Chandler Hall's was its 1 MB management agreement)
+        if typed and not re.fullmatch(r"(?i)(see )?attached\.?|n/?a|none\.?", typed):
+            block = {"type": "text", "text": typed}
+        elif app["owners_file"]:
+            resp = session.get(_ATTACH_URL.format(app_id), timeout=60,
+                               headers={"Referer": app_record_url(app_id)})
+            resp.raise_for_status()
+            if "pdf" not in (resp.headers.get("content-type") or ""):
+                raise ValueError(f"attachment came back as {resp.headers.get('content-type')}")
+            _, first = _first_pages(resp.content, OWNER_PDF_PAGES)
+            block = {"type": "document", "source": {
+                "type": "base64", "media_type": "application/pdf",
+                "data": base64.standard_b64encode(first).decode("ascii")}}
+        else:
+            return []
+        health.attempted("PA CON owner list")
+        return _read_owners(block)
+    except Exception as e:
+        logger.warning(f"PA CON owner list for {app_id} not read: {e}")
+        health.failed("PA CON owner list", f"{app_id}: {e}")
+        return []
+
+
+def owners_sentence(owners: list[dict]) -> str:
+    if not owners:
+        return ""
+    return (" Owners with 5% or more, per the application's ownership list: "
+            + "; ".join(o["name"] for o in owners) + ".")
 
 
 def _application_deal(app_id: int, posted: str, app: dict) -> dict:
@@ -127,6 +217,7 @@ def _application_deal(app_id: int, posted: str, app: dict) -> dict:
         f"Previous licence {app['previous_license'] or '?'} ({app['previous_name'] or 'name not stated'})."
         + (f" Building leased from {app['landlord']}" + (f" ({app['landlord_state']})" if app['landlord_state'] else "") + "." if app["landlord"] else "")
         + (f" Managed by {app['manager']}." if app["manager"] else "")
+        + owners_sentence(app["owners"])
     )
     return {
         "url": url,
@@ -140,7 +231,9 @@ def _application_deal(app_id: int, posted: str, app: dict) -> dict:
         "_con_id": f"app-{app_id}",
         "acquiring_entity": app["applicant"],
         "seller_entity": seller,
-        "operator_names": [n for n in (app["applicant"], app["landlord"], app["manager"]) if n],
+        "operator_names": list(dict.fromkeys(
+            [n for n in (app["applicant"], app["landlord"], app["manager"]) if n]
+            + [o["name"] for o in app["owners"] if o["kind"] == "organization"])),
         "facility_names": [app["facility"]],
         "states": ["PA"],
         "facility_count": 1,
@@ -207,8 +300,11 @@ def fetch_con_pa_deals(is_known, known_facilities=frozenset(), extra_app_ids=BAC
         if is_known(app_record_url(app_id)):
             continue
         health.attempted("PA CON application parse")
+        session = cffi_requests.Session(impersonate="chrome")
         try:
-            app = _parse_application(_get(app_record_url(app_id)).text)
+            resp = session.get(app_record_url(app_id), timeout=60)
+            resp.raise_for_status()
+            app = _parse_application(resp.text)
         except Exception as e:
             health.failed("PA CON application parse", f"{app_id}: {e}")
             continue
@@ -216,6 +312,7 @@ def fetch_con_pa_deals(is_known, known_facilities=frozenset(), extra_app_ids=BAC
             health.failed("PA CON application parse", f"{app_id}: no facility name (layout change?)")
             continue
         if app["is_chow"]:
+            app["owners"] = fetch_owners(session, app_id, app)
             deals.append(_application_deal(app_id, posted, app))
 
     seen = set(known_facilities) | {_norm(d["facility_names"][0]) for d in deals}
