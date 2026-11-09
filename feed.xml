@@ -4,13 +4,55 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-06T18:21:38.032725+00:00</updated>
+  <updated>2026-11-09T18:29:05.385214+00:00</updated>
+  <entry>
+    <id>urn:uuid:5513ccc9-e8ff-4502-921c-dbd93788ffe8</id>
+    <title>McKenzie Health Care, LLC — UCC-1 financing (KY)</title>
+    <link href="https://web.sos.ky.gov/ftucc/search.aspx?filing=857132"/>
+    <updated>2026-11-09T17:48:41.319331+00:00</updated>
+    <summary>Effective 2012-11-05; Facilities: McKenzie Health Care, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a5a64bb9-9b59-4755-a6ad-7fdafdca7b4e</id>
+    <title>McKenzie Health Care, LLC — acquisition financing (KY)</title>
+    <link href="https://web.sos.ky.gov/ftucc/search.aspx?filing=1612887"/>
+    <updated>2026-11-09T17:48:41.305960+00:00</updated>
+    <summary>Effective 2025-09-10; Facilities: McKenzie Health Care, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7da3f158-0a17-4346-aa5d-14a9255ba91d</id>
+    <title>HAINES CITY REHABILITATION AND NURSING CENTER — UCC-1 financing (FL)</title>
+    <link href="https://floridaucc.com/search/details?text=20260336022X&amp;searchOptionType=DocumentNumber&amp;searchCategory=Standard&amp;uccNumber=20260336022X"/>
+    <updated>2026-11-09T17:33:07.462642+00:00</updated>
+    <summary>Effective 2026-10-30; Facilities: HAINES CITY REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:04348823-f35f-4416-8ed5-cca455e030fd</id>
+    <title>WINTER GARDEN REHABILITATION AND NURSING CENTER — UCC-1 financing (FL)</title>
+    <link href="https://floridaucc.com/search/details?text=20260336019X&amp;searchOptionType=DocumentNumber&amp;searchCategory=Standard&amp;uccNumber=20260336019X"/>
+    <updated>2026-11-09T17:33:06.189206+00:00</updated>
+    <summary>Effective 2026-10-30; Facilities: WINTER GARDEN REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a7681564-66f7-4fcd-bcab-3fa3c520ea47</id>
+    <title>FERNANDINA BEACH REHABILITATION AND NURSING CENTER — UCC-1 financing (FL)</title>
+    <link href="https://floridaucc.com/search/details?text=202603360173&amp;searchOptionType=DocumentNumber&amp;searchCategory=Standard&amp;uccNumber=202603360173"/>
+    <updated>2026-11-09T17:33:04.839303+00:00</updated>
+    <summary>Effective 2026-10-30; Facilities: FERNANDINA BEACH REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:cd7e2343-0db1-470a-b14f-1b3bcad3e7ad</id>
+    <title>Sabre joint venture (Omega 49% interest) acquires 5 facilities</title>
+    <link href="https://www.tipranks.com/news/company-announcements/omega-healthcare-investors-earnings-call-signals-growth-and-flexibility"/>
+    <updated>2026-11-09T17:20:39.901180+00:00</updated>
+    <summary>$88.00M; Source: Google Alerts (Gmail)</summary>
+  </entry>
   <entry>
     <id>urn:uuid:210cb9b6-ec16-4f1e-ac1d-22509361d49c</id>
-    <title>PARKVIEW OPCO LLC — UCC-1 financing (MO)</title>
+    <title>PARKVIEW HEALTHCARE — UCC-1 financing (MO)</title>
     <link href="https://bsd.sos.mo.gov/LienFiling/LienSearch.aspx"/>
     <updated>2026-11-06T17:51:11.431725+00:00</updated>
-    <summary>Effective 2026-10-30; Facilities: PARKVIEW OPCO LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-10-30; Facilities: PARKVIEW HEALTHCARE; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:f598245f-156c-47e8-ab2b-92ae6d47de81</id>
@@ -21,10 +63,10 @@
   </entry>
   <entry>
     <id>urn:uuid:ab6eb23f-2db1-476f-98fd-f42537686c41</id>
-    <title>DARTMOUTH STREET LIMITED PARTNERSHIP — UCC-1 financing (MA)</title>
+    <title>Brandon Woods of Dartmouth — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:46.891216+00:00</updated>
-    <summary>Effective 2025-09-04; Facilities: DARTMOUTH STREET LIMITED PARTNERSHIP; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-09-04; Facilities: Brandon Woods of Dartmouth; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:2f6cada0-d7b4-4091-8938-b809ee620382</id>
@@ -35,24 +77,24 @@
   </entry>
   <entry>
     <id>urn:uuid:8891f59a-4317-44fc-a31a-9e281f065a3f</id>
-    <title>BRIGHTON HOLDCO LLC — UCC-1 financing (MA)</title>
+    <title>Brighton Post Acute Care — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:46.371356+00:00</updated>
-    <summary>Effective 2025-09-30; Facilities: BRIGHTON HOLDCO LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-09-30; Facilities: Brighton Post Acute Care; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:f8922db1-f44a-4021-88eb-ffdf2ec916b1</id>
-    <title>BRIGHTON REAL PROPERTY LLC — UCC-1 financing (MA)</title>
+    <title>Brighton Post Acute Care — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:46.031278+00:00</updated>
-    <summary>Effective 2025-09-30; Facilities: BRIGHTON REAL PROPERTY LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-09-30; Facilities: Brighton Post Acute Care; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:f1a5d8a0-01c5-4f5a-a72b-fe2db0e774f8</id>
-    <title>BRIGHTON OPERATOR LLC — acquisition financing (MA)</title>
+    <title>Brighton Post Acute Care — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:46.025826+00:00</updated>
-    <summary>Effective 2025-09-30; Facilities: BRIGHTON OPERATOR LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-09-30; Facilities: Brighton Post Acute Care; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:2b3b60bb-0d8d-4b2d-90ee-1c13ce54b26f</id>
@@ -63,45 +105,31 @@
   </entry>
   <entry>
     <id>urn:uuid:a3f7d521-4c38-4680-9fdf-f3af1c89a7fd</id>
-    <title>PC 538 ROBESON HOLDCO LLC — UCC-1 financing (MA)</title>
+    <title>FALL RIVER JEWISH HOME — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:45.483375+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: PC 538 ROBESON HOLDCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6e7f5804-dc6d-4035-8505-4bc1207b9eb3</id>
-    <title>PC 66 CENTRAL ST. LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:45.011693+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: PC 66 CENTRAL ST. LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-03-31; Facilities: FALL RIVER JEWISH HOME; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:7a790faf-4a8d-434f-9495-ee551b2f55a5</id>
-    <title>OC READING PROPCO, LLC — acquisition financing (MA)</title>
+    <title>OC Reading Center LLC — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:44.729595+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: OC READING PROPCO, LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-03-31; Facilities: OC Reading Center LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:7b459df0-25b7-4aae-9c18-1086f1a1bbf7</id>
-    <title>PC 538 ROBESON LLC — UCC-1 financing (MA)</title>
+    <title>FALL RIVER JEWISH HOME — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:44.480172+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: PC 538 ROBESON LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-03-31; Facilities: FALL RIVER JEWISH HOME; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:2576e86f-6925-4b08-9d17-6cbd83e80dd5</id>
-    <title>PC 10 VETERANS MEMORIAL LLC — UCC-1 financing (MA)</title>
+    <title>OC Milford Gardens LLC — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:44.160949+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: PC 10 VETERANS MEMORIAL LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7b8a58c3-1f14-4fea-8488-1638c712cec9</id>
-    <title>66 CENTRAL PROPERTY, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:43.854199+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: 66 CENTRAL PROPERTY, LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-03-31; Facilities: OC Milford Gardens LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:c6310ec8-8d0c-46de-a6b9-9cfcef0a6cc0</id>
@@ -140,52 +168,45 @@
   </entry>
   <entry>
     <id>urn:uuid:919108e6-f956-495e-b36d-e881128d6f89</id>
-    <title>OC JEWISH HOME CENTER LLC — UCC-1 financing (MA)</title>
+    <title>FALL RIVER JEWISH HOME — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:41.280166+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: OC JEWISH HOME CENTER LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-03-31; Facilities: FALL RIVER JEWISH HOME; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:6cca3125-e4bf-4cc4-8743-7b4f140637ea</id>
-    <title>AZURE HEALTHCARE MANAGEMENT JH LLC — UCC-1 financing (MA)</title>
+    <title>FALL RIVER JEWISH HOME — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:40.893854+00:00</updated>
-    <summary>Effective 2026-01-16; Facilities: AZURE HEALTHCARE MANAGEMENT JH LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-01-16; Facilities: FALL RIVER JEWISH HOME; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:a5fd7bf6-6e7d-487e-aff5-788c937ede83</id>
-    <title>OC MILFORD GARDENS LLC — acquisition financing (MA)</title>
+    <title>OC Milford Gardens LLC — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:40.671285+00:00</updated>
-    <summary>Effective 2025-06-27; Facilities: OC MILFORD GARDENS LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-06-27; Facilities: OC Milford Gardens LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:360c6b64-d77f-4ca8-839d-eaf16ace18d2</id>
-    <title>HAMPDEN HOLDCO LLC — UCC-1 financing (MA)</title>
+    <title>HAMPDEN POST ACUTE — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:40.390309+00:00</updated>
-    <summary>Effective 2025-05-28; Facilities: HAMPDEN HOLDCO LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-05-28; Facilities: HAMPDEN POST ACUTE; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:9cfecf6b-1dbf-4208-ad8d-6a6c4d7d648f</id>
-    <title>PALM SPRINGS PROPERTY LLC — acquisition financing (MA)</title>
+    <title>PALM SPRINGS POST ACUTE — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:40.038017+00:00</updated>
-    <summary>Effective 2025-05-28; Facilities: PALM SPRINGS PROPERTY LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-05-28; Facilities: PALM SPRINGS POST ACUTE; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:9607e49f-5694-471b-9350-582982248ec6</id>
-    <title>PALM SPRINGS HOLDCO LLC — acquisition financing (MA)</title>
+    <title>PALM SPRINGS POST ACUTE — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:39.713847+00:00</updated>
-    <summary>Effective 2025-05-28; Facilities: PALM SPRINGS HOLDCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:dd141529-1c23-45bb-8252-8683dd07c0b1</id>
-    <title>VANTAGE CARE HAMPDEN REALTY LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:39.350925+00:00</updated>
-    <summary>Effective 2025-08-25; Facilities: VANTAGE CARE HAMPDEN REALTY LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-05-28; Facilities: PALM SPRINGS POST ACUTE; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:903d8d61-b709-479c-9a8c-0e57c766357b</id>
@@ -196,10 +217,10 @@
   </entry>
   <entry>
     <id>urn:uuid:c7d4fd5a-d61e-451f-9fd7-cf82350689c7</id>
-    <title>HATHORNE SNF OPERATIONS LLC — UCC-1 financing (MA)</title>
+    <title>HATHORNE HILL REHABILITATION AND HEALTHCARE CENTER — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:38.986718+00:00</updated>
-    <summary>Effective 2026-08-24; Facilities: HATHORNE SNF OPERATIONS LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-08-24; Facilities: HATHORNE HILL REHABILITATION AND HEALTHCARE CENTER; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:1e8bde0c-1758-4c81-b2b6-021123486069</id>
@@ -210,10 +231,10 @@
   </entry>
   <entry>
     <id>urn:uuid:459f8b9c-4694-4908-999f-60af5c6c9f4e</id>
-    <title>SIXTEEN ACRES HEALTH AND REHABILITATION CENTER LLC — acquisition financing (MA)</title>
+    <title>Sixteen Acres Health and Rehabilitation Center LLC — acquisition financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:38.598049+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: SIXTEEN ACRES HEALTH AND REHABILITATION CENTER LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2025-12-31; Facilities: Sixteen Acres Health and Rehabilitation Center LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:483a8bb5-f486-4625-b273-fd1c2c76de13</id>
@@ -230,13 +251,6 @@
     <summary>Effective 2026-07-01; Facilities: PONTIAC AVENUE REALTY LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
-    <id>urn:uuid:0c3c545a-1c95-401b-b3ab-c0d786eb50a0</id>
-    <title>MRNC REALTY, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:37.957801+00:00</updated>
-    <summary>Effective 2025-09-11; Facilities: MRNC REALTY, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:03ab4cdc-be84-47f7-89c5-949b39833415</id>
     <title>CRNC REALTY, LLC — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
@@ -251,39 +265,11 @@
     <summary>Effective 2025-08-28; Facilities: DAVID M FISTEL MANH LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
-    <id>urn:uuid:77079771-c248-4089-b185-c96a6a250258</id>
-    <title>94 SUMMER STREET LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:37.118455+00:00</updated>
-    <summary>Effective 2025-08-28; Facilities: 94 SUMMER STREET LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2b161d0c-0983-4a7b-89dc-9c9d6370ee0c</id>
-    <title>MA HOLDCO PROP, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:36.508771+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: MA HOLDCO PROP, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:88e3b0d2-6035-4164-ac99-e3d536316b54</id>
-    <title>694 WORCESTER ST, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:36.223772+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: 694 WORCESTER ST, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:fb76f685-a4fa-437d-b5d8-8e4fdff4daa0</id>
-    <title>180 LOW ST, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:35.993389+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: 180 LOW ST, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:1f9458b1-45ca-42c5-8f86-a936793a1ff1</id>
-    <title>100 ALDEN STREET, LLC — UCC-1 financing (MA)</title>
+    <title>ADVINIACARE AT PROVINCETOWN — UCC-1 financing (MA)</title>
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:35.694994+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: 100 ALDEN STREET, LLC; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-02-20; Facilities: ADVINIACARE AT PROVINCETOWN; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:d94ee5ff-321f-4344-a05a-997f0c72f71c</id>
@@ -305,13 +291,6 @@
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:35.114498+00:00</updated>
     <summary>Effective 2026-02-20; Facilities: SEASHORE POINTE REHAB CENTER, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c1ee052d-d733-42fc-8222-b05f7ed4c06f</id>
-    <title>MA HOLDCO OP, LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:34.890041+00:00</updated>
-    <summary>Effective 2026-02-20; Facilities: MA HOLDCO OP, LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:fcac5dde-fb63-44d5-bada-08982e23954a</id>
@@ -354,5 +333,26 @@
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:29.962827+00:00</updated>
     <summary>Effective 2025-06-25; Facilities: BOSTON MASTER TENANT II LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d38dfd6b-f8fd-4703-8870-f165a690baaa</id>
+    <title>2021 WOB LLC — UCC-1 financing (MA)</title>
+    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-11-06T15:49:29.765159+00:00</updated>
+    <summary>Effective 2025-06-25; Facilities: 2021 WOB LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:da6fb687-e4d1-48db-9476-5f0d0d3285b1</id>
+    <title>PLYMOUTH SNF OPERATIONS, LLC — UCC-1 financing (MA)</title>
+    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-11-06T15:49:28.677724+00:00</updated>
+    <summary>Effective 2026-07-29; Facilities: PLYMOUTH SNF OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:ab5f1809-8073-4f42-b48d-fca34a119673</id>
+    <title>WEBSTER MANOR SNF OPERATIONS, LLC — UCC-1 financing (MA)</title>
+    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
+    <updated>2026-11-06T15:49:28.315228+00:00</updated>
+    <summary>Effective 2026-04-22; Facilities: WEBSTER MANOR SNF OPERATIONS, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
