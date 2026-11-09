@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-09T19:41:05.711179+00:00</updated>
+  <updated>2026-11-09T22:16:59.556754+00:00</updated>
+  <entry>
+    <id>urn:uuid:2ea330cf-0657-435a-bcb3-190bdd5e33eb</id>
+    <title>SALINA HEALTH CARE CENTER LLC acquires Riverstone Post Acute from SALINA WINDSOR SNF OPCO, LLC (KS)</title>
+    <link href="https://kdads.ks.gov/licensing-policy/adult-care-home-directory#licensee-175127-salina-health-care-center"/>
+    <updated>2026-11-09T22:16:32.281049+00:00</updated>
+    <summary>Effective 2026-07-10; Facilities: Riverstone Post Acute; Source: Kansas KDADS Adult Care Home Directory</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6a30f06c-433e-48bf-bfb4-03560dfff837</id>
+    <title>COLLEGE HILL HEALTH CARE CENTER LLC acquires Horizon Post Acute from COLLEGE HILLS OPCO, LLC (KS)</title>
+    <link href="https://kdads.ks.gov/licensing-policy/adult-care-home-directory#licensee-175078-college-hill-health-care-center"/>
+    <updated>2026-11-09T22:16:32.270218+00:00</updated>
+    <summary>Effective 2026-07-30; Facilities: Horizon Post Acute; Source: Kansas KDADS Adult Care Home Directory</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7273705d-4d14-4032-8d1d-2ddb48de3140</id>
+    <title>HERINGTON HEALTH CARE CENTER LLC acquires Junction Point Post Acute from HERINGTON OPCO, LLC (KS)</title>
+    <link href="https://kdads.ks.gov/licensing-policy/adult-care-home-directory#licensee-175490-herington-health-care-center"/>
+    <updated>2026-11-09T22:16:32.255040+00:00</updated>
+    <summary>Effective 2026-09-10; Facilities: Junction Point Post Acute; Source: Kansas KDADS Adult Care Home Directory</summary>
+  </entry>
   <entry>
     <id>urn:uuid:2a7c070a-965f-4c54-88a1-930d79c6b28b</id>
     <title>Amsterdam Operations Associates, LLC d/b/a Amsterdam Center for Rehabilitation and Nursing to acquire Amsterdam Nursing Home Corp (1992) from Amsterdam Nursing Home Corporation (1992) (NY)</title>
@@ -333,26 +354,5 @@
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:44.729595+00:00</updated>
     <summary>Effective 2026-03-31; Facilities: OC Reading Center LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7b459df0-25b7-4aae-9c18-1086f1a1bbf7</id>
-    <title>FALL RIVER JEWISH HOME — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:44.480172+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: FALL RIVER JEWISH HOME; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2576e86f-6925-4b08-9d17-6cbd83e80dd5</id>
-    <title>OC Milford Gardens LLC — acquisition financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:44.160949+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: OC Milford Gardens LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c6310ec8-8d0c-46de-a6b9-9cfcef0a6cc0</id>
-    <title>STEVEN V RASO — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:42.739421+00:00</updated>
-    <summary>Effective 2024-12-20; Facilities: STEVEN V RASO; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
