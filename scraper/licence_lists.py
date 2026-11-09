@@ -85,6 +85,12 @@ LISTS = {
         "csv_url": "https://health.data.ny.gov/api/views/vn5v-hh5r/rows.csv?accessType=DOWNLOAD",
         "label": "New York's facility list (DOH HFIS, health.data.ny.gov)",
     },
+    "NC": {
+        "source_name": "North Carolina DHSR Nursing Home Licence List",
+        "page_url": "https://info.ncdhhs.gov/dhsr/reports.htm",
+        "csv_url": "https://info.ncdhhs.gov/dhsr/data/Nhlist_a.xlsx",
+        "label": "North Carolina's licence list (DHSR)",
+    },
     "TX": {
         "source_name": "Texas HHSC TULIP LTC Provider Search",
         "page_url": "https://tulip.hhs.texas.gov/TULIP/s/ltc-provider-search",
@@ -95,7 +101,7 @@ LISTS = {
 # TX reads ~1,281 pages; reread only when the last read is this old
 TX_REREAD_DAYS = 25
 # Lists without a CCN column, matched to CMS by address and name
-NO_CCN_STATES = ("FL", "NY", "TX")
+NO_CCN_STATES = ("FL", "NY", "TX", "NC")
 FL_BASE = "https://quality.healthfinder.fl.gov"
 
 _ENTITY_NOISE_RE = re.compile(
@@ -165,6 +171,27 @@ def parse_rows(state: str, csv_text: str) -> list[dict]:
     # HFIS repeats some homes (one row per certificate); keep one per home
     unique = {(r["facility"].upper(), r.get("address", "").upper(), r["licensee"].upper()): r for r in rows}
     return [r for r in unique.values() if r["licensee"]]
+
+
+def parse_nc_xlsx(content: bytes) -> list[dict]:
+    """DHSR's monthly "Nursing Home Listing Alphabetical": a title block, then
+    a header row with "Name of Licensee Legal Name". No CCN, no date."""
+    from openpyxl import load_workbook
+    sheet = load_workbook(io.BytesIO(content), read_only=True).active
+    header, rows = None, []
+    for values in sheet.iter_rows(values_only=True):
+        cells = [str(v).strip() if v is not None else "" for v in values]
+        if header is None:
+            if "Name of Licensee Legal Name" in cells:
+                header = cells
+            continue
+        r = dict(zip(header, cells))
+        if not r.get("License #", "").startswith("NH") or not r.get("Name of Licensee Legal Name"):
+            continue
+        rows.append({"ccn": None, "licensee": r["Name of Licensee Legal Name"], "licence_date": None,
+                     "facility": r["DBA Name"], "city": r.get("Site City") or r.get("Facility City", ""),
+                     "address": r.get("Site Address") or r.get("Facility Address", "")})
+    return rows
 
 
 def record_url(state: str, row: dict) -> str:
@@ -311,6 +338,14 @@ def fetch_licence_list(state: str) -> list[dict] | None:
             rows = fetch_tx_rows()
             if len(rows) < 1000:  # 1,281 homes on 2026-11-05
                 health.source_failed("TX licence list", f"only {len(rows)} homes with an owner (layout change?)")
+                return None
+            return rows
+        if state == "NC":
+            resp = cffi_requests.get(cfg["csv_url"], impersonate="chrome", timeout=180)
+            resp.raise_for_status()
+            rows = parse_nc_xlsx(resp.content)
+            if len(rows) < 300:  # 427 homes in the 10/2026 list
+                health.source_failed("NC licence list", f"only {len(rows)} homes (layout change?)")
                 return None
             return rows
         if state == "FL":

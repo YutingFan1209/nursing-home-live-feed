@@ -1403,3 +1403,20 @@ def test_ny_con_apps_keeps_new_operator_and_control_transfers():
                  "facility_name": "Amsterdam Nursing Home Corp (1992)"}, "new_operator")
     assert d["acquiring_entity"] == "Amsterdam Operations Associates, LLC" and d["_con_id"] == "NY-262161"
     assert "pending sale" in d["raw_text"]
+
+
+def test_nc_licence_xlsx_rows():
+    import io
+    from openpyxl import Workbook
+    from scraper.licence_lists import parse_nc_xlsx
+    wb = Workbook(); ws = wb.active
+    ws.append([None, None, None, "Nursing Homes Facilities"])
+    ws.append(["County", "License #", None, None, "DBA Name", "Name of Licensee Legal Name", None, "Administrator Name",
+               None, "Facility Contact Number", "Facility Fax", "Site Address", "Site City"])
+    ws.append(["Davidson", "NH0099", None, None, "Abbotts Creek Center", "SunBridge Regency-North Carolina LLC", None,
+               "A", None, "", "", "877 Hill Everhart Rd.", "Lexington"])
+    ws.append(["Wake", "HAL-001", None, None, "Not a nursing home", "X LLC"])
+    buf = io.BytesIO(); wb.save(buf)
+    rows = parse_nc_xlsx(buf.getvalue())
+    assert rows == [{"ccn": None, "licensee": "SunBridge Regency-North Carolina LLC", "licence_date": None,
+                     "facility": "Abbotts Creek Center", "city": "Lexington", "address": "877 Hill Everhart Rd."}]
