@@ -11,8 +11,11 @@
 // so results go to Downloads in parts, mo_ucc_<timestamp>.json every
 // SAVE_EVERY names and when it finishes or stops. It stops when the session ends
 // (the frame leaves LienSearch.aspx) or a search is slower than SLOW_MS twice.
-// window.__mod.stop = true ends it early.
+// window.__mod.stop = true ends it early. Filings in window.MO_KNOWN (already
+// stored) are listed but their images aren't fetched: ~2.5 min a name with
+// them, most of it re-downloading images already read (15 of 17, 2026-11-09).
 const NAMES = window.MO_NAMES || [];
+const KNOWN = new Set(window.MO_KNOWN || []);
 const GAP_MS = window.MO_GAP_MS || 15000;
 const STEP_MS = 3000, SLOW_MS = 60000, MAX_PAGES = 5, DOC_DAYS = 730, SAVE_EVERY = 25;
 const P = 'ctl00_ctl00_ContentPlaceHolderMain_ContentPlaceHolderMainSingle_ppLienSearch_';
@@ -138,7 +141,7 @@ window.__modRun = (async () => {
         rows = await search(name);
       }
       for (const row of rows) {
-        if (row.chain && new Date(row.date).getTime() >= cutoff) { await sleep(STEP_MS); await fetchDoc(row); }
+        if (row.chain && new Date(row.date).getTime() >= cutoff && !KNOWN.has(row.fileNo)) { await sleep(STEP_MS); await fetchDoc(row); }
         delete row.chain;
       }
       unsaved.push({query: name, rows});

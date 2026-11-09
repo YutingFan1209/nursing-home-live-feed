@@ -9,7 +9,8 @@ off it (one short paid call per image).
     # 1. Print the names to search (CHOW buyers, new licensees, MO deal operators)
     venv/bin/python3 scripts/mo_ucc_browser.py names > /tmp/mo_names.json
     # 2. In the person's logged-in Chrome, on LienSearch.aspx: set
-    #    window.MO_NAMES and paste scripts/mo_ucc_browser_search.js. It saves
+    #    window.MO_NAMES, window.MO_KNOWN (`mo_ucc_browser.py known`: filings
+    #    already stored, whose images aren't fetched again) and paste scripts/mo_ucc_browser_search.js. It saves
     #    mo_ucc_<timestamp>.json parts to Downloads, 25 names each.
     # 3. Load the results (reads each saved image with Claude)
     venv/bin/python3 scripts/mo_ucc_browser.py ingest ~/Downloads/mo_ucc_*.json
@@ -82,5 +83,9 @@ if __name__ == "__main__":
             done = {r["query"] for r in _load(sys.argv[sys.argv.index("--after") + 1:])["results"]}
             names = [n for n in names if n not in done]
         print(json.dumps(names))
+    elif sys.argv[1] == "known":
+        with conn.cursor() as cur:
+            cur.execute("SELECT filing_number FROM ucc_filings WHERE state = 'MO'")
+            print(json.dumps(sorted(r[0] for r in cur.fetchall())))
     elif sys.argv[1] == "ingest":
         ingest(conn, sys.argv[2:])
