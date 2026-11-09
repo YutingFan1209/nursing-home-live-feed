@@ -41,6 +41,7 @@ import psycopg2
 import requests
 from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
+from pipeline import ucc_context
 from pipeline.ucc_category import categorize, collapse_repeats, complete_through, owner_start_dates
 from pipeline.deal_labels import label, is_individual_filing
 from pipeline import individual_owners
@@ -672,7 +673,11 @@ def main():
         notices = [{**d, "ccns": cms.ccns_by_name(_resolved_facilities(d), d.get("states"))}
                    for d in deals if d["source_type"] == "con"]
         categorize(deals, owner_starts, notices=notices, known_through=known_through)
+        context_index = ucc_context.index(deals)
         deals = collapse_repeats(deals)
+        # Loan history, lender-change label, portfolio and inferred collateral
+        # for UCC financing cards (pipeline/ucc_context.py)
+        print(f"UCC context on {ucc_context.annotate(deals, context_index, owner_starts)} cards")
 
         cur.execute("SELECT deal_id::text, ccn, provider_name, match_type FROM ucc_individual_matches ORDER BY provider_name")
         homes = {}

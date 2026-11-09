@@ -218,6 +218,9 @@ const CSV_COLUMNS = [
   ["lender", d => d.lender, "Lender or secured party."],
   ["lender_category", d => d.lender_category, "UCC filings: kind of lender, from the secured party's name."],
   ["collateral", d => d.ucc_collateral, "UCC filings: the collateral description, quoted exactly from the state's filing page (Rhode Island), or an excerpt from a filing document read by hand ([…] marks omitted text). Blank elsewhere."],
+  ["loan_context", d => d.ucc_context?.line, "UCC financing: a rule-based reading of the loan (\"Likely HUD takeout of a bank loan\") with the facts behind it (the earlier lender it likely replaces, how long the owner has held the home in CMS, same-day filings by the lender). Read from the lender switch, not from a loan document."],
+  ["lender_type", d => d.ucc_context?.lender_kind, "UCC financing: HUD / agency lender, bridge / private healthcare lender, receivables / working-capital lender, bank, or healthcare REIT, from the lender's name."],
+  ["collateral_inferred", d => d.ucc_context?.collateral_guess, "UCC financing: the likely collateral, inferred from the lender type when the filing's own collateral text isn't available. Not from the filing."],
   ["collateral_from_filing", d => d.ucc_collateral_from, "UCC filings: when the collateral was read from an earlier filing for the same loan, that filing's number."],
   ["states", d => (d.states || []).join(" "), "Two-letter state codes."],
   ["facility_count", d => d.facility_count, "Number of facilities, as reported."],
@@ -656,6 +659,31 @@ function Row({ label, children }) {
   );
 }
 
+// UCC financing: loan history, lender switch, same-day filings, inferred
+// collateral (pipeline/ucc_context.py)
+function LoanContext({ ctx }) {
+  const muted = { color: "#5F636A" };
+  return (
+    <Section title="Loan context">
+      {ctx.label && <Row label="Reading">{ctx.label}<span style={muted}> · from the lender switch and CMS dates, not a loan document</span></Row>}
+      {ctx.lender_kind && <Row label="Lender type">{ctx.lender_kind}</Row>}
+      {ctx.prior?.length > 0 && (
+        <Row label="Earlier loans to this borrower">
+          {ctx.prior.map(p => <div key={p.date + p.lender}>{fmtFull(p.date)} · {p.lender}</div>)}
+        </Row>
+      )}
+      {ctx.owner_since && <Row label="Owner in CMS since">{fmtFull(ctx.owner_since)}</Row>}
+      {ctx.portfolio && (
+        <Row label="Same-day filings">
+          {ctx.portfolio.count} borrowers on {fmtFull(ctx.portfolio.date)}, likely one portfolio loan
+          {ctx.portfolio.borrowers?.length > 0 && <div style={muted}>Also: {ctx.portfolio.borrowers.join("; ")}{ctx.portfolio.count - 1 > ctx.portfolio.borrowers.length && " …"}</div>}
+        </Row>
+      )}
+      {ctx.collateral_guess && <Row label="Collateral (inferred)">{ctx.collateral_guess}<span style={muted}> · guessed from the lender type, not from the filing</span></Row>}
+    </Section>
+  );
+}
+
 const missingText = (t) => <span style={{ color: "var(--color-text-muted)", fontStyle: "italic" }}>{t}</span>;
 
 export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness, cmsThrough }) {
@@ -689,6 +717,9 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "10px 16px", marginTop: 8 }}>
           {cols.map((c, i) => <Column key={i} col={c} />)}
         </div>
+        {deal.ucc_context?.line && (
+          <p style={{ margin: "8px 0 0", fontSize: 13, color: "#3F4248" }}>{deal.ucc_context.line}</p>
+        )}
       </div>
 
       {expanded && (
@@ -755,6 +786,8 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
             <Row label="Found by tracker">{deal.found_date ? fmtFull(deal.found_date) : missingText("Not recorded")}</Row>
             {deal.ucc_also_filed?.length > 0 && <Row label="Same loan also filed">{deal.ucc_also_filed.join(", ")}</Row>}
           </Section>
+
+          {deal.ucc_context && <LoanContext ctx={deal.ucc_context} />}
 
           <Section title="Verification">
             <Row label="Status"><span style={{ fontWeight: 600, color: STATUS_COLOR[status] }}>{STATUS_LABEL[status]}</span></Row>

@@ -1342,3 +1342,42 @@ def test_pa_con_owners_reach_summary_and_operator_names():
     deal = con_pa._application_deal(1, "09/21/2026", app)
     assert "Owners with 5% or more, per the application's ownership list: PA 5785 LLC; Gabriel Sebbag." in deal["raw_text"]
     assert "PA 5785 LLC" in deal["operator_names"] and "Gabriel Sebbag" not in deal["operator_names"]
+
+
+# --- UCC loan context (2026-11-09) ---
+
+def _ucc(debtor, lender, filed, deal_type="refinancing", ccns=None, state="NY"):
+    return {"source_type": "ucc", "deal_type": deal_type, "ucc_state": state, "ucc_debtor": debtor,
+            "lender": lender, "acquisition_date": filed, "ccns": ccns or []}
+
+
+def test_ucc_context_hud_takeout_of_bridge_loan():
+    from datetime import date
+    from pipeline import ucc_context
+    old = _ucc("Maple Opco LLC", "CAPITAL FUNDING, LLC, ITS SUCCESSORS AND ASSIGNS", "2023-02-01")
+    new = _ucc("Maple Opco LLC", "SECRETARY OF HOUSING AND URBAN DEVELOPMENT", "2025-06-01", ccns=["335000"])
+    idx = ucc_context.index([old, new])
+    ctx = ucc_context.context(new, idx, {"335000": {date(2022, 12, 1)}})
+    assert ctx["label"] == "Likely HUD takeout of a bridge loan"
+    assert ctx["line"] == "Likely HUD takeout of a bridge loan · replaces Capital Funding (2023) · owner since Dec 2022"
+    assert ctx["prior"][0]["lender"] == "Capital Funding"
+    assert "HUD-insured" in ctx["collateral_guess"]
+
+
+def test_ucc_context_same_lender_family_and_unknown_lenders_are_not_switches():
+    from pipeline import ucc_context
+    rows = [_ucc("Birch LLC", "GREYSTONE MONTICELLO FUNDING SH-77", "2024-01-01"),
+            _ucc("Birch LLC", "1224 ROSSMOOR PARKWAY WC, LLC", "2024-06-01"),
+            _ucc("Birch LLC", "GMCC I, LLC", "2025-01-01")]
+    ctx = ucc_context.context(rows[2], ucc_context.index(rows), {})
+    assert ctx["prior"] == [] and ctx["label"] == "Likely new loan for an existing owner"
+
+
+def test_ucc_context_receivables_line_sits_alongside_and_portfolio_counts():
+    from pipeline import ucc_context
+    rows = [_ucc("Oak LLC", "FIFTH THIRD BANK", "2021-03-01")] + \
+        [_ucc(n, "WHITE OAK HEALTHCARE FINANCE, LLC, AS AGENT", "2026-10-14") for n in ("Oak LLC", "Elm LLC", "Ash LLC")]
+    ctx = ucc_context.context(rows[1], ucc_context.index(rows), {})
+    assert ctx["label"] == "Likely a working-capital line"
+    assert "alongside Fifth Third Bank (2021)" in ctx["line"] and "1 of 3 same-day filings" in ctx["line"]
+    assert ctx["portfolio"]["borrowers"] == ["Ash LLC", "Elm LLC"]
