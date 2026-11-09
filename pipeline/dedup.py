@@ -235,7 +235,7 @@ def _completeness_score(row: dict) -> int:
 
 _DEAL_FIELDS = """
     id, acquiring_entity, states, facility_count, deal_value_m,
-    acquisition_date, operator_names, facility_names
+    acquisition_date, operator_names, facility_names, created_at
 """
 
 
@@ -255,7 +255,13 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn, ccns=None) -> str:
     the higher value, and deal_value_m takes whichever side is non-null.
     article_id is left as-is on the surviving row — since that row was
     already chosen for being the more complete one, its article_id already
-    points at the more complete source. The other row is deleted.
+    points at the more complete source. acquisition_date takes whichever
+    side is non-null and created_at the earlier one (the card's "found"
+    date). The other row is dismissed with merged_into pointing at the
+    survivor, so its source still shows on the card; until 2026-11-09 it
+    was deleted, which lost CareTrust's Southwest portfolio's Sept 1
+    closing date, its Sept 15 found date and its source when a Q3 earnings
+    repost of the same deal merged with it.
 
     Does not commit — participates in the caller's transaction.
 
@@ -315,17 +321,25 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn, ccns=None) -> str:
         merged_deal_value = _merge_first_non_null(keep["deal_value_m"], drop["deal_value_m"])
         merged_operator_names = _merge_array_union(keep["operator_names"], drop["operator_names"])
         merged_facility_names = _merge_array_union(keep["facility_names"], drop["facility_names"])
+        merged_date = _merge_first_non_null(keep["acquisition_date"], drop["acquisition_date"])
+        merged_created = min(c for c in (keep["created_at"], drop["created_at"]) if c) \
+            if (keep["created_at"] or drop["created_at"]) else None
 
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM deals WHERE id = %s", (drop["id"],))
+            cur.execute("UPDATE deals SET stage = 'dismissed', merged_into = %s, updated_at = NOW() WHERE id = %s",
+                        (keep["id"], drop["id"]))
+            # Rows merged into the dropped one follow it
+            cur.execute("UPDATE deals SET merged_into = %s WHERE merged_into = %s", (keep["id"], drop["id"]))
             cur.execute("""
                 UPDATE deals SET
                     states = %s, facility_count = %s, deal_value_m = %s,
-                    operator_names = %s, facility_names = %s
+                    operator_names = %s, facility_names = %s,
+                    acquisition_date = %s, created_at = COALESCE(%s, created_at)
                 WHERE id = %s
             """, (
                 merged_states, merged_facility_count, merged_deal_value,
-                merged_operator_names, merged_facility_names, keep["id"],
+                merged_operator_names, merged_facility_names,
+                merged_date, merged_created, keep["id"],
             ))
 
         logger.info(
