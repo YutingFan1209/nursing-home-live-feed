@@ -40,6 +40,14 @@ no such date, so its first run only stores the baseline).
       swing units drop out at CMS matching). No CCN (matched by address)
       and the licensure effective date renews yearly, so the first read is
       the baseline.
+  KS  KDADS "Adult Care Home Directory", nursing facilities (an Oracle APEX
+      report; its CSV export). Terms of use: K.S.A. 45-230, no selling to or
+      soliciting the people listed. "Facility Name" is the licensed company
+      when a DBA is given (agrees with CMS's legal name for 136 of 147);
+      without a DBA it is the home's own name, so those rows are left out.
+      "Last Change Date" with "Last Change" LESSEE, ADMINISTRATOR/OPERATOR,
+      BUILDING OWNER or MANAGEMENT FIRM is the change date. No CCN (matched
+      by address).
   WI  DHS "Nursing Home Directory" XLSX (a date row, then OWNER, LIC#,
       PROVIDER, ..., CERTIFICATION = CCN). Owner carries a "(FOR PROFIT
       CORPORATION)" style suffix, dropped. No change date: baseline first.
@@ -121,6 +129,13 @@ LISTS = {
         "csv_url": "https://chfs.ky.gov/agencies/os/oig/dhc/Documents/Long%20Term%20Care%20Directory.xlsx",
         "label": "Kentucky's long-term care directory (OIG)",
     },
+    "KS": {
+        "source_name": "Kansas KDADS Adult Care Home Directory",
+        "page_url": "https://kdads.ks.gov/licensing-policy/adult-care-home-directory",
+        # Oracle APEX report (nursing facilities); its own CSV export
+        "csv_url": "https://webapps.kdads.ks.gov/prod/f?p=113:901:::::P901_FACILITY_TYPE,P901_SOURCE:NF,P",
+        "label": "Kansas's adult care home directory (KDADS)",
+    },
     "WI": {
         "source_name": "Wisconsin DHS Nursing Home Directory",
         "page_url": "https://www.dhs.wisconsin.gov/guide/nursing-home.htm",
@@ -155,7 +170,7 @@ LISTS = {
 # TX reads ~1,281 pages; reread only when the last read is this old
 TX_REREAD_DAYS = 25
 # Lists without a CCN column, matched to CMS by address and name
-NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "MI", "OH")
+NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "KS", "MI", "OH")
 # Read in the person's own Chrome (scripts/licence_browser.py), not by main.py
 BROWSER_STATES = ("MI", "OH")
 FL_BASE = "https://quality.healthfinder.fl.gov"
@@ -248,6 +263,40 @@ def parse_nc_xlsx(content: bytes) -> list[dict]:
                      "facility": r["DBA Name"], "city": r.get("Site City") or r.get("Facility City", ""),
                      "address": r.get("Site Address") or r.get("Facility Address", "")})
     return rows
+
+
+# KDADS "Last Change" kinds that can mean a new licensee or owner
+_KS_OWNER_CHANGES = {"LESSEE", "ADMINISTRATOR/OPERATOR", "BUILDING OWNER", "MANAGEMENT FIRM"}
+
+
+def parse_ks_csv(text: str) -> list[dict]:
+    """KDADS directory CSV: Facility Name, DBA, State ID, ..., Last Change
+    Date, Last Change. Only rows with a DBA name the licensed company."""
+    rows = []
+    for r in csv.DictReader(io.StringIO(text.lstrip("\ufeff"))):
+        if not r["DBA"].strip() or not r["Facility Name"].strip():
+            continue
+        when = None
+        if r["Last Change"].strip() in _KS_OWNER_CHANGES and r["Last Change Date"].strip():
+            when = datetime.strptime(r["Last Change Date"].strip(), "%m/%d/%Y").date()
+        rows.append({"ccn": None, "licensee": " ".join(r["Facility Name"].split()), "licence_date": when,
+                     "facility": " ".join(r["DBA"].split()).title(), "city": r["City"].strip(),
+                     "address": r["Address"].strip()})
+    return rows
+
+
+def fetch_ks_csv() -> str:
+    """Open the report (APEX gives a session id), then ask for its CSV."""
+    session = cffi_requests.Session(impersonate="chrome")
+    page = session.get(LISTS["KS"]["csv_url"], timeout=120)
+    page.raise_for_status()
+    sid = re.search(r'name="p_instance" value="(\d+)"', page.text).group(1)
+    resp = session.get(f"https://webapps.kdads.ks.gov/prod/f?p=113:901:{sid}:CSV:NO:::", timeout=120)
+    resp.raise_for_status()
+    text = resp.content.decode("utf-8-sig")
+    if not text.startswith("Facility Name,DBA,"):
+        raise ValueError("KDADS export is not the directory CSV")
+    return text
 
 
 def parse_ky_xlsx(content: bytes) -> list[dict]:
@@ -531,6 +580,12 @@ def fetch_licence_list(state: str) -> list[dict] | None:
             rows = parse_ne_pdf(resp.content)
             if len(rows) < 140:  # 169 homes with a Medicare ID in the 10/2026 roster
                 health.source_failed("NE licence list", f"only {len(rows)} homes (layout change?)")
+                return None
+            return rows
+        if state == "KS":
+            rows = parse_ks_csv(fetch_ks_csv())
+            if len(rows) < 110:  # 147 nursing facilities with a DBA, 11/2026
+                health.source_failed("KS licence list", f"only {len(rows)} homes (layout change?)")
                 return None
             return rows
         if state == "KY":

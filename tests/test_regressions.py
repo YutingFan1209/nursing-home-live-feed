@@ -1508,3 +1508,23 @@ def test_ne_roster_text_licensee_wraps_and_ccn():
     assert parse_ne_text(text) == [{"ccn": "285197", "licensee": "EVANGELICAL LUTHERAN GOOD SAMARITAN SOCIETY",
                                     "licence_date": None, "facility": "Good Samaritan Society - Albion",
                                     "city": "ALBION", "address": "1222 South 7 th Street"}]
+
+
+def test_ks_directory_csv_uses_dba_rows_and_owner_change_dates():
+    """KDADS CSV: Facility Name is the licensee only when a DBA is given;
+    the Last Change Date counts only for owner/operator kinds of change."""
+    from datetime import date
+    from scraper.licence_lists import parse_ks_csv
+    head = ("Facility Name,DBA,State ID,Facility Type,Address,City,County,State,Zipcode,Administrator Name,"
+            "Inspection Results and Facility Details,Phone,Last Change Date,Last Change,Last Survey Posting Date\n")
+    text = "\ufeff" + head + (
+        "SALINA HEALTH CARE CENTER LLC,RIVERSTONE POST ACUTE,N1,Nursing Facility,1 MAIN ST,SALINA,SALINE,KS,"
+        "67401,A B,x,785,07/10/2026,LESSEE,01/01/2026\n"
+        "ACME CARE LLC,ACME HOME,N2,Nursing Facility,2 MAIN ST,TOPEKA,SHAWNEE,KS,66604,A B,x,785,"
+        "04/06/2026,BED COUNT,01/01/2026\n"
+        "LIFE CARE CENTER OF WICHITA,,N3,Nursing Facility,3 MAIN ST,WICHITA,SEDGWICK,KS,67208,A B,x,316,"
+        "11/03/2026,ADMINISTRATOR/OPERATOR,01/01/2026\n")
+    rows = parse_ks_csv(text)
+    assert [r["licensee"] for r in rows] == ["SALINA HEALTH CARE CENTER LLC", "ACME CARE LLC"]
+    assert rows[0]["licence_date"] == date(2026, 7, 10) and rows[0]["facility"] == "Riverstone Post Acute"
+    assert rows[1]["licence_date"] is None
