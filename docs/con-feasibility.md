@@ -107,6 +107,8 @@ A quick run to size a NY build, before deciding whether to do it. Not wired into
 ## Per-state detail
 
 ### New York 🟢 (high confidence)
+
+**2026-11-09:** DOH's CON applications dataset on health.data.ny.gov (h343-jwie) has every application from receipt, with current and proposed operator, updated daily — the earliest NY signal, now live as `scraper/con_ny_apps.py` alongside the PHHPC agenda reader.
 1. **Trigger:** PHL §2801-a. Any new operator of a residential health care facility (RHCF) must be "established" by PHHPC. Confirmed from the agenda exhibits ("requests approval to be established as the new operator…").
 2. **Published:** free and public. Meeting pages on health.ny.gov (behind Cloudflare; needs browser TLS impersonation).
 3. **Format / cadence:** Full Council and committee agenda PDFs, about 6 decision meetings a year. Agendas post before meetings; minutes post with the *next* meeting's packet.

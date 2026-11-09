@@ -51,6 +51,7 @@ from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_
 from scraper.con_md import fetch_con_md_cases, CON_MD_SOURCE_NAME, CON_MD_INDEX_URL
 from scraper.con_nj import fetch_con_nj, CON_NJ_SOURCE_NAME, CON_NJ_OPERATOR_URL
 from scraper.con_ny import fetch_con_ny_projects, project_number as _con_ny_project, CON_NY_SOURCE_NAME, CON_NY_INDEX_URL
+from scraper.con_ny_apps import fetch_con_ny_app_deals, merge_into_phhpc, CON_NY_APPS_SOURCE_NAME, CON_NY_APPS_INDEX_URL
 from pipeline.source_health import log_source_health
 from pipeline.ccn_watch import log_watch
 from pipeline import individual_owners
@@ -306,6 +307,13 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
                 conn.commit()
 
         logger.info(f"Extracted and stored {new_deals} new deals")
+
+        # Step 2c.5 — NY: a CON application stored earlier whose PHHPC
+        # agenda exhibit arrived now -> keep the agenda record
+        if not dry_run:
+            folded = merge_into_phhpc(conn)
+            if folded:
+                logger.info(f"NY CON applications: {folded} merged into their PHHPC agenda records")
 
         # Step 2d — One sale stored twice by different sources (CON filing,
         # news, CHOW): merge the clear cases among this run's new deals,
@@ -736,6 +744,25 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             for art in ny_projects:
                 art["source_id"] = con_ny_source_id
                 new_articles.append(art)
+
+        # NY DOH CON applications (open data): nursing home ownership changes
+        # from the day DOH receives them, months before the PHHPC agenda
+        con_ny_apps_source_id = _ensure_source(
+            type("S", (), {"name": CON_NY_APPS_SOURCE_NAME,
+                           "url": CON_NY_APPS_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        with conn.cursor() as cur:
+            cur.execute("""SELECT a.url FROM articles a JOIN sources s ON s.id = a.source_id
+                           WHERE s.name = %s""", (CON_NY_SOURCE_NAME,))
+            phhpc_projects = {n for (url,) in cur.fetchall() if (n := _con_ny_project(url))}
+            cur.execute("""SELECT provider_name, provider_address, provider_city, ccn
+                           FROM cms_facilities WHERE provider_state = 'NY'""")
+            ny_homes = cur.fetchall()
+        for deal in fetch_con_ny_app_deals(lambda url: _article_exists(url, conn), phhpc_projects, ny_homes):
+            deal["source_id"] = con_ny_apps_source_id
+            new_articles.append(deal)
 
     # Gmail alerts — Google Alert emails sent to dedicated inbox
     try:

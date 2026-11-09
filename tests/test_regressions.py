@@ -1381,3 +1381,25 @@ def test_ucc_context_receivables_line_sits_alongside_and_portfolio_counts():
     assert ctx["label"] == "Likely a working-capital line"
     assert "alongside Fifth Third Bank (2021)" in ctx["line"] and "1 of 3 same-day filings" in ctx["line"]
     assert ctx["portfolio"]["borrowers"] == ["Ash LLC", "Elm LLC"]
+
+
+def test_ny_con_apps_keeps_new_operator_and_control_transfers():
+    from scraper.con_ny_apps import classify, interest_pct, to_deal
+    base = {"facility_type": "Residential Health Care Facility", "project_status": "Under Review",
+            "submission_type_s": "Application - Full Review - Establishment - Change in Ownership"}
+    new_op = {**base, "current_operator_name": "Amsterdam Nursing Home Corporation (1992)",
+              "proposed_operator_name": "Amsterdam Operations Associates, LLC",
+              "project_description": "Establish Amsterdam Operations Associates, LLC as the new operator of X"}
+    assert classify(new_op) == "new_operator"
+    same = {**base, "current_operator_name": "Penfield Place, LLC", "proposed_operator_name": "Penfield Place, LLC",
+            "project_description": "Transfer 90.1% ownership interest from one withdrawing member to the sole remaining member"}
+    assert classify(same) == "interest"
+    small = {**same, "submission_type_s": "Notice - Transfer of Ownership Interest",
+             "project_description": "Transfer 20% ownership interest from one withdrawing member"}
+    assert classify(small) is None
+    assert classify({**new_op, "project_status": "Withdrawn"}) is None
+    assert interest_pct("Transfer 50.095% ownership interest to two members") == 50.095
+    d = to_deal({**new_op, "con_project_number": "262161", "application_received_date": "2026-10-28T00:00:00.000",
+                 "facility_name": "Amsterdam Nursing Home Corp (1992)"}, "new_operator")
+    assert d["acquiring_entity"] == "Amsterdam Operations Associates, LLC" and d["_con_id"] == "NY-262161"
+    assert "pending sale" in d["raw_text"]
