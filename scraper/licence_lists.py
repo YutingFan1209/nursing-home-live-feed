@@ -64,6 +64,17 @@ no such date, so its first run only stores the baseline).
       from the home's newest DSHS enforcement letter that shows the new
       number ("Licensee Information: ..."), when one is posted yet. No
       CCN (matched by address), no date: baseline first.
+  IA  DIAL Health Facility Database (dia-hfd.iowa.gov), the public entity
+      search's own JSON (/Home/EntitySearchAjax, free-standing NF/SNF types):
+      CCN, entity name and Current License Date per home. The name is mostly
+      the DBA (8 of 24 recent CHOW buyers match it), so the diff key is the
+      date: licences run 365 days from the date issued, and a sale issues a
+      new licence on the sale date (70 of 79 homes sold since 2023 carry the
+      CHOW's month and day). A date off the old anniversary = a new licence.
+      The buyer is the new entity name when it's a company name; the home's
+      Related Entities tab (its owner group's homes) is added for context.
+      licenseNumber in the JSON is the administrator's; the state licence is
+      classificationNumber. No robots.txt. Baseline first.
   MI  LARA statewide licensing search (statelicensing.apps.lara.state.mi.us):
       licensee and the licence's original effective date, but only on each
       home's detail record. Read in the person's own Chrome
@@ -173,6 +184,12 @@ LISTS = {
         "page_url": "https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx",
         "csv_url": "https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx",
         "label": "Washington's nursing home locator (DSHS)",
+    },
+    "IA": {
+        "source_name": "Iowa DIAL Health Facility Database",
+        "page_url": "https://dia-hfd.iowa.gov/",
+        "csv_url": "https://dia-hfd.iowa.gov/Home/EntitySearchAjax",
+        "label": "Iowa's health facility database (DIAL)",
     },
     "TX": {
         "source_name": "Texas HHSC TULIP LTC Provider Search",
@@ -487,6 +504,57 @@ def wa_licensee(licence_no: str, max_letters: int = 3) -> tuple[str, str] | tupl
     return None, None
 
 
+IA_BASE = "https://dia-hfd.iowa.gov"
+IA_TYPES = ("10", "30", "31")  # Free Standing NF, SNF, NF/SNF
+_COMPANY_RE = re.compile(r"\b(LLC|L\.L\.C|INC|INCORPORATED|CORP|CORPORATION|LP|LLP|LTD|COMPANY|OPCO)\b", re.I)
+
+
+def parse_ia_json(data: dict) -> list[dict]:
+    rows = []
+    for x in data.get("data") or []:
+        ccn = (x.get("fedNumber") or "").strip()
+        if not re.fullmatch(r"16\d{4}", ccn) or (x.get("status") or "") != "Active":
+            continue
+        name = " ".join((x.get("name") or "").split())
+        rows.append({"ccn": ccn, "licensee": name, "licence_date": _date(x.get("currentLicenseDate")),
+                     "facility": name, "city": (x.get("city") or "").strip(), "entity_id": x.get("id"),
+                     "licence_no": (x.get("classificationNumber") or "").strip() or None})
+    return rows
+
+
+def fetch_ia_json() -> dict:
+    s = cffi_requests.Session(impersonate="chrome")
+    page = s.get(IA_BASE + "/", timeout=60).text
+    tok = re.search(r'name="__RequestVerificationToken" type="hidden" value="([^"]+)"', page).group(1)
+    form = [("__RequestVerificationToken", tok), ("draw", "1"), ("start", "0"), ("length", "2000")]
+    form += [("TypeVals", t) for t in IA_TYPES]
+    resp = s.post(LISTS["IA"]["csv_url"], data=form, timeout=180,
+                  headers={"X-Requested-With": "XMLHttpRequest", "RequestVerificationToken": tok})
+    resp.raise_for_status()
+    return resp.json()
+
+
+_IA_RELATED_RE = re.compile(r'id="entityName">\s*(.*?)\s*</td>', re.S)
+
+
+def ia_related(entity_id, get=None) -> list[str]:
+    """Names of the homes in the same owner group (the Related Entities tab)."""
+    get = get or (lambda url: cffi_requests.get(url, impersonate="chrome", timeout=60).text)
+    try:
+        page = get(f"{IA_BASE}/Home/SwitchToTab/{entity_id}?tabname=RelatedEntities")
+    except Exception as e:
+        logger.warning(f"IA related entities {entity_id}: {e}")
+        return []
+    return [" ".join(re.sub(r"\([^()]*\)$", "", n).split()) for n in _IA_RELATED_RE.findall(page)]
+
+
+def ia_new_licence(row: dict, prev_date) -> bool:
+    """A renewal keeps the month and day; a sale's new licence starts on the
+    sale date."""
+    d = row["licence_date"]
+    return bool(d and prev_date and d != prev_date and (d.month, d.day) != (prev_date.month, prev_date.day))
+
+
 def parse_browser_file(data: dict) -> tuple[str, list[dict]]:
     """A saved scripts/{mi,oh}_licence_browser.js result -> (state, rows)."""
     if data.get("state") == "MI":
@@ -497,6 +565,8 @@ def parse_browser_file(data: dict) -> tuple[str, list[dict]]:
 
 
 def record_url(state: str, row: dict) -> str:
+    if state == "IA":  # the name is often the unchanged DBA: key on the new licence's date
+        return f"{LISTS[state]['page_url']}#licence-{row['ccn']}-{row['licence_date']:%Y-%m-%d}"
     key = re.sub(r"[^a-z0-9]+", "-", _norm(row["licensee"]).lower()).strip("-")[:60]
     return f"{LISTS[state]['page_url']}#licensee-{row['ccn']}-{key}"
 
@@ -519,6 +589,17 @@ def detect_changes(state: str, rows: list[dict], previous: dict, cms_names: dict
         if prev is not None and state == "WA":  # a licence number: any change is a new licence
             names = [n for n in cms_names[row["ccn"]] if not _ADDRESS_RE.match(n)]
             changed, seller = row["licensee"] != prev, (names[0] if names else None)
+        elif state == "IA" and prev is None:  # every licence is under a year old: baseline only
+            changed, seller = False, None
+        elif state == "IA":
+            names = [n for n in cms_names[row["ccn"]] if not _ADDRESS_RE.match(n)]
+            changed = ia_new_licence(row, row.get("prev_licence_date"))
+            seller = names[0] if names else None
+            if changed:
+                row = {**row, "prev_name": prev,
+                       "buyer": row["licensee"] if (_COMPANY_RE.search(row["licensee"])
+                                                    and not any(same_entity(row["licensee"], n) for n in names))
+                       else None}
         elif prev is not None:
             changed, seller = not same_entity(row["licensee"], prev), prev
         else:
@@ -526,7 +607,8 @@ def detect_changes(state: str, rows: list[dict], previous: dict, cms_names: dict
             changed = (bool(names) and bool(row["licence_date"]) and row["licence_date"] >= seed_since
                        and not any(same_entity(row["licensee"], n) for n in names))
             seller = names[0] if names else None
-        if changed and any(same_entity(row["licensee"], b) for b in chow_buyers.get(row["ccn"], ())):
+        if changed and any(same_entity(row.get("buyer") or row["licensee"], b)
+                           for b in chow_buyers.get(row["ccn"], ())):
             changed = False  # CMS's CHOW file already has this sale
         if changed and not is_known(record_url(state, row)):
             changes.append({**row, "seller": seller})
@@ -575,9 +657,55 @@ def _wa_deal(row: dict) -> dict:
     }
 
 
+def _ia_deal(row: dict) -> dict:
+    cfg, buyer = LISTS["IA"], row.get("buyer")
+    seller = row.get("seller") if row.get("seller") and not (buyer and same_entity(buyer, row["seller"])) else None
+    related = [n for n in row.get("related") or [] if not same_entity(n, row["licensee"])]
+    renamed = row.get("prev_name") and not same_entity(row["prev_name"], row["licensee"])
+    summary = (
+        f"{cfg['label']} shows {row['licensee']} ({row['city'].title()}) under a new licence dated "
+        f"{row['licence_date']:%m/%d/%Y}"
+        + (f" (the previous one ran from {row['prev_licence_date']:%m/%d/%Y})" if row.get("prev_licence_date") else "")
+        + (f", and the home was listed as {row['prev_name']} before" if renamed else "")
+        + ". Iowa licences renew on the same date each year, so a licence starting on a new date "
+          "usually means a sale or a new operator"
+        + (f"; the licensee is listed as {buyer}" if buyer else "; the list doesn't name the new licensee")
+        + (f"; CMS lists {seller} as the legal owner" if seller else "")
+        + (f"; DIAL groups it with {', '.join(related[:4])}" + (f" and {len(related) - 4} more" if len(related) > 4 else "")
+           if related else "")
+        + ". No price is given."
+    )
+    url = record_url("IA", row)
+    when = row["licence_date"]
+    return {
+        "url": url,
+        "title": f"[IA licence] {row['licensee']}: new licence {when:%m/%d/%Y}" + (f", licensee {buyer}" if buyer else ""),
+        "published_at": datetime.combine(when, datetime.min.time()).replace(tzinfo=timezone.utc),
+        "raw_text": f"{summary}\n\nSource: {cfg['page_url']}Home/PublicEntityDetails?recordid={row.get('entity_id')}",
+        "source_type": "con",
+        "pre_extracted": True,
+        "extraction_model": "con_direct",
+        "_con_id": url.rsplit("#", 1)[1],
+        "acquiring_entity": buyer,
+        "seller_entity": seller,
+        "operator_names": [buyer] if buyer else [],
+        "facility_names": [row["facility"]],
+        "ccns": [row["ccn"]],
+        "states": ["IA"],
+        "facility_count": 1,
+        "deal_value_m": None,
+        "acquisition_date": when.isoformat(),
+        "financing_amount_m": None,
+        "lender": None,
+        "rationale": summary,
+    }
+
+
 def to_deal(state: str, row: dict) -> dict:
     if state == "WA":
         return _wa_deal(row)
+    if state == "IA":
+        return _ia_deal(row)
     cfg = LISTS[state]
     when = f" from {row['licence_date']:%m/%d/%Y}" if row["licence_date"] else ""
     summary = (
@@ -717,6 +845,12 @@ def fetch_licence_list(state: str) -> list[dict] | None:
                 health.source_failed("WA licence list", f"only {len(rows)} homes (layout change?)")
                 return None
             return rows
+        if state == "IA":
+            rows = parse_ia_json(fetch_ia_json())
+            if len(rows) < 300:  # 377 nursing facilities on 2026-11-10
+                health.source_failed("IA licence list", f"only {len(rows)} homes (layout change?)")
+                return None
+            return rows
         if state == "KS":
             rows = parse_ks_csv(fetch_ks_csv())
             if len(rows) < 110:  # 147 nursing facilities with a DBA, 11/2026
@@ -792,6 +926,11 @@ def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = Non
             rows = [r for r in rows if r["ccn"]]
         cur.execute("SELECT ccn, licensee FROM licence_list_snapshot WHERE state = %s", (state,))
         previous = dict(cur.fetchall())
+        if state == "IA":
+            cur.execute("SELECT ccn, licence_date FROM licence_list_snapshot WHERE state = 'IA'")
+            prev_dates = dict(cur.fetchall())
+            for r in rows:
+                r["prev_licence_date"] = prev_dates.get(r["ccn"])
         # current legal name first: it's the seller on a first run
         cur.execute("""SELECT ccn, legal_business_name, 0 FROM cms_facilities WHERE provider_state = %s
                        UNION ALL SELECT f.ccn, n.legal_business_name, 1 FROM cms_facilities f
@@ -809,6 +948,9 @@ def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = Non
     changes, snapshot = detect_changes(state, rows, previous, cms_names, chow_buyers, is_known)
     if state == "WA":
         changes = _wa_fill_buyers(changes, previous, chow_buyers, snapshot)
+    if state == "IA":
+        for row in changes:
+            row["related"] = ia_related(row["entity_id"])
     if not write_snapshot:
         snapshot = []
     with conn.cursor() as cur:

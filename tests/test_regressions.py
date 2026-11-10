@@ -1570,3 +1570,51 @@ def test_wa_licence_number_diff_and_letter_licensee():
     settled = []
     assert _wa_fill_buyers([dict(changes[0])], {}, {"505016": ["New Buyer SNF, LLC"]}, settled,
                            lookup=lambda n: ("NEW BUYER SNF LLC", "u")) == [] and len(settled) == 1
+
+
+def test_ia_licence_date_diff():
+    """2026-11-10: Iowa's DIAL list names homes mostly by DBA, but a licence
+    renews on the same date each year and a sale starts a new licence on the
+    sale date. First read is the baseline; a renewal (same month/day) is not
+    a change; an off-anniversary date is, with the buyer only when the new
+    name is a company that isn't CMS's legal owner; CHOW-known buyers skip."""
+    from datetime import date
+    from scraper.licence_lists import _ia_deal, detect_changes, ia_related, parse_ia_json
+    data = {"data": [
+        {"id": 999, "name": "Accura Healthcare of Ames,  LLC", "fedNumber": "165423", "status": "Active",
+         "city": "Ames", "currentLicenseDate": "2025-12-01T00:00:00", "classificationNumber": "850636"},
+        {"id": 5, "name": "Iowa Veterans Home", "fedNumber": "16A002", "status": "Active",
+         "city": "Marshalltown", "currentLicenseDate": "2026-01-05T00:00:00"}]}
+    rows = parse_ia_json(data)
+    assert len(rows) == 1 and rows[0]["licensee"] == "Accura Healthcare of Ames, LLC"
+    assert rows[0]["licence_date"] == date(2025, 12, 1) and rows[0]["licence_no"] == "850636"
+    cms = {"165423": ["ACCURA HEALTHCARE OF AMES LLC"]}
+    no = lambda url: False
+    changes, snap = detect_changes("IA", rows, {}, cms, {}, no)
+    assert changes == [] and len(snap) == 1  # baseline
+
+    renewed = [{**rows[0], "licence_date": date(2026, 12, 1), "prev_licence_date": date(2025, 12, 1)}]
+    changes, snap = detect_changes("IA", renewed, {"165423": rows[0]["licensee"]}, cms, {}, no)
+    assert changes == [] and len(snap) == 1
+
+    sold = [{**rows[0], "licensee": "Ames Opco LLC", "facility": "Ames Opco LLC",
+             "licence_date": date(2026, 3, 15), "prev_licence_date": date(2025, 12, 1)}]
+    changes, snap = detect_changes("IA", sold, {"165423": rows[0]["licensee"]}, cms, {}, no)
+    assert len(changes) == 1 and snap == [] and changes[0]["buyer"] == "Ames Opco LLC"
+    changes[0]["related"] = ["Ames Opco LLC", "Opco Boone LLC"]
+    deal = _ia_deal(changes[0])
+    assert deal["acquiring_entity"] == "Ames Opco LLC" and deal["seller_entity"] == "ACCURA HEALTHCARE OF AMES LLC"
+    assert deal["acquisition_date"] == "2026-03-15" and deal["url"].endswith("#licence-165423-2026-03-15")
+    assert "groups it with Opco Boone LLC" in deal["raw_text"] and "listed as Accura" in deal["raw_text"]
+
+    dba = [{**sold[0], "licensee": "Ames Care Center", "facility": "Ames Care Center"}]
+    changes, _ = detect_changes("IA", dba, {"165423": "Ames Care Center"}, cms, {}, no)
+    assert len(changes) == 1 and changes[0]["buyer"] is None
+    assert _ia_deal(changes[0])["acquiring_entity"] is None
+
+    changes, snap = detect_changes("IA", sold, {"165423": rows[0]["licensee"]}, cms,
+                                   {"165423": ["AMES OPCO, LLC"]}, no)
+    assert changes == [] and len(snap) == 1
+
+    page = '<td id="entityName">\n  Opco Boone LLC(Free Standing NF/SNF)\n</td><td id="entityName">X Home(ALP)</td>'
+    assert ia_related(1, get=lambda url: page) == ["Opco Boone LLC", "X Home"]
