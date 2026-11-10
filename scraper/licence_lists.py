@@ -75,6 +75,16 @@ no such date, so its first run only stores the baseline).
       Related Entities tab (its owner group's homes) is added for context.
       licenseNumber in the JSON is the administrator's; the state licence is
       classificationNumber. No robots.txt. Baseline first.
+  CT  DPH eLicense roster "Chronic and Convalescent Nursing Home" (free CSV
+      from Lookup/GenerateRoster.aspx; an F5 bot check stops scripts, so the
+      person downloads it in their own Chrome): LICENSE NO., EFFECTIVE DATE,
+      no licensee. Like WA, a sale issues a new number (2480-2526 since
+      2023), effective on the sale date (25 of 25 CHOWs since 2023 within
+      45 days). The buyer is CMS's current legal name when CMS's ownership
+      file shows an owner starting within 45 days of that date; a CHOW in
+      the same window skips it. No CCN (matched by address). The first read
+      reports new numbers from the last CT_SEED_DAYS (CMS CHOW missed 20 of
+      them, 2024-09 to 2026-02).
   MI  LARA statewide licensing search (statelicensing.apps.lara.state.mi.us):
       licensee and the licence's original effective date, but only on each
       home's detail record. Read in the person's own Chrome
@@ -109,6 +119,7 @@ from pipeline.run_health import health
 logger = logging.getLogger(__name__)
 
 SEED_DAYS = 365
+CT_SEED_DAYS = 800
 
 LISTS = {
     "MO": {
@@ -191,6 +202,12 @@ LISTS = {
         "csv_url": "https://dia-hfd.iowa.gov/Home/EntitySearchAjax",
         "label": "Iowa's health facility database (DIAL)",
     },
+    "CT": {
+        "source_name": "Connecticut DPH eLicense Nursing Home Roster",
+        "page_url": "https://www.elicense.ct.gov/Lookup/GenerateRoster.aspx",
+        "csv_url": "https://www.elicense.ct.gov/Lookup/GenerateRoster.aspx",
+        "label": "Connecticut's nursing home licence roster (DPH eLicense)",
+    },
     "TX": {
         "source_name": "Texas HHSC TULIP LTC Provider Search",
         "page_url": "https://tulip.hhs.texas.gov/TULIP/s/ltc-provider-search",
@@ -201,9 +218,9 @@ LISTS = {
 # TX reads ~1,281 pages; reread only when the last read is this old
 TX_REREAD_DAYS = 25
 # Lists without a CCN column, matched to CMS by address and name
-NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "KS", "MI", "OH", "WA")
+NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "KS", "MI", "OH", "WA", "CT")
 # Read in the person's own Chrome (scripts/licence_browser.py), not by main.py
-BROWSER_STATES = ("MI", "OH")
+BROWSER_STATES = ("MI", "OH", "CT")
 FL_BASE = "https://quality.healthfinder.fl.gov"
 
 _ENTITY_NOISE_RE = re.compile(
@@ -555,8 +572,24 @@ def ia_new_licence(row: dict, prev_date) -> bool:
     return bool(d and prev_date and d != prev_date and (d.month, d.day) != (prev_date.month, prev_date.day))
 
 
+def parse_ct_csv(text: str) -> list[dict]:
+    rows = []
+    for r in csv.DictReader(io.StringIO(text.lstrip("\ufeff"))):
+        no = (r.get("LICENSE NO.") or "").strip()
+        if (r.get("STATUS") or "").strip().upper() != "ACTIVE" or not no:
+            continue
+        rows.append({"ccn": None, "licence_no": no, "licensee": f"licence #{no}",
+                     "licence_date": _date(r.get("EFFECTIVE DATE")),
+                     "facility": " ".join((r.get("FACILITY NAME") or "").split()).title(),
+                     "city": (r.get("CITY") or "").strip(), "address": (r.get("ADDRESS") or "").strip()})
+    return rows
+
+
 def parse_browser_file(data: dict) -> tuple[str, list[dict]]:
-    """A saved scripts/{mi,oh}_licence_browser.js result -> (state, rows)."""
+    """A saved scripts/{mi,oh}_licence_browser.js result, or CT's roster CSV
+    wrapped as {"state": "CT", "csv": text} -> (state, rows)."""
+    if data.get("state") == "CT":
+        return "CT", parse_ct_csv(data["csv"])
     if data.get("state") == "MI":
         return "MI", parse_mi_json(data)
     if data.get("state") == "OH":
@@ -586,7 +619,14 @@ def detect_changes(state: str, rows: list[dict], previous: dict, cms_names: dict
         if row["ccn"] not in cms_names:
             continue
         prev = previous.get(row["ccn"])
-        if prev is not None and state == "WA":  # a licence number: any change is a new licence
+        if state == "CT":
+            names = [n for n in cms_names[row["ccn"]] if not _ADDRESS_RE.match(n) or _COMPANY_RE.search(n)]
+            seller = names[0] if names else None
+            if prev is not None:
+                changed = row["licensee"] != prev
+            else:  # first read: new numbers since CT_SEED_DAYS (the list has the date)
+                changed = bool(row["licence_date"]) and row["licence_date"] >= today - timedelta(days=CT_SEED_DAYS)
+        elif prev is not None and state == "WA":  # a licence number: any change is a new licence
             names = [n for n in cms_names[row["ccn"]] if not _ADDRESS_RE.match(n)]
             changed, seller = row["licensee"] != prev, (names[0] if names else None)
         elif state == "IA" and prev is None:  # every licence is under a year old: baseline only
@@ -615,6 +655,69 @@ def detect_changes(state: str, rows: list[dict], previous: dict, cms_names: dict
             continue  # snapshot moves on once the record is stored
         snapshot.append(row)
     return changes, snapshot
+
+
+def _near(a, b, days: int = 45) -> bool:
+    return bool(a and b) and abs((a - b).days) <= days
+
+
+def _ct_fill(changes: list[dict], previous: dict, chow_dates: dict, owner_starts: dict,
+             cms_current: dict, snapshot: list[dict]) -> list[dict]:
+    """A CHOW near the licence date is left to CHOW; else the buyer is CMS's
+    current legal name when CMS shows an owner starting near that date."""
+    kept = []
+    for row in changes:
+        if any(_near(d, row["licence_date"], 60) for d in chow_dates.get(row["ccn"], ())):
+            snapshot.append(row)
+            continue
+        row["prev_licence_no"] = (previous.get(row["ccn"]) or "").replace("licence #", "") or None
+        row["buyer"] = None
+        if any(_near(d, row["licence_date"]) for d in owner_starts.get(row["ccn"], ())):
+            name = cms_current.get(row["ccn"])
+            if name and (not _ADDRESS_RE.match(name) or _COMPANY_RE.search(name)):  # "1 GLEN HILL RD OPCO LLC"
+                row["buyer"], row["seller"] = name, None
+        kept.append(row)
+    return kept
+
+
+def _ct_deal(row: dict) -> dict:
+    cfg, buyer, seller, when = LISTS["CT"], row.get("buyer"), row.get("seller"), row["licence_date"]
+    summary = (
+        f"{cfg['label']} shows {row['facility']} ({row['city'].title()}) under a new state licence, "
+        f"#{row['licence_no']}" + (f" (was #{row['prev_licence_no']})" if row.get("prev_licence_no") else "")
+        + (f", effective {when:%m/%d/%Y}" if when else "")
+        + ". Connecticut issues a new licence number when a nursing home changes hands, so this usually "
+          "means a sale or a new operator"
+        + (f"; CMS's ownership file shows a new owner from about that date, and lists {buyer} as the "
+           "legal owner" if buyer else
+           (f"; CMS still lists {seller} as the legal owner, so the new licensee isn't named yet" if seller else ""))
+        + ". No price is given."
+    )
+    url = record_url("CT", row)
+    return {
+        "url": url,
+        "title": f"[CT licence] {row['facility']}: new licence #{row['licence_no']}"
+                 + (f", licensee {buyer}" if buyer else ""),
+        "published_at": (datetime.combine(when, datetime.min.time()).replace(tzinfo=timezone.utc)
+                         if when else datetime.now(timezone.utc)),
+        "raw_text": f"{summary}\n\nSource: {cfg['page_url']}",
+        "source_type": "con",
+        "pre_extracted": True,
+        "extraction_model": "con_direct",
+        "_con_id": url.rsplit("#", 1)[1],
+        "acquiring_entity": buyer,
+        "seller_entity": None if buyer else seller,
+        "operator_names": [buyer] if buyer else [],
+        "facility_names": [row["facility"]],
+        "ccns": [row["ccn"]],
+        "states": ["CT"],
+        "facility_count": 1,
+        "deal_value_m": None,
+        "acquisition_date": when.isoformat() if when else None,
+        "financing_amount_m": None,
+        "lender": None,
+        "rationale": summary,
+    }
 
 
 def _wa_deal(row: dict) -> dict:
@@ -706,6 +809,8 @@ def to_deal(state: str, row: dict) -> dict:
         return _wa_deal(row)
     if state == "IA":
         return _ia_deal(row)
+    if state == "CT":
+        return _ct_deal(row)
     cfg = LISTS[state]
     when = f" from {row['licence_date']:%m/%d/%Y}" if row["licence_date"] else ""
     summary = (
@@ -951,6 +1056,21 @@ def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = Non
     if state == "IA":
         for row in changes:
             row["related"] = ia_related(row["entity_id"])
+    if state == "CT":
+        with conn.cursor() as cur:
+            cur.execute("SELECT ccn, effective_date FROM chow_seen_records WHERE ccn = ANY(%s)", (list(cms_names),))
+            chow_dates: dict = {}
+            for ccn, d in cur.fetchall():
+                if _date(d):
+                    chow_dates.setdefault(ccn, []).append(_date(d))
+            cur.execute("""SELECT ccn, ownership_start_date FROM cms_ownership_records
+                           WHERE ccn = ANY(%s) AND ownership_start_date IS NOT NULL""", (list(cms_names),))
+            owner_starts: dict = {}
+            for ccn, d in cur.fetchall():
+                owner_starts.setdefault(ccn, []).append(d if isinstance(d, date) else _date(str(d)))
+            cur.execute("SELECT ccn, legal_business_name FROM cms_facilities WHERE provider_state = 'CT'")
+            cms_current = dict(cur.fetchall())
+        changes = _ct_fill(changes, previous, chow_dates, owner_starts, cms_current, snapshot)
     if not write_snapshot:
         snapshot = []
     with conn.cursor() as cur:

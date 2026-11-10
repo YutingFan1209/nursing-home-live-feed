@@ -1,5 +1,5 @@
 """
-Michigan and Ohio nursing home licence lists, read in the person's own
+Michigan, Ohio and Connecticut nursing home licence lists, read in the person's own
 Chrome (Claude in Chrome) every two weeks, then diffed here like the other
 licence lists (scraper/licence_lists.py).
 
@@ -11,6 +11,9 @@ licence lists (scraper/licence_lists.py).
     #   -> ~/Downloads/oh_licence_<timestamp>.json
     venv/bin/python3 scripts/licence_browser.py ingest ~/Downloads/mi_licence_*.json
     venv/bin/python3 scripts/licence_browser.py ingest --dry-run ~/Downloads/oh_licence_*.json
+    # Connecticut (monthly): on https://www.elicense.ct.gov/Lookup/GenerateRoster.aspx
+    #   tick "Chronic and Convalescent Nursing Home", Continue, CSV, Download
+    venv/bin/python3 scripts/licence_browser.py ingest ~/Downloads/Chronic_and_Convalescent_Nursing_Home.csv
 
 A state's first ingest compares with CMS's legal names, limited to licences
 dated in the last year (Michigan has the date; Ohio doesn't, so its first
@@ -30,11 +33,13 @@ from pipeline.same_sale import resolve_new_deals
 from scraper.licence_lists import LISTS, licence_list_deals, parse_browser_file
 
 # Fewer homes than this: a stopped or changed read, not worth diffing
-MIN_ROWS = {"MI": 350, "OH": 700}
+MIN_ROWS = {"MI": 350, "OH": 700, "CT": 150}
 
 
 def ingest(conn, path: str, dry_run: bool) -> None:
-    data = json.loads(Path(path).expanduser().read_text())
+    text = Path(path).expanduser().read_text(encoding="latin-1" if path.endswith(".csv") else "utf-8")
+    # CT: eLicense's roster CSV as downloaded ("FACILITY NAME,ADDRESS,...,LICENSE NO.,...")
+    data = {"state": "CT", "csv": text} if path.endswith(".csv") else json.loads(text)
     state, rows = parse_browser_file(data)
     if data.get("stopped"):
         print(f"{path}: the read stopped early ({data['stopped']})")

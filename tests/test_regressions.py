@@ -1618,3 +1618,44 @@ def test_ia_licence_date_diff():
 
     page = '<td id="entityName">\n  Opco Boone LLC(Free Standing NF/SNF)\n</td><td id="entityName">X Home(ALP)</td>'
     assert ia_related(1, get=lambda url: page) == ["Opco Boone LLC", "X Home"]
+
+
+def test_ct_licence_number_diff():
+    """2026-11-10: CT's eLicense roster has no licensee, but a sale issues a
+    new licence number effective on the sale date. First read reports new
+    numbers from the last CT_SEED_DAYS; a CHOW within 60 days is left to
+    CHOW; the buyer is CMS's legal name only when CMS shows an owner
+    starting within 45 days (a company name starting with a number counts)."""
+    from datetime import date
+    from scraper.licence_lists import _ct_deal, _ct_fill, detect_changes, parse_ct_csv
+    text = ("FACILITY NAME,ADDRESS,CITY,STATE,ZIP,LICENSE NO.,STATUS,EFFECTIVE DATE,EXPIRATION DATE,\n"
+            "AUTUMN LAKE HEALTHCARE AT GLEN HILL,1 GLEN HILL RD,DANBURY,CT,06811,2498,ACTIVE,09/01/2024,08/31/2026,\n"
+            "OLD HOME,5 MAIN ST,HARTFORD,CT,06101,884C,ACTIVE,07/01/2009,06/30/2027,\n"
+            "CLOSED HOME,9 ELM ST,HARTFORD,CT,06101,2400,INACTIVE,01/01/2025,,\n")
+    rows = parse_ct_csv(text)
+    assert [r["licence_no"] for r in rows] == ["2498", "884C"]
+    assert rows[0]["licensee"] == "licence #2498" and rows[0]["licence_date"] == date(2024, 9, 1)
+    rows[0]["ccn"], rows[1]["ccn"] = "075031", "075999"
+    cms = {"075031": ["1 GLEN HILL RD OPCO LLC"], "075999": ["OLD HOME LLC"]}
+    no = lambda url: False
+    changes, snap = detect_changes("CT", rows, {}, cms, {}, no, today=date(2026, 11, 10))
+    assert [c["licence_no"] for c in changes] == ["2498"] and len(snap) == 1
+    assert changes[0]["seller"] == "1 GLEN HILL RD OPCO LLC"
+
+    settled = []
+    assert _ct_fill([dict(changes[0])], {}, {"075031": [date(2024, 9, 15)]}, {}, {}, settled) == []
+    assert len(settled) == 1
+    kept = _ct_fill([dict(changes[0])], {}, {}, {"075031": [date(2024, 9, 1)]},
+                    {"075031": "1 GLEN HILL RD OPCO LLC"}, [])
+    deal = _ct_deal(kept[0])
+    assert deal["acquiring_entity"] == "1 GLEN HILL RD OPCO LLC" and deal["seller_entity"] is None
+    assert deal["acquisition_date"] == "2024-09-01" and "#2498" in deal["title"]
+    unnamed = _ct_deal(_ct_fill([dict(changes[0])], {}, {}, {"075031": [date(2016, 1, 1)]},
+                                {"075031": "1 GLEN HILL RD OPCO LLC"}, [])[0])
+    assert unnamed["acquiring_entity"] is None and unnamed["seller_entity"] == "1 GLEN HILL RD OPCO LLC"
+
+    later = [{**rows[1], "licence_no": "2530", "licensee": "licence #2530", "licence_date": date(2026, 12, 1)}]
+    changes, snap = detect_changes("CT", later, {"075999": "licence #884C"}, cms, {}, no)
+    assert len(changes) == 1 and snap == []
+    changes, snap = detect_changes("CT", rows[1:], {"075999": "licence #884C"}, cms, {}, no)
+    assert changes == [] and len(snap) == 1
