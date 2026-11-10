@@ -11,14 +11,16 @@ a worklist CSV in `Manual/`; fill it in by hand, then ingest it.
 | IN | [bsd.sos.in.gov/PublicUCCSearch](https://bsd.sos.in.gov/PublicUCCSearch), secured party | captcha on every search | `Manual/in_manual_search_worklist.csv` | 47 lenders |
 | MD | [ucc.egov.maryland.gov](https://ucc.egov.maryland.gov/UCCFiling/UCCMainPage.aspx) → File / Search Now → Name Search, Secured Party, Organization, UCC-1 only | captcha on every search | `Manual/md_manual_search_worklist.csv` | 47 lenders |
 | WV | [apps.wv.gov/SOS/UCC](https://apps.wv.gov/SOS/UCC/Search), secured party | reCAPTCHA before every search | `Manual/wv_manual_search_worklist.csv` | 47 lenders |
-| CT | [service.ct.gov lien search](https://service.ct.gov/business/s/onlineenquiry?language=en_US), secured party if offered (not checked yet) | reCAPTCHA on the page | `Manual/ct_manual_search_worklist.csv` | 47 lenders |
-| IA | [filings.sos.iowa.gov UCC](https://filings.sos.iowa.gov/UCCSearch/UCC), secured party if offered (not checked yet) | reCAPTCHA + Cloudflare | `Manual/ia_manual_search_worklist.csv` | 47 lenders |
-| WA | [DOL UCC search](https://fortress.wa.gov/dol/ucc/search.aspx), secured party | reCAPTCHA | `Manual/wa_manual_search_worklist.csv` | 47 lenders |
 | ME | free search at www1.maine.gov (robots.txt) or InforME (paid) | robots.txt / paid | `Manual/me_manual_search_worklist.csv` | 9 debtor names |
-| NH | [quickstart.sos.nh.gov](https://quickstart.sos.nh.gov/), UCC search, secured party if offered (not seen yet: the bot check stopped every visit so far); paper UCC-11 requests are $10 | bot check | `Manual/nh_manual_search_worklist.csv` | 47 lenders |
+| NH | [quickstart.sos.nh.gov](https://quickstart.sos.nh.gov/), UCC search, secured party if offered (not seen yet: the bot check stopped every visit so far); paper UCC-11 requests are $10 | bot check | `Manual/nh_manual_search_worklist.csv` | 13 lenders, priority-ordered (7 first) |
 
 Not worth a manual pass: IL and VT search debtor names only (IL ~700
 names), and AK has ~18 homes.
+
+Dropped 2026-11-10: CT and IA search debtor names only (no secured-party
+search), and WA's captcha made a hand search too slow. All three are
+covered by licence lists instead (`scraper/licence_lists.py`; CT's roster
+is downloaded monthly in Chrome). Their old worklists stay in `Manual/`.
 
 ## Filling in a worklist
 
