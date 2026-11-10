@@ -1528,3 +1528,45 @@ def test_ks_directory_csv_uses_dba_rows_and_owner_change_dates():
     assert [r["licensee"] for r in rows] == ["SALINA HEALTH CARE CENTER LLC", "ACME CARE LLC"]
     assert rows[0]["licence_date"] == date(2026, 7, 10) and rows[0]["facility"] == "Riverstone Post Acute"
     assert rows[1]["licence_date"] is None
+
+
+def test_wa_licence_number_diff_and_letter_licensee():
+    """2026-11-10: WA's locator has no licensee, but a WA licence can't be
+    transferred, so a new licence number is a new licensee. First read is
+    the baseline; a later read with a new number is a record, its buyer
+    from a DSHS letter showing that number (an older number's letter
+    doesn't count); a buyer CHOW already names is left to CHOW."""
+    from scraper.licence_lists import (_wa_fill_buyers, detect_changes, parse_wa_html, to_deal,
+                                       wa_licensee_from_letter_text)
+    page = ('<div id="content_search_results"><table><tr><th colspan="4" class="subhead">ABERDEEN</th></tr><tr>'
+            '<td valign="top"><strong>Grays Harbor Health &amp; Rehabilitation Center</strong><br />License #: 1758\n'
+            '</td>\n<td>\nTeresa Meyers<br />\n920 ANDERSON DRIVE<br />\nABERDEEN, WA 98520<br />\n(360) 532-5122<br />\n'
+            'County: <strong>Grays Harbor</strong><br />\n<a href="http://maps.google.com/x">Directions</a></td></tr>')
+    rows = parse_wa_html(page)
+    assert rows == [{"facility": "Grays Harbor Health & Rehabilitation Center", "licence_no": "1758",
+                     "licensee": "licence #1758", "licence_date": None,
+                     "address": "920 ANDERSON DRIVE", "city": "ABERDEEN"}]
+    letter = "State License #: 1758 \nLicensee Information: AVALON CARE CENTER - ABERDEEN LLC \n\nDear Administrator:"
+    assert wa_licensee_from_letter_text(letter, "1758") == "AVALON CARE CENTER - ABERDEEN LLC"
+    assert wa_licensee_from_letter_text(letter, "1801") is None
+
+    rows[0]["ccn"] = "505016"
+    cms = {"505016": ["920 ANDERSON DRIVE", "GRAYS HARBOR OPCO LLC"]}
+    changes, snapshot = detect_changes("WA", rows, {}, cms, {}, lambda url: False)
+    assert changes == [] and len(snapshot) == 1
+    changes, snapshot = detect_changes("WA", rows, {"505016": "licence #1758"}, cms, {}, lambda url: False)
+    assert changes == [] and len(snapshot) == 1
+
+    new = [{**rows[0], "licence_no": "1801", "licensee": "licence #1801"}]
+    changes, snapshot = detect_changes("WA", new, {"505016": "licence #1758"}, cms, {}, lambda url: False)
+    assert len(changes) == 1 and snapshot == [] and changes[0]["seller"] == "GRAYS HARBOR OPCO LLC"
+    kept = _wa_fill_buyers([dict(changes[0])], {"505016": "licence #1758"}, {}, [],
+                           lookup=lambda n: ("NEW BUYER SNF LLC", "https://x/letter.pdf"))
+    deal = to_deal("WA", kept[0])
+    assert deal["acquiring_entity"] == "NEW BUYER SNF LLC" and deal["seller_entity"] == "GRAYS HARBOR OPCO LLC"
+    assert "#1801 (was #1758)" in deal["raw_text"] and deal["acquisition_date"] is None
+    unnamed = to_deal("WA", _wa_fill_buyers([dict(changes[0])], {}, {}, [], lookup=lambda n: (None, None))[0])
+    assert unnamed["acquiring_entity"] is None and unnamed["operator_names"] == []
+    settled = []
+    assert _wa_fill_buyers([dict(changes[0])], {}, {"505016": ["New Buyer SNF, LLC"]}, settled,
+                           lookup=lambda n: ("NEW BUYER SNF LLC", "u")) == [] and len(settled) == 1

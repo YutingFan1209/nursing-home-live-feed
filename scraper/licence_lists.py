@@ -56,6 +56,14 @@ no such date, so its first run only stores the baseline).
       (CCN) per home. Read from the PDF's text. Homes without a Medicare
       ID (veterans' homes, state facilities) are left out. No change date:
       baseline first.
+  WA  DSHS Nursing Home Locator ("Show All Facilities", fortress.wa.gov):
+      no licensee column, but each home's state licence number. A WA
+      licence isn't transferable (RCW 18.51.050), so a sale issues a new
+      number (they run in order: 1641 in 2021, 1696-1706 Aug 2024,
+      1724-1747 mid-2025). The diff key is the number; the buyer comes
+      from the home's newest DSHS enforcement letter that shows the new
+      number ("Licensee Information: ..."), when one is posted yet. No
+      CCN (matched by address), no date: baseline first.
   MI  LARA statewide licensing search (statelicensing.apps.lara.state.mi.us):
       licensee and the licence's original effective date, but only on each
       home's detail record. Read in the person's own Chrome
@@ -160,6 +168,12 @@ LISTS = {
         "csv_url": "https://publicapps.odh.ohio.gov/eid/reports/EID_Report_Criteria.aspx",
         "label": "Ohio's facility listing with owners (ODH)",
     },
+    "WA": {
+        "source_name": "Washington DSHS Nursing Home Locator",
+        "page_url": "https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx",
+        "csv_url": "https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx",
+        "label": "Washington's nursing home locator (DSHS)",
+    },
     "TX": {
         "source_name": "Texas HHSC TULIP LTC Provider Search",
         "page_url": "https://tulip.hhs.texas.gov/TULIP/s/ltc-provider-search",
@@ -170,7 +184,7 @@ LISTS = {
 # TX reads ~1,281 pages; reread only when the last read is this old
 TX_REREAD_DAYS = 25
 # Lists without a CCN column, matched to CMS by address and name
-NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "KS", "MI", "OH")
+NO_CCN_STATES = ("FL", "NY", "TX", "NC", "KY", "KS", "MI", "OH", "WA")
 # Read in the person's own Chrome (scripts/licence_browser.py), not by main.py
 BROWSER_STATES = ("MI", "OH")
 FL_BASE = "https://quality.healthfinder.fl.gov"
@@ -403,6 +417,76 @@ def parse_oh_csv(text: str) -> list[dict]:
     return [{**h, "licensee": " / ".join(sorted(h["licensee"]))} for h in homes.values()]
 
 
+WA_FORMS_URL = "https://fortress.wa.gov/dshs/adsaapps/lookup/NHForms.aspx?ref=pub&Lic={}"
+_WA_ROW_RE = re.compile(
+    r'<td valign="top"><strong>(.*?)</strong><br />\s*License #:\s*(\d+)\s*</td>\s*<td>(.*?)</td>', re.S)
+_WA_CITY_RE = re.compile(r"^(.+?),\s*WA\s+\d{5}")
+
+
+def parse_wa_html(page: str) -> list[dict]:
+    """Locator results -> rows. The licence number is the diff key, kept in
+    "licensee" as "licence #N" so the snapshot table holds it."""
+    import html
+    rows = []
+    for m in _WA_ROW_RE.finditer(page):
+        lines = [html.unescape(re.sub(r"<[^>]+>", "", x)).strip()
+                 for x in re.sub(r"<a\b.*", "", m.group(3), flags=re.S).split("<br />")]
+        lines = [x for x in lines if x]
+        city_at = next((i for i, x in enumerate(lines) if _WA_CITY_RE.match(x)), None)
+        if not city_at:
+            continue
+        rows.append({"facility": " ".join(html.unescape(m.group(1)).split()), "licence_no": m.group(2),
+                     "licensee": f"licence #{m.group(2)}", "licence_date": None,
+                     "address": lines[city_at - 1], "city": _WA_CITY_RE.match(lines[city_at]).group(1)})
+    return rows
+
+
+def fetch_wa_html() -> str:
+    """The locator is an ASP.NET form: GET for its tokens, then post
+    "Show All Facilities" (criteria 3)."""
+    s = cffi_requests.Session(impersonate="chrome")
+    page = s.get(LISTS["WA"]["page_url"], timeout=60).text
+    form = dict(re.findall(r'name="(__[A-Z]+)" id="__[A-Z]+" value="([^"]*)"', page))
+    form.update({"ctl00$content$criteria": "3", "ctl00$content$searchVal": "", "ctl00$content$submit": "Search"})
+    resp = s.post(LISTS["WA"]["page_url"], data=form, timeout=180)
+    resp.raise_for_status()
+    return resp.text
+
+
+_WA_LICENSEE_RE = re.compile(r"State License #:\s*(\d+)\s*\n?\s*Licensee Information:\s*([^\n]+)")
+
+
+def wa_licensee_from_letter_text(text: str, licence_no: str) -> str | None:
+    m = _WA_LICENSEE_RE.search(text or "")
+    if m and m.group(1) == licence_no:
+        return " ".join(m.group(2).split()) or None
+    return None
+
+
+def wa_licensee(licence_no: str, max_letters: int = 3) -> tuple[str, str] | tuple[None, None]:
+    """(licensee, letter URL) from the home's newest enforcement letters
+    that show this licence number; (None, None) if none is posted yet."""
+    import io as _io
+    from urllib.parse import quote, urljoin
+    from pypdf import PdfReader
+    try:
+        s = cffi_requests.Session(impersonate="chrome")
+        page = s.get(WA_FORMS_URL.format(licence_no), timeout=60).text
+        links = re.findall(r'href="([^"]*/enforcement letters/(\d{4})/[^"]*\.pdf)"', page, re.I)
+        for href, _ in sorted(links, key=lambda x: x[1], reverse=True)[:max_letters]:
+            url = urljoin(WA_FORMS_URL, quote(href.replace("&amp;", "&"), safe="/:"))
+            resp = s.get(url, timeout=60)
+            if resp.status_code != 200 or not resp.content.startswith(b"%PDF"):
+                continue
+            text = PdfReader(_io.BytesIO(resp.content)).pages[0].extract_text() or ""
+            name = wa_licensee_from_letter_text(text, licence_no)
+            if name:
+                return name, url
+    except Exception as e:
+        logger.warning(f"WA licence #{licence_no}: enforcement letters not read: {e}")
+    return None, None
+
+
 def parse_browser_file(data: dict) -> tuple[str, list[dict]]:
     """A saved scripts/{mi,oh}_licence_browser.js result -> (state, rows)."""
     if data.get("state") == "MI":
@@ -432,7 +516,10 @@ def detect_changes(state: str, rows: list[dict], previous: dict, cms_names: dict
         if row["ccn"] not in cms_names:
             continue
         prev = previous.get(row["ccn"])
-        if prev is not None:
+        if prev is not None and state == "WA":  # a licence number: any change is a new licence
+            names = [n for n in cms_names[row["ccn"]] if not _ADDRESS_RE.match(n)]
+            changed, seller = row["licensee"] != prev, (names[0] if names else None)
+        elif prev is not None:
             changed, seller = not same_entity(row["licensee"], prev), prev
         else:
             names = [n for n in cms_names[row["ccn"]] if not _ADDRESS_RE.match(n)]
@@ -448,7 +535,49 @@ def detect_changes(state: str, rows: list[dict], previous: dict, cms_names: dict
     return changes, snapshot
 
 
+def _wa_deal(row: dict) -> dict:
+    cfg, buyer = LISTS["WA"], row.get("buyer")
+    seller = row.get("seller") if row.get("seller") and not (buyer and same_entity(buyer, row["seller"])) else None
+    summary = (
+        f"{cfg['label']} shows {row['facility']} ({row['city'].title()}) under a new state licence, "
+        f"#{row['licence_no']}" + (f" (was #{row['prev_licence_no']})" if row.get("prev_licence_no") else "")
+        + ". A Washington nursing home licence can't be transferred, so a new number means a new "
+          "licensee, usually a sale or new operator"
+        + (f"; DSHS's latest letter to the home names the licensee as {buyer}" if buyer else
+           "; no DSHS letter naming the new licensee is posted yet")
+        + (f"; CMS lists {seller} as the legal owner" if seller else "")
+        + ". The list gives no date or price."
+    )
+    url = record_url("WA", row)
+    return {
+        "url": url,
+        "title": f"[WA licence] {row['facility']}: new licence #{row['licence_no']}"
+                 + (f", licensee {buyer}" if buyer else ""),
+        "published_at": datetime.now(timezone.utc),
+        "raw_text": f"{summary}\n\nSource: {cfg['page_url']}"
+                    + (f"\nLetter: {row['letter_url']}" if row.get("letter_url") else ""),
+        "source_type": "con",
+        "pre_extracted": True,
+        "extraction_model": "con_direct",
+        "_con_id": url.rsplit("#", 1)[1],
+        "acquiring_entity": buyer,
+        "seller_entity": seller,
+        "operator_names": [buyer] if buyer else [],
+        "facility_names": [row["facility"]],
+        "ccns": [row["ccn"]],
+        "states": ["WA"],
+        "facility_count": 1,
+        "deal_value_m": None,
+        "acquisition_date": None,
+        "financing_amount_m": None,
+        "lender": None,
+        "rationale": summary,
+    }
+
+
 def to_deal(state: str, row: dict) -> dict:
+    if state == "WA":
+        return _wa_deal(row)
     cfg = LISTS[state]
     when = f" from {row['licence_date']:%m/%d/%Y}" if row["licence_date"] else ""
     summary = (
@@ -582,6 +711,12 @@ def fetch_licence_list(state: str) -> list[dict] | None:
                 health.source_failed("NE licence list", f"only {len(rows)} homes (layout change?)")
                 return None
             return rows
+        if state == "WA":
+            rows = parse_wa_html(fetch_wa_html())
+            if len(rows) < 150:  # 195 homes on 2026-11-10
+                health.source_failed("WA licence list", f"only {len(rows)} homes (layout change?)")
+                return None
+            return rows
         if state == "KS":
             rows = parse_ks_csv(fetch_ks_csv())
             if len(rows) < 110:  # 147 nursing facilities with a DBA, 11/2026
@@ -611,6 +746,22 @@ def fetch_licence_list(state: str) -> list[dict] | None:
         health.source_failed(f"{state} licence list", f"only {len(rows)} nursing home rows (layout change?)")
         return None
     return rows
+
+
+def _wa_fill_buyers(changes: list[dict], previous: dict, chow_buyers: dict, snapshot: list[dict],
+                    lookup=None) -> list[dict]:
+    """Buyer from DSHS's letters; a buyer CMS's CHOW file already names is
+    left to CHOW (the home's snapshot moves on)."""
+    lookup = lookup or wa_licensee
+    kept = []
+    for row in changes:
+        row["prev_licence_no"] = (previous.get(row["ccn"]) or "").replace("licence #", "") or None
+        row["buyer"], row["letter_url"] = lookup(row["licence_no"])
+        if row["buyer"] and any(same_entity(row["buyer"], b) for b in chow_buyers.get(row["ccn"], ())):
+            snapshot.append(row)
+            continue
+        kept.append(row)
+    return kept
 
 
 def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = None,
@@ -656,6 +807,8 @@ def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = Non
         for ccn, buyer in cur.fetchall():
             chow_buyers.setdefault(ccn, []).append(buyer)
     changes, snapshot = detect_changes(state, rows, previous, cms_names, chow_buyers, is_known)
+    if state == "WA":
+        changes = _wa_fill_buyers(changes, previous, chow_buyers, snapshot)
     if not write_snapshot:
         snapshot = []
     with conn.cursor() as cur:
