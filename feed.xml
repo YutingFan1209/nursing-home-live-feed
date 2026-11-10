@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-10T14:55:33.426421+00:00</updated>
+  <updated>2026-11-10T18:31:24.809577+00:00</updated>
+  <entry>
+    <id>urn:uuid:2baf50ca-6c2b-47a8-bf9a-f9a508a784fe</id>
+    <title>Willow Springs SNF Operations LLC acquires Apple Valley Health &amp; Rehabilitation from WILLOW SPRINGS CARE (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505367-licence-1763"/>
+    <updated>2026-11-10T18:28:56.920453+00:00</updated>
+    <summary>Facilities: Apple Valley Health &amp; Rehabilitation; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:552640d3-84c2-459a-8e27-4064b23d6af7</id>
+    <title>Shuksan SNF Operations LLC acquires Rock Hill Health &amp; Rehabilitation (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505098-licence-1761"/>
+    <updated>2026-11-10T18:28:56.906330+00:00</updated>
+    <summary>Facilities: Rock Hill Health &amp; Rehabilitation; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a8a3c0a7-0906-4c6e-a86f-63a86daeb1bc</id>
+    <title>Kaanapali Beach, LLC acquires Puyallup Post Acute from PUYALLUP CARE CENTER, INC (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505211-licence-1755"/>
+    <updated>2026-11-10T18:28:56.880468+00:00</updated>
+    <summary>Facilities: Puyallup Post Acute; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
   <entry>
     <id>urn:uuid:2ea330cf-0657-435a-bcb3-190bdd5e33eb</id>
     <title>SALINA HEALTH CARE CENTER LLC acquires Riverstone Post Acute from SALINA WINDSOR SNF OPCO, LLC (KS)</title>
@@ -333,26 +354,5 @@
     <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
     <updated>2026-11-06T15:49:46.025826+00:00</updated>
     <summary>Effective 2025-09-30; Facilities: Brighton Post Acute Care; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:2b3b60bb-0d8d-4b2d-90ee-1c13ce54b26f</id>
-    <title>PC 1364 MAIN ST LLC — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:45.795537+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: PC 1364 MAIN ST LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a3f7d521-4c38-4680-9fdf-f3af1c89a7fd</id>
-    <title>FALL RIVER JEWISH HOME — UCC-1 financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:45.483375+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: FALL RIVER JEWISH HOME; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7a790faf-4a8d-434f-9495-ee551b2f55a5</id>
-    <title>OC Reading Center LLC — acquisition financing (MA)</title>
-    <link href="https://corp.sec.state.ma.us/corpweb/UCCSearch/UCCSearch.aspx"/>
-    <updated>2026-11-06T15:49:44.729595+00:00</updated>
-    <summary>Effective 2026-03-31; Facilities: OC Reading Center LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
