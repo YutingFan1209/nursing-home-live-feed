@@ -32,7 +32,7 @@ LIMITS = {
     "new_consumer_loans": 5,      # new filings from a consumer lender, any debtor
     "status_changes": 40,         # confirmed / expected / reported / unconfirmed flips
     "type_changes": 40,           # deal_type changes on existing records
-    "facility_changes": 60,       # CCN changes on existing records
+    "facility_changes": 80,       # CCN changes on existing records (60 until 2026-11-11: 73 new links on unlinked cards, reviewed)
     "acquired_headlines": 0,      # never say "acquired" (2026-10-12 rule)
     "consistency_issues": 0,      # scripts/consistency_check.py, whole site (2026-10-21)
 }
