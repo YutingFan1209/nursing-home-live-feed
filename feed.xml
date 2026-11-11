@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-11T13:51:55.866937+00:00</updated>
+  <updated>2026-11-11T14:57:36.507941+00:00</updated>
+  <entry>
+    <id>urn:uuid:9aa159b3-bf7c-4dff-a099-bccc9043ccd2</id>
+    <title>B.S.M.C. LIMITED LIABILITY COMPANY — UCC-1 financing (CO)</title>
+    <link href="https://www.coloradosos.gov/ucc/pages/home.xhtml"/>
+    <updated>2026-11-11T14:20:03.303504+00:00</updated>
+    <summary>Effective 2026-11-02; Facilities: B.S.M.C. LIMITED LIABILITY COMPANY; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:51181459-bce5-49c9-8440-53b53487e08f</id>
+    <title>S PERRY ST LLC — UCC-1 financing (CO)</title>
+    <link href="https://www.coloradosos.gov/ucc/pages/home.xhtml"/>
+    <updated>2026-11-11T14:20:03.189283+00:00</updated>
+    <summary>Effective 2026-11-02; Facilities: S PERRY ST LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:24f8e86f-febb-42ef-bd23-873e95e9a377</id>
+    <title>BEAR CREEK SENIOR LIVING — UCC-1 financing (CO)</title>
+    <link href="https://www.coloradosos.gov/ucc/pages/home.xhtml"/>
+    <updated>2026-11-11T14:20:03.178375+00:00</updated>
+    <summary>Effective 2026-10-27; Facilities: BEAR CREEK SENIOR LIVING; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:75f38b96-8ff8-490c-9bab-7bfd25d1aebf</id>
     <title>Vantage Point Capital, (via LH purchaser entities, e.g., LH June Street Real Property, ; LH BRCo, ) to acquire Summer Commons and 14 more from North Country Associates, and affiliated real estate/operating sellers (e.g., Sanford Senior Care Development, Russell Park Associates II, Maplecrest Limited Partnership, Schooner Holdings, ) (ME)</title>
@@ -333,26 +354,5 @@
     <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-ignite-medical-resort-el-paso-llc-2024-12-01"/>
     <updated>2026-11-11T13:40:54.634137+00:00</updated>
     <summary>Effective 2024-12-01; Facilities: Ignite Medical Resort El Paso, LLC; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bc09cabd-fbf4-42b1-8e34-106461bdc84f</id>
-    <title>ALLEGIANCE HEALTHCARE HOLDCO LLC acquires GREEN MEADOWS SKILLED NURSING AND REHAB (OH)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-allegiance-healthcare-holdco-llc-2024-12-01"/>
-    <updated>2026-11-11T13:40:54.625948+00:00</updated>
-    <summary>Effective 2024-12-01; Facilities: GREEN MEADOWS SKILLED NURSING AND REHAB; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:07a61cf1-6a31-4963-8143-3d3617108d7e</id>
-    <title>37603 EUCLID AVE OH OWNER LLC acquires Willoughby Post Acute (OH)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-37603-euclid-ave-oh-owner-llc-2024-12-01"/>
-    <updated>2026-11-11T13:40:54.619076+00:00</updated>
-    <summary>Effective 2024-12-01; Facilities: Willoughby Post Acute; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c698e0ed-3adb-4fe3-a807-a4080b4a718b</id>
-    <title>LINICARE HOLDCO LLC acquires EFFINGHAM HEALTHCARE &amp; SENIOR LIVING (IL)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-linicare-holdco-llc-2024-12-01"/>
-    <updated>2026-11-11T13:40:54.611546+00:00</updated>
-    <summary>Effective 2024-12-01; Facilities: EFFINGHAM HEALTHCARE &amp; SENIOR LIVING; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
