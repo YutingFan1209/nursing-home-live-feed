@@ -63,3 +63,13 @@ as automated lender search). Hospital licensees (e.g. Pulaski Memorial
 Hospital for Hickory Creek homes) are dismissed, as on 2026-10-29.
 First run 2026-11-11: 47 lenders, 29 filings since 10/14, 5 already stored,
 1 new nursing home loan (a duplicate of Majestic Care's 9/29 loan, hidden).
+
+## Arizona coverage lag (2026-11-11)
+
+On 2026-11-11 the AZ portal's records ran only through 2026-08-25 (~2.5
+months behind). A search for 10/21–11/11 on the 10 likeliest lenders
+(Capital Funding, HUD, Capital Finance, Oxford, MidCap, CIBC, Lument,
+Greystone, Dwight, Bankwell) showed nothing, which says nothing about filings
+in that window. Next time: check the "current through" date first, and search
+only once it's past 10/21/2026. Capital Funding, HUD and Capital Finance are
+the only lenders with AZ nursing home filings so far (14 by 2026-10-21).
