@@ -14,6 +14,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) { .nh-house { display: none; } }
 input::placeholder { color: var(--color-placeholder); }
 
+/* Source tabs (CMS onwards) sit at the right end of the tab row */
+.src-divider { margin-left: auto; }
 /* Source tabs: one row on phones (inline styles set the desktop size) */
 @media (max-width: 480px) {
   .src-divider { display: none; }
