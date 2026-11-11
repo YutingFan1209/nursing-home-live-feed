@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-11T17:18:53.249356+00:00</updated>
+  <updated>2026-11-11T17:30:41.193278+00:00</updated>
   <entry>
     <id>urn:uuid:4b7e94f3-547a-4e71-987b-dd8ba483c121</id>
     <title>HERBERT PAUL KONSTAM — UCC-1 financing (NY)</title>
@@ -46,13 +46,6 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2486649"/>
     <updated>2026-11-11T16:16:34.292542+00:00</updated>
     <summary>Effective 2016-11-25; Facilities: FM REALTY COMPANY OF NEW YORK, LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:81bf2128-0521-4d9a-b8e8-176810c631c2</id>
-    <title>WOODMERE OPERATING COMPANY LLC — UCC-1 financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=2752404"/>
-    <updated>2026-11-11T16:16:33.080201+00:00</updated>
-    <summary>Effective 2019-09-11; Facilities: WOODMERE OPERATING COMPANY LLC; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:7ba2fcf2-5c44-4aa2-a899-82c890606b15</id>
@@ -354,5 +347,12 @@
     <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-pc-wcm-opco-holdco-llc-2025-02-28"/>
     <updated>2026-11-11T13:40:54.713482+00:00</updated>
     <summary>Effective 2025-02-28; Facilities: Complete Care at Maple Grove LLC; Source: CMS Nursing Home Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:14bfc46a-ecc8-48d6-9fe4-87e122302fcd</id>
+    <title>MIDWEST SNF HOLDINGS LLC acquires MEADOWBROOK REHABILITATION HOSPITAL and 13 more (KS)</title>
+    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-midwest-snf-holdings-llc-2025-02-28"/>
+    <updated>2026-11-11T13:40:54.705620+00:00</updated>
+    <summary>Effective 2025-02-28; Facilities: MEADOWBROOK REHABILITATION HOSPITAL, PINNACLE PARK NURSING &amp; REHAB CENTER, BELLEVILLE HEALTHCARE AND REHABILITATION CENTER, PLAZA WEST HEALTHCARE AND REHAB, THE GARDENS AT ALDERSGATE; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
