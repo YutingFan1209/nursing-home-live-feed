@@ -1686,3 +1686,23 @@ def test_cms_owner_change_screens():
     shared = {("A", d): {"BHNV 2 LLC"}, ("B", d): {"BHNV 2 LLC", "RNR HOLDINGS LLC"}, ("C", d): {"RNR HOLDINGS LLC"}}
     groups = sorted(sorted(k[0] for k in g) for g in c._portfolios(changes, shared))
     assert groups == [["A", "B", "C"], ["D"]]
+
+
+def test_ucc_town_and_sibling_rules_2026_11_11(monkeypatch):
+    import scripts.enrich_ucc_facility_names as e
+    by_state = {("city", "MA", "SOUTHBRIDGE"): [("225001", "SOUTHBRIDGE REHAB")]}
+    assert e._town_candidates("SOUTHBRIDGE SNF OPERATIONS LLC", "MA", by_state) == {("225001", "SOUTHBRIDGE REHAB")}
+    assert not e._town_candidates("HUNTSVILLE ROAD PROPERTY LLC", "MA", by_state)
+    assert e.TOWN_GATE.search("SOUTHBRIDGE SNF OPERATIONS LLC") and not e.TOWN_GATE.search("SOUTHBRIDGE LLC")
+    names = {"395480": "Mahoning Operating LLC", "055555": "San Luis Post Acute", "065555": "High Plains Post Acute"}
+    monkeypatch.setattr(e, "CITY_BY_CCN", {"395480": "LEHIGHTON", "055555": "SAN LUIS OBISPO", "065555": "BRUSH"})
+    # property company beside its operator, same lender and day
+    assert e._portfolio_match("MAHONING REALTY LLC", "PA", {"395480"}, {}, names,
+                              [("Mahoning Operating LLC", {"395480"})]) == \
+        ("ucc_debtor_portfolio_sibling", [("395480", "Mahoning Operating LLC")])
+    # a shared brand word that isn't the home's own name or town doesn't link
+    assert e._portfolio_match("COMPASS HEALTH DBA ELM STREET MANOR", "CA", {"055555"}, {}, names,
+                              [("COMPASS HEALTH SAN LUIS LLC", {"055555"})]) is None
+    # other kinds of housing never link as siblings
+    assert e._portfolio_match("HIGH PLAINS COTTAGES LLC", "CO", {"065555"}, {}, names,
+                              [("HIGH PLAINS POST ACUTE LLC", {"065555"})]) is None

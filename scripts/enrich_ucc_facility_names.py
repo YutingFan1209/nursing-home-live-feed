@@ -237,7 +237,25 @@ def _loose_match(debtor: str, state: str, by_state):
 # CENTER LLC" (Vium, 2025-12-04).
 PORTFOLIO_DAYS = 1
 TOWN_ROLE_WORDS = re.compile(
-    r"\b(SNF|NURSING|OPCO|PROPCO|REALTY|REAL ESTATE|PROPERTY|PROPERTIES|HOLDINGS?)\b|\b\d+\b")
+    r"\b(SNF|NURSING|OPCO|PROPCO|REALTY|REAL ESTATE|PROPERTY|PROPERTIES|HOLDINGS?|"
+    # 2026-11-11: operator and home-type words, so "SOUTHBRIDGE SNF OPERATIONS"
+    # and "SILVER CITY CARE CENTER OPCO" leave just the town. The rest must
+    # still equal a town exactly, so "HUNTSVILLE ROAD PROPERTY" stays unlinked
+    r"OPERATIONS?|OPERATOR|OPERATING|REHABILITATION|REHAB|AND|HEALTH ?CARE|CARE|CENTER|CENTRE|RE)\b|\b\d+\b")
+# Debtor words that start a town rule (the role word shows it's a home's company)
+TOWN_GATE = re.compile(r"\b(SNF|NURSING|OPCO|PROPCO|OPERATIONS?|OPERATOR|REHABILITATION|CARE CENTER)\b")
+# Same-day sibling (2026-11-11): a property company filed beside its home's
+# operator ("MAHONING REALTY LLC" / "Mahoning Operating LLC", same lender,
+# same day) shares a distinctive word with the operator's own company name.
+# Generic words and other kinds of housing ("HIGH PLAINS COTTAGES" beside
+# "HIGH PLAINS POST ACUTE") never count.
+SIBLING_GENERIC = set("""LLC INC LTD THE AND FOR SNF OPCO PROPCO HOLDCO REALTY PROPERTY PROPERTIES HOLDING
+    HOLDINGS OPERATIONS OPERATION OPERATING OPERATOR NURSING REHABILITATION REHAB HEALTH HEALTHCARE CARE
+    CENTER CENTRE MEDICAL SENIOR LIVING POST ACUTE LONG TERM MANOR VILLAGE GARDENS GARDEN PARK HILL HILLS
+    VIEW POINT POINTE LAKE RIVER SPRINGS NORTH SOUTH EAST WEST SAINT COUNTY CITY GROUP PARTNERS FUND
+    INVESTMENTS INVESTMENT ESTATE ESTATES HOME HOMES COMPANY TENANT MASTER LEASE LEASING ASSOCIATES
+    SERVICES SERVICE MANAGEMENT CAPITAL REAL TRUST NATIONAL AMERICAN UNITED COMPLETE BLUFFS""".split())
+NOT_SNF_SIBLING = re.compile(r"\b(ILF|COTTAGES?|ESTATES|VILLAS?|VILLAGE|ASSISTED|INDEPENDENT|APARTMENTS?|MEMORY|ALF|AL|RESIDENCES?)\b")
 # A parent links to every home its companions link to; only these words, as
 # a "... VILLAGE ASSISTED LIVING" or "... COTTAGES" companion is a different
 # kind of home and must stay unlinked
@@ -277,9 +295,21 @@ def _address_match(debtor: str, state: str, by_state):
     return next(iter(hits)) if len(hits) == 1 else None
 
 
-def _portfolio_match(debtor: str, state: str, companion_ccns: set, by_state, names_by_ccn):
+CITY_BY_CCN: dict = {}
+
+
+def _sibling_words(name: str, state: str) -> set:
+    # "COMPLETE CARE AT ARBORS HAVEN": the brand comes before AT
+    name = re.sub(r"^.*?\bAT\b", " ", (name or "").upper())
+    words = re.sub(r"[^A-Z ]", " ", name).split()
+    return {w for w in words if len(w) >= 4 and w not in SIBLING_GENERIC and w != state}
+
+
+def _portfolio_match(debtor: str, state: str, companion_ccns: set, by_state, names_by_ccn,
+                     companions: list | None = None):
     """(method, [(ccn, provider)]) or None. companion_ccns: CCNs linked to
-    filings by the same lender in the same state within PORTFOLIO_DAYS."""
+    filings by the same lender in the same state within PORTFOLIO_DAYS.
+    companions: (debtor name, its CCNs) of those filings, for the sibling rule."""
     if not companion_ccns:
         return None
     loose = {ccn for ccn, _ in _loose_match(debtor, state, by_state)} & companion_ccns
@@ -294,6 +324,23 @@ def _portfolio_match(debtor: str, state: str, companion_ccns: set, by_state, nam
     # SOUTH ROUTE 73 PROPCO HOLDCO LLC") took whichever companion happened to link
     if PARENT_WORDS.search(debtor.upper()) and len(companion_ccns) >= 2:
         return "ucc_debtor_portfolio_parent", sorted((c, names_by_ccn[c]) for c in companion_ccns)
+    words = _sibling_words(debtor, state)
+    if words and companions and not NOT_SNF_SIBLING.search(debtor.upper()):
+        sib = set()
+        for name, ccns in companions:
+            shared = words & _sibling_words(name, state)
+            if len(ccns) != 1 or not shared or NOT_SNF_SIBLING.search(name.upper()):
+                continue
+            # the shared word must be the home's own (its CMS name or town),
+            # not a brand both companies carry ("COMPASS HEALTH DBA ELM STREET
+            # MANOR" beside the same group's San Luis Post Acute)
+            ccn = next(iter(ccns))
+            home = f"{names_by_ccn.get(ccn, '')} {CITY_BY_CCN.get(ccn, '')}".upper()
+            if any(re.search(rf"\b{w}\b", home) for w in shared):
+                sib |= ccns
+        if len(sib) == 1:
+            ccn = sib.pop()
+            return "ucc_debtor_portfolio_sibling", [(ccn, names_by_ccn[ccn])]
     return None
 
 
@@ -385,6 +432,10 @@ def run(dry_run: bool = False, state_filter: str | None = None,
             for deal_id, ccn in cur.fetchall():
                 linked.setdefault(deal_id, set()).add(ccn)
         logger.info(f"Loaded {len(rows)} UCC deals to evaluate")
+        debtor_by_id = {r[0]: r[1] or "" for r in rows}
+        with conn.cursor() as cur:
+            cur.execute("SELECT ccn, provider_city FROM cms_facilities")
+            CITY_BY_CCN.update(cur.fetchall())
         by_lender = {}
         for deal_id, _, _, state, lender, filed in rows:
             if lender and filed and not NOT_PORTFOLIO_LENDER.match(lender.strip().upper()):
@@ -500,7 +551,7 @@ def run(dry_run: bool = False, state_filter: str | None = None,
 
             # Phase 1b: a skilled nursing company named after a town with
             # one home ("CRAIG SNF, LLC" -> the only home in Craig, CO)
-            if re.search(r"\b(SNF|NURSING|OPCO|PROPCO)\b", debtor.upper()):
+            if TOWN_GATE.search(debtor.upper()):
                 town = _town_candidates(debtor, state, by_state)
                 if len(town) == 1:
                     ccn, provider = next(iter(town))
@@ -548,12 +599,14 @@ def run(dry_run: bool = False, state_filter: str | None = None,
         for _ in range(3):
             still = []
             for deal_id, debtor, state, lender, filed in unlinked:
-                companions = set()
+                companions, named = set(), []
                 if lender and filed:
                     for other_filed, other_id in by_lender.get((state, _entity_key(lender)), []):
                         if other_id != deal_id and abs((other_filed - filed).days) <= PORTFOLIO_DAYS:
                             companions |= linked.get(other_id, set())
-                match = _portfolio_match(debtor, state, companions, by_state, names_by_ccn)
+                            if linked.get(other_id):
+                                named.append((debtor_by_id.get(other_id, ""), linked[other_id]))
+                match = _portfolio_match(debtor, state, companions, by_state, names_by_ccn, named)
                 if not match:
                     still.append((deal_id, debtor, state, lender, filed))
                     continue
