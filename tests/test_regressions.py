@@ -1719,3 +1719,21 @@ def test_ucc_distinct_word_rule_2026_11_11():
     assert e._distinct_word_match("Northwest Indiana Holdco LLC", "IN", homes) is None
     assert e._distinct_word_match("227 EVERGREEN ROAD OPCO, LLC", "PA", homes) is None
     assert e._distinct_word_match("225 EVERGREEN ROAD PROPCO, LLC", "PA", homes) == ("395904", "SANATOGA CENTER")
+
+
+def test_ucc_word_rule_tiebreak_2026_11_11(monkeypatch):
+    import scripts.enrich_ucc_facility_names as e
+    monkeypatch.setattr(e, "CITY_BY_CCN", {"1": "TROY", "2": "TROY", "3": "POCAHONTAS", "4": "POCAHONTAS",
+                                            "5": "SAINT PETERSBURG", "6": "BRADENTON"})
+    monkeypatch.setattr(e, "LEGAL_BY_CCN", {"1": "TROY REHABILITATION AND HEALTHCARE CENTER LLC",
+                                             "3": "RANDOLPH SNF OPERATIONS LLC"})
+    homes = {"OH": [("1", "TROY REHABILITATION AND HEALTHCARE CENTER", "TROY REHABILITATION AND HEALTHCARE CENTER TROY", "1"),
+                    ("2", "Vancrest-Upper Valley", "VANCREST UPPER VALLEY TROY", "2")],
+             "AR": [("3", "POCAHONTAS HEALTHCARE AND REHABILITATION CENTER", "POCAHONTAS HEALTHCARE AND REHABILITATION CENTER RANDOLPH SNF OPERATIONS LLC POCAHONTAS", "1"),
+                    ("4", "RANDOLPH COUNTY NURSING HOME", "RANDOLPH COUNTY NURSING HOME POCAHONTAS", "2")],
+             "FL": [("5", "SOUTH HERITAGE HEALTH & REHABILITATION CENTER", "SOUTH HERITAGE HEALTH   REHABILITATION CENTER SAINT PETERSBURG", "1"),
+                    ("6", "HERITAGE PARK HEALTH CENTER BY HARBORVIEW", "HERITAGE PARK HEALTH CENTER BY HARBORVIEW BRADENTON", "2")]}
+    assert e._distinct_word_match("TROY REALTY LLC", "OH", homes) == ("1", "TROY REHABILITATION AND HEALTHCARE CENTER")
+    assert e._distinct_word_match("TROY HOLDCO LLC", "OH", homes) is None          # a parent
+    assert e._distinct_word_match("POCAHONTAS REALTY LLC", "AR", homes) is None    # legal name points elsewhere
+    assert e._distinct_word_match("HERITAGE PARK NURSING CENTER", "FL", homes) is None  # not a town-named company

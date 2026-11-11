@@ -305,6 +305,7 @@ def _address_match(debtor: str, state: str, by_state):
 
 
 CITY_BY_CCN: dict = {}
+LEGAL_BY_CCN: dict = {}
 
 
 def _sibling_words(name: str, state: str) -> set:
@@ -314,7 +315,7 @@ def _sibling_words(name: str, state: str) -> set:
     return {w for w in words if len(w) >= 4 and w not in SIBLING_GENERIC and w != state}
 
 
-def _distinct_word_match(debtor: str, state: str, home_text: dict):
+def _distinct_word_match(debtor: str, state: str, home_text: dict, tiebreak: bool = True):
     """(ccn, provider) of the one home in the state whose CMS name, legal
     name or town holds every distinctive word of the debtor ("WEBSTER
     LANESSA SNF OPERATIONS" -> Lanessa Extended Care, Webster; "HAMMONS
@@ -326,10 +327,40 @@ def _distinct_word_match(debtor: str, state: str, home_text: dict):
     words = _sibling_words(debtor, state) - WORD_RULE_GENERIC
     if not words:
         return None
+    # "CEDAR HAVEN OPERATIONS LLC D/B/A LAKE FOREST HEALTH & REHAB": the
+    # home's name is the part after DBA
+    dba = re.split(r"\bD\s*/?\.?\s*B\s*/?\.?\s*A\b\.?", upper, maxsplit=1)
+    if len(dba) == 2 and _sibling_words(dba[1], state) - WORD_RULE_GENERIC:
+        hit = _distinct_word_match(dba[1], state, home_text, tiebreak=False)
+        if hit:
+            return hit
     number = re.match(r"\s*(\d+)\s", upper)
     hits = [(ccn, name) for ccn, name, text, address in home_text.get(state, [])
             if all(re.search(rf"\b{w}\b", text) for w in words)
             and (not number or (address or "").strip().startswith(number.group(1) + " "))]
+    # only between a few homes, and never for a parent that owns several
+    if tiebreak and 1 < len(hits) <= 3 and not re.search(r"\b(HOLDCO|HOLDINGS?|MASTER|TENANT|INVESTMENTS?|PORTFOLIO)\b", upper):
+        # several homes carry the words (a town with three homes): keep the
+        # one whose own name is made only of the debtor's words ("WINTER PARK
+        # CARE AND REHAB OPCO" -> Winter Park Care and Rehabilitation, not
+        # Winter Haven or Parkview); "AT" isn't stripped here, so "Nightingale
+        # at Arkadelphia" needs NIGHTINGALE in the debtor
+        own = lambda n: {w for w in re.sub(r"[^A-Z ]", " ", n.upper()).split()
+                         if len(w) >= 4 and w not in SIBLING_GENERIC and w != state}
+        # and only for a town-named home company ("GARDNER RE", "TROY REALTY",
+        # "PLYMOUTH SNF OPERATIONS"): its words are the town's, and it carries
+        # a role word ("WILMINGTON REHAB CENTER" and "HERITAGE PARK NURSING
+        # CENTER" picked the wrong home in the 2026-11-11 check)
+        towns = {ccn: set(re.sub(r"[^A-Z ]", " ", (CITY_BY_CCN.get(ccn) or "").upper()).split()) for ccn, _ in hits}
+        role = TOWN_GATE.search(upper) or re.search(r"\b(REALTY|RE|PROPCO)\b", upper)
+        # nor when the home's legal name points elsewhere (Pocahontas
+        # Healthcare is licensed to RANDOLPH SNF OPERATIONS beside Randolph
+        # County Nursing Home); address-named licensees say nothing
+        def legal_ok(ccn, name):
+            legal = (LEGAL_BY_CCN.get(ccn) or "").upper().strip()
+            return not legal or legal[0].isdigit() or own(legal) <= own(name) | words | towns[ccn]
+        hits = [(ccn, name) for ccn, name in hits
+                if role and own(name) and own(name) <= words and words <= towns[ccn] and legal_ok(ccn, name)]
     return hits[0] if len(hits) == 1 else None
 
 
@@ -655,6 +686,12 @@ def run(dry_run: bool = False, state_filter: str | None = None,
         # CMS name, legal name or town. Last, so the stricter rules win
         home_text = {}
         with conn.cursor() as cur:
+            cur.execute("""SELECT ccn, provider_state, provider_name, provider_address,
+                                  upper(coalesce(provider_name, '') || ' ' || coalesce(legal_business_name, '')
+                                        || ' ' || coalesce(provider_city, ''))
+                           FROM cms_facilities""")
+            cur.execute("SELECT ccn, legal_business_name FROM cms_facilities")
+            LEGAL_BY_CCN.update(cur.fetchall())
             cur.execute("""SELECT ccn, provider_state, provider_name, provider_address,
                                   upper(coalesce(provider_name, '') || ' ' || coalesce(legal_business_name, '')
                                         || ' ' || coalesce(provider_city, ''))
