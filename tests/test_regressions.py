@@ -1659,3 +1659,29 @@ def test_ct_licence_number_diff():
     assert len(changes) == 1 and snap == []
     changes, snap = detect_changes("CT", rows[1:], {"075999": "licence #884C"}, cms, {}, no)
     assert changes == [] and len(snap) == 1
+
+
+def test_cms_owner_change_screens():
+    """2026-11-11 backfill screens: same-group sellers, TX public hospitals,
+    trusts/districts, restructures and split same-day portfolios."""
+    from datetime import date
+    import scraper.cms_owner_changes as c
+    assert c._family("OM HOLDCO 7 LLC") == c._family("OM HOLD CO 9 LLC") == "OM"
+    assert c._family("1026 ENTERPRISES II LLC") == c._family("1026 ENTERPRISES II, LLC")
+    assert c._family("MIDWEST SNF HOLDINGS LLC") != c._family("LOVELAND INVESTMENT GROUP LLC")
+    for name in ("FANNIN COUNTY HOSPITAL AUTHORITY", "CANYONLANDS HEALTH CARE SPECIAL SERVICE DIST",
+                 "SMITH FAMILY TRUST", "ESTATE OF JOHN DOE"):
+        assert c._NOT_A_BUYER.search(name), name
+    assert not c._NOT_A_BUYER.search("MUSTANG SNF HOLDINGS LLC")
+    assert c._TX_HOSPITAL.search("OAKBEND MEDICAL CENTER") and c._TX_HOSPITAL.search("GONZALES HEALTHCARE SYSTEMS")
+    start = date(2025, 6, 1)
+    assert c._old_owner_stays(("1", start), {"1": [("OLD CO", date(2020, 1, 1))]})
+    assert not c._old_owner_stays(("1", start), {"1": [("NEW CO", date(2025, 5, 20))]})
+    d = date(2025, 2, 28)
+    changes = {("A", d): [{"owner_name": "MIDWEST SNF HOLDINGS LLC"}],
+               ("B", d): [{"owner_name": "MRCMM LLC"}],
+               ("C", d): [{"owner_name": "MRCMM III LLC"}],
+               ("D", d): [{"owner_name": "OTHER BUYER LLC"}]}
+    shared = {("A", d): {"BHNV 2 LLC"}, ("B", d): {"BHNV 2 LLC", "RNR HOLDINGS LLC"}, ("C", d): {"RNR HOLDINGS LLC"}}
+    groups = sorted(sorted(k[0] for k in g) for g in c._portfolios(changes, shared))
+    assert groups == [["A", "B", "C"], ["D"]]

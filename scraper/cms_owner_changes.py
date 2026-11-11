@@ -16,12 +16,20 @@ How a change becomes a deal:
      5%+ direct, direct or 5%+ indirect ownership role, a start date within
      RECENCY_DAYS, and no earlier association with the same facility (a new
      role for an existing owner isn't a sale).
-  2. Trusts, estates and ESOPs are skipped: on their own they are estate
-     planning or internal transfers, not acquisitions.
+  2. Trusts, estates, ESOPs, foundations and hospital districts are
+     skipped: on their own they are estate planning, internal transfers,
+     gifts or Medicaid financing set-ups (TX hospital districts), not
+     acquisitions.
+  2b. A change is skipped when an owner of the facility from before it
+     (5%+ direct/indirect, organization or person) is still listed: the old
+     owners didn't sell, so it's a restructure or a new parent above them
+     (36 of 117 in the 2026-11-11 backfill: holdco reshuffles, Risant over
+     Cone Health, Sanford over Marshfield, hospital-district set-ups).
   3. Facilities already linked to a tracker deal dated near the change are
      skipped, so news/CHOW deals aren't duplicated.
-  4. Changes are grouped by (buyer, start date), so one buyer taking five
-     homes on the same day is one portfolio deal.
+  4. Changes on the same start date that share any new owner are one
+     portfolio deal (one buyer taking five homes, or MRCMM / MRCMM II /
+     MRCMM III under Midwest SNF Holdings on one day).
   5. The seller is an organization direct owner on that facility that
      dropped out of the latest refresh. This only exists when the change
      fell between two loaded refreshes, so older changes have no seller.
@@ -66,7 +74,18 @@ PRIOR_OWNER_GRACE_DAYS = 30
 DIRECT_ROLES = ("5% OR GREATER DIRECT OWNERSHIP INTEREST", "DIRECT OWNERSHIP INTEREST")
 INDIRECT_ROLES = ("5% OR GREATER INDIRECT OWNERSHIP INTEREST",)
 
-_NOT_A_BUYER = re.compile(r"\bTRUST\b|\bTR\b|\bESTATE OF\b|EMPLOYEE STOCK|\bESOP\b", re.IGNORECASE)
+_NOT_A_BUYER = re.compile(r"\bTRUST\b|\bTR\b|\bESTATES?\b|EMPLOYEE STOCK|\bESOP\b|\bFOUNDATION\b|"
+                         r"HOSPITAL (?:DISTRICT|AUTHORITY|BOARD)|HEALTH ?CARE DISTRICT|SERVICE DIST", re.IGNORECASE)
+# Texas nursing homes taken over by a public hospital are Medicaid supplemental-
+# payment (QIPP) set-ups with the private operator staying on, not sales
+_TX_HOSPITAL = re.compile(r"HOSPITAL|MEDICAL CENTER|HEALTH ?CARE SYSTEMS?\b", re.IGNORECASE)
+_FAMILY_NOISE = re.compile(r"\b(LLC|L L C|INC|CORP|CO|LP|HOLDINGS?|HOLD|HOLDCO|[IVX]+|\d+)\b")
+
+
+def _family(name: str) -> str:
+    """'OM HOLDCO 7 LLC' and 'OM HOLD CO 9 LLC' -> 'OM'."""
+    s = re.sub(r"[^A-Z0-9 ]", " ", (name or "").upper()).replace("HOLDCO", "HOLD CO")
+    return "".join(_FAMILY_NOISE.sub(" ", s).split())
 
 
 def ensure_source(conn) -> str:
@@ -166,6 +185,73 @@ def _tracked_changes(conn, changes: list[tuple[str, date]]) -> set[tuple[str, da
     }
 
 
+def _continuing_owners(conn, ccns: list[str]) -> dict[str, list[tuple[str, date]]]:
+    """ccn -> (owner, start) of every 5%+ direct/indirect owner in the latest refresh."""
+    if not ccns:
+        return {}
+    with conn.cursor() as cur:
+        cur.execute("""
+            WITH latest AS (SELECT MAX(cms_refreshed_at) AS m FROM cms_ownership_records)
+            SELECT o.ccn, o.owner_name, o.ownership_start_date
+            FROM cms_ownership_records o, latest
+            WHERE o.cms_refreshed_at = latest.m AND o.ccn = ANY(%s) AND o.owner_role = ANY(%s)
+              AND o.ownership_start_date IS NOT NULL
+        """, (ccns, list(DIRECT_ROLES + INDIRECT_ROLES)))
+        out: dict[str, list] = defaultdict(list)
+        for ccn, name, start in cur.fetchall():
+            out[ccn].append((name, start))
+        return out
+
+
+def _old_owner_stays(change: tuple[str, date], continuing: dict) -> bool:
+    ccn, start = change
+    return any(s < start - timedelta(days=PRIOR_OWNER_GRACE_DAYS) for _, s in continuing.get(ccn, ()))
+
+
+def _same_day_orgs(conn, keys: list[tuple]) -> dict[tuple, set[str]]:
+    """(ccn, start) -> organization owners in any role starting that day
+    (shared property/holding companies tie a split portfolio together)."""
+    if not keys:
+        return {}
+    with conn.cursor() as cur:
+        cur.execute("""
+            WITH latest AS (SELECT MAX(cms_refreshed_at) AS m FROM cms_ownership_records)
+            SELECT o.ccn, o.ownership_start_date, upper(o.owner_name)
+            FROM cms_ownership_records o, latest
+            WHERE o.cms_refreshed_at = latest.m AND o.owner_type = 'Organization'
+              AND o.ccn = ANY(%s) AND o.ownership_start_date = ANY(%s)
+        """, (sorted({k[0] for k in keys}), sorted({k[1] for k in keys})))
+        out: dict[tuple, set] = defaultdict(set)
+        for ccn, start, name in cur.fetchall():
+            if (ccn, start) in keys and not _NOT_A_BUYER.search(name):
+                out[(ccn, start)].add(name)
+        return out
+
+
+def _portfolios(changes: dict[tuple, list[dict]], extra_owners: dict | None = None) -> list[list[tuple]]:
+    """Facility changes on one start date that share a new owner -> one group."""
+    keys = sorted(changes, key=lambda k: (k[1], k[0]))
+    parent = {k: k for k in keys}
+
+    def find(k):
+        while parent[k] != k:
+            parent[k] = parent[parent[k]]
+            k = parent[k]
+        return k
+    first_by_owner: dict[tuple, tuple] = {}
+    for k in keys:
+        for name in {r["owner_name"].upper() for r in changes[k]} | (extra_owners or {}).get(k, set()):
+            ok = (name, k[1])
+            if ok in first_by_owner:
+                parent[find(k)] = find(first_by_owner[ok])
+            else:
+                first_by_owner[ok] = k
+    groups: dict[tuple, list] = defaultdict(list)
+    for k in keys:
+        groups[find(k)].append(k)
+    return list(groups.values())
+
+
 def _sellers(conn, ccns: list[str]) -> dict[str, str]:
     """Organization direct owners that dropped out of the latest refresh."""
     if not ccns:
@@ -221,27 +307,39 @@ def fetch_cms_owner_change_deals(conn) -> list[dict]:
         logger.info("CMS ownership changes: no new candidate owners")
         return []
 
-    buyers = [r for r in rows if not _NOT_A_BUYER.search(r["owner_name"])]
+    buyers = [r for r in rows if not _NOT_A_BUYER.search(r["owner_name"])
+              and not (r["provider_state"] == "TX" and _TX_HOSPITAL.search(r["owner_name"]))]
 
     by_facility = _group_facility_changes(buyers)
 
     tracked = _tracked_changes(conn, list(by_facility))
     changes = {k: v for k, v in by_facility.items() if k not in tracked}
+    continuing = _continuing_owners(conn, sorted({ccn for ccn, _ in changes}))
+    restructures = [k for k in changes if _old_owner_stays(k, continuing)]
+    changes = {k: v for k, v in changes.items() if k not in restructures}
     sellers = _sellers(conn, sorted({ccn for ccn, _ in changes}))
 
-    # Portfolio grouping: same buyer, same start date
-    portfolios: dict[tuple, list[tuple]] = defaultdict(list)
-    for (ccn, start), facility_rows in changes.items():
-        buyer = _pick_buyer(facility_rows)
-        portfolios[(buyer["owner_name"].upper(), start)].append((ccn, buyer, facility_rows))
-
-    articles = [_build_article(start, members, sellers)
-                for (_, start), members in sorted(portfolios.items(), key=lambda kv: kv[0][1])]
+    articles, internal = [], 0
+    for group in sorted(_portfolios(changes, _same_day_orgs(conn, list(changes))), key=lambda g: g[0][1]):
+        members = [(ccn, _pick_buyer(changes[(ccn, start)]), changes[(ccn, start)]) for ccn, start in group]
+        # the deal's buyer: the owner named on the most facilities, then the usual pick
+        counts = defaultdict(int)
+        for _, b, _ in members:
+            counts[b["owner_name"].upper()] += 1
+        lead = max(counts, key=lambda n: (counts[n], -len(n)))
+        members.sort(key=lambda m: m[1]["owner_name"].upper() != lead)
+        seller_fams = {_family(sellers[c]) for c, _, _ in members if c in sellers}
+        if _family(lead) and _family(lead) in seller_fams:
+            internal += len(members)  # "OM HOLDCO 7" -> "OM HOLD CO 9": same owner group
+            continue
+        articles.append(_build_article(group[0][1], members, sellers))
 
     _mark_seen(conn, rows)
     logger.info(
         f"CMS ownership changes: {len(rows)} new owner rows -> {len(by_facility)} facility changes, "
-        f"{len(tracked)} already tracked, {len(rows) - len(buyers)} trust/estate rows skipped -> "
+        f"{len(tracked)} already tracked, {len(restructures) + internal} restructures (old owner still listed "
+        f"or seller in the buyer's group), "
+        f"{len(rows) - len(buyers)} trust/estate/foundation/district rows skipped -> "
         f"{len(articles)} deals"
     )
     health.attempted("CMS ownership changes", len(articles))
