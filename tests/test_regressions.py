@@ -1706,3 +1706,16 @@ def test_ucc_town_and_sibling_rules_2026_11_11(monkeypatch):
     # other kinds of housing never link as siblings
     assert e._portfolio_match("HIGH PLAINS COTTAGES LLC", "CO", {"065555"}, {}, names,
                               [("HIGH PLAINS POST ACUTE LLC", {"065555"})]) is None
+
+
+def test_ucc_distinct_word_rule_2026_11_11():
+    import scripts.enrich_ucc_facility_names as e
+    homes = {"AR": [("045295", "The Blossoms at Berryville", "THE BLOSSOMS AT BERRYVILLE HAMMONS AVENUE OPERATING LLC BERRYVILLE", "500 Hammons Avenue")],
+             "OR": [("385222", "SAINT HELENS POST ACUTE", "SAINT HELENS POST ACUTE MAVERICKS BEACH LLC SAINT HELENS", "75 SHORE DRIVE")],
+             "IN": [("155787", "INDIANA VETERANS HOME", "INDIANA VETERANS HOME STATE OF INDIANA WEST LAFAYETTE", "3851 N RIVER RD")],
+             "PA": [("395904", "SANATOGA CENTER", "SANATOGA CENTER EVERGREEN ROAD OPERATIONS LLC POTTSTOWN", "225 EVERGREEN ROAD")]}
+    assert e._distinct_word_match("HAMMONS AVENUE PROPERTY LLC", "AR", homes) == ("045295", "The Blossoms at Berryville")
+    assert e._distinct_word_match("SOUTH BEACH MANOR OPCO, LLC", "OR", homes) is None
+    assert e._distinct_word_match("Northwest Indiana Holdco LLC", "IN", homes) is None
+    assert e._distinct_word_match("227 EVERGREEN ROAD OPCO, LLC", "PA", homes) is None
+    assert e._distinct_word_match("225 EVERGREEN ROAD PROPCO, LLC", "PA", homes) == ("395904", "SANATOGA CENTER")

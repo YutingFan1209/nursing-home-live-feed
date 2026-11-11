@@ -255,6 +255,15 @@ SIBLING_GENERIC = set("""LLC INC LTD THE AND FOR SNF OPCO PROPCO HOLDCO REALTY P
     VIEW POINT POINTE LAKE RIVER SPRINGS NORTH SOUTH EAST WEST SAINT COUNTY CITY GROUP PARTNERS FUND
     INVESTMENTS INVESTMENT ESTATE ESTATES HOME HOMES COMPANY TENANT MASTER LEASE LEASING ASSOCIATES
     SERVICES SERVICE MANAGEMENT CAPITAL REAL TRUST NATIONAL AMERICAN UNITED COMPLETE BLUFFS""".split())
+# Too common in home names to identify one home by themselves (2026-11-11
+# audit: "SOUTH BEACH MANOR OPCO" vs Mavericks Beach, "PA 6 INVESTORS" vs
+# Honey Brook Medical Investors, "ISLE ..." vs LECOM at Presque Isle)
+WORD_RULE_GENERIC = {"BEACH", "INVESTORS", "NORTHWEST", "NORTHEAST", "SOUTHWEST", "SOUTHEAST", "ISLE",
+    # state names ("NORTHWEST INDIANA HOLDCO" vs Indiana Veterans Home)
+    *"""ALABAMA ALASKA ARIZONA ARKANSAS CALIFORNIA COLORADO CONNECTICUT DELAWARE FLORIDA GEORGIA HAWAII IDAHO
+    ILLINOIS INDIANA IOWA KANSAS KENTUCKY LOUISIANA MAINE MARYLAND MASSACHUSETTS MICHIGAN MINNESOTA
+    MISSISSIPPI MISSOURI MONTANA NEBRASKA NEVADA OHIO OKLAHOMA OREGON PENNSYLVANIA TENNESSEE TEXAS UTAH
+    VERMONT VIRGINIA WASHINGTON WISCONSIN WYOMING CAROLINA DAKOTA JERSEY MEXICO HAMPSHIRE""".split()}
 NOT_SNF_SIBLING = re.compile(r"\b(ILF|COTTAGES?|ESTATES|VILLAS?|VILLAGE|ASSISTED|INDEPENDENT|APARTMENTS?|MEMORY|ALF|AL|RESIDENCES?)\b")
 # A parent links to every home its companions link to; only these words, as
 # a "... VILLAGE ASSISTED LIVING" or "... COTTAGES" companion is a different
@@ -303,6 +312,25 @@ def _sibling_words(name: str, state: str) -> set:
     name = re.sub(r"^.*?\bAT\b", " ", (name or "").upper())
     words = re.sub(r"[^A-Z ]", " ", name).split()
     return {w for w in words if len(w) >= 4 and w not in SIBLING_GENERIC and w != state}
+
+
+def _distinct_word_match(debtor: str, state: str, home_text: dict):
+    """(ccn, provider) of the one home in the state whose CMS name, legal
+    name or town holds every distinctive word of the debtor ("WEBSTER
+    LANESSA SNF OPERATIONS" -> Lanessa Extended Care, Webster; "HAMMONS
+    AVENUE PROPERTY" -> legal name HAMMONS AVENUE OPERATING LLC). A debtor
+    that starts with a street number must also share it."""
+    upper = (debtor or "").upper()
+    if NOT_SNF_SIBLING.search(upper):
+        return None
+    words = _sibling_words(debtor, state) - WORD_RULE_GENERIC
+    if not words:
+        return None
+    number = re.match(r"\s*(\d+)\s", upper)
+    hits = [(ccn, name) for ccn, name, text, address in home_text.get(state, [])
+            if all(re.search(rf"\b{w}\b", text) for w in words)
+            and (not number or (address or "").strip().startswith(number.group(1) + " "))]
+    return hits[0] if len(hits) == 1 else None
 
 
 def _portfolio_match(debtor: str, state: str, companion_ccns: set, by_state, names_by_ccn,
@@ -623,6 +651,34 @@ def run(dry_run: bool = False, state_filter: str | None = None,
             if len(still) == len(unlinked):
                 break
             unlinked = still
+        # Phase 4 (2026-11-11): every distinctive debtor word in one home's
+        # CMS name, legal name or town. Last, so the stricter rules win
+        home_text = {}
+        with conn.cursor() as cur:
+            cur.execute("""SELECT ccn, provider_state, provider_name, provider_address,
+                                  upper(coalesce(provider_name, '') || ' ' || coalesce(legal_business_name, '')
+                                        || ' ' || coalesce(provider_city, ''))
+                           FROM cms_facilities""")
+            for ccn, st, name, address, text in cur.fetchall():
+                home_text.setdefault(st, []).append((ccn, name, re.sub(r"[^A-Z ]", " ", text), address))
+            # only live records no step has linked (a CHOW link, a person's
+            # approval or the agent's), never a dismissed lien
+            cur.execute("""SELECT id FROM deals WHERE stage = 'dismissed' OR merged_into IS NOT NULL
+                           UNION SELECT deal_id FROM cms_matches""")
+            settled = {r[0] for r in cur.fetchall()}
+        still = []
+        for deal_id, debtor, state, lender, filed in unlinked:
+            hit = None if deal_id in settled or deal_id in linked else _distinct_word_match(debtor, state, home_text)
+            if not hit:
+                still.append((deal_id, debtor, state, lender, filed))
+                continue
+            ccn, provider = hit
+            logger.info(f"  WORD [{state}] {debtor[:45]:<45} → {provider} ({ccn})")
+            if not dry_run:
+                _record_cms_match(conn, deal_id, state, ccn, provider, debtor, "ucc_debtor_words")
+            linked.setdefault(deal_id, set()).add(ccn)
+            updated_cms += 1
+        unlinked = still
         skipped_no_match += len(unlinked)
 
         if not dry_run:
