@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-10T18:51:50.843217+00:00</updated>
+  <updated>2026-11-11T13:26:17.710114+00:00</updated>
+  <entry>
+    <id>urn:uuid:e766e90e-2551-4ec3-87a1-c2dadd3dd91e</id>
+    <title>Kapalua Beach, LLC acquires Bellevue Post Acute from EVERGREEN WASHINGTON HEALTHCARE GREENWOOD, L.L.C. (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505500-licence-1742"/>
+    <updated>2026-11-11T13:26:07.502128+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Bellevue Post Acute; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:edf4a571-d9a1-4086-9db7-f3ca342e8e3c</id>
+    <title>Wailea Beach LLC acquires Sequim Bay Post Acute (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505128-licence-1732"/>
+    <updated>2026-11-11T13:26:07.493617+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Sequim Bay Post Acute; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6ee4aeea-84db-443b-be30-b9b8f407e25b</id>
+    <title>Malibu Beach LLC acquires Port Washington Post Acute (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505240-licence-1730"/>
+    <updated>2026-11-11T13:26:07.474632+00:00</updated>
+    <summary>Effective 2025-06-01; Facilities: Port Washington Post Acute; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
   <entry>
     <id>urn:uuid:ca759b07-e125-41f4-88bf-1f37f3370356</id>
     <title>SB OPCO LLC sells Civita Care Center At Salmon Brook · Buyer not disclosed (CT)</title>
@@ -333,26 +354,5 @@
     <link href="https://health.data.ny.gov/Health/Certificate-of-Need-Applications-Beginning-1974/h343-jwie#project-261291"/>
     <updated>2026-11-09T19:18:14.637532+00:00</updated>
     <summary>Facilities: St Catherine of Siena Nursing and Rehabilitation Care Center; Source: New York DOH Certificate of Need Applications (open data)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c54175aa-bc75-47bc-a166-3afa88dc7d5b</id>
-    <title>Control change at Elcor Nursing and Rehabilitation Center (Elcor Operating Company, LLC) (NY)</title>
-    <link href="https://health.data.ny.gov/Health/Certificate-of-Need-Applications-Beginning-1974/h343-jwie#project-261272"/>
-    <updated>2026-11-09T19:18:14.632331+00:00</updated>
-    <summary>Facilities: Elcor Nursing and Rehabilitation Center; Source: New York DOH Certificate of Need Applications (open data)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9414eeb5-5743-424a-870d-62c534c8e3f0</id>
-    <title>Chap Home Acquisition I LLC to acquire Chapin Home for the Aging from Chapin Home for the Aging (NY)</title>
-    <link href="https://health.data.ny.gov/Health/Certificate-of-Need-Applications-Beginning-1974/h343-jwie#project-261273"/>
-    <updated>2026-11-09T19:18:14.621384+00:00</updated>
-    <summary>Facilities: Chapin Home for the Aging; Source: New York DOH Certificate of Need Applications (open data)</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:ed17dd1b-8682-424e-ad37-46e562b47d94</id>
-    <title>Washington Heights Acquisition I LLC to acquire Isabella Geriatric Center from Isabella Geriatric Center Inc (NY)</title>
-    <link href="https://health.data.ny.gov/Health/Certificate-of-Need-Applications-Beginning-1974/h343-jwie#project-261211"/>
-    <updated>2026-11-09T19:18:14.610607+00:00</updated>
-    <summary>Facilities: Isabella Geriatric Center; Source: New York DOH Certificate of Need Applications (open data)</summary>
   </entry>
 </feed>
