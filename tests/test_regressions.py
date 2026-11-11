@@ -757,7 +757,8 @@ def test_ny_individual_filter_keeps_recent_commercial_drops_old_and_consumer():
     assert keep_individual_filing(f("", None), today)
     assert not keep_individual_filing(f("CIBC BANK USA", date(2023, 3, 31)), today)
     for lender in ("SHEFFIELD FINANCIAL, A DIVISION OF TRUIST BANK", "GOODLEAP,LLC", "LOANPAL, LLC",
-                   "CAPITAL RESORTS GROUP LLC", "AMERICU CREDOIT UNION", "DEERE & COMPANY"):
+                   "CAPITAL RESORTS GROUP LLC", "AMERICU CREDOIT UNION", "DEERE & COMPANY",
+                   "IGS USB V, LLC", "INTERMEX WIRE TRANSFER LLC II"):
         assert not keep_individual_filing(f(lender, date(2026, 5, 1)), today), lender
 
 

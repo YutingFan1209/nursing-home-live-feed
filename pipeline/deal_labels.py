@@ -87,7 +87,9 @@ CONSUMER_LENDER_RE = re.compile(
     r"social security administration|consumer finance|"
     # audit 2026-10-21: older personal and farm-equipment lenders
     r"american general finan|springleaf|citifinancial|household finance|beneficial (finance|mortgage)|"
-    r"new holland credit|avco financial|associates financial|ubs bank usa", re.I)
+    r"new holland credit|avco financial|associates financial|ubs bank usa|"
+    # NY run 2026-11-11: home energy finance, money transfer
+    r"\bIGS USB\b|intermex", re.I)
 
 # Audit 2026-10-21 noise: true filings that aren't nursing home deals.
 # A person's filing older than NY's two-year search window, from a lender
