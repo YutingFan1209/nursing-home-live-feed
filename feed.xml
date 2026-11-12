@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-11T17:30:41.193278+00:00</updated>
+  <updated>2026-11-12T14:51:10.542990+00:00</updated>
+  <entry>
+    <id>urn:uuid:2bfa8d90-eaef-4395-b7f1-d388fe78cb7d</id>
+    <title>Bay Shore OPCO LLC to acquire Sunrise Manor Center for Nursing and Rehabilitation from Sunrise Manor Nursing Home, Inc (NY)</title>
+    <link href="https://health.data.ny.gov/Health/Certificate-of-Need-Applications-Beginning-1974/h343-jwie#project-262177"/>
+    <updated>2026-11-12T14:45:45.443502+00:00</updated>
+    <summary>Facilities: Sunrise Manor Center for Nursing and Rehabilitation; Source: New York DOH Certificate of Need Applications (open data)</summary>
+  </entry>
   <entry>
     <id>urn:uuid:4b7e94f3-547a-4e71-987b-dd8ba483c121</id>
     <title>HERBERT PAUL KONSTAM — UCC-1 financing (NY)</title>
@@ -347,12 +354,5 @@
     <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-pc-wcm-opco-holdco-llc-2025-02-28"/>
     <updated>2026-11-11T13:40:54.713482+00:00</updated>
     <summary>Effective 2025-02-28; Facilities: Complete Care at Maple Grove LLC; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:14bfc46a-ecc8-48d6-9fe4-87e122302fcd</id>
-    <title>MIDWEST SNF HOLDINGS LLC acquires MEADOWBROOK REHABILITATION HOSPITAL and 13 more (KS)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-midwest-snf-holdings-llc-2025-02-28"/>
-    <updated>2026-11-11T13:40:54.705620+00:00</updated>
-    <summary>Effective 2025-02-28; Facilities: MEADOWBROOK REHABILITATION HOSPITAL, PINNACLE PARK NURSING &amp; REHAB CENTER, BELLEVILLE HEALTHCARE AND REHABILITATION CENTER, PLAZA WEST HEALTHCARE AND REHAB, THE GARDENS AT ALDERSGATE; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
