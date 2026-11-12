@@ -206,11 +206,38 @@ FACILITY_TYPES = ("skilled_nursing", "assisted_living", "senior_living", "hospit
 # What the site shows; the rest is left out of the export
 SITE_FACILITY_TYPES = ("skilled_nursing", "assisted_living")
 
+# News that says only "senior living" / "seniors housing" about operators or
+# homes that are assisted living / memory care (hand review 2026-11-12, from
+# the operator's known focus or the article's own details)
+FACILITY_TYPE_OVERRIDES = {
+    "0fc4c0a7-73db-4a21-aea7-f07c0fd542c4": "assisted_living",  # Agemark, River's Edge (CA): AL/MC operator
+    "6966c1a2-180e-4a0c-9d02-6dcee4aee375": "assisted_living",  # Kaplan, Cottages of Perry Hall (MD): AL/MC
+    "62c65322-678c-4232-b08e-a306d4c37a17": "assisted_living",  # Brookdale buying 30 leased communities: mainly AL/MC
+    "8de7de7d-e6e7-47c7-b15f-1aacf66f6c7a": "assisted_living",  # KindCare, Stonehenge (GA): AL/MC operator
+    "d4b10d9a-b072-4dcb-894a-e74f129862dc": "assisted_living",  # Sonida, 7 communities: mainly AL/MC
+    "e1066357-6030-455b-89bf-b07ea86c4da1": "assisted_living",  # Cavalier, Riverchase (AL): AL/MC operator
+    "6bb93ac0-c7e5-464b-9235-f2ad0e68bd79": "assisted_living",  # western NY portfolio, 298 *licensed* beds (adult homes/ALRs)
+    # LTC SHOP buys run by AL/MC operators
+    "c00e1a0e-8220-42e4-ba8c-478d22249a36": "assisted_living",  # Residences at Wellpoint (AL), Charter
+    "c6a6b844-151c-495c-a8e9-1de0f2c1431f": "assisted_living",  # Phoenix, MorningStar
+    "950716c0-d366-4c4e-9df9-d44a3273bea4": "assisted_living",  # Freeburg IL, Arrow
+    "c25314db-de2d-4106-bfff-034bea48a01a": "assisted_living",  # MN x4, Lifespark
+    "b318f2c4-2cec-4e83-88d1-c16a5b2eb1d9": "assisted_living",  # GA x3, Arbor Company
+    "1f79ed56-37eb-4f5b-a49f-3dc74a7a745e": "assisted_living",  # Stevens Point WI, Health Dimensions
+    "10d9acc7-dcd7-4d4e-9f40-c4e091d929a0": "assisted_living",  # MN x2, Lifespark
+    "61a61202-16ec-4c20-b5fd-c522b2c5cbc0": "assisted_living",  # CO/NM, MorningStar
+    "07982910-ee4c-4cc0-9ba8-c3bb6788df10": "assisted_living",  # Land O'Lakes FL, Charter
+    "483f0bdf-f365-4072-8b30-4092f64ac9b8": "assisted_living",  # VA/MD, IntegraCare
+    "b76eba27-05f3-406e-99c2-7df5eb577010": "assisted_living",  # Owens Cross Roads AL, Charter
+}
+
 
 def facility_type(d: dict) -> str:
     """skilled_nursing covers any record with a nursing home in it (a CCRC's
     SNF beds, a hospital campus with an SNF). CMS, UCC and state CON records
     are all nursing-facility sources; news is read from its own words."""
+    if d.get("id") in FACILITY_TYPE_OVERRIDES:
+        return FACILITY_TYPE_OVERRIDES[d["id"]]
     if d.get("source_type") in ("chow", "ucc", "con"):
         return "skilled_nursing"
     if d.get("ccns"):
