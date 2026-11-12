@@ -603,7 +603,9 @@ function cardColumns(d, facilities, cmsThrough) {
   // 4. Role-labeled date
   const p = primaryDate(d);
   cols.push({ label: p.role, value: fmtFull(p.date) || "Not reported", missing: !p.date,
-    note: closePassed(d) ? passedNote(d, p, cmsThrough) : d.found_date ? `Found ${fmtFull(d.found_date)}` : null });
+    note: closePassed(d) ? passedNote(d, p, cmsThrough)
+      : d.assumed_closed ? `Assumed closed · not yet in CMS records`
+      : d.found_date ? `Found ${fmtFull(d.found_date)}` : null });
   return cols;
 }
 
@@ -1350,9 +1352,9 @@ export default function App() {
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
         // Pending deals (filed or reported before closing) pinned on top, to
-        // show what the tracker catches ahead of the sale, until their
-        // expected close date passes; then newest first by the date each
-        // card shows (primaryDate)
+        // show what the tracker catches ahead of the sale; once the expected
+        // close passes the export marks them closed (assumed_closed) and they
+        // drop into date order. Then newest first by the date each card shows
         const pendingFirst = (d) => (displayStatus(d) === "expected" && !closePassed(d) ? 0 : 1);
         const deals = (data.deals || data || []).map(withDisplayCase)
           .map(d => ({ ...d, _date: primaryDate(d).date || d.created_at?.slice(0, 10) || "" }))

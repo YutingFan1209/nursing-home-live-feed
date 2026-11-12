@@ -91,6 +91,9 @@ export function statusMeaning(d) {
       ? "Filed with the state before closing. This is not a completed ownership transfer."
       : "Reported as pending. This is not a completed ownership transfer.";
   }
+  if (d.assumed_closed) {
+    return "Filed or reported before closing. Its expected close date has passed, so it's treated as closed; CMS records don't show the new owner yet.";
+  }
   if (s === "unconfirmed") {
     return "Filed or reported as pending over 6 months ago, with no record of completion. Don't treat it as completed.";
   }

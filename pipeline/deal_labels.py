@@ -494,6 +494,22 @@ def same_party(a: str | None, b: str | None) -> bool:
 
 
 STALE_AFTER = timedelta(days=183)
+# A pending deal is assumed closed once its expected close date passes
+# (user rule 2026-11-12). State lists that give only a filing / received /
+# notice date have no close date: those count as closed 90 days after that
+# date, the usual notice period before a transfer.
+CLOSE_DATE_SOURCES = ("Alabama", "California OHCA", "Illinois", "Maine", "Maryland", "Philadelphia")
+FILING_TO_CLOSE = timedelta(days=90)
+
+
+def assumed_close(d: dict) -> tuple[date | None, bool]:
+    """(date after which a pending deal counts as closed, whether that's the
+    source's own expected close date)"""
+    when = _day(d.get("acquisition_date"))
+    if d.get("source_type") != "con" or (d.get("source_name") or "").startswith(CLOSE_DATE_SOURCES):
+        return when, True
+    base = when or _day(d.get("published_at")) or _day(d.get("created_at"))
+    return (base + FILING_TO_CLOSE if base else None), False
 
 
 def status(d: dict, event: dict | None, today: date | None = None) -> dict:
@@ -523,6 +539,12 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
     pending_words = _PENDING_RE.search(d.get("summary") or "") and not _DONE_RE.search(d.get("summary") or "")
     if src == "con" or future or pending_words:
         what = "State filing made before closing" if src == "con" else "Reported as pending"
+        close, stated = assumed_close(d)
+        if close and close < today:
+            why = (f"expected to close {close.isoformat()}, a date that has passed" if stated
+                   else f"filed over {FILING_TO_CLOSE.days} days ago (counted as closed from {close.isoformat()})")
+            return {"status": "reported", "assumed_closed": True, "status_detail":
+                    f"Reported: {what.lower()}; {why}, so it's treated as closed; not yet confirmed by CMS"}
         # Still pending long after the filing or report: don't keep calling
         # it expected (ArchCare at Eger, filed December 2025)
         # no deal date: measure from the source's publication date, not the

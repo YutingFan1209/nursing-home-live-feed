@@ -4,7 +4,7 @@ exported 2026-10-12; each row's `_before_site` is what the site showed
 before pipeline/deal_labels.py).
 """
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -134,7 +134,8 @@ def test_eger_is_a_control_change_with_a_neutral_headline():
 def test_maine_acquisition_of_control_is_still_a_sale():
     d = labeled("genesis_me_con")
     assert d["deal_type"] == "ownership_change"
-    assert text(d["headline"]).startswith("101 W State Street Holdings LLC to acquire")
+    # its expected close has passed, so it's assumed closed (2026-11-12)
+    assert text(d["headline"]).startswith("101 W State Street Holdings LLC acquires")
 
 
 def test_control_change_rule_is_not_state_specific():
@@ -307,15 +308,23 @@ def test_truncated_cms_name_still_matches_exactly():
 
 # ── Overdue pending records ───────────────────────────────────────────────
 
-def test_long_pending_filing_turns_unconfirmed():
+def test_pending_deal_past_its_close_date_is_assumed_closed():
+    # user rule 2026-11-12: a passed expected close date means it's done
     d = labeled("eger")  # PHHPC approval 2025-12-04, ten months before TODAY
-    assert d["status"] == "unconfirmed"
-    assert "over 6 months ago" in d["status_detail"] and "new owner" not in d["status_detail"]
-    il = {"source_type": "con", "deal_type": "ownership_change", "acquiring_entity": "Freeport Nursing",
+    assert d["status"] == "reported" and d["assumed_closed"]
+    assert "treated as closed" in d["status_detail"]
+    il = {"source_type": "con", "source_name": "Illinois HFSRB Change of Ownership Projects",
+          "deal_type": "ownership_change", "acquiring_entity": "Freeport Nursing",
           "seller_entity": "Stephenson County", "facility_count": 1, "states": ["IL"],
           "facility_names": ["Stephenson County Nursing Center"], "acquisition_date": "2025-09-01"}
     out = label(il, None, il["facility_names"], today=TODAY)
-    assert out["status"] == "unconfirmed" and "to acquire" in text(out["headline"])
+    assert out["status"] == "reported" and "a date that has passed" in out["status_detail"]
+    # a filing-date-only list counts 90 days from the filing
+    ok = {**il, "source_name": "Oklahoma OSDH Certificate of Need Notice",
+          "acquisition_date": (TODAY - timedelta(days=30)).isoformat()}
+    assert label(ok, None, il["facility_names"], today=TODAY)["status"] == "expected"
+    ok["acquisition_date"] = (TODAY - timedelta(days=100)).isoformat()
+    assert label(ok, None, il["facility_names"], today=TODAY)["status"] == "reported"
     recent = labeled("rhinebeck")  # reported pending, found 2026
     assert recent["status"] == "expected"
 
@@ -492,9 +501,9 @@ def test_licence_and_tn_records_are_after_closing_not_pending():
     tn = {**d, "source_url": "https://www.tn.gov/hfc/commission-meeting-information/monthly-meeting-information.html"
                              "#chow-iris-cove-20251210"}
     assert "ratified" in status(tn, None, TODAY)["status_detail"]
-    # Montana's notices come before closing and still age into Unconfirmed
+    # Montana's notices come before closing; well over 90 days on, assumed closed
     mt = {**d, "source_url": "https://dphhs.mt.gov/x#chow-ivy-20250626", "acquisition_date": "2025-06-26"}
-    assert status(mt, None, TODAY)["status"] == "unconfirmed"
+    assert status(mt, None, TODAY)["status"] == "reported"
 
 
 def test_tn_ratification_groups_with_chow_despite_holding_company_name():
