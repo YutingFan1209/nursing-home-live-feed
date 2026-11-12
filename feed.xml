@@ -4,7 +4,21 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-12T14:51:10.542990+00:00</updated>
+  <updated>2026-11-12T15:16:44.998129+00:00</updated>
+  <entry>
+    <id>urn:uuid:4f276c83-b89b-4ea1-8165-d156090cbb51</id>
+    <title>SABER PA HOLDINGS, LLC — UCC-1 financing (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-11-12T15:16:24.004749+00:00</updated>
+    <summary>Effective 2024-09-04; Facilities: SABER PA HOLDINGS, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fda7580e-6ae7-467d-b570-d729d7551894</id>
+    <title>BSD CARE AT AJ, LLC — UCC-1 financing (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-11-12T15:16:22.189617+00:00</updated>
+    <summary>Effective 2026-11-09; Facilities: BSD CARE AT AJ, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:2bfa8d90-eaef-4395-b7f1-d388fe78cb7d</id>
     <title>Bay Shore OPCO LLC to acquire Sunrise Manor Center for Nursing and Rehabilitation from Sunrise Manor Nursing Home, Inc (NY)</title>
@@ -340,19 +354,5 @@
     <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-crest-crjs-holdco-llc-2025-03-14"/>
     <updated>2026-11-11T13:40:54.727837+00:00</updated>
     <summary>Effective 2025-03-14; Facilities: JACKSONVILLE SKLD NUR &amp; REHAB, CEDAR RIDGE HEALTH &amp; REHAB CTR; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:67a42fb2-ee26-488d-808c-c7ce4a188bfc</id>
-    <title>VILLAGE GREEN HOLDCO LLC acquires VILLAGE GREEN REHABILITATION AND HEALTHCARE CENTER (OH)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-village-green-holdco-llc-2025-03-01"/>
-    <updated>2026-11-11T13:40:54.720456+00:00</updated>
-    <summary>Effective 2025-03-01; Facilities: VILLAGE GREEN REHABILITATION AND HEALTHCARE CENTER; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e4eea3b5-0350-490a-99b6-18e47582c822</id>
-    <title>PC WCM OPCO HOLDCO LLC acquires Complete Care at Maple Grove LLC (WI)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-pc-wcm-opco-holdco-llc-2025-02-28"/>
-    <updated>2026-11-11T13:40:54.713482+00:00</updated>
-    <summary>Effective 2025-02-28; Facilities: Complete Care at Maple Grove LLC; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
