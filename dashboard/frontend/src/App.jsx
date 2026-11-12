@@ -1349,10 +1349,13 @@ export default function App() {
     fetch(DATA_URL + "?t=" + Date.now())
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
-        // Newest first by the date each card shows (primaryDate)
+        // Pending deals (filed or reported before closing) first, to show
+        // what the tracker catches ahead of the sale; then newest first by
+        // the date each card shows (primaryDate)
+        const pendingFirst = (d) => (displayStatus(d) === "expected" ? 0 : 1);
         const deals = (data.deals || data || []).map(withDisplayCase)
           .map(d => ({ ...d, _date: primaryDate(d).date || d.created_at?.slice(0, 10) || "" }))
-          .sort((a, b) => b._date.localeCompare(a._date));
+          .sort((a, b) => pendingFirst(a) - pendingFirst(b) || b._date.localeCompare(a._date));
         setAllDeals(deals);
         setSearchForms(data.ucc_search_forms || {});
         setFreshness(data.freshness || {});
