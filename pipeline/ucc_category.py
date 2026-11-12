@@ -36,6 +36,16 @@ from datetime import date, timedelta
 
 ACQUISITION_WINDOW = timedelta(days=183)
 
+# Hand-set categories for a kept row, by deal id, when the rules above read
+# a card wrong. Applied after collapse_repeats, so it wins over the first
+# filing's category.
+TYPE_OVERRIDES = {
+    # Lake Merritt Healthcare Center (CA): Omega landlord (Oakland Nursing
+    # Homes) re-filed 2026-11-05 on its 2016 lease; the 2016 category
+    # (acquisition financing) carried over. User 2026-11-12: refinancing.
+    "0948fbfb-a079-44fc-9d5e-29aa30c8dde0": "refinancing",
+}
+
 FINANCING_TYPES = ("financing", "acquisition_financing", "refinancing", "operations_transfer")
 
 # A secured party that runs nursing homes, not one that lends to them
@@ -209,4 +219,9 @@ def collapse_repeats(deals: list[dict]) -> list[dict]:
                 keep["ucc_collateral_source"] = donor.get("ucc_collateral_source")
                 keep["ucc_collateral_from"] = donor.get("ucc_filing_number")
         drop.update(id(d) for d in group[:-1])
-    return [d for d in deals if id(d) not in drop]
+    kept = [d for d in deals if id(d) not in drop]
+    for d in kept:
+        if d.get("id") in TYPE_OVERRIDES:
+            d["deal_type"] = TYPE_OVERRIDES[d["id"]]
+            d["ucc_category_basis"] = "manual"
+    return kept
