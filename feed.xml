@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-12T15:16:44.998129+00:00</updated>
+  <updated>2026-11-12T15:19:30.384151+00:00</updated>
+  <entry>
+    <id>urn:uuid:a51fc206-ec07-45af-ad85-692962db5917</id>
+    <title>REDLANDS REHAB AND HEALTHCARE SYSTEMS — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-11-12T15:18:53.812544+00:00</updated>
+    <summary>Effective 2026-11-06; Facilities: REDLANDS REHAB AND HEALTHCARE SYSTEMS; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0948fbfb-a079-44fc-9d5e-29aa30c8dde0</id>
+    <title>LAKE MERRITT HEALTHCARE CENTER, LLC — acquisition financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-11-12T15:18:53.795856+00:00</updated>
+    <summary>Effective 2026-11-05; Facilities: LAKE MERRITT HEALTHCARE CENTER, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:72013a98-ebde-4e15-944c-678301193d9c</id>
+    <title>INGLEWOOD POST ACUTE CARE LLC — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-11-12T15:18:50.048303+00:00</updated>
+    <summary>Effective 2026-11-03; Facilities: INGLEWOOD POST ACUTE CARE LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5cc9eb5b-7972-4a66-980b-b442e4f051c5</id>
+    <title>OCEAN PARK HEALTHCARE, LLC — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-11-12T15:18:49.480318+00:00</updated>
+    <summary>Effective 2026-11-03; Facilities: OCEAN PARK HEALTHCARE, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:4f276c83-b89b-4ea1-8165-d156090cbb51</id>
     <title>SABER PA HOLDINGS, LLC — UCC-1 financing (PA)</title>
@@ -326,33 +354,5 @@
     <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-rmc-enterprises-llc-2025-04-01"/>
     <updated>2026-11-11T13:40:54.755914+00:00</updated>
     <summary>Effective 2025-04-01; Facilities: Sunterra Springs Riverview, SUNTERRA SPRINGS INDEPENDENCE, SUNTERRA SPRINGS SPRINGFIELD, SUNTERRA SPRINGS DARDENNE PRAIRIE; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:acc22d52-b323-4d6e-bcba-5456b6260399</id>
-    <title>3B HOLDINGS, LLC acquires Katherine's Place at Wedington (AR)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-3b-holdings-llc-2025-04-01"/>
-    <updated>2026-11-11T13:40:54.749115+00:00</updated>
-    <summary>Effective 2025-04-01; Facilities: Katherine's Place at Wedington; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:cdb4f2ec-367f-4dc9-86a0-c01954511081</id>
-    <title>LIBERTY LONG TERM CARE LLC acquires Elizabethtown Healthcare &amp; Rehab Center (NC)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-liberty-long-term-care-llc-2025-03-31"/>
-    <updated>2026-11-11T13:40:54.742209+00:00</updated>
-    <summary>Effective 2025-03-31; Facilities: Elizabethtown Healthcare &amp; Rehab Center; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d99a1607-3c71-498e-af55-603b4fb2e7d0</id>
-    <title>LIBERTY LONG TERM CARE LLC acquires Briar Creek Health Center (NC)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-liberty-long-term-care-llc-2025-03-24"/>
-    <updated>2026-11-11T13:40:54.734644+00:00</updated>
-    <summary>Effective 2025-03-24; Facilities: Briar Creek Health Center; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b46ce6fb-e663-4efd-81e3-3aa69fdb75b7</id>
-    <title>CREST CRJS HOLDCO LLC acquires JACKSONVILLE SKLD NUR &amp; REHAB and 1 more (IL)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-crest-crjs-holdco-llc-2025-03-14"/>
-    <updated>2026-11-11T13:40:54.727837+00:00</updated>
-    <summary>Effective 2025-03-14; Facilities: JACKSONVILLE SKLD NUR &amp; REHAB, CEDAR RIDGE HEALTH &amp; REHAB CTR; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
