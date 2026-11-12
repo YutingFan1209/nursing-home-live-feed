@@ -7,7 +7,7 @@
 const GOATCOUNTER_CODE = "hefti-feed";
 
 // Filters whose values are fixed choices (a state, a source type), safe to send
-const VALUE_FILTERS = ["state", "sourceType", "ccnStatus", "tab", "refi", "liens", "scope", "since"];
+const VALUE_FILTERS = ["state", "sourceType", "ccnStatus", "tab", "refi", "liens", "since"];
 
 // Sent as GoatCounter's counting pixel with only these fields. Their count.js
 // isn't used: it adds the page's query string to every hit, which carries

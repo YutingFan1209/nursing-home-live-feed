@@ -190,12 +190,21 @@ _SNF_RE = re.compile(
     r"skilled nursing|\bSNFs?\b|nursing (home|facilit|center|centre|cent|and rehab|& rehab)"
     r"|post-acute|long-term care|\bRHCF\b|rehabilitation (center|centre|and nursing|& nursing)"
     r"|health (care|and rehabilitation) center|\bcare center\b|convalescent|nursing\b", re.I)
+# Assisted living and memory care are in scope alongside nursing homes
+# (user decision 2026-11-12); independent living and other senior housing
+# are not
+_AL_RE = re.compile(
+    r"assisted living|memory care|\bALFs?\b|personal care home|supportive living|residential care"
+    # AL / memory care operators (pipeline/al_mc_scope.AL_MC_ONLY_OPERATORS)
+    r"|Sunrise Senior Living|Benchmark Senior Living|Avanti Senior Living", re.I)
 _SENIOR_RE = re.compile(
-    r"assisted living|memory care|independent living|senior living|senior housing|seniors housing"
-    r"|\bCCRC\b|continuing care retirement|life plan|retirement communit|supportive living|residential care|\bunits?\b", re.I)
+    r"independent living|senior living|senior housing|seniors housing"
+    r"|\bCCRC\b|continuing care retirement|life plan|retirement communit|\bunits?\b", re.I)
 _HOSPITAL_RE = re.compile(r"\bhospital\b|\bmedical center\b", re.I)
 
-FACILITY_TYPES = ("skilled_nursing", "senior_living", "hospital", "non_us", "unknown")
+FACILITY_TYPES = ("skilled_nursing", "assisted_living", "senior_living", "hospital", "non_us", "unknown")
+# What the site shows; the rest is left out of the export
+SITE_FACILITY_TYPES = ("skilled_nursing", "assisted_living")
 
 
 def facility_type(d: dict) -> str:
@@ -212,6 +221,8 @@ def facility_type(d: dict) -> str:
     text = " ".join([_text(d), *(d.get("facility_names") or [])])
     if _SNF_RE.search(text):
         return "skilled_nursing"
+    if _AL_RE.search(text):
+        return "assisted_living"
     if _SENIOR_RE.search(text):
         return "senior_living"
     if _HOSPITAL_RE.search(text):

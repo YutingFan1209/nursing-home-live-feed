@@ -106,6 +106,7 @@ const STATUS = {
 
 const FACILITY_TYPE = {
   skilled_nursing: "Skilled nursing",
+  assisted_living: "Assisted living / memory care",
   senior_living:   "Other senior living",
   hospital:        "Hospital",
   non_us:          "Outside the US",
@@ -200,7 +201,7 @@ const CSV_COLUMNS = [
   ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, or CMS shows a new owner within 6 months), On file (a UCC-1 filing: a record of the loan, not of a sale), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), or Reported (news or a company filing, not yet confirmed)."],
   ["status_detail", d => d.status_detail, "What the status rests on."],
   ["deal_type", d => d.deal_type, "ownership_change (a sale), control_change (control moves without a sale), lease, financing, acquisition_financing, refinancing, operations_transfer (UCC-1 to an operator: a sale signal), non_deal_lien, or amendment (UCC-3)."],
-  ["facility_type", d => d.facility_type, "skilled_nursing (includes any record with a nursing home in it), senior_living, hospital, non_us, or unknown (the source doesn't say)."],
+  ["facility_type", d => d.facility_type, "skilled_nursing (includes any record with a nursing home in it) or assisted_living (assisted living or memory care)."],
   ["tag", d => cardTag(d)?.label, "The tag shown on the card, if any."],
   ["source", d => SOURCE[d.source_type]?.name || d.source_type, "Kind of source."],
   ["source_name", d => d.source_name, "The specific source (feed, agency or filing system)."],
@@ -1033,9 +1034,9 @@ function Methodology({ chowDate, corrections, onBack }) {
         <li style={li}><strong>Non-deal liens</strong> (hidden unless you tick "Show non-deal liens"): UCC filings by equipment
           vendors, registered agents and small-business lenders, owners' personal loans, owners' bank loans more than two
           years old, and businesses that aren't nursing homes, which are rarely about a sale.</li>
-        <li style={li}><strong>Other senior living</strong> (assisted or independent living, memory care with no nursing home),
-          hospitals, and records whose source doesn't say what kind of facility: hidden unless you tick
-          "Include senior living and other" under More filters. Deals outside the US are removed.</li>
+        <li style={li}><strong>Facilities covered:</strong> nursing homes, and assisted living and memory care.
+          Independent living, hospitals, records whose source doesn't say what kind of facility, and deals outside
+          the US are left out.</li>
       </ul>
 
       <h3 style={h}>Status</h3>
@@ -1199,15 +1200,13 @@ function CompanyPanel({ entity, deals, onEntity, onClose }) {
   );
 }
 
-function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, scope, entity, since }) {
+function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since }) {
   return allDeals.filter(d => {
     // A record grouped into another deal's card shows there, not on its own
     if (d.grouped_into) return false;
     // "New since your last visit": found by the tracker after that time
     if (since && !(d.created_at && d.created_at > since)) return false;
     if (tab !== undefined && !inTab(d, tab)) return false;
-    // Skilled-nursing-related records unless "Include senior living and other"
-    if (!scope && d.facility_type !== "skilled_nursing") return false;
     // Refinancings and non-deal liens are hidden unless asked for (liens:
     // old personal loans and non-nursing-home businesses, audit 2026-10-21)
     if (!refi && d.deal_type === "refinancing") return false;
@@ -1259,7 +1258,7 @@ function readLastVisit() {
 // named views in this browser, each remembering when it was last opened so
 // it can show how many deals are new since then.
 const FILTER_PARAMS = { state: "state", dateFrom: "from", dateTo: "to", search: "q", sourceType: "source", ccnStatus: "ccn",
-  tab: "tab", refi: "refi", liens: "liens", scope: "scope", entity: "entity", since: "since" };
+  tab: "tab", refi: "refi", liens: "liens", entity: "entity", since: "since" };
 const SAVED_VIEWS_KEY = "nh-saved-views";
 
 // Links and saved views from before the tabs carry a deal type ("type=...")
@@ -1295,7 +1294,6 @@ function viewName(f) {
     f.tab === "financing" && "Financing",
     f.refi && "With refinancings",
     f.liens && "With non-deal liens",
-    f.scope && "Incl. senior living & other",
     f.since && `New since ${f.since.slice(0, 10)}`,
     f.ccnStatus && (f.ccnStatus === "matched" ? "CCN matched" : "No CCN"),
     (f.dateFrom || f.dateTo) && `${f.dateFrom || "…"} – ${f.dateTo || "…"}`,
@@ -1320,7 +1318,6 @@ export default function App() {
   const [tab, setTab]             = useState(initial.tab === "financing" ? "financing" : "");
   const [refi, setRefi]           = useState(initial.refi);
   const [liens, setLiens]         = useState(initial.liens);
-  const [scope, setScope]         = useState(initial.scope);
   const [since, setSince]         = useState(initial.since);
   const lastVisit = useMemo(readLastVisit, []);
   const [entity, setEntity]       = useState(initial.entity);
@@ -1336,7 +1333,7 @@ export default function App() {
   const [aboutOpen, setAboutOpen] = useState(false);  // "About this data" under the count line
   const [panel, setPanel]         = useState("");  // "map" | "schedule" inside About this data
   const aboutBtn = useRef(null), aboutPanel = useRef(null), moreBtn = useRef(null), morePanel = useRef(null);
-  const [moreOpen, setMoreOpen]   = useState(!!(initial.ccnStatus || initial.dateFrom || initial.dateTo || initial.scope));
+  const [moreOpen, setMoreOpen]   = useState(!!(initial.ccnStatus || initial.dateFrom || initial.dateTo));
   const LIMIT = 20;
 
   useKonami(useCallback(() => setParade(true), []));
@@ -1371,8 +1368,8 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, scope, entity, since };
-  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, scope, entity, since];
+  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since };
+  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since];
 
   useEffect(() => {
     if (focusId || view || facilityCcn) return;  // those pages own the URL
@@ -1435,7 +1432,7 @@ export default function App() {
     const f = fromLegacyType(view.filters, view.filters.dealType);
     setState(f.state || ""); setDateFrom(f.dateFrom || ""); setDateTo(f.dateTo || "");
     setSearch(f.search || ""); setSourceType(f.sourceType || ""); setCcnStatus(f.ccnStatus || "");
-    setTab(f.tab || ""); setRefi(f.refi || ""); setLiens(f.liens || ""); setScope(f.scope || "");
+    setTab(f.tab || ""); setRefi(f.refi || ""); setLiens(f.liens || "");
     setEntity(f.entity || ""); setOffset(0);
     updateSavedViews(savedViews.map(v => v.name === view.name ? { ...v, lastSeen: new Date().toISOString() } : v));
   }
@@ -1470,16 +1467,14 @@ export default function App() {
     [filteredAnyTab]);
 
   // Count line: every record in the data, and what the default view leaves
-  // out (refinancings; senior living, hospitals and unspecified facilities;
-  // records shown inside another deal's card). The three add up exactly.
+  // out (refinancings; records shown inside another deal's card).
   const stats = useMemo(() => {
     if (!allDeals.length) return null;
     const refi = allDeals.filter(d => !d.grouped_into && d.deal_type === "refinancing").length;
-    const other = allDeals.filter(d => !d.grouped_into && d.deal_type !== "refinancing" && d.facility_type !== "skilled_nursing").length;
     const grouped = allDeals.filter(d => d.grouped_into).length;
-    return { total: allDeals.length, refi, other, grouped };
+    return { total: allDeals.length, refi, grouped };
   }, [allDeals]);
-  const breakdown = stats && `${stats.refi.toLocaleString()} refinancings${stats.other > 0 ? ` and ${stats.other} senior living or other records` : ""} hidden by default`
+  const breakdown = stats && `${stats.refi.toLocaleString()} refinancings hidden by default`
     + (stats.grouped > 0 ? ` · ${stats.grouped} shown inside another card` : "");
 
   const byCcn = useMemo(() => {
@@ -1506,7 +1501,7 @@ export default function App() {
   const total = filtered.length;
 
   const newSinceVisit = useMemo(() => lastVisit
-    ? allDeals.filter(d => !d.grouped_into && d.facility_type === "skilled_nursing" && d.created_at > lastVisit).length : 0,
+    ? allDeals.filter(d => !d.grouped_into && d.created_at > lastVisit).length : 0,
     [allDeals, lastVisit]);
 
   // Facility pages whose name or city matches the search, most records first
@@ -1527,7 +1522,7 @@ export default function App() {
   // Clears filters but stays on the current tab
   function clearAll() {
     setState(""); setDateFrom(""); setDateTo("");
-    setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setLiens(""); setScope(""); setEntity(""); setSince(""); setOffset(0);
+    setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setLiens(""); setEntity(""); setSince(""); setOffset(0);
   }
 
   // Escape closes "More filters" or "About this data" (the one holding focus,
@@ -1556,8 +1551,8 @@ export default function App() {
     });
   }
 
-  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || liens || scope || entity || since;
-  const moreCount = [ccnStatus, dateFrom || dateTo, scope].filter(Boolean).length;
+  const hasFilters = state || dateFrom || dateTo || search || sourceType || ccnStatus || refi || liens || entity || since;
+  const moreCount = [ccnStatus, dateFrom || dateTo].filter(Boolean).length;
 
   // Opening a company view replaces the other filters -- it's a profile,
   // not a refinement of whatever list you were looking at.
@@ -1604,7 +1599,7 @@ export default function App() {
               {stats && (
                 <p>
                   {stats.refi.toLocaleString()} refinancings
-                  {stats.other > 0 && ` and ${stats.other} senior living or other records`} hidden by default
+                  {" "}hidden by default
                   {stats.grouped > 0 && <span title="Shown in the Details of the deal they're grouped with"> · {stats.grouped} shown inside another card</span>}
                 </p>
               )}
@@ -1701,10 +1696,6 @@ export default function App() {
               </label>
               <label style={fieldLabel}>To
                 <input type="date" value={dateTo} onChange={resetPage(setDateTo)} style={ctl} />
-              </label>
-              <label style={checkLabel}>
-                <input type="checkbox" checked={!!scope} onChange={resetPage(setScope)} style={checkBox} />
-                Include senior living and other
               </label>
               {hasFilters && <button type="button" onClick={clearAll} style={btnGhost}>Clear all</button>}
               {hasFilters && !isSaved && (

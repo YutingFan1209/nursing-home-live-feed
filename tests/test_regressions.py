@@ -233,6 +233,12 @@ def test_stateless_foreign_deal_is_flagged_non_us():
     assert not us_lp.get("_non_us_only")
 
 
+def test_assisted_living_is_in_scope():
+    # AL / memory care in scope since 2026-11-12; only PACE is auto-dismissed
+    assert not is_out_of_scope({"acquiring_entity": "Northstar Senior Living",
+                                "facility_names": ["Cherry Hills Assisted Living & Memory Care"]})
+
+
 def test_pace_program_is_out_of_scope():
     assert is_out_of_scope({"acquiring_entity": "One Senior Care", "seller_entity": "PACE North",
                             "rationale": "expanding its all-inclusive care program"})

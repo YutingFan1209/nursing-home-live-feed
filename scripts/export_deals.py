@@ -43,7 +43,7 @@ from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline import ucc_context
 from pipeline.ucc_category import categorize, collapse_repeats, complete_through, owner_start_dates
-from pipeline.deal_labels import label, is_individual_filing
+from pipeline.deal_labels import SITE_FACILITY_TYPES, label, is_individual_filing
 from pipeline import individual_owners
 from scraper.con_ms import CON_MS_INDEX_URL
 from pipeline.cms_confirm import CmsIndex, facility_names_agree, same_facility_name
@@ -451,10 +451,9 @@ def write_atom_feed(deals: list[dict], path: str, updated: str) -> None:
     follow the site in a feed reader. Static hosting can't send per-view
     email alerts; this is the closest thing. Ordered by when a deal was
     found (created_at), not its effective date, and skips non-deal liens and
-    refinancings and anything that isn't skilled-nursing related, like the
-    site's default view."""
+    refinancings, like the site's default view."""
     recent = sorted((d for d in deals if d.get("deal_type") not in ("non_deal_lien", "refinancing")
-                     and d.get("facility_type") == "skilled_nursing"),
+                     and d.get("facility_type") in SITE_FACILITY_TYPES),
                     key=lambda d: d.get("created_at") or "", reverse=True)[:FEED_SIZE]
     entries = []
     for d in recent:
@@ -685,6 +684,11 @@ def main():
             homes.setdefault(deal_id, []).append((ccn, provider))
         for deal in deals:
             _add_labels(deal, cms, homes)
+        # Nursing homes and assisted living / memory care only: independent
+        # living, hospitals, unstated facilities stay in the database
+        before = len(deals)
+        deals = [d for d in deals if d["facility_type"] in SITE_FACILITY_TYPES]
+        print(f"Left out {before - len(deals)} records that aren't nursing homes or assisted living")
 
         # Rows pipeline/same_sale.py merged away still count as sources of
         # the deal they went into (following merges of merges)

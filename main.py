@@ -1060,7 +1060,7 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
                     sc.execute("UPDATE deals SET stage = 'dismissed' WHERE id = %s", (deal_id,))
             elif article.get("source_type") != "con" and is_out_of_scope(deal):
                 logger.info(
-                    f"Auto-dismissing out-of-scope AL/MC deal: "
+                    f"Auto-dismissing out-of-scope PACE deal: "
                     f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
                     f"/ {deal.get('facility_names')}"
                 )
@@ -1179,7 +1179,7 @@ def process_article(article: dict, conn) -> int:
                     sc.execute("UPDATE deals SET stage = 'dismissed' WHERE id = %s", (deal_id,))
             elif article.get("source_type") != "con" and is_out_of_scope(deal):
                 logger.info(
-                    f"Auto-dismissing out-of-scope AL/MC deal: "
+                    f"Auto-dismissing out-of-scope PACE deal: "
                     f"{deal.get('acquiring_entity')} / {deal.get('operator_names')} "
                     f"/ {deal.get('facility_names')}"
                 )

@@ -227,6 +227,16 @@ def test_non_us_and_hospital_types():
     assert facility_type({"source_type": "rss", "states": ["MO"], "summary": "plans to acquire a hospital campus"}) == "hospital"
 
 
+def test_assisted_living_is_its_own_type():
+    # AL and memory care are in scope (2026-11-12); independent living isn't
+    al = {"source_type": "rss", "states": ["CO"], "facility_names": ["Cherry Hills Assisted Living & Memory Care"]}
+    assert facility_type(al) == "assisted_living"
+    assert facility_type({"source_type": "rss", "states": ["RI"], "facility_names": ["Victoria Court Memory Care"]}) == "assisted_living"
+    assert facility_type({"source_type": "rss", "states": ["FL"], "summary": "bought a 200-unit independent living community"}) == "senior_living"
+    # a nursing home with an AL wing stays skilled nursing
+    assert facility_type({"source_type": "rss", "states": ["OH"], "summary": "a skilled nursing and assisted living campus"}) == "skilled_nursing"
+
+
 # ── Headlines never say "acquired" ────────────────────────────────────────
 
 def test_no_headline_says_acquired():

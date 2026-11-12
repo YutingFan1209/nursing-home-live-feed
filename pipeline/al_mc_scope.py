@@ -1,6 +1,7 @@
 """
 Assisted living / memory care scope filter.
-Rahul confirmed project scope is strictly SNF (skilled nursing facilities) —
+NOTE 2026-11-12: AL and memory care are now in scope; is_out_of_scope only
+drops PACE programs. History: Rahul confirmed project scope was strictly SNF (skilled nursing facilities) —
 see the 2026-07-23 AL/MC cleanup. This module is the reusable version of
 that one-off audit query, for flagging future deals during ingestion.
 
@@ -57,10 +58,17 @@ def is_pace(deal: dict) -> bool:
 
 
 def is_out_of_scope(deal: dict) -> bool:
-    """True if this deal looks like assisted living / memory care or a PACE
-    program, not SNF."""
-    if is_pace(deal):
-        return True
+    """True if this deal is a PACE program. Assisted living and memory care
+    are in scope since 2026-11-12 (user decision, reversing the SNF-only
+    scope of 2026-07-23); independent living and other senior housing are
+    kept in the database and left out at export
+    (pipeline/deal_labels.SITE_FACILITY_TYPES)."""
+    return is_pace(deal)
+
+
+def is_al_mc(deal: dict) -> bool:
+    """True if this deal looks like assisted living / memory care (the old
+    SNF-only scope filter, kept for audits)."""
     facility_names = deal.get("facility_names") or []
     names_to_check = list(deal.get("operator_names") or [])
     if deal.get("acquiring_entity"):
