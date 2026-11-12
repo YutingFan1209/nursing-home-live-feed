@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-12T15:24:19.253138+00:00</updated>
+  <updated>2026-11-12T15:43:42.505847+00:00</updated>
+  <entry>
+    <id>urn:uuid:9b04d906-dc72-4682-8032-4986e6adc188</id>
+    <title>Hyatt Family Facilities sells Emerson Health &amp; Rehabilitation · Buyer not disclosed (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505441-licence-1762"/>
+    <updated>2026-11-12T15:43:38.268040+00:00</updated>
+    <summary>Facilities: Emerson Health &amp; Rehabilitation; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c837d243-4b3a-475a-bbbb-cd7e343777eb</id>
+    <title>Hyatt Family Facilities sells Landmark Care and Rehabilitation · Buyer not disclosed (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505086-licence-1760"/>
+    <updated>2026-11-12T15:43:38.261938+00:00</updated>
+    <summary>Facilities: Landmark Care and Rehabilitation; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d74e5bf5-53ab-4254-8673-4621fccc036f</id>
+    <title>Hyatt Family Facilities sells Soundview Rehabilitation and Health Care · Buyer not disclosed (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505216-licence-1759"/>
+    <updated>2026-11-12T15:43:38.255927+00:00</updated>
+    <summary>Facilities: Soundview Rehabilitation and Health Care; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:921bc1b9-ff85-4891-a60f-e2983f913504</id>
+    <title>Parkside Care LLC acquires Parkside Care from Prest Op LLC (WA)</title>
+    <link href="https://fortress.wa.gov/dshs/adsaapps/lookup/NHPubLookup.aspx#licensee-505401-licence-1748"/>
+    <updated>2026-11-12T15:43:38.231834+00:00</updated>
+    <summary>Facilities: Parkside Care; Source: Washington DSHS Nursing Home Locator</summary>
+  </entry>
   <entry>
     <id>urn:uuid:a51fc206-ec07-45af-ad85-692962db5917</id>
     <title>REDLANDS REHAB AND HEALTHCARE SYSTEMS — UCC-1 financing (CA)</title>
@@ -326,33 +354,5 @@
     <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-1509-odelia-opco-holdings-llc-2025-04-24"/>
     <updated>2026-11-11T13:40:54.776000+00:00</updated>
     <summary>Effective 2025-04-24; Facilities: Odelia Healthcare; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:47c0fa86-8bc5-458a-8569-092602bcbb08</id>
-    <title>LIBERTY LONG TERM CARE LLC acquires Warren Hills Nursing Center and 1 more (NC)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-liberty-long-term-care-llc-2025-04-04"/>
-    <updated>2026-11-11T13:40:54.769294+00:00</updated>
-    <summary>Effective 2025-04-04; Facilities: Warren Hills Nursing Center, Woodlands Nursing &amp; Rehabilitation Center; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e8b566e2-30ff-4ace-99d0-04f6352f3d6e</id>
-    <title>SABER PA HOLDINGS, LLC acquires SUBURBAN WOODS HEALTH &amp; REHA (PA)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-saber-pa-holdings-llc-2025-04-01"/>
-    <updated>2026-11-11T13:40:54.762540+00:00</updated>
-    <summary>Effective 2025-04-01; Facilities: SUBURBAN WOODS HEALTH &amp; REHA; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:93581692-a97e-4dca-9d06-323b27c40eee</id>
-    <title>RMC ENTERPRISES LLC acquires Sunterra Springs Riverview and 3 more (ID, MO)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-rmc-enterprises-llc-2025-04-01"/>
-    <updated>2026-11-11T13:40:54.755914+00:00</updated>
-    <summary>Effective 2025-04-01; Facilities: Sunterra Springs Riverview, SUNTERRA SPRINGS INDEPENDENCE, SUNTERRA SPRINGS SPRINGFIELD, SUNTERRA SPRINGS DARDENNE PRAIRIE; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:acc22d52-b323-4d6e-bcba-5456b6260399</id>
-    <title>3B HOLDINGS, LLC acquires Katherine's Place at Wedington (AR)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-3b-holdings-llc-2025-04-01"/>
-    <updated>2026-11-11T13:40:54.749115+00:00</updated>
-    <summary>Effective 2025-04-01; Facilities: Katherine's Place at Wedington; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
