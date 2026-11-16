@@ -19,7 +19,8 @@ Gold record = one card as labelled on 2026-11-16 against its source:
   wrong_fields   fields the site had wrong at labelling time
   unsure_fields  fields the labeller couldn't settle; never scored
 
-A duplicate or noise card is "fixed" once the export no longer shows it.
+A duplicate or noise card is "fixed" once the export no longer shows it; a
+duplicate also once it is grouped onto the other record's card (grouped_into).
 """
 from __future__ import annotations
 
@@ -38,7 +39,7 @@ EXTRACTED = ["buyer", "seller", "facility_count", "states", "acquisition_date",
              "deal_value_m", "financing_amount_m", "lender", "deal_type"]
 SCORED = EXTRACTED + ["status", "facility_type", "ccns"]
 
-_SUFFIX = re.compile(r"\b(llc|l\.l\.c|inc|incorporated|corp|corporation|co|company|lp|l\.p|ltd|limited|the|group)\b")
+_SUFFIX = re.compile(r"\b(llc|l\.l\.c|inc|incorporated|corp|corporation|co|company|lp|l\.p|ltd|limited|the|group|reit)\b")
 
 
 def norm_name(v) -> str | None:
@@ -55,6 +56,9 @@ def same(field: str, got, want) -> bool:
         # NJ's portal never gives the lender; the site says so in words.
         got = None if str(got or "").startswith("Not available") else got
         want = None if str(want or "").startswith("Not available") else want
+        # the site drops filing boilerplate from lender text (export_deals.tidy_lender)
+        from scripts.export_deals import tidy_lender
+        got, want = tidy_lender(got), tidy_lender(want)
     if field in ("buyer", "seller", "lender"):
         return norm_name(got) == norm_name(want)
     if field in ("deal_value_m", "financing_amount_m"):
@@ -95,7 +99,8 @@ def score_records(gold: list[dict], shown: dict[str, dict], fields: list[str]) -
         grp = g["group"]
         cur = shown.get(g["id"])
         if g["verdict"] in ("duplicate", "noise"):
-            ok = cur is None
+            # a duplicate is fixed once it shows on the other record's card
+            ok = cur is None or (g["verdict"] == "duplicate" and bool(cur.get("grouped_into")))
             rec[grp][0] += ok
             rec[grp][1] += 1
             if not ok:

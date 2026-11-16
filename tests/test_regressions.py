@@ -1816,3 +1816,36 @@ def test_ucc_same_loan_grouped():
     assert opco["ucc_debtor"] == "PINE RIDGE REHABILITATION LLC; PINE RIDGE REALTY LLC"
     for d in (other_lender, later, amendment):
         assert "grouped_into" not in d and d["group_size"] == 1
+
+
+def test_tidy_lender():
+    from scripts.export_deals import tidy_lender as t
+    assert t("Capital Funding, LLC, its successors and assigns, as Agent on behalf of Lenders") == "Capital Funding, LLC, as Agent"
+    assert t("CAPITAL FUNDING, LLC; SECRETARY OF HOUSING AND URBAN DEVELOPMENT, ORCF") == "CAPITAL FUNDING, LLC; HUD"
+    assert t("INVESTORS BANK   ATTENTION: LOAN SERVICING") == "INVESTORS BANK"
+    assert t("WALKER & DUNLOP, LLC; Walker & Dunlop, LLC") == "WALKER & DUNLOP, LLC"
+    assert t("third-party debt") is None and t("unidentified life insurance company") is None
+    for keep in ("eCapital Healthcare Corp.", "CIBC Bank USA, as Administrative Agent",
+                 "OXFORD FINANCE LLC, AS AGENT (TERM LOAN)", "BOKF, NA DBA BOK FINANCIAL",
+                 "Not available — NJ UCC search doesn't return the lender"):
+        assert t(keep) == keep
+
+
+def test_news_duplicates_grouped():
+    from pipeline.deal_groups import same_deal
+    n = {"source_type": "rss", "deal_type": "ownership_change", "states": ["WA"], "facility_count": 4}
+    a = {**n, "buyer": "Ensign Group", "acquisition_date": "2026-10-02"}
+    b = {**n, "buyer": "The Ensign Group", "acquisition_date": "2026-10-01"}
+    assert same_deal(a, b)
+    # same closing date, state and count; one names only the seller
+    s1 = {**n, "states": ["OH"], "facility_count": 3, "seller": "Saber Healthcare Group", "acquisition_date": "2026-06-30"}
+    s2 = {**n, "states": ["OH"], "facility_count": 3, "acquisition_date": "2026-06-30"}
+    assert same_deal(s1, s2)
+    # state filing (licensee) + news (parent) on the same home
+    con = {"source_type": "con", "deal_type": "ownership_change", "ccns": ["415099"], "buyer": "Pascoag Crystal Lake Rehab Center LLC", "acquisition_date": "2026-10-20"}
+    rss = {**n, "states": ["RI"], "ccns": ["415099"], "buyer": "Health Concepts", "acquisition_date": "2026-10-19"}
+    assert same_deal(con, rss)
+    # CMS records of two different homes, same buyer: two deals
+    c = {"source_type": "chow", "deal_type": "ownership_change", "states": ["TX"], "facility_count": 1, "buyer": "Frio Hospital District"}
+    assert not same_deal({**c, "ccns": ["1"], "acquisition_date": "2024-12-15"}, {**c, "ccns": ["2"], "acquisition_date": "2024-12-25"})
+    assert not same_deal({**c, "acquisition_date": "2024-12-15"}, {**c, "acquisition_date": "2024-12-25"})

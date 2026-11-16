@@ -283,6 +283,32 @@ def clean_lender(lender: str | None) -> str | None:
     return "; ".join(lenders or parts)
 
 
+# Display text only (lender categories and deal types read the raw text):
+# filing boilerplate the judge audit flagged on ~200 cards (2026-11-16)
+_HUD_RE = re.compile(r"(?i)\b(THE\s+)?(SECRETARY\s+OF\s+)?(THE\s+)?(U\.?\s?S\.?\s+|UNITED\s+STATES\s+)?"
+                     r"(DEPARTMENT\s+OF\s+|DEPT\.?\s+OF\s+)?HOUSING\s+(AND|&)\s+URBAN\s+DEVELOPMENT"
+                     r"(\s+OF\s+WASHINGTON,?\s+D\.?\s?C\.?)?(,?\s+ORCF)?")
+_BOILERPLATE_RE = re.compile(
+    r"(?i),?\s*(\b(ITS|THEIR)\s+SUCCESSORS\s+(AND|&|AND/OR)\s+(/OR\s+)?ASSIGNS\b|\bAS\s+THEIR\s+INTERESTS\s+MAY\s+APPEAR\b"
+    r"|\s+ON\s+BEHALF\s+OF\s+(THE\s+)?(SECURED\s+PARTIES|LENDERS?)\b.*$|\s*-?\s*\b(ATTN|ATTENTION)\b:?.*$)")
+# A news source that describes the lender without naming it
+_LENDER_DESC_RE = re.compile(r"(?i)^(unidentified|unnamed|undisclosed|an?\s|third[- ]party\b)")
+
+
+def tidy_lender(lender: str | None) -> str | None:
+    if not lender or lender.startswith("Not available"):
+        return lender
+    if _LENDER_DESC_RE.match(lender):
+        return None
+    parts = []
+    for p in lender.split(";"):
+        p = _BOILERPLATE_RE.sub("", _HUD_RE.sub("HUD", p.strip()))
+        p = re.sub(r"\s{2,}", " ", p).strip(" ,")
+        if p and p.upper() not in {q.upper() for q in parts}:
+            parts.append(p)
+    return "; ".join(parts) or lender
+
+
 def _match_ny_spreadsheet(index: dict, debtor: str | None, filed: str | None, lender: str | None):
     """The real filing behind an NYX deal: the person's only NY filing that
     day, or else the one whose secured party is the deal's lender -- by the
@@ -724,6 +750,8 @@ def main():
 
         facilities = _facility_pages(cur, deals)
 
+        for deal in deals:
+            deal["lender"] = tidy_lender(deal.get("lender"))
         counts = group(deals, merged)
         for deal in deals:
             if deal.get("group_ccns") and deal["source_type"] != "ucc":

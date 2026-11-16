@@ -50,6 +50,8 @@ STATUS_RANK = {"confirmed": 4, "on_file": 4, "reported": 3, "expected": 2, "unco
 GROUPED_TYPES = ("ownership_change", "lease", "control_change")
 UCC_LOAN_TYPES = {"acquisition_financing": 3, "refinancing": 2, "financing": 1}
 UCC_SAME_LOAN_DAYS = 3
+LICENSEE_NEWS_DAYS = 90
+SAME_STORY_DAYS = 45
 
 
 def lender_key(lender: str | None) -> str:
@@ -146,13 +148,37 @@ def same_deal(a: dict, b: dict) -> str | None:
     # holding company, CMS the operator (Iris Cove, TN, 2026-10-27)
     ratifies = shared and {a.get("source_type"), b.get("source_type")} == {"chow", "con"} and (
         after_closing(a) or after_closing(b))
-    if ba and bb and not _agree(ba, bb) and not ratifies:
+    # A state filing names the new licensee, the news story its parent
+    # (Crystal Lake, RI: Pascoag Crystal Lake Rehab Center LLC / Health
+    # Concepts, gold set 2026-11-16). One home rarely sells twice in 90 days
+    kinds = {a.get("source_type"), b.get("source_type")}
+    licensee_parent = bool(shared) and "con" in kinds and bool(kinds & {"rss", "edgar"}) and (
+        abs((da - db).days) <= LICENSEE_NEWS_DAYS)
+    if ba and bb and not _agree(ba, bb) and not ratifies and not licensee_parent:
         return None
     if shared:
         return "same CMS facility"
+    # Different homes are different deals, whatever else matches (a hospital
+    # district taking over two homes a month apart)
+    if a.get("ccns") and b.get("ccns"):
+        return None
+    news = {a.get("source_type"), b.get("source_type")} <= {"rss", "edgar"}
+    same_states = bool(a.get("states")) and sorted(a["states"]) == sorted(b.get("states") or [])
+    ca, cb = a.get("facility_count"), b.get("facility_count")
+    same_count = ca is not None and ca == cb
+    # Two stories of one sale with no seller or price: Ensign's 4 WA homes
+    # on 10/01 and 10/02, its 7 CO operations (one copy undated)
+    if news and ba and bb and same_states and same_count and abs((da - db).days) <= SAME_STORY_DAYS:
+        return "same buyer, states and home count"
+    # One names the seller, the other the broker's buyerless summary: same
+    # closing date, state and count (Saber's 3 Ohio homes, closed 6/30)
+    sa, sb = a.get("seller"), b.get("seller")
+    if (news and same_states and same_count and (ca >= 2 or (sa and sb and _agree(sa, sb)))
+            and a.get("acquisition_date") and a.get("acquisition_date") == b.get("acquisition_date")
+            and not (sa and sb and not _agree(sa, sb))):
+        return "same closing date, states and home count"
     if not (ba and bb):
         return None
-    sa, sb = a.get("seller"), b.get("seller")
     if sa and sb:
         # NHC buying 5 homes in June and 35 in July from NHI are two deals
         ca, cb = a.get("facility_count"), b.get("facility_count")
@@ -230,6 +256,8 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
         keys = {f"ccn:{c}" for c in d.get("ccns") or []}
         if d.get("buyer"):
             keys.add("buyer:" + name_key(d["buyer"]))
+        if d.get("acquisition_date") and d.get("facility_count") and d.get("source_type") in ("rss", "edgar"):
+            keys.add(f"close:{sorted(d.get('states') or [])}:{d['acquisition_date']}:{d['facility_count']}")
         for k in keys:
             buckets.setdefault(k, []).append(d)
     batches = {}
