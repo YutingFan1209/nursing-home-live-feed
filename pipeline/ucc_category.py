@@ -91,6 +91,22 @@ def is_operator(lender: str | None, debtor: str | None) -> bool:
             and not is_person(debtor) and norm(l) not in norm(debtor))
 
 
+def backfill_lender(secured_party: str | None, buyer: str | None) -> str | None:
+    """The secured party to copy into a deal's empty lender field when a UCC
+    filing confirms it, or None when it isn't a lender. A home's own opco
+    files liens too (on its receivables, or as a tenant's counterparty); 16
+    of 42 Missouri licence-list cards showed the buyer as its own lender
+    (CEG SNF OPCO LLC lending to CEG SNF OPCO LLC, gold set 2026-11-16)."""
+    if not secured_party or not secured_party.strip():
+        return None
+    if norm(secured_party) and norm(secured_party) == norm(buyer):
+        return None
+    l = secured_party.upper()
+    if _OPERATOR.search(l) and not _NOT_OPERATOR.search(l):
+        return None
+    return secured_party
+
+
 def owner_start_dates(rows) -> dict:
     """CCN -> set of dates a current direct owner started, from (ccn,
     owner_name, start) rows. A date on which only trusts or family entities

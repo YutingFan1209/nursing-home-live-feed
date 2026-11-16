@@ -27,6 +27,7 @@ from config import get_config
 from ucc.base import UCCFiling
 from ucc.integrator import match_against_existing_deals, ExistingDeal
 from ucc.lender_classifier import classify_secured_party
+from pipeline.ucc_category import backfill_lender
 
 
 def parse_date(s):
@@ -127,12 +128,14 @@ def relink_cms_ucc(conn, states: list[str] = None, verbose: bool = True) -> int:
 
     with conn.cursor() as cur:
         for deal_id, (filing, score) in matches.items():
+            cur.execute("SELECT acquiring_entity FROM deals WHERE id = %s", (deal_id,))
+            row = cur.fetchone()
             cur.execute("""
                 UPDATE deals
                 SET ucc_confirmed = true,
                     lender = COALESCE(lender, %s)
                 WHERE id = %s
-            """, (filing.secured_party_name, deal_id))
+            """, (backfill_lender(filing.secured_party_name, row[0] if row else None), deal_id))
     conn.commit()
 
     if verbose:

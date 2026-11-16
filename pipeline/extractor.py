@@ -178,7 +178,7 @@ def extract_deals(article_text: str, article_url: str = "", published_at=None) -
         if not n:
             continue
         # Only what the article says (pipeline/grounding.py)
-        n = ground(n, truncated_text)
+        n = ground(n, truncated_text, published_at)
         if not n:
             continue
         if _looks_stale(n.get("rationale")):

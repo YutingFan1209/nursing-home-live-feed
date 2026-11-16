@@ -151,6 +151,8 @@ venv/bin/python3 main.py --no-alerts --gmail-days-back 8
 
 Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh` never touches git.
 
+**One command:** `venv/bin/python3 scripts/deploy.py` runs steps 1–4 below: export, predeploy check (stops on any failure; no `--force`), the gold-set score next to the last deploy's (`evals/`, history in `data/evals/score_history.jsonl`), then asks before pushing and always returns to `main`. `--dry-run` stops before git; `--yes` skips the question; `-m "what changed"` goes in the commit message. Data only — the frontend steps are below.
+
 `gh-pages` holds only the website (`index.html`, `assets/`, `classic/`, `deals.json`, `feed.xml`, `.nojekyll`); its `.gitignore` is an allowlist, so nothing else can be committed there. While it's checked out, the pipeline source isn't in the working copy, so don't run any Python until you're back on `main`.
 
 ```bash

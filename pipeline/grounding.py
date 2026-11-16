@@ -9,14 +9,17 @@ were leased to Communicare with Communicare as buyer (audit 2026-10-21).
 ground() runs on every extracted deal before it is stored:
   - a facility name the text doesn't contain is dropped
   - a buyer or seller the text doesn't contain is blanked
-  - a price that isn't a figure in the text (or the sum of two, an opco and
-    a propco price) is blanked
+  - a price or loan amount that isn't a figure in the text (or the sum of
+    two, an opco and a propco price) is blanked
+  - a closing date neither written in the text nor within 45 days of the
+    article's date ("closed last week") is blanked
   - a deal left with no buyer, seller or facility from the text is dropped
 Everything removed is logged, and listed under "ungrounded" on the deal.
 """
 
 import logging
 import re
+from datetime import date, datetime
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +88,45 @@ def value_in_text(value_m: float, text: str) -> bool:
         close(a + b, value_m) for i, a in enumerate(figs) for b in figs[i + 1:])
 
 
-def ground(deal: dict, text: str) -> dict | None:
+_MONTHS = ["january", "february", "march", "april", "may", "june", "july",
+           "august", "september", "october", "november", "december"]
+
+
+def _as_date(v) -> date | None:
+    if isinstance(v, datetime):
+        return v.date()
+    if isinstance(v, date):
+        return v
+    try:
+        return date.fromisoformat(str(v)[:10]) if v else None
+    except ValueError:
+        return None
+
+
+def date_in_text(d: date, text: str, published=None) -> bool:
+    """A closing date is supported when the text writes it ("June 30",
+    "Sept. 1, 2025", "6/30/26", "June 2026", or a month alone for a
+    first-of-month date), or when it is within 45 days of the article's own
+    date. Gold set 2026-11-16: a $10.5M Connecticut sale "in 2025" stored as
+    2025-10-21, and Saber's June closing of Ciena homes stored as April 2."""
+    pub = _as_date(published)
+    if pub and abs((d - pub).days) <= 45:
+        return True
+    t = text.lower()
+    mon = _MONTHS[d.month - 1]
+    names = rf"(?:{mon}|{mon[:3]}\.?|{mon[:4]}\.?)"
+    return bool(
+        re.search(rf"(?<![a-z]){names}\s+0?{d.day}\b", t)
+        or re.search(rf"\b0?{d.month}/0?{d.day}/(?:20)?{d.year % 100:02d}\b", t)
+        or re.search(rf"\b{d.year}-{d.month:02d}-{d.day:02d}\b", t)
+        or re.search(rf"(?<![a-z]){mon}\b[^.]{{0,40}}\b{d.year}\b", t)
+        or (d.day == 1 and re.search(rf"(?<![a-z]){mon}\b", t)))
+
+
+def ground(deal: dict, text: str, published=None) -> dict | None:
     """The deal with fields its source text doesn't support removed, or
-    None when nothing identifying is left."""
+    None when nothing identifying is left. published: the article's date,
+    for closing dates given relative to it."""
     text_words = set(_words(text))
     removed, named = [], bool(deal.get("acquiring_entity") or deal.get("seller_entity") or deal.get("facility_names"))
     facs = deal.get("facility_names") or []
@@ -98,9 +137,14 @@ def ground(deal: dict, text: str) -> dict | None:
         if deal.get(field) and not name_in_text(deal[field], text_words):
             removed.append(f"{field} {deal[field]!r}")
             deal[field] = None
-    if deal.get("deal_value_m") and not value_in_text(float(deal["deal_value_m"]), text):
-        removed.append(f"deal_value_m {deal['deal_value_m']}")
-        deal["deal_value_m"] = None
+    for field in ("deal_value_m", "financing_amount_m"):
+        if deal.get(field) and not value_in_text(float(deal[field]), text):
+            removed.append(f"{field} {deal[field]}")
+            deal[field] = None
+    d = _as_date(deal.get("acquisition_date"))
+    if d and not date_in_text(d, text, published):
+        removed.append(f"acquisition_date {deal['acquisition_date']}")
+        deal["acquisition_date"] = None
     if removed:
         deal["ungrounded"] = removed
         logger.info(f"Grounding: not in the source, removed: {'; '.join(removed)}")

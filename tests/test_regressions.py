@@ -1743,3 +1743,76 @@ def test_ucc_word_rule_tiebreak_2026_11_11(monkeypatch):
     assert e._distinct_word_match("TROY HOLDCO LLC", "OH", homes) is None          # a parent
     assert e._distinct_word_match("POCAHONTAS REALTY LLC", "AR", homes) is None    # legal name points elsewhere
     assert e._distinct_word_match("HERITAGE PARK NURSING CENTER", "FL", homes) is None  # not a town-named company
+
+
+# --- Gold set 2026-11-16 -------------------------------------------------
+
+def test_ucc_backfill_never_makes_the_buyer_its_own_lender():
+    from pipeline.ucc_category import backfill_lender
+    assert backfill_lender("GRAND MANOR SNF OPCO LLC", "Grand Manor SNF Opco LLC") is None
+    assert backfill_lender("South County Health Care Center, L.L.C.", "SOUTH COUNTY HEALTH CARE CENTER, L.L.C.") is None
+    assert backfill_lender("HIDDEN LAKE OPCO LLC", "Some Other Buyer LLC") is None   # an opco isn't a lender
+    assert backfill_lender("", "X") is None
+    assert backfill_lender("Capital Finance, LLC, as Administrative Agent", "MILAN SNF OPCO LLC")
+    assert backfill_lender("SECRETARY OF HOUSING AND URBAN DEVELOPMENT, ORCF", "X")
+
+
+def test_grounding_blanks_undisclosed_price_and_loan():
+    from pipeline.grounding import ground
+    text = "Strawberry Fields bought the Living Center. The parties did not disclose the final purchase price, " \
+           "which exceeded the stalking-horse bid by approximately $2.3 million."
+    d = ground({"acquiring_entity": "Strawberry Fields", "deal_value_m": 10.4, "financing_amount_m": 8.0,
+                "facility_names": []}, text)
+    assert d["deal_value_m"] is None and d["financing_amount_m"] is None
+
+
+def test_grounding_blanks_a_date_the_source_doesnt_give():
+    from pipeline.grounding import ground
+    text = "Bristol Health sold the 128-bed nursing home in 2025 for $10.5 million to IM Buyer."
+    d = ground({"acquiring_entity": "IM Buyer", "acquisition_date": "2025-10-21", "facility_names": []},
+               text, "2026-06-06")
+    assert d["acquisition_date"] is None
+    # the same date in the text, or close to the article's date, is kept
+    assert ground({"acquiring_entity": "IM Buyer", "acquisition_date": "2025-10-21", "facility_names": []},
+                  text + " It closed Oct. 21.", "2026-06-06")["acquisition_date"]
+    assert ground({"acquiring_entity": "IM Buyer", "acquisition_date": "2026-05-30", "facility_names": []},
+                  text, "2026-06-06")["acquisition_date"]
+
+
+def test_date_grounding_reads_padded_and_underlined_dates():
+    from datetime import date
+    from pipeline.grounding import date_in_text
+    assert date_in_text(date(2025, 9, 1), "completion date: __September 01, 2025___")
+    assert date_in_text(date(2026, 6, 30), "effective June 30: three Ohio homes")
+    assert not date_in_text(date(2026, 4, 2), "completed in phases in June 2026", "2026-07-06")
+
+
+def test_description_in_name_field():
+    from pipeline.deal_labels import _looks_like_description as desc
+    for s in ["A family-owned operator", "An institutional owner and operator (unnamed)",
+              "Independent owner (Napa, California)", "West Coast owner-operator (unnamed)"]:
+        assert desc(s), s
+    for s in ["The Ensign Group", "A.G. Spanos", "Independence Health", "Avamere", "National HealthCare Corp"]:
+        assert not desc(s), s
+
+
+def test_ucc_same_loan_grouped():
+    """A loan filed against the propco and the opco on one day is one card."""
+    from pipeline.deal_groups import group, lender_key
+    base = {"source_type": "ucc", "ccns": ["065366"], "states": ["CO"], "status": "on_file"}
+    propco = {**base, "id": "p", "deal_type": "financing", "acquisition_date": "2025-12-03",
+              "lender": "VIUM CAPITAL MORTGAGE, LLC", "ucc_debtor": "PINE RIDGE REALTY LLC"}
+    opco = {**base, "id": "o", "deal_type": "refinancing", "acquisition_date": "2025-12-04",
+            "lender": "Vium Capital Mortgage, LLC, its successors and assigns, as agent",
+            "ucc_debtor": "PINE RIDGE REHABILITATION LLC"}
+    other_lender = {**base, "id": "x", "deal_type": "financing", "acquisition_date": "2025-12-03",
+                    "lender": "CAPITAL FUNDING, LLC", "ucc_debtor": "PINE RIDGE REALTY LLC"}
+    later = {**opco, "id": "l", "acquisition_date": "2026-03-01"}
+    amendment = {**opco, "id": "a", "deal_type": "amendment"}
+    deals = [propco, opco, other_lender, later, amendment]
+    group(deals, {})
+    assert lender_key(propco["lender"]) == lender_key(opco["lender"])
+    assert propco["grouped_into"] == "o" and opco["group_size"] == 2
+    assert opco["ucc_debtor"] == "PINE RIDGE REHABILITATION LLC; PINE RIDGE REALTY LLC"
+    for d in (other_lender, later, amendment):
+        assert "grouped_into" not in d and d["group_size"] == 1

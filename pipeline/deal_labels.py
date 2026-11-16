@@ -291,7 +291,10 @@ def _clean_description(desc: str) -> str | None:
 # Lower-case first word, "X-based ...", or a lone adjective like "public".
 # Case-sensitive on purpose: "National Healthcare Properties" is a company.
 _DESC_AS_NAME_RE = re.compile(
-    r"^[a-z]|^[A-Z][a-z]+-based [a-z]|^(Regional|National|Local|Public|Private|Nonprofit)( [a-z][\w/-]*)*$")
+    r"^[a-z]|^[A-Z][a-z]+-based [a-z]|^(Regional|National|Local|Public|Private|Nonprofit)( [a-z][\w/-]*)*$"
+    # "A family-owned operator", "Independent owner (Napa, California)",
+    # "West Coast owner-operator (unnamed)": fresh extractions, 2026-11-16 baseline
+    r"|^(An?|The|Independent) [a-z]|.*\(unnamed\)\s*$")
 
 
 def _looks_like_description(name: str | None) -> bool:

@@ -8,6 +8,16 @@ filings; PACS-Eduro from two stories). This groups them for display only,
 when deals.json is written. Nothing is merged or hidden in the database, and
 every record keeps its own permalink.
 
+UCC filings: one loan is often filed twice on the same day, against the home's
+property company and its operating company (2026-11-16 judge audit: ~370
+pairs, a tenth of UCC cards). Two UCC records are grouped when they cover
+exactly the same CMS facilities, name the same lender (boilerplate such as
+"as agent" ignored) and were filed within UCC_SAME_LOAN_DAYS of each other.
+Amendments and vendor liens are left alone. The card is the filing with the
+most specific type (acquisition financing, then refinancing, then plain
+financing; the propco side often lacks the CMS link that tells them apart)
+and lists both borrowers.
+
 Records of the same deal type are grouped when one of these holds, within
 6 months of each other:
   - they share a CMS facility (CCN) and their buyers agree (or one names none);
@@ -38,6 +48,72 @@ WINDOW_DAYS = 183
 _GENERIC = re.compile(r"\b(GROUP|COMPANY|CO|HOLDINGS?|THE)\b")
 STATUS_RANK = {"confirmed": 4, "on_file": 4, "reported": 3, "expected": 2, "unconfirmed": 1}
 GROUPED_TYPES = ("ownership_change", "lease", "control_change")
+UCC_LOAN_TYPES = {"acquisition_financing": 3, "refinancing": 2, "financing": 1}
+UCC_SAME_LOAN_DAYS = 3
+
+
+def lender_key(lender: str | None) -> str:
+    """A UCC lender less filing boilerplate; '' when the lender is unknown."""
+    s = (lender or "").upper()
+    if not s or s.startswith("NOT AVAILABLE"):
+        return ""
+    s = s.split(";")[0]
+    s = re.sub(r",?\s+(ITS SUCCESSORS\b.*|AS (ADMINISTRATIVE |COLLATERAL )?AGENT\b.*|F/?K/?A\b.*)$", "", s)
+    return name_key(s)
+
+
+def ucc_same_loan(a: dict, b: dict) -> bool:
+    """Two UCC filings that are one loan (property + operating company)."""
+    if a.get("source_type") != "ucc" or b.get("source_type") != "ucc":
+        return False
+    if a.get("deal_type") not in UCC_LOAN_TYPES or b.get("deal_type") not in UCC_LOAN_TYPES:
+        return False
+    ca, cb = sorted(a.get("ccns") or []), sorted(b.get("ccns") or [])
+    if not ca or ca != cb:
+        return False
+    la = lender_key(a.get("lender"))
+    if not la or la != lender_key(b.get("lender")):
+        return False
+    da, db = _day(a), _day(b)
+    return bool(da and db and abs((da - db).days) <= UCC_SAME_LOAN_DAYS)
+
+
+def _group_ucc(deals: list[dict], merged: dict) -> int:
+    """Group same-loan UCC filings (see module doc). Returns groups made."""
+    rows = [d for d in deals if d.get("source_type") == "ucc" and d.get("deal_type") in UCC_LOAN_TYPES
+            and d.get("ccns") and not d.get("grouped_into")]
+    buckets = {}
+    for d in rows:
+        buckets.setdefault((tuple(sorted(d["ccns"])), lender_key(d.get("lender"))), []).append(d)
+    n = 0
+    for (_, lk), members in buckets.items():
+        if not lk or len(members) < 2:
+            continue
+        members.sort(key=lambda d: _day(d) or date.max)
+        # chain filings that are each within the window of the previous one
+        runs, cur = [], [members[0]]
+        for d in members[1:]:
+            if ucc_same_loan(cur[-1], d):
+                cur.append(d)
+            else:
+                runs.append(cur)
+                cur = [d]
+        runs.append(cur)
+        for run in runs:
+            if len(run) < 2:
+                continue
+            lead = max(run, key=lambda d: (UCC_LOAN_TYPES[d["deal_type"]], _completeness_score(d),
+                                           d.get("created_at") or ""))
+            sources = [_source_entry(d) for d in run]
+            for d in run:
+                sources += [{**m, "merged": True} for m in merged.get(d["id"], [])]
+                if d is not lead:
+                    d["grouped_into"] = lead["id"]
+            debtors = list(dict.fromkeys(d["ucc_debtor"] for d in [lead] + run if d.get("ucc_debtor")))
+            lead.update({"sources": sources, "group_size": len(run), "group_ccns": sorted(lead["ccns"]),
+                         "ucc_debtor": "; ".join(debtors) or lead.get("ucc_debtor")})
+            n += 1
+    return n
 
 
 def _day(d):
@@ -200,6 +276,7 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
             key = next((k for k, rows in batches.items() if any(r is lead for r in rows)), None)
             if key:
                 _batch_card(lead, batches[key], key)
+    n_groups += _group_ucc(deals, merged)
     for d in deals:
         if "sources" not in d:
             d["sources"] = [_source_entry(d)] + [{**m, "merged": True} for m in merged.get(d["id"], [])]

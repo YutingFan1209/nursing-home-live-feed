@@ -55,6 +55,7 @@ from scraper.con_ny_apps import fetch_con_ny_app_deals, merge_into_phhpc, CON_NY
 from pipeline.source_health import log_source_health
 from pipeline.ccn_watch import log_watch
 from pipeline import individual_owners
+from pipeline.ucc_category import backfill_lender
 from scraper.ucc import fetch_ucc_filings
 from ucc.lender_search import LENDER_TERMS
 from pipeline.extractor import extract_deals
@@ -1576,12 +1577,14 @@ def _process_ucc_filing(article: dict, article_id, conn) -> int:
 
     if result.decision == RoutingDecision.CONFIRMATION:
         with conn.cursor() as cur:
+            cur.execute("SELECT acquiring_entity FROM deals WHERE id = %s", (result.matched_deal_id,))
+            row = cur.fetchone()
             cur.execute("""
                 UPDATE deals
                 SET ucc_confirmed = true,
                     lender = COALESCE(lender, %s)
                 WHERE id = %s
-            """, (filing.secured_party_name, result.matched_deal_id))
+            """, (backfill_lender(filing.secured_party_name, row[0] if row else None), result.matched_deal_id))
         logger.info(
             f"UCC confirmation: filing {filing.filing_number} ({filing.state}) "
             f"-> deal {result.matched_deal_id} (match score {result.match_score})"
