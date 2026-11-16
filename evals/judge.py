@@ -29,6 +29,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pipeline.field_rules import FIELD_RULES, SITE_RULES  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "evals"
 MODEL = "claude-opus-5-5"
@@ -62,37 +65,13 @@ homes, same buyer side, closing within a few weeks). Name that card's id in the 
 a consumer loan, a merchant cash advance, a non-US or non-nursing-home business.
 - uncertain: the evidence can't settle whether the card is right.
 
-Field rules:
-- buyer, seller, lender: the legal or reported name of the party. A broker or arranger (e.g. one that \
-"arranged" or "placed" the loan) is not the lender. A manager is not the buyer. The home's own \
-operating company is not a lender. Blank is right when the source names nobody. Site conventions \
-that are right: a New Jersey UCC card's lender reads "Not available ..." (NJ's search never returns \
-it); a CMS or state-filing card may carry the lender from a UCC filing on the same home near the sale \
-date, so a lender missing from the CMS record is not wrong by itself. Filing boilerplate left on a \
-correct lender ("its successors and assigns, as agent ...") or two secured parties of the same \
-filing joined with ";" is minor, not wrong.
-- deal_type values: ownership_change (a sale/purchase), acquisition_financing (a loan that funds a \
-purchase: "acquisition loan", "bridge acquisition", or a UCC filing within about 6 months of a new \
-owner in CMS records), refinancing (a loan on homes the borrower already owned), financing (a loan \
-whose purpose the source doesn't give), lease, operations_transfer, control_change, amendment, \
-non_deal_lien (a lien that isn't a deal). A working-capital line on its own is financing, not \
-acquisition_financing.
-- status values: reported (news says it happened), expected (announced, pending approval, or a \
-planned sale), confirmed (a CMS record backs it), on_file (a UCC filing: a record of a loan, not of a \
-sale). A planned or pending sale shown as reported is wrong, EXCEPT the site's rule: once a pending \
-sale's expected close date has passed (or 90 days after a filing, received or notice date when the \
-source gives no expected close), the site assumes it closed and shows reported with \
-assumed_closed: true. That is right, not wrong.
-- acquisition_date: the closing date the source gives, or the CMS record's date when CMS confirms \
-the card. For a state filing (CON, licence list, PHHPC, CHOW notice) that gives no closing date, \
-the site shows the filing, received, notice or meeting date: that is right. Any other date that is \
-none of these is wrong; a quarter placeholder (2026-10-01 for "4Q26") is minor.
-- facility_count and states: the homes in THIS deal, not the buyer's whole portfolio or a separate \
-deal in the same article.
-- deal_value_m, financing_amount_m: US dollars, millions. A foreign-currency figure converted to \
-dollars, or a price the source says was not disclosed, is wrong.
-- facility_type: skilled_nursing or assisted_living (memory care counts as assisted living).
-- ccns: the CMS IDs of the homes; check them against the CMS FACILITY rows given.
+Field rules (the same rules the extractor follows; a card is right when it meets them;\
+acquiring_entity is the card's buyer, seller_entity its seller, rationale its summary):
+""" + FIELD_RULES + """
+
+Site conventions (applied when the site is built; these are right, not errors):
+""" + SITE_RULES + """
+- The home's own operating company is not a lender. Check ccns against the CMS FACILITY rows given.
 
 In gold, give the correct value of every field (the shown value when it is right; null where the \
 source gives nothing). wrong_fields lists the fields shown wrong (for minor, the field with the \
@@ -149,6 +128,10 @@ def neighbours(card: dict, deals: list[dict], k: int = 8) -> list[dict]:
     out = []
     for d in deals:
         if d["id"] == card["id"] or d.get("individual_filing"):
+            continue
+        # already shown on one card with this one: not a separate duplicate
+        lead = card.get("grouped_into") or card["id"]
+        if (d.get("grouped_into") or d["id"]) == lead:
             continue
         score = 3 * bool(ccns & set(d.get("ccns") or []))
         score += 2 * bool(b and _norm(d.get("buyer")) == b) + 2 * bool(s and _norm(d.get("seller")) == s)
@@ -324,6 +307,10 @@ def cmd_gold(a) -> None:
     print(f"  false alarms           {c[(True, False)]}/{c[(True, True)] + c[(True, False)]} right cards flagged")
     print(f"  wrong-field recall     {ag['field_recall']:.0%}   precision {ag['field_precision']:.0%}")
     print(f"  correct-value agree    {ag['gold_value_agree']:.0%} of fields")
+    if not a.limit and len(res) == len(cards):           # a full run measures this prompt
+        from evals import record_measurement
+        record_measurement("judge", f"caught {k}/{n}, false alarms {c[(True, False)]}/"
+                           f"{c[(True, True)] + c[(True, False)]}", out.name)
     print("\nDisagreements (hand -> judge):")
     for r in ag["disagree"]:
         print(f"  {r[0]} {r[1]:5} {r[2]:>9} -> {r[3]:9} hand: {r[4]}\n{'':26}judge: {r[5]}")

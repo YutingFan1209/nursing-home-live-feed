@@ -17,6 +17,8 @@ from config import get_config
 from pipeline.run_health import health
 
 logger = logging.getLogger(__name__)
+from pipeline.field_rules import FIELD_RULES
+
 config = get_config()
 
 client = anthropic.Anthropic(api_key=config.anthropic_api_key)
@@ -101,25 +103,7 @@ Rules:
 - One announcement covering acquisitions in several states is one deal per state (e.g. "7 facilities in
   Colorado, 9 in Florida and 4 in Washington" is three deals), each with its own facility_count and
   facility_names. A single portfolio sale whose state breakdown the article doesn't give stays one deal
-- acquiring_entity, seller_entity and lender hold a party's NAME only. If the article describes a
-  party without naming it ("unnamed", "undisclosed", "a family-owned operator", "an independent
-  owner in Napa", "third-party debt", "a life insurance company"), use null and put the description
-  in the rationale. A manager or operator hired to run the home is not the buyer, and a broker or
-  arranger is not the lender
-- Write a name without explanatory brackets or asides: "NHC/OP, L.P.", not "NHC/OP, L.P. (a
-  subsidiary of National HealthCare)"; "CareTrust REIT", not "CareTrust REIT (the buyer)"
-- facility_count, states, deal_value_m and financing_amount_m describe THIS deal only. Never use a
-  company's whole portfolio, its total for the quarter, or the sum of several deals the article
-  lists: an earnings release listing three acquisitions is three deals, each with its own homes,
-  states and price
-- acquisition_date: the closing or effective date the article gives for this deal ("consummated
-  July 1", "effective Oct. 1", "as of November 1 ... has closed", a dated entry "October 27, 2026 -
-  X bought Y"), in the publication year unless the text says otherwise. A month without a day ("the
-  lease commenced in July 2026") is the 1st of that month. Null for a quarter or year alone, or no
-  date
-- When a loan pays for a purchase (acquisition loan, bridge-to-HUD acquisition financing, "to
-  finance the acquisition of"), say "acquisition financing" in the rationale; when it pays off
-  existing debt, say "refinancing"; a working-capital or revolving line on its own is neither
+{field_rules}
 - Use a party's full legal name when the article gives it. Some buyers are entities named after a
   street address ("101 W State Street Holdings LLC"); keep the LLC/Holdings part so the name doesn't
   read as an address
@@ -140,7 +124,7 @@ Rules:
 - Return ONLY the JSON array, no markdown, no explanation
 
 Article:
-{article_text}"""
+{article_text}""".replace("{field_rules}", FIELD_RULES)
 
 
 def extract_deals(article_text: str, article_url: str = "", published_at=None) -> list[dict]:

@@ -295,7 +295,12 @@ def cmd_extract(args) -> None:
     if len(raw) < len(texts):
         print(f"\nScored {len(raw)} of {len(texts)} articles ({failed} API errors left out).")
     print(f"Raw extractions saved to {raw_path} (rescore free: python -m evals.score rescore <file>)")
-    report(_score_raw([g for g in gold if g["id"] in raw], raw), "Fresh-extraction score vs gold (news/SEC)")
+    res = _score_raw([g for g in gold if g["id"] in raw], raw)
+    report(res, "Fresh-extraction score vs gold (news/SEC)")
+    if not args.limit and len(raw) == len(texts):        # a full run measures this prompt
+        from evals import record_measurement
+        ok = summary(res).get("news", [0, 0])
+        record_measurement("extract", f"{ok[0]}/{ok[1]} news cards fully right", raw_path.name)
 
 
 def main() -> None:

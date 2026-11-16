@@ -51,3 +51,22 @@ last run. `extract` is for prompt or model changes: run it before and after.
   fresh sample (new seed) before quoting a rate.
 - Add new labelled cards as new files (`gold/labels_<date>.jsonl`) rather
   than rewriting this one.
+
+## Guards (2026-11-16)
+
+- **One set of field rules.** `pipeline/field_rules.py` holds what each field
+  means and the site's display conventions. The extraction prompt and the
+  judge both read it, and hand labels follow it. Change a rule there, not in
+  one prompt.
+- **A prompt change must be measured.** `evals/measured.json` keeps a
+  fingerprint of the extraction and judge prompts from their last full gold
+  run; `tests/test_prompt_measured.py` fails when either changed since. Rerun
+  `evals.score extract --yes` (~$1.70) or `evals.judge gold <export> --yes`
+  (~$5); each records itself on a full run.
+- **New cards are checked before they go live.** `scripts/deploy.py` sends
+  cards not yet on the site to the judge (about $0.035 each, capped by
+  `--judge-max`, default $5). right/minor ship; wrong, duplicate, noise,
+  uncertain or unchecked are held (`python -m evals.holds` lists them,
+  `release <id>` ships one).
+- **A lower gold score stops the deploy**, unless `--accept-drop "<why>"`
+  (kept in the score history) when a gold label was corrected.

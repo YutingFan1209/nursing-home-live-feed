@@ -45,6 +45,7 @@ from scraper.con_ri import fetch_con_ri_deals, CON_RI_SOURCE_NAME, CON_RI_INDEX_
 from scraper.con_mt import fetch_con_mt_deals, CON_MT_SOURCE_NAME, CON_MT_INDEX_URL
 from scraper.licence_lists import LISTS as LICENCE_LISTS, licence_list_deals
 from scraper.con_tn import fetch_con_tn_deals, CON_TN_SOURCE_NAME, CON_TN_INDEX_URL
+TN_EVERY_DAYS = 14
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
 from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
@@ -644,25 +645,38 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
                 new_articles.append(deal)
 
         # Tennessee HFC: nursing home CHOWs on the monthly agenda (real Chrome:
-        # tn.gov answers only a browser)
-        con_tn_source_id = _ensure_source(
-            type("S", (), {"name": CON_TN_SOURCE_NAME,
-                           "url": CON_TN_INDEX_URL,
-                           "source_type": "con"})(),
-            conn
-        )
+        # tn.gov answers only a browser). The window is visible, so it opens at
+        # most every TN_EVERY_DAYS (person's rule 2026-11-16: biweekly, not
+        # every run); the agenda lookback covers the months in between.
         with conn.cursor() as cur:
-            cur.execute("SELECT provider_name, provider_city, ccn FROM cms_facilities WHERE provider_state = 'TN'")
-            tn_homes = [row for row in cur.fetchall() if row[0]]
-        try:
-            tn_deals = fetch_con_tn_deals(lambda url: _article_exists(url, conn), tn_homes)
-        except Exception as e:
-            logger.error(f"TN CON agendas failed: {e}")
-            health.source_failed("TN CON agendas", str(e))
-            tn_deals = []
-        for deal in tn_deals:
-            deal["source_id"] = con_tn_source_id
-            new_articles.append(deal)
+            cur.execute("SELECT last_fetched_at FROM sources WHERE url = %s", (CON_TN_INDEX_URL,))
+            row = cur.fetchone()
+        tn_last = row[0] if row else None
+        tn_due = tn_last is None or (datetime.now(tn_last.tzinfo) - tn_last).days >= TN_EVERY_DAYS
+        if not tn_due:
+            logger.info(f"TN CON agendas: last read {tn_last:%Y-%m-%d}, next after {TN_EVERY_DAYS} days; skipped")
+        else:
+            con_tn_source_id = _ensure_source(
+                type("S", (), {"name": CON_TN_SOURCE_NAME,
+                               "url": CON_TN_INDEX_URL,
+                               "source_type": "con"})(),
+                conn
+            )
+            with conn.cursor() as cur:
+                cur.execute("SELECT provider_name, provider_city, ccn FROM cms_facilities WHERE provider_state = 'TN'")
+                tn_homes = [row for row in cur.fetchall() if row[0]]
+            try:
+                tn_deals = fetch_con_tn_deals(lambda url: _article_exists(url, conn), tn_homes)
+            except Exception as e:
+                logger.error(f"TN CON agendas failed: {e}")
+                health.source_failed("TN CON agendas", str(e))
+                tn_deals = []
+                with conn.cursor() as cur:    # not read: try again next run, not in two weeks
+                    cur.execute("UPDATE sources SET last_fetched_at = %s WHERE url = %s", (tn_last, CON_TN_INDEX_URL))
+                conn.commit()
+            for deal in tn_deals:
+                deal["source_id"] = con_tn_source_id
+                new_articles.append(deal)
 
         con_mi_source_id = _ensure_source(
             type("S", (), {"name": CON_MI_SOURCE_NAME,

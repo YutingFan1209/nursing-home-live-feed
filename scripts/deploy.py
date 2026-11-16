@@ -10,9 +10,13 @@ Steps (README "Deployment (gh-pages)"):
   2. scripts/predeploy_check.py: any failed check stops the deploy. There is
      no --force here on purpose: review the report, fix or put the record
      on the reviewed list, then rerun
-  3. gold-set score (evals/score.py), shown next to the last deploy's score,
-     so a deploy that makes the feed less accurate is visible before it ships
-  4. stash main's tracked changes, switch to gh-pages, copy, commit, push,
+  3. gold-set score (evals/score.py) against the last deploy's: fewer cards
+     right in any group stops the deploy (--accept-drop "<why>" when a gold
+     label was corrected, kept in the score history)
+  4. Claude check of new cards (evals/holds.py): cards not on the live site
+     yet go to the judge; flagged ones are held out of the export until a
+     person releases them. Capped by --judge-max (default $5)
+  5. stash main's tracked changes, switch to gh-pages, copy, commit, push,
      switch back and unstash -- back on main even if a step fails
 
 Data only. A frontend deploy still follows the README steps.
@@ -76,6 +80,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--yes", action="store_true", help="push without asking (only when the person said deploy)")
     ap.add_argument("--dry-run", action="store_true", help="export and check, don't touch git")
+    ap.add_argument("--judge-max", type=float, default=5.0, metavar="USD",
+                    help="most to spend checking new cards (default $5); over it, they're held unchecked")
+    ap.add_argument("--accept-drop", metavar="WHY", help="deploy although the gold score went down; WHY is kept in the score history")
     ap.add_argument("-m", "--message", default="", help="what changed, added to the commit message")
     a = ap.parse_args()
 
@@ -85,19 +92,46 @@ def main() -> None:
 
     out = Path(tempfile.mkdtemp(prefix="nh-deploy-"))
     deals = out / "deals.json"
-    print("1/4 Exporting...")
+    print("1/5 Exporting...")
     run(PY, "scripts/export_deals.py", str(deals))
 
-    print("\n2/4 Predeploy check...")
+    print("\n2/5 Predeploy check...")
     if run(PY, "scripts/predeploy_check.py", str(deals), check=False).returncode != 0:
         sys.exit("\nStopped: predeploy check failed. Nothing was deployed.")
 
-    print("\n3/4 Gold-set score...")
+    print("\n3/5 Claude check of new cards...")
+    from evals import holds as H
+    export = json.loads(deals.read_text())
+    live = json.loads(git("show", "gh-pages:deals.json"))
+    live_ids = {d["id"] for d in live["deals"]}
+    prior = H.load()                       # held at an earlier deploy: not in this export
+    cards = H.new_cards(export, live_ids)
+    if not cards:
+        print("  No new cards.")
+    elif a.dry_run:
+        H.check(cards, export["deals"], a.judge_max, spend=False)
+        print("  Dry run: not checked. A real deploy checks them, or holds them unchecked.")
+    else:
+        new = H.check(cards, export["deals"], a.judge_max, spend=True)
+        for i, h in new.items():
+            print(f"  held {i[:8]} {h['verdict']:9} {(h.get('headline') or '')[:70]}")
+        print(f"  {len(cards) - len(new)} of {len(cards)} new card(s) passed, {len(new)} held")
+        if new:
+            H.save({**prior, **new})
+            print("  Re-exporting without the held cards...")
+            run(PY, "scripts/export_deals.py", str(deals))
+            if run(PY, "scripts/predeploy_check.py", str(deals), check=False).returncode != 0:
+                sys.exit("\nStopped: predeploy check failed. Nothing was deployed.")
+    if prior:
+        print(f"  {len(prior)} card(s) still held from earlier deploys: python -m evals.holds")
+
+    print("\n4/5 Gold-set score...")
     now = summary(score_export(deals))
     down = show_score(now, last_score())
-    if down:
-        print(f"\n  WARNING: fewer gold cards right than at the last deploy in: {', '.join(down)}."
-              " Run `python -m evals.score stored` on the export to see which.")
+    if down and not a.accept_drop:
+        sys.exit(f"\nStopped: fewer gold cards right than at the last deploy in: {', '.join(down)}."
+                 " Run `python -m evals.score stored` on the export to see which. If the drop is"
+                 " expected (a gold label was corrected), rerun with --accept-drop \"<why>\".")
 
     if a.dry_run:
         print(f"\nDry run: export kept in {out}. Nothing deployed.")
@@ -106,7 +140,7 @@ def main() -> None:
         if not sys.stdin.isatty() or input("\nPush to gh-pages? [y/N] ").strip().lower() != "y":
             sys.exit("Not deployed.")
 
-    print("\n4/4 Deploying...")
+    print("\n5/5 Deploying...")
     stashed = git("stash", "push", "-m", "deploy.py") != "No local changes to save"
     commit = None
     try:
@@ -128,7 +162,8 @@ def main() -> None:
     if commit:
         HISTORY.parent.mkdir(parents=True, exist_ok=True)
         with open(HISTORY, "a") as f:
-            f.write(json.dumps({"at": f"{datetime.now():%Y-%m-%d %H:%M}", "commit": commit, "score": now}) + "\n")
+            f.write(json.dumps({"at": f"{datetime.now():%Y-%m-%d %H:%M}", "commit": commit, "score": now,
+                                **({"accepted_drop": a.accept_drop} if a.accept_drop else {})}) + "\n")
         print(f"Deployed gh-pages {commit}. Back on main.")
 
 

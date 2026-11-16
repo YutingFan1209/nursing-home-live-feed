@@ -715,6 +715,12 @@ def main():
         before = len(deals)
         deals = [d for d in deals if d["facility_type"] in SITE_FACILITY_TYPES]
         print(f"Left out {before - len(deals)} records that aren't nursing homes or assisted living")
+        # New cards the judge flagged wait for a person (evals/holds.py)
+        from evals.holds import held_ids
+        held = held_ids()
+        if held:
+            deals = [d for d in deals if d["id"] not in held]
+            print(f"Held back {len(held)} new card(s) for review (python -m evals.holds)")
 
         # Rows pipeline/same_sale.py merged away still count as sources of
         # the deal they went into (following merges of merges)
