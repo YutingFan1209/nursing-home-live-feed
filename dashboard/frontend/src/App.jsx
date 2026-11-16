@@ -1351,11 +1351,12 @@ export default function App() {
     fetch(DATA_URL + "?t=" + Date.now())
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then(data => {
-        // Pending deals (filed or reported before closing) pinned on top, to
-        // show what the tracker catches ahead of the sale; once the expected
-        // close passes the export marks them closed (assumed_closed) and they
-        // drop into date order. Then newest first by the date each card shows
-        const pendingFirst = (d) => (displayStatus(d) === "expected" && !closePassed(d) ? 0 : 1);
+        // Pending deals pinned on top only while the date the card shows (an
+        // expected close, a council vote) is still ahead. Once it has passed,
+        // or when there is no date, the card sorts in by its date like any
+        // other (person's rule 2026-11-16). Then newest first
+        const today = new Date().toISOString().slice(0, 10);
+        const pendingFirst = (d) => (displayStatus(d) === "expected" && d._date >= today ? 0 : 1);
         const deals = (data.deals || data || []).map(withDisplayCase)
           .map(d => ({ ...d, _date: primaryDate(d).date || d.created_at?.slice(0, 10) || "" }))
           .sort((a, b) => pendingFirst(a) - pendingFirst(b) || b._date.localeCompare(a._date));
