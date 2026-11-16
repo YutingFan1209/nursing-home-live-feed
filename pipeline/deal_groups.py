@@ -166,16 +166,21 @@ def same_deal(a: dict, b: dict) -> str | None:
     same_states = bool(a.get("states")) and sorted(a["states"]) == sorted(b.get("states") or [])
     ca, cb = a.get("facility_count"), b.get("facility_count")
     same_count = ca is not None and ca == cb
+    # Different prices are different sales: Welltower's 3 Miami-area homes
+    # for $143M and its 3 Broward homes for $160M, a week apart
+    va, vb = a.get("deal_value_m"), b.get("deal_value_m")
+    price_differs = va is not None and vb is not None and abs(float(va) - float(vb)) > 0.05 * max(float(va), float(vb))
     # Two stories of one sale with no seller or price: Ensign's 4 WA homes
     # on 10/01 and 10/02, its 7 CO operations (one copy undated)
-    if news and ba and bb and same_states and same_count and abs((da - db).days) <= SAME_STORY_DAYS:
+    if (news and ba and bb and same_states and same_count and not price_differs
+            and abs((da - db).days) <= SAME_STORY_DAYS):
         return "same buyer, states and home count"
     # One names the seller, the other the broker's buyerless summary: same
     # closing date, state and count (Saber's 3 Ohio homes, closed 6/30)
     sa, sb = a.get("seller"), b.get("seller")
     if (news and same_states and same_count and (ca >= 2 or (sa and sb and _agree(sa, sb)))
             and a.get("acquisition_date") and a.get("acquisition_date") == b.get("acquisition_date")
-            and not (sa and sb and not _agree(sa, sb))):
+            and not (sa and sb and not _agree(sa, sb)) and not price_differs):
         return "same closing date, states and home count"
     if not (ba and bb):
         return None

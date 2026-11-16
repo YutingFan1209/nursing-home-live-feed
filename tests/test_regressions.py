@@ -1837,6 +1837,10 @@ def test_news_duplicates_grouped():
     a = {**n, "buyer": "Ensign Group", "acquisition_date": "2026-10-02"}
     b = {**n, "buyer": "The Ensign Group", "acquisition_date": "2026-10-01"}
     assert same_deal(a, b)
+    # same buyer, state and count but different prices: two sales (Welltower FL, 11-16)
+    w = {**n, "buyer": "Welltower", "states": ["FL"], "facility_count": 3}
+    assert not same_deal({**w, "deal_value_m": "143.00", "acquisition_date": "2026-11-12"},
+                         {**w, "deal_value_m": "160.00", "acquisition_date": "2026-11-16"})
     # same closing date, state and count; one names only the seller
     s1 = {**n, "states": ["OH"], "facility_count": 3, "seller": "Saber Healthcare Group", "acquisition_date": "2026-06-30"}
     s2 = {**n, "states": ["OH"], "facility_count": 3, "acquisition_date": "2026-06-30"}
