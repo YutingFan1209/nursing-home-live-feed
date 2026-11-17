@@ -958,7 +958,7 @@ def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
         return article, None, []
     health.attempted("Claude extraction")
     try:
-        deals = extract_deals(raw_text, article["url"], article.get("published_at"))
+        deals = extract_deals(raw_text, article["url"], article.get("published_at"), title=article.get("title"))
     except Exception as e:
         logger.error(f"Extraction failed for {article['url']}: {e}")
         health.failed("Claude extraction", f"{article['url']}: {e}")
@@ -1150,6 +1150,7 @@ def process_article(article: dict, conn) -> int:
         if headline and looks_like_snippet(article.get("title"), article["url"]):
             with conn.cursor() as cur:
                 cur.execute("UPDATE articles SET title = %s WHERE id = %s", (headline, article_id))
+            article["title"] = headline
         if raw_text:
             _update_article_text(article_id, raw_text, conn)
         else:
@@ -1161,7 +1162,7 @@ def process_article(article: dict, conn) -> int:
 
     health.attempted("Claude extraction")
     try:
-        deals = extract_deals(raw_text, article["url"], article.get("published_at"))
+        deals = extract_deals(raw_text, article["url"], article.get("published_at"), title=article.get("title"))
     except Exception as e:
         logger.error(f"Extraction failed for {article['url']}: {e}")
         health.failed("Claude extraction", f"{article['url']}: {e}")

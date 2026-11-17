@@ -245,7 +245,7 @@ def cmd_extract(args) -> None:
     cur = db.cursor()
     texts = {}
     for g in gold:
-        cur.execute("""select a.raw_text, a.url, a.published_at from deals d
+        cur.execute("""select a.raw_text, a.url, a.published_at, a.title from deals d
                        join articles a on a.id = d.article_id where d.id = %s""", (g["id"],))
         row = cur.fetchone()
         if row and row[0]:
@@ -279,9 +279,9 @@ def cmd_extract(args) -> None:
         for i, g in enumerate(gold, 1):
             if g["id"] not in texts:
                 continue
-            text, url, pub = texts[g["id"]]
+            text, url, pub, title = texts[g["id"]]
             fails.msgs.clear()
-            out = extract_deals(text, url, pub)
+            out = extract_deals(text, url, pub, title=title)
             if fails.msgs:
                 failed += 1
                 print(f"  [{i}/{len(gold)}] {g['id'][:8]} API error: {fails.msgs[0][-160:]}", file=sys.stderr)

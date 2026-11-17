@@ -121,17 +121,43 @@ Rules:
 - Include parent company names (e.g. "Welltower" even if the actual seller was "an affiliate of Welltower")
 - States should be 2-letter codes only: ["VA", "CO", "AL"]
 - deal_value_m and financing_amount_m must be numbers, not strings
+- When the text is only a preview or teaser (a paywalled site), it starts with the headline: extract
+  only the deal the headline and teaser state, with their numbers
 - Return ONLY the JSON array, no markdown, no explanation
 
 Article:
 {article_text}""".replace("{field_rules}", FIELD_RULES)
 
 
-def extract_deals(article_text: str, article_url: str = "", published_at=None) -> list[dict]:
+_LINK_LINE = re.compile(r"(?m)^- (.{10,200}?) \1[ \t]*\n?")   # "- X X": a related-story link
+_PREVIEW = re.compile(r"^\s*(preview this article|subscribe to read|sign in to read)", re.I)
+
+
+def article_input(article_text: str, title: str | None = None) -> str:
+    """The text Claude reads (and grounding checks): the headline first, then
+    the body without lists of links to other stories. Paywalled sites (Business
+    Journals) give a teaser plus related-story links; the 2026-11-12 Welltower
+    preview linked three other Welltower deals and its card took their total."""
+    body = _LINK_LINE.sub("", article_text or "").strip()
+    preview = bool(_PREVIEW.match(article_text or ""))
+    # The headline only for a teaser: on a full article it pulled Claude toward
+    # the headline's story or, for an SEC filing (whose title is our own
+    # "[EDGAR 8-K] ..." label), toward one portfolio-wide deal (LTC, 11-17)
+    head = []
+    if title and title.strip() and not title.startswith("[") and (preview or len(body.split()) < MIN_TEXT_WORDS):
+        head.append(f"Headline: {title.strip()}")
+    if preview:
+        head.append("(Only a preview of this article was available.)")
+    return "\n".join(head + ([""] if head else []) + [body])
+
+
+def extract_deals(article_text: str, article_url: str = "", published_at=None, title: str | None = None) -> list[dict]:
     """
     Extract structured deal data from article text using Claude.
     Returns list of deal dicts. Returns empty list if text is too short
     (likely paywalled) or if extraction fails after retries.
+
+    title: the article's headline, put first in the text (article_input).
 
     published_at (datetime/date/str, optional): the article's publish date,
     passed to Claude so it can tell fresh news apart from a stale deal
@@ -141,6 +167,7 @@ def extract_deals(article_text: str, article_url: str = "", published_at=None) -
     if not article_text:
         logger.warning(f"Empty article text: {article_url}")
         return []
+    article_text = article_input(article_text, title)
 
     word_count = len(article_text.split())
     char_count = len(article_text.strip())

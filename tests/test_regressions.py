@@ -1853,3 +1853,86 @@ def test_news_duplicates_grouped():
     c = {"source_type": "chow", "deal_type": "ownership_change", "states": ["TX"], "facility_count": 1, "buyer": "Frio Hospital District"}
     assert not same_deal({**c, "ccns": ["1"], "acquisition_date": "2024-12-15"}, {**c, "ccns": ["2"], "acquisition_date": "2024-12-25"})
     assert not same_deal({**c, "acquisition_date": "2024-12-15"}, {**c, "acquisition_date": "2024-12-25"})
+
+
+def test_article_input_headline_and_preview():
+    """Paywalled previews: headline first, related-story links dropped (Welltower FL, 2026-11-12)."""
+    from pipeline.extractor import article_input
+    raw = ("Preview this article 1 min\nNine facilities have traded hands.\n"
+           "- Welltower buys three Broward nursing homes for $160M Welltower buys three Broward nursing homes for $160M\n"
+           "- Welltower buys two Palm Beach County nursing homes for $48M Welltower buys two Palm Beach County nursing homes for $48M\n")
+    out = article_input(raw, "Welltower buys 3 more South Florida nursing homes for $143M")
+    assert out.startswith("Headline: Welltower buys 3 more South Florida nursing homes for $143M")
+    assert "Only a preview" in out and "$160M" not in out and "$48M" not in out
+    assert "Nine facilities have traded hands." in out
+    # an ordinary article keeps its text, and its own list lines that aren't repeated links
+    body = "Ensign bought two homes.\n- Sunrise Manor, Bay Shore NY\n"
+    assert article_input(body, None) == body.strip()
+    # a full article or an SEC filing gets no headline line (it pulled LTC's 8-K into one deal)
+    full = "word " * 150
+    assert article_input(full, "Some headline") == full.strip()
+    assert not article_input("Preview this article\nshort", "[EDGAR 8-K] LTC").startswith("Headline")
+
+
+def test_fuzzy_dedup_keeps_different_prices_apart():
+    """Welltower $35M FL home vs its $49M Broward buy: same buyer/state/count, different sales (2026-11-17)."""
+    from pipeline.dedup import _price_close_ok
+    assert not _price_close_ok(35, 49)
+    assert _price_close_ok(100, 103) and _price_close_ok(None, 49) and _price_close_ok(35, None)
+
+
+def test_licence_batch_homes_stay_separate():
+    """Same-day new licensees with one naming pattern are separate companies: one card each (2026-11-17)."""
+    from pipeline.deal_groups import group
+    rows = [{"id": f"x{i}", "deal_type": "ownership_change", "source_type": "con", "states": ["FL"],
+             "acquisition_date": "2026-05-01", "facility_count": 1, "facility_names": [f"HOME {i} BY HARBORVIEW"],
+             "buyer": f"HOME{i} HCC LLC", "seller": f"OLD{i} LLC", "ccns": [f"10{i}"], "status": "reported",
+             "source_url": f"https://x#licensee-10{i}", "headline": [], "created_at": "2026-10-27"}
+            for i in range(5)]
+    group(rows, {})
+    assert all(r["group_size"] == 1 and not r.get("grouped_into") for r in rows)
+
+
+def test_record_links_open_the_record():
+    """Source links open the home/filing/paragraph, not a search page (user rule 2026-11-17)."""
+    from pipeline.record_links import record_url, text_fragment
+    u = record_url("https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-525317-02-28-2025", {})
+    assert "CCN+-+BUYER%5D=525317" in u and "2025-02-28" in u
+    assert "525317" in record_url("chow://ccn-525317-02282025", {})
+    o = record_url("https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-x-2025-11-01",
+                   {"ccns": ["255106"], "acquiring_entity": "MISSISSIPPI COMMCARE"})
+    assert "255106" in o and "MISSISSIPPI+COMMCARE" in o
+    text = "Roundup. Sunrise Manor sold. LTC LTC LTC LTC Properties bought it."
+    assert text_fragment(text, "Sunrise Manor") == "#:~:text=Sunrise%20Manor"
+    assert text_fragment("LTC Properties " * 5, "LTC Properties") == ""
+
+
+def test_record_links_state_records():
+    """User rule 2026-11-17: state records open the one record, not the list."""
+    from pipeline.record_links import record_url
+    assert record_url("https://health.data.ny.gov/Health/x/h343-jwie#project-262177", {}) \
+        .endswith("h343-jwie.json?con_project_number=262177")
+    assert "facility_name=CRESTWOOD+HEALTH+CARE+CENTER" in record_url(
+        "https://data.mo.gov/Health/LTC-Directory/fenu-sipv#licensee-x", {"facility_names": ["CRESTWOOD HEALTH CARE CENTER"]})
+    assert "CCN+-+BUYER%5D=505417B" in record_url(
+        "https://catalog.data.gov/dataset/skilled-nursing-facility-change-of-ownership#ccn-505417B-10-01-2024", {})
+    # a list page as the source: the DSHS letter naming the home
+    text = "... Source: https://fortress.wa.gov/x/NHPubLookup.aspx https://fortress.wa.gov/x/RCSForms/NH/1755/a%20b.pdf"
+    from pipeline import record_links
+    record_links._pdf_cache = {"https://fortress.wa.gov/x/RCSForms/NH/1755/a%20b.pdf": ["one page"]}
+    assert record_url("https://fortress.wa.gov/x/NHPubLookup.aspx#licensee-505211-licence-1755", {}, text) \
+        == "https://fortress.wa.gov/x/RCSForms/NH/1755/a%20b.pdf"
+    assert record_url("https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#exemption-5123", {}, "exemption 5123") \
+        .endswith("index.html#:~:text=5123")
+
+
+def test_unstated_loan_purpose_is_plain_financing():
+    """'does not say whether the loan funds an acquisition or refinances debt'
+    is not a refinancing (gold e1c1ab12, 2026-11-17)."""
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("export_deals", pathlib.Path(__file__).parent.parent / "scripts" / "export_deals.py")
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    d = {"financing_amount_m": 27, "summary": "CIBC closed a $27M mortgage for 4 SNFs. The article does not say whether "
+         "the loan funds an acquisition or refinances debt."}
+    assert m._news_deal_type(d) == "financing"
+    assert m._news_deal_type({"financing_amount_m": 53, "summary": "CIBC closed a $53M cash-out refinancing."}) == "refinancing"

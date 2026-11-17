@@ -204,41 +204,10 @@ def _source_entry(d: dict) -> dict:
             "headline": "".join(t for t, _ in d.get("headline") or [])}
 
 
-# Words of a licensee's name that aren't its home's name or a naming template
-_PLAIN = {"HEALTH", "HEALTHCARE", "CARE", "CENTER", "CENTRE", "REHAB", "REHABILITATION", "NURSING", "AND",
-          "OF", "AT", "LLC", "INC", "LP", "LTD", "CORP", "PLLC"}
-BATCH_MIN = 3
-
-
-def batch_key(d: dict) -> tuple | None:
-    """Licence-list records whose new licensees share a naming template
-    ("Rest Haven SNF Opco LLC", "Parkway SNF Opco LLC") on one date: one
-    owner moving many homes at once (2026-10-27: 32 Missouri homes to
-    "... SNF OPCO LLC" on 6/1/2026). The template is the licensee's name
-    less its home's and the previous licensee's words."""
-    if "#licensee-" not in (d.get("source_url") or "") or not d.get("buyer") or not d.get("acquisition_date"):
-        return None
-    place = set(name_key(" ".join((d.get("facility_names") or []) + [d.get("seller") or ""])).split())
-    rest = [w for w in name_key(d["buyer"]).split() if w not in place and w not in _PLAIN]
-    return (tuple(d.get("states") or []), d["acquisition_date"], " ".join(rest)) if rest else None
-
-
-def _batch_card(lead: dict, members: list[dict], key: tuple) -> None:
-    """One card for a licence batch: the homes, not one home's licensee."""
-    states, when, template = key
-    homes = sorted({f for d in members for f in d.get("facility_names") or []})
-    where = f" in {', '.join(states)}" if states else ""
-    lead.update({
-        "facility_names": homes, "facility_count": len(homes), "buyer": None, "seller": None,
-        "buyer_disclosure": None, "seller_disclosure": None,
-        "headline": [[f"{len(homes)} homes{where}", ""], [" move to new licensees named “… ", "muted"],
-                     [template, ""], ["”", "muted"]],
-    })
-    if lead.get("status") == "reported":
-        lead["status_detail"] = (
-            f"Reported: state licence list shows {len(homes)} homes licensed to new “… {template}” "
-            f"companies from {when}. One owner restructuring, or a sale of the group to one buyer; "
-            "CMS doesn't show a new owner yet.")
+# Licence batches (several homes moving to new same-pattern LLCs on one day,
+# e.g. 30 Missouri "... SNF OPCO LLC") were one card from 2026-10-27 to
+# 11-17. Each home's new licensee is its own company, so each is its own card
+# (user decision 2026-11-17).
 
 
 def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
@@ -265,17 +234,7 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
             keys.add(f"close:{sorted(d.get('states') or [])}:{d['acquisition_date']}:{d['facility_count']}")
         for k in keys:
             buckets.setdefault(k, []).append(d)
-    batches = {}
-    for d in candidates:
-        if (k := batch_key(d)):
-            batches.setdefault(k, []).append(d)
-    batches = {k: rows for k, rows in batches.items() if len(rows) >= BATCH_MIN}
     reasons = {}
-    for rows in batches.values():
-        for b in rows[1:]:
-            if find(rows[0]["id"]) != find(b["id"]):
-                parent[find(rows[0]["id"])] = find(b["id"])
-                reasons[(rows[0]["id"], b["id"])] = "same licence batch"
     for rows in buckets.values():
         for i, a in enumerate(rows):
             for b in rows[i + 1:]:
@@ -306,9 +265,6 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
             for d in members:
                 if d is not lead:
                     d["grouped_into"] = lead["id"]
-            key = next((k for k, rows in batches.items() if any(r is lead for r in rows)), None)
-            if key:
-                _batch_card(lead, batches[key], key)
     n_groups += _group_ucc(deals, merged)
     for d in deals:
         if "sources" not in d:

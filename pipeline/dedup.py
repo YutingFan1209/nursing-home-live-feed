@@ -171,6 +171,14 @@ def _facility_count_close_ok(a, b) -> bool:
     return abs(a - b) / max(a, b) <= 0.20
 
 
+def _price_close_ok(a, b) -> bool:
+    """Prices within 5% of each other, or either one missing (deal_groups uses the same 5%)."""
+    if a is None or b is None:
+        return True
+    a, b = float(a), float(b)
+    return abs(a - b) <= 0.05 * max(a, b)
+
+
 def _facility_names_overlap_ok(a: list, b: list) -> bool:
     """Both sides empty is 'no info' - pass. Otherwise require at least one
     shared facility name (case/whitespace-insensitive). A fuzzy-matched
@@ -309,6 +317,10 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn, ccns=None) -> str:
         if not _facility_names_overlap_ok(new_deal["facility_names"], other["facility_names"]):
             continue
         if new_ccns and not _ccns_overlap_ok(new_ccns, _deal_ccns(other["id"], conn)):
+            continue
+        # Different prices are different sales: Welltower's $35M home merged
+        # into its $49M Broward purchase on 2026-11-17 (same buyer, state, count)
+        if not _price_close_ok(new_deal.get("deal_value_m"), other.get("deal_value_m")):
             continue
 
         keep, drop = (

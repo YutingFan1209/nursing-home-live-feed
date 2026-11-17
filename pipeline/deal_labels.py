@@ -157,10 +157,22 @@ def is_not_a_deal(d: dict, today: date = None) -> bool:
     return classify_secured_party(d.get("lender") or "").category == LenderCategory.EQUIPMENT_VENDOR
 
 
+_UNSTATED_RE = re.compile(r"(does not|doesn't|did not|do not) (say|state|specify)|not (stated|disclosed|specified) whether", re.I)
+
+
+def stated_purpose(summary: str | None) -> str:
+    """The summary without sentences saying the loan's purpose isn't given
+    ("The article does not say whether the loan funds an acquisition or
+    refinances debt" is neither an acquisition loan nor a refinancing)."""
+    return " ".join(x for x in re.split(r"(?<=\.)\s", summary or "") if not _UNSTATED_RE.search(x))
+
+
 def transaction_type(d: dict) -> str:
     """deal_type with leases, control changes and news financing subtypes
     split out. UCC types come from pipeline/ucc_category.py and pass through,
     except a person's loan from a consumer lender, which is a non-deal lien."""
+    if d.get("id") in DEAL_TYPE_OVERRIDES:
+        return DEAL_TYPE_OVERRIDES[d["id"]]
     dt = d.get("deal_type") or "ownership_change"
     if d.get("source_type") == "ucc":
         return "non_deal_lien" if is_personal_loan(d) or is_not_a_deal(d) else dt
@@ -176,10 +188,11 @@ def transaction_type(d: dict) -> str:
             return "lease"
         return dt
     if dt in ("financing", "refinancing", "acquisition_financing"):
+        summary = stated_purpose(d.get("summary"))
         # "for the acquisition of" wins over "refinancing" in the same line
-        if _ACQ_FIN_RE.search(d.get("summary") or ""):
+        if _ACQ_FIN_RE.search(summary):
             return "acquisition_financing"
-        if _REFI_RE.search(d.get("summary") or ""):
+        if _REFI_RE.search(summary):
             return "refinancing"
         return "financing"
     return dt
@@ -229,6 +242,27 @@ FACILITY_TYPE_OVERRIDES = {
     "07982910-ee4c-4cc0-9ba8-c3bb6788df10": "assisted_living",  # Land O'Lakes FL, Charter
     "483f0bdf-f365-4072-8b30-4092f64ac9b8": "assisted_living",  # VA/MD, IntegraCare
     "b76eba27-05f3-406e-99c2-7df5eb577010": "assisted_living",  # Owens Cross Roads AL, Charter
+    # the source doesn't say what kind of home it is: kept off the site (hand review 2026-11-17)
+    "aadc71e0-4dfa-4609-a666-d6001055b34c": "unknown",  # Welltower $49M "120-unit" in Broward FL
+    "b48265b8-8a17-46af-a4dc-2dcf98f0116d": "assisted_living",  # LTC: the 17 are the senior housing homes, not the 3 SNFs
+}
+
+# Audit sample of 2026-11-17, verdicts confirmed by hand review: what the
+# source supports where the text rules read it wrongly
+DEAL_TYPE_OVERRIDES = {
+    "3695f66a-e176-4d49-b095-29520ed86b9a": "financing",              # MA $11M CIBC: purpose not stated
+    "d59ee023-f879-48d9-bf66-cf3d733fe3ad": "financing",              # $180M BHI: purpose not stated
+    "e1831ae2-f8ae-46fc-99cf-c05d8414967a": "acquisition_financing",  # bridge loans fund 4 IN purchases (+3 VA refi)
+    "84ec4898-8d71-4c1d-a21c-4eed8506708e": "operations_transfer",    # Discovery bought management contracts, not homes
+    "ea24c91c-dd24-4628-acbd-303cb72d961b": "ownership_change",       # Southern Bloom: a plain sale
+    "9c47c487-3247-4789-81bd-11cd4a741484": "financing",              # UCC a year before the debtor's CHOW
+    "d2053216-6f56-4c90-ac47-2f4bddde4459": "financing",              # UCC six years after the only CHOW
+    "e2ee505d-2f27-42ca-a678-78ec6ce8b7e5": "non_deal_lien",          # CareOne Pharmacy: a vendor's lien
+    "c6b58586-af38-4206-8982-573117886cf2": "non_deal_lien",          # OHI (Omega) landlord lien on its tenant
+}
+STATUS_OVERRIDES = {
+    "26f92fe3-de4a-4df0-896f-185b952bf11b": ("expected", "Expected: a 2012 court ruling cleared the purchase; "
+                                             "the article doesn't report it closing"),
 }
 
 
@@ -518,6 +552,9 @@ def assumed_close(d: dict) -> tuple[date | None, bool]:
 def status(d: dict, event: dict | None, today: date | None = None) -> dict:
     """confirmed / expected / unconfirmed (expected, but over 6 months on) /
     reported, or on_file for a UCC filing, with a line for the Details panel."""
+    if d.get("id") in STATUS_OVERRIDES:
+        st, detail = STATUS_OVERRIDES[d["id"]]
+        return {"status": st, "status_detail": detail}
     today = today or date.today()
     src, when = d.get("source_type"), _day(d.get("acquisition_date"))
     if src == "chow":
@@ -632,6 +669,12 @@ def headline(d: dict, facilities: list[str], show_individual_names: bool = True)
         if b.get("buyer"):
             return [[b["buyer"], ""], [" to lease " if expected else " leases ", "muted"], [place, ""]]
         return [["New lease" if not expected else "Pending lease", "muted"], [": ", "muted"], [place, ""]]
+
+    if dt == "operations_transfer":       # news: a new operator or manager, no sale
+        place = target or f"facility{_in_states(d)}"
+        if b.get("buyer"):
+            return [[b["buyer"], ""], [" to take over operations of " if expected else " takes over operations of ", "muted"], [place, ""]]
+        return [["Operations transfer: ", "muted"], [place, ""]]
 
     if dt in ("financing", "acquisition_financing", "refinancing"):
         lender = d.get("lender") if d.get("lender") and not d["lender"].startswith("Not available") else None

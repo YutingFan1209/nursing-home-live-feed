@@ -60,10 +60,14 @@ the source contradicts or does not contain (an invented price or date is wrong, 
 "...of Bessemer" for "...of Bessemer Propco LLC"), a description sits in a name field ("An unnamed \
 family operator", "third-party debt"), or lender text has address junk or two names run together.
 - duplicate: the same deal is already on the site as another card listed under OTHER CARDS (same \
-homes, same buyer side, closing within a few weeks). Name that card's id in the note.
+homes, same buyer side, closing within a few weeks), or one whose homes include all of this card's \
+(a portfolio card and a card for part of it). Name that card's id in the note.
 - noise: true, but not a nursing home deal: an equipment vendor's or landlord's lien shown as a loan, \
 a consumer loan, a merchant cash advance, a non-US or non-nursing-home business.
-- uncertain: the evidence can't settle whether the card is right.
+- uncertain: only when the evidence can't tell what kind of deal this is, or whether it happened \
+at all (a nonprofit parent added as an owner, a landlord or REIT as secured party on its tenant's \
+filing, a seller that may be the buyer's own company). Not uncertain: a field the source simply \
+doesn't state (judge the fields shown), or a doubt you can settle from the evidence given.
 
 Field rules (the same rules the extractor follows; a card is right when it meets them;\
 acquiring_entity is the card's buyer, seller_entity its seller, rationale its summary):
@@ -135,14 +139,18 @@ def neighbours(card: dict, deals: list[dict], k: int = 8) -> list[dict]:
             continue
         score = 3 * bool(ccns & set(d.get("ccns") or []))
         score += 2 * bool(b and _norm(d.get("buyer")) == b) + 2 * bool(s and _norm(d.get("seller")) == s)
-        score += bool(st & set(d.get("states") or []) and d.get("facility_count") == card.get("facility_count")
-                      and days(d.get("acquisition_date") or d.get("published_at")) <= 90)
+        shared = st & set(d.get("states") or [])
+        gap = days(d.get("acquisition_date") or d.get("published_at"))
+        score += bool(shared and d.get("facility_count") == card.get("facility_count") and gap <= 90)
+        # same state, same closing date: a seller-side card and a buyer-side one (Saber OH)
+        score += bool(shared and card.get("acquisition_date") and gap == 0)
         if score >= 2:
-            out.append((score, d))
-    out.sort(key=lambda x: -x[0])
+            out.append((score, len(shared), -gap, d))
+    # ties, e.g. a buyer with many cards: more shared states, then closer dates first (LTC)
+    out.sort(key=lambda x: x[:3], reverse=True)
     return [{k2: d.get(k2) for k2 in ("id", "source_type", "deal_type", "buyer", "seller", "states",
                                        "facility_count", "acquisition_date", "deal_value_m", "headline")}
-            for _, d in out[:k]]
+            for *_, d in out[:k]]
 
 
 def evidence(card: dict, deals: list[dict], cur) -> str:
@@ -150,6 +158,11 @@ def evidence(card: dict, deals: list[dict], cur) -> str:
                    left join articles a on a.id = d.article_id where d.id = %s""", (card["id"],))
     url, title, pub, text = cur.fetchone() or (None, None, None, None)
     parts = [f"SOURCE {url}\nTITLE {title}\nPUBLISHED {pub}\n{(text or '(no stored text)')[:SOURCE_CHARS]}"]
+    # records merged into this card are part of it (Cliveden + Tucker House: two notices, one sale)
+    cur.execute("""select a.url, a.raw_text from deals d join articles a on a.id = d.article_id
+                   where d.merged_into = %s and a.url <> %s limit 3""", (card["id"], url or ""))
+    parts += [f"ALSO MERGED INTO THIS CARD: {u}\n{(t or '(no stored text)')[:SOURCE_CHARS // 3]}"
+              for u, t in cur.fetchall()]
     for ccn in (card.get("ccns") or [])[:6]:
         cur.execute("""select provider_name, provider_city, provider_state, legal_business_name
                        from cms_facilities where ccn = %s""", (ccn,))

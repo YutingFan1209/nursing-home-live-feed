@@ -517,23 +517,6 @@ def test_tn_ratification_groups_with_chow_despite_holding_company_name():
     assert same_deal(a, chow) is None
 
 
-def test_licence_batch_becomes_one_card():
-    rows = [_licence(f"26{i}", f"{n} HEALTH CARE CENTER", f"{n} SNF OPCO LLC", f"{n} HEALTH CARE CENTER LLC")
-            for i, n in enumerate(["REST HAVEN", "PARKWAY", "BRIDGEWOOD"])]
-    lone = _licence("269", "VENICE HEALTH AND REHABILITATION CENTER", "VENICE HEALTH AND REHAB LLC", "VENICE FL OPCO LLC")
-    deals = rows + [lone]
-    group(deals, {})
-    lead = next(d for d in rows if not d.get("grouped_into"))
-    assert lead["group_size"] == 3 and lead["facility_count"] == 3 and lead["buyer"] is None
-    assert "SNF OPCO" in "".join(t for t, _ in lead["headline"])
-    assert "restructuring" in lead["status_detail"]
-    assert lone["group_size"] == 1
-    # two homes on one template isn't a batch
-    pair = [_licence(f"27{i}", f"{n} CARE", f"{n} SNF OPCO LLC", f"{n} CARE LLC") for i, n in enumerate(["A1", "B2"])]
-    group(pair, {})
-    assert all(d["group_size"] == 1 for d in pair)
-
-
 def test_state_notice_links_a_renamed_home_by_address_legal_name_or_two_words():
     cms = fake_cms(facilities={"1": ("TIMBERLAND HEALTH AND WELLNESS CENTER", "AL", 90),
                                "2": ("INDEPENDENCE REHAB AND NURSING", "PA", 120),

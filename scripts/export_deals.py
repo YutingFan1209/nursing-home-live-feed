@@ -363,6 +363,9 @@ def _ucc_fields(deal: dict, debtor: str | None, filing_type: str | None) -> dict
 REFINANCING_RE = re.compile(r"\brefinanc", re.I)
 
 
+from pipeline.deal_labels import stated_purpose as _stated  # noqa: E402
+
+
 def _news_deal_type(deal: dict) -> str:
     """News extraction pulls parties and amounts but no deal type, and
     stored article titles are often a snippet rather than the headline, so
@@ -372,12 +375,12 @@ def _news_deal_type(deal: dict) -> str:
     refinancings ("closed a $53M cash-out refinancing", "to refinance
     existing 2019 bonds"), which the site hides by default like UCC ones."""
     if deal.get("financing_amount_m") and not deal.get("deal_value_m") and not deal.get("acquiring_entity"):
-        return "refinancing" if REFINANCING_RE.search(deal.get("summary") or "") else "financing"
+        return "refinancing" if REFINANCING_RE.search(_stated(deal.get("summary"))) else "financing"
     # A lender with no amount, buyer or price: a portfolio loan whose total
     # wasn't split per deal (MonticelloAM's three Virginia SNFs, 2026-10-21).
     # First sentence only: the Indiana half of that loan mentions "a Virginia
     # refinancing" later on
-    first = re.split(r"(?<=\.)\s", deal.get("summary") or "", maxsplit=1)[0]
+    first = re.split(r"(?<=\.)\s", _stated(deal.get("summary")), maxsplit=1)[0]
     if (deal.get("lender") and not deal.get("deal_value_m") and not deal.get("acquiring_entity")
             and REFINANCING_RE.search(first)):
         return "refinancing"
@@ -763,6 +766,21 @@ def main():
             if deal.get("group_ccns") and deal["source_type"] != "ucc":
                 deal["beds"] = cms.beds(deal["group_ccns"], deal.get("facility_count"))
         print(f"Grouped {counts['grouped_records']} records into {counts['groups']} multi-source deals")
+
+    # Links that open the record itself (pipeline/record_links.py)
+    from pipeline.record_links import record_url
+    by_id = {d["id"]: d for d in deals}
+    plain = {u for d in deals for u in [d.get("source_url")] + [s.get("source_url") for s in d.get("sources") or []]
+             if u and u.startswith("http") and ("#" not in u or ":~:" not in u)}
+    with conn.cursor() as cur:
+        cur.execute("SELECT url, raw_text FROM articles WHERE url = ANY(%s)", (list(plain),))
+        texts = dict(cur.fetchall())
+    for d in deals:
+        u = d.get("source_url")
+        d["source_url"] = record_url(u, d, texts.get(u))
+        for s in d.get("sources") or []:
+            row = by_id.get(s.get("id"), d)
+            s["source_url"] = record_url(s.get("source_url"), row, texts.get(s.get("source_url")))
 
     conn.close()
 

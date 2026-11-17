@@ -1,14 +1,14 @@
 {
   "extract": {
-    "fingerprint": "47782d25a3cf741a",
-    "date": "2026-11-16",
-    "score": "40/64 news cards fully right",
-    "note": "extract_raw_2026-11-16.jsonl (prompt byte-identical; moved to pipeline/field_rules.py after)"
+    "fingerprint": "734168ec42fbb807",
+    "date": "2026-11-17",
+    "score": "40/64 news cards fully right (41/64 rescored after the unstated-purpose export fix)",
+    "note": "extract_raw_2026-11-17.jsonl (role definitions run)"
   },
   "judge": {
-    "fingerprint": "19e1026629096a8f",
-    "date": "2026-11-16",
-    "score": "caught 22/30, false alarms 29/119",
-    "note": "judge_gold_2026-11-16.jsonl"
+    "fingerprint": "8afd433ccef253c2",
+    "date": "2026-11-17",
+    "score": "caught 28/31, false alarms 38/119",
+    "note": "judge_gold_2026-11-17.jsonl"
   }
 }
