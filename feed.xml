@@ -4,11 +4,46 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-16T18:26:11.948851+00:00</updated>
+  <updated>2026-11-17T16:35:56.559361+00:00</updated>
+  <entry>
+    <id>urn:uuid:1c096432-3cfa-41c0-a128-a7c740392680</id>
+    <title>Welltower acquires a facility in FL (FL)</title>
+    <link href="https://www.bizjournals.com/southflorida/news/2026/11/11/welltower-closes-sixth-south-florida-nursing-home.html"/>
+    <updated>2026-11-17T15:08:08.670088+00:00</updated>
+    <summary>$35.00M; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fb5294bc-9855-486f-85ed-cac42fe57a0a</id>
+    <title>Sale of a facility in OH to an operator holding a 12% ownership stake (OH)</title>
+    <link href="https://www.bizjournals.com/dayton/news/2026/10/27/piqua-care-center-lionstone-healthcare-26m-sale.html"/>
+    <updated>2026-11-17T15:07:32.515437+00:00</updated>
+    <summary>$2.60M; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0a890dd8-5ab3-4b44-8d08-f99f9f24be48</id>
+    <title>Sale of a facility in FL · Buyer not disclosed (FL)</title>
+    <link href="https://www.bizjournals.com/southflorida/news/2026/10/15/third-south-florida-nursing-home-sold-for-23m.html"/>
+    <updated>2026-11-17T15:07:30.133270+00:00</updated>
+    <summary>$23.00M; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f481af5f-f5a1-455e-bd05-a23a12d8d8ba</id>
+    <title>SHACA HC, LLC — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-11-17T14:44:31.893974+00:00</updated>
+    <summary>Effective 2026-11-12; Facilities: SHACA HC, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:19e86458-3c93-40b1-929b-efb2757f9ebc</id>
+    <title>INDIAN CANYON PACC, LLC — UCC-1 financing (CA)</title>
+    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
+    <updated>2026-11-17T14:44:31.867524+00:00</updated>
+    <summary>Effective 2026-11-12; Facilities: INDIAN CANYON PACC, LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:9cc5aa38-b24d-4450-9a2e-a1efc526dff3</id>
     <title>BH Group and Gold Standard of Care joint venture acquires AdviniaCare Naples from Aperion Care (FL)</title>
-    <link href="https://www.costar.com/article/1355299014/joint-venture-acquires-assisted-living-facility-in-naples"/>
+    <link href="https://www.costar.com/article/1355299014/joint-venture-acquires-assisted-living-facility-in-naples#:~:text=AdviniaCare%20Naples"/>
     <updated>2026-11-16T18:16:54.069328+00:00</updated>
     <summary>Facilities: AdviniaCare Naples; $10.00M; Source: Google Alerts (Gmail)</summary>
   </entry>
@@ -22,44 +57,65 @@
   <entry>
     <id>urn:uuid:00d4d4db-f3ba-4c3e-aff8-83fd9af96f0e</id>
     <title>1900 Mercy Dr Propco LLC acquires Courtyards of Orlando Care Center and Rehab from EZT TIC, MF Group and ORRE (FL)</title>
-    <link href="https://www.growthspotter.com/2026/11/13/orlando-nursing-home-property-sells-for-38-4m/"/>
+    <link href="https://www.growthspotter.com/2026/11/13/orlando-nursing-home-property-sells-for-38-4m/#:~:text=Courtyards%20of%20Orlando%20Care%20Center%20and%20Rehab"/>
     <updated>2026-11-16T18:16:54.017889+00:00</updated>
     <summary>Effective 2026-10-30; Facilities: Courtyards of Orlando Care Center and Rehab; $38.40M; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:2d0fd26c-3099-4083-a584-7348ce8e809f</id>
     <title>Advinia Care to acquire 3 facilities in RI (RI)</title>
-    <link href="https://upriseri.com/article/three-ri-nursing-homes-sale-advances-over-neronhas-objections/"/>
+    <link href="https://upriseri.com/article/three-ri-nursing-homes-sale-advances-over-neronhas-objections/#:~:text=Advinia%20Care"/>
     <updated>2026-11-16T18:16:53.981035+00:00</updated>
     <summary>Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:79da1265-d2af-4888-be19-95b5c8af4551</id>
     <title>Beach Tree Operations to acquire Beechtree Center for Rehabilitation and Nursing from Btrnc (NY)</title>
-    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-11-19/docs/agenda.pdf#project-252096"/>
+    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-11-19/docs/agenda.pdf#page=1"/>
     <updated>2026-11-16T18:16:53.950257+00:00</updated>
     <summary>Effective 2026-12-17; Facilities: Beechtree Center for Rehabilitation and Nursing; $10.50M; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
   <entry>
     <id>urn:uuid:8e97e442-245f-4687-b6bc-f03861a5d5d2</id>
     <title>Elizabeth NY SNF Operations to acquire Elizabeth Church Manor Nursing Home from UMH Ecm (NY)</title>
-    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-11-19/docs/agenda.pdf#project-251255"/>
+    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-11-19/docs/agenda.pdf#page=1"/>
     <updated>2026-11-16T18:16:53.933881+00:00</updated>
     <summary>Effective 2026-12-17; Facilities: Elizabeth Church Manor Nursing Home, Silver Springs at Binghamton Center for Rehabilitation and Healthcare, St. Louise Manor; $12.75M; $10.95M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
   <entry>
     <id>urn:uuid:8908c80c-ecae-404d-a6aa-5063db68f319</id>
     <title>Surf Acquisition I to acquire Saints Joachim &amp; Anne Nursing and Rehabilitation Center from Saints Joachim and Anne Nursing and Rehabilitation Center (NY)</title>
-    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-11-19/docs/agenda.pdf#project-242095"/>
+    <link href="https://www.health.ny.gov/facilities/public_health_and_health_planning_council/meetings/2026-11-19/docs/agenda.pdf#page=1"/>
     <updated>2026-11-16T18:16:53.919072+00:00</updated>
     <summary>Effective 2026-12-17; Facilities: Saints Joachim &amp; Anne Nursing and Rehabilitation Center, Boardwalk Nursing and Rehabilitation Center; $42.50M; $35.02M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
   <entry>
+    <id>urn:uuid:0b84e3db-7ab7-4dac-a462-4069ef15a3eb</id>
+    <title>Vantage Point Capital to acquire 15 facilities in ME from North Country Associates (ME)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Vantage%20Point%20Capital"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4a21b4c5-db74-41f4-a59a-5c1a9b6c7cc1</id>
+    <title>Welltower acquires 3 facilities in FL from TL Management (FL)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=TL%20Management"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>$160.00M; Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:f00f51ef-f53a-4c8e-bce0-c771351a7d39</id>
     <title>Welltower acquires Unity Health and Rehabilitation Center (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Unity%20Health%20and%20Rehabilitation%20Center"/>
     <updated>2026-11-16T18:16:53.686403+00:00</updated>
     <summary>Facilities: Unity Health and Rehabilitation Center; $74.30M; Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:35f74215-5441-4a65-b402-01f026285c1a</id>
+    <title>Welltower acquires Palms Care Center and Rehab (FL)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Palms%20Care%20Center%20and%20Rehab"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>Facilities: Palms Care Center and Rehab; $45.00M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
     <id>urn:uuid:71b16e51-e98e-4280-afa0-a74aa0897b1f</id>
@@ -67,27 +123,6 @@
     <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
     <updated>2026-11-16T18:16:53.686403+00:00</updated>
     <summary>$48.20M; Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0b84e3db-7ab7-4dac-a462-4069ef15a3eb</id>
-    <title>Vantage Point Capital to acquire 15 facilities in ME from North Country Associates (ME)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4a21b4c5-db74-41f4-a59a-5c1a9b6c7cc1</id>
-    <title>Welltower acquires 3 facilities in FL from TL Management (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>$160.00M; Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:35f74215-5441-4a65-b402-01f026285c1a</id>
-    <title>Welltower acquires Palms Care Center and Rehab (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Facilities: Palms Care Center and Rehab; $45.00M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
     <id>urn:uuid:952c3054-3f87-4000-bfb9-ced30e048952</id>
@@ -99,7 +134,7 @@
   <entry>
     <id>urn:uuid:c96b96d2-e46a-448e-9965-f32775f946eb</id>
     <title>PSH HM LLC acquires a facility in HI (HI)</title>
-    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#app-26-10A"/>
+    <link href="https://health.hawaii.gov/shpda/certificate-of-need-applications-and-decisions/#:~:text=26-10A"/>
     <updated>2026-11-16T18:13:40.852538+00:00</updated>
     <summary>Source: Hawaii SHPDA Certificate of Need Applications</summary>
   </entry>
@@ -169,7 +204,7 @@
   <entry>
     <id>urn:uuid:2bfa8d90-eaef-4395-b7f1-d388fe78cb7d</id>
     <title>Bay Shore OPCO LLC to acquire Sunrise Manor Center for Nursing and Rehabilitation from Sunrise Manor Nursing Home, Inc (NY)</title>
-    <link href="https://health.data.ny.gov/Health/Certificate-of-Need-Applications-Beginning-1974/h343-jwie#project-262177"/>
+    <link href="https://health.data.ny.gov/resource/h343-jwie.json?con_project_number=262177"/>
     <updated>2026-11-12T14:45:45.443502+00:00</updated>
     <summary>Facilities: Sunrise Manor Center for Nursing and Rehabilitation; Source: New York DOH Certificate of Need Applications (open data)</summary>
   </entry>
@@ -274,85 +309,50 @@
   <entry>
     <id>urn:uuid:0a1a6087-85e0-403b-abf2-7c81bba3e4d6</id>
     <title>South County Sunny View RI LLC acquires South County Eden Operations LLC DBA Lakeside Nurs and 1 more from South County Eden Operations LLC; 83 Corona Street Eden Operations LLC (RI)</title>
-    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/htmlview#cec-SOUTH-COUNTY-SUNNY-VIEW-RI-LLC-20260521"/>
+    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/edit#gid=833901994&amp;range=A187"/>
     <updated>2026-11-11T13:47:29.121979+00:00</updated>
     <summary>Facilities: South County Eden Operations LLC DBA Lakeside Nurs, Sunny View Nursing Home; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
   </entry>
   <entry>
     <id>urn:uuid:d72f367b-a585-46de-ad40-239d2771d5b6</id>
     <title>MUSTANG SNF HOLDINGS LLC acquires PARKWOOD VILLAGE and 1 more (TX)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-mustang-snf-holdings-llc-2025-09-02"/>
+    <link href="https://data.cms.gov/provider-data/api/1/datastore/query/y2hd-n93e/0?conditions%5B0%5D%5Bproperty%5D=cms_certification_number_ccn&amp;conditions%5B0%5D%5Bvalue%5D=675565&amp;conditions%5B1%5D%5Bproperty%5D=owner_name&amp;conditions%5B1%5D%5Bvalue%5D=MUSTANG+SNF+HOLDINGS+LLC"/>
     <updated>2026-11-11T13:40:54.950763+00:00</updated>
     <summary>Effective 2025-09-02; Facilities: PARKWOOD VILLAGE, Signature Pointe; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
   <entry>
     <id>urn:uuid:1a074f37-23d1-4963-8f85-757a4480a142</id>
     <title>VOP SLS HOLDCO, LLC acquires CLOVER HEALTH CARE (ME)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-vop-sls-holdco-llc-2025-09-01"/>
+    <link href="https://data.cms.gov/provider-data/api/1/datastore/query/y2hd-n93e/0?conditions%5B0%5D%5Bproperty%5D=cms_certification_number_ccn&amp;conditions%5B0%5D%5Bvalue%5D=205063&amp;conditions%5B1%5D%5Bproperty%5D=owner_name&amp;conditions%5B1%5D%5Bvalue%5D=VOP+SLS+HOLDCO%2C+LLC"/>
     <updated>2026-11-11T13:40:54.943772+00:00</updated>
     <summary>Effective 2025-09-01; Facilities: CLOVER HEALTH CARE; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
   <entry>
     <id>urn:uuid:65eba4ba-7cae-419d-9305-8daf41743757</id>
     <title>GARDEN MANOR REHAB AND NURSING OF MIDWEST CITY LLC acquires EMERALD CARE CENTER TULSA from CHICKIESTRONG TULSA LLC (OK)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-garden-manor-rehab-and-nursing-of-midwest-city-llc-2025-08-29"/>
+    <link href="https://data.cms.gov/provider-data/api/1/datastore/query/y2hd-n93e/0?conditions%5B0%5D%5Bproperty%5D=cms_certification_number_ccn&amp;conditions%5B0%5D%5Bvalue%5D=375094&amp;conditions%5B1%5D%5Bproperty%5D=owner_name&amp;conditions%5B1%5D%5Bvalue%5D=GARDEN+MANOR+REHAB+AND+NURSING+OF+MIDWEST+CITY+LLC"/>
     <updated>2026-11-11T13:40:54.936565+00:00</updated>
     <summary>Effective 2025-08-29; Facilities: EMERALD CARE CENTER TULSA; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
   <entry>
     <id>urn:uuid:7593db66-9150-4df4-87a3-88691c7ace5b</id>
     <title>2310 S ELDRIDGE PKWY HOLDINGS LLC acquires Avir at Houston (TX)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-2310-s-eldridge-pkwy-holdings-llc-2025-08-24"/>
+    <link href="https://data.cms.gov/provider-data/api/1/datastore/query/y2hd-n93e/0?conditions%5B0%5D%5Bproperty%5D=cms_certification_number_ccn&amp;conditions%5B0%5D%5Bvalue%5D=676066&amp;conditions%5B1%5D%5Bproperty%5D=owner_name&amp;conditions%5B1%5D%5Bvalue%5D=2310+S+ELDRIDGE+PKWY+HOLDINGS+LLC"/>
     <updated>2026-11-11T13:40:54.928635+00:00</updated>
     <summary>Effective 2025-08-24; Facilities: Avir at Houston; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
   <entry>
     <id>urn:uuid:92a50cd8-b41b-43cc-b022-e328eaa2484a</id>
     <title>ELKTON OPCO HOLDCO LLC acquires Elkton Nursing and Rehabilitation Center (KY)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-elkton-opco-holdco-llc-2025-08-07"/>
+    <link href="https://data.cms.gov/provider-data/api/1/datastore/query/y2hd-n93e/0?conditions%5B0%5D%5Bproperty%5D=cms_certification_number_ccn&amp;conditions%5B0%5D%5Bvalue%5D=185400&amp;conditions%5B1%5D%5Bproperty%5D=owner_name&amp;conditions%5B1%5D%5Bvalue%5D=ELKTON+OPCO+HOLDCO+LLC"/>
     <updated>2026-11-11T13:40:54.921678+00:00</updated>
     <summary>Effective 2025-08-07; Facilities: Elkton Nursing and Rehabilitation Center; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
   <entry>
     <id>urn:uuid:86838343-f9f4-4b28-aff5-a28f0891e77e</id>
     <title>PALMER AVENUE SNF OPERATIONS HOLDINGS LLC acquires Sarah Neuman Center for Rehabilitation and Nursing (NY)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-palmer-avenue-snf-operations-holdings-llc-2025-08-04"/>
+    <link href="https://data.cms.gov/provider-data/api/1/datastore/query/y2hd-n93e/0?conditions%5B0%5D%5Bproperty%5D=cms_certification_number_ccn&amp;conditions%5B0%5D%5Bvalue%5D=335296&amp;conditions%5B1%5D%5Bproperty%5D=owner_name&amp;conditions%5B1%5D%5Bvalue%5D=PALMER+AVENUE+SNF+OPERATIONS+HOLDINGS+LLC"/>
     <updated>2026-11-11T13:40:54.914515+00:00</updated>
     <summary>Effective 2025-08-04; Facilities: Sarah Neuman Center for Rehabilitation and Nursing; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:88b914c2-013c-4a93-9d4c-3bec61efdda0</id>
-    <title>1424 FALLBROOK DR HOLDINGS LLC acquires Avir at Veterans Memorial (TX)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-1424-fallbrook-dr-holdings-llc-2025-08-01"/>
-    <updated>2026-11-11T13:40:54.907776+00:00</updated>
-    <summary>Effective 2025-08-01; Facilities: Avir at Veterans Memorial; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:88d43a15-d111-4705-8324-5410a5cb4b85</id>
-    <title>PCM HOLDINGS I, INC acquires Mid City Community Nursing and Rehab (LA)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-pcm-holdings-i-inc-2025-07-18"/>
-    <updated>2026-11-11T13:40:54.901084+00:00</updated>
-    <summary>Effective 2025-07-18; Facilities: Mid City Community Nursing and Rehab; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:a16f02dc-8620-4e53-a634-bb2e70ad1352</id>
-    <title>MALIK ST LOUIS LLC acquires ST LOUIS ALTENHEIM (MO)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-malik-st-louis-llc-2025-07-01"/>
-    <updated>2026-11-11T13:40:54.894373+00:00</updated>
-    <summary>Effective 2025-07-01; Facilities: ST LOUIS ALTENHEIM; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:180fa4d1-a618-4678-b920-d6f4449a5284</id>
-    <title>FOURINONE OPERATOR LLC acquires Medilodge of Haggerty Road and 1 more (MI)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-fourinone-operator-llc-2025-07-01"/>
-    <updated>2026-11-11T13:40:54.887255+00:00</updated>
-    <summary>Effective 2025-07-01; Facilities: Medilodge of Haggerty Road, Medilodge of Livonia; Source: CMS Nursing Home Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:116260fe-9ac8-47d1-9a38-35cf53fc58e3</id>
-    <title>OMNIA OPCO HOLDINGS LLC acquires Westland, A Villa Center and 1 more (MI)</title>
-    <link href="https://data.cms.gov/provider-data/dataset/y2hd-n93e#owner-omnia-opco-holdings-llc-2025-07-01"/>
-    <updated>2026-11-11T13:40:54.880270+00:00</updated>
-    <summary>Effective 2025-07-01; Facilities: Westland, A Villa Center, St. Joseph's, A Villa Center; Source: CMS Nursing Home Ownership Changes</summary>
   </entry>
 </feed>
