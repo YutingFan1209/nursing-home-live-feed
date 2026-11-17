@@ -193,6 +193,22 @@ def _facility_names_overlap_ok(a: list, b: list) -> bool:
     return bool(set_a & set_b)
 
 
+def _same_shape(a: dict, b: dict) -> bool:
+    """One side names its homes and the other names none: that is missing
+    information, not different homes, when everything else matches exactly
+    (same states, same home count). Ensign's 7 Colorado and 4 Washington
+    homes each showed twice this way (news check 2026-11-17)."""
+    names_a, names_b = [n for n in a.get("facility_names") or [] if n], [n for n in b.get("facility_names") or [] if n]
+    if bool(names_a) == bool(names_b):
+        return False
+    # News only: a CHOW record and a state notice on the same home stay
+    # separate records the site groups by CCN
+    if not all((x.get("extraction_model") or "").startswith("claude") for x in (a, b)):
+        return False
+    return (bool(a.get("states")) and set(a["states"]) == set(b.get("states") or [])
+            and a.get("facility_count") is not None and a.get("facility_count") == b.get("facility_count"))
+
+
 def _ccns_overlap_ok(a: set, b: set) -> bool:
     """Either side with no known CCN is 'no info' - pass. Otherwise require a
     shared facility: chains name each opco after its town, and CHOW lists
@@ -314,7 +330,8 @@ def find_and_resolve_fuzzy_duplicate(deal_id, conn, ccns=None) -> str:
             continue
         if not _facility_count_close_ok(new_deal["facility_count"], other["facility_count"]):
             continue
-        if not _facility_names_overlap_ok(new_deal["facility_names"], other["facility_names"]):
+        if not (_facility_names_overlap_ok(new_deal["facility_names"], other["facility_names"])
+                or _same_shape(new_deal, other)):
             continue
         if new_ccns and not _ccns_overlap_ok(new_ccns, _deal_ccns(other["id"], conn)):
             continue

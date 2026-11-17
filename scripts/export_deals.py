@@ -43,7 +43,7 @@ from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline import ucc_context
 from pipeline.ucc_category import categorize, collapse_repeats, complete_through, owner_start_dates
-from pipeline.deal_labels import SITE_FACILITY_TYPES, label, is_individual_filing
+from pipeline.deal_labels import SITE_FACILITY_TYPES, label, is_individual_filing, WRONG_CCNS, is_arranger
 from pipeline import individual_owners
 from scraper.con_ms import CON_MS_INDEX_URL
 from pipeline.cms_confirm import CmsIndex, facility_names_agree, same_facility_name
@@ -454,6 +454,8 @@ def _add_labels(deal: dict, cms, homes: dict) -> None:
             ccns, basis = cms.ccns_for_notice(names, deal.get("states"), f"{title} {deal.get('summary') or ''}")
             if ccns:
                 deal["ccns"], deal["ccn_match"] = ccns, f"notice_{basis}"
+        if deal.get("ccns") and deal["id"] in WRONG_CCNS:
+            deal["ccns"] = [c for c in deal["ccns"] if c not in WRONG_CCNS[deal["id"]]] or None
         deal["match_type"] = "ccn_matched" if deal.get("ccns") else "no_ccn"
         if cms and deal["source_type"] != "ucc":
             deal["beds"] = cms.beds(deal.get("ccns"), deal.get("facility_count"))
@@ -761,6 +763,8 @@ def main():
 
         for deal in deals:
             deal["lender"] = tidy_lender(deal.get("lender"))
+            if deal["source_type"] in ("rss", "edgar") and is_arranger(deal["lender"], deal.get("summary")):
+                deal["lender"] = None
         counts = group(deals, merged)
         for deal in deals:
             if deal.get("group_ccns") and deal["source_type"] != "ucc":

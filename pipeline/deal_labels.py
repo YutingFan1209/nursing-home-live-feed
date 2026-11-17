@@ -65,7 +65,9 @@ _CONTROL_RE = re.compile(
 
 _ACQ_FIN_RE = re.compile(
     r"\bacquisition financing\b|\bfor the (acquisition|purchase) of\b|\bto (acquire|purchase)\b"
-    r"|\bfinanc\w* the (acquisition|purchase)\b|\bbridge-to-HUD acquisition\b", re.I)
+    r"|\bfinanc\w* the (acquisition|purchase)\b|\bbridge-to-HUD acquisition\b"
+    # "an $11.4M bridge acquisition loan", "to fund the acquisition of" (news check 2026-11-17)
+    r"|\bacquisition (bridge )?loan\b|\bbridge acquisition\b|\bfund\w* the (acquisition|purchase)\b", re.I)
 _REFI_RE = re.compile(r"\brefinanc\w*|\bcash-out\b|\brefund(ing)?\b", re.I)
 
 
@@ -157,14 +159,36 @@ def is_not_a_deal(d: dict, today: date = None) -> bool:
     return classify_secured_party(d.get("lender") or "").category == LenderCategory.EQUIPMENT_VENDOR
 
 
-_UNSTATED_RE = re.compile(r"(does not|doesn't|did not|do not) (say|state|specify)|not (stated|disclosed|specified) whether", re.I)
+_UNSTATED_RE = re.compile(r"(does not|doesn't|did not|do not)\b[^.]{0,60}?\b(say|state|specify)|not (stated|disclosed|specified) whether", re.I)
+# A sentence about a different loan ("completed alongside a separate real
+# estate acquisition financing from an unnamed lender") isn't this loan's purpose
+_OTHER_LOAN_RE = re.compile(r"\bseparate\b|\bdifferent lender\b", re.I)
 
 
 def stated_purpose(summary: str | None) -> str:
     """The summary without sentences saying the loan's purpose isn't given
     ("The article does not say whether the loan funds an acquisition or
     refinances debt" is neither an acquisition loan nor a refinancing)."""
-    return " ".join(x for x in re.split(r"(?<=\.)\s", summary or "") if not _UNSTATED_RE.search(x))
+    return " ".join(x for x in re.split(r"(?<=\.)\s", summary or "")
+                    if not _UNSTATED_RE.search(x) and not _OTHER_LOAN_RE.search(x))
+
+
+def is_arranger(lender: str | None, summary: str | None) -> bool:
+    """The summary says the named lender arranged the loan and never that it
+    lent, provided, funded or closed it: a broker, not the lender ("Cambridge
+    Realty Capital arranged $21.5 million ... A regional commercial bank
+    provided the first mortgage"; "BWE arranged financing"). 2026-11-17."""
+    if not lender or not summary:
+        return False
+    name = re.escape(re.split(r"\s+", lender.strip())[0])
+    arranged = re.search(rf"\b{name}\b[^.]{{0,60}}?\barrang", summary, re.I)
+    lent = re.search(rf"\b{name}\b[^.]{{0,60}}?\b(provid|originat|lent\b|lend|fund|closed|issued|made)", summary, re.I)
+    if not arranged or lent:
+        return False
+    # HUD lenders say they "arranged" the HUD loans they originate (Berkadia's
+    # $39M): only a broker when someone else is named as providing the loan
+    someone_else = re.search(r"\b(provided|originated|lent|funded)\b", summary, re.I)
+    return bool(someone_else) or not re.search(r"\bHUD\b", summary)
 
 
 def transaction_type(d: dict) -> str:
@@ -259,6 +283,16 @@ DEAL_TYPE_OVERRIDES = {
     "d2053216-6f56-4c90-ac47-2f4bddde4459": "financing",              # UCC six years after the only CHOW
     "e2ee505d-2f27-42ca-a678-78ec6ce8b7e5": "non_deal_lien",          # CareOne Pharmacy: a vendor's lien
     "c6b58586-af38-4206-8982-573117886cf2": "non_deal_lien",          # OHI (Omega) landlord lien on its tenant
+    # news check of 2026-11-17, hand-reviewed
+    "1e72bb02-f8dc-4007-8e48-8e566a3932a7": "acquisition_financing",  # Dwight "$11.4MM Bridge Acquisition"
+    "5e917e44-c2fd-46b8-8476-ba247ba83111": "acquisition_financing",  # $160M bridge funds the purchase
+    "312a521c-659a-4545-9ebd-9ce69988d1b6": "financing",              # $2M ABL is working capital
+    "6de5a0cd-64b0-482f-baa6-859174b60c7d": "financing",              # purpose not stated
+    "335c39ed-29f6-4e7d-a407-a9aff831b0a9": "operations_transfer",    # Vierra took over operations, no sale
+}
+# CCNs the exact-name match got wrong: same name, different home
+WRONG_CCNS = {
+    "d5a7a72b-2b2f-4ae8-b715-55e46067b871": {"495213"},  # Bayside in Virginia Beach VA; the article's is in OH
 }
 STATUS_OVERRIDES = {
     "26f92fe3-de4a-4df0-896f-185b952bf11b": ("expected", "Expected: a 2012 court ruling cleared the purchase; "

@@ -1936,3 +1936,41 @@ def test_unstated_loan_purpose_is_plain_financing():
          "the loan funds an acquisition or refinances debt."}
     assert m._news_deal_type(d) == "financing"
     assert m._news_deal_type({"financing_amount_m": 53, "summary": "CIBC closed a $53M cash-out refinancing."}) == "refinancing"
+
+
+# News check 2026-11-17: loan wording, brokers, one-sided home lists
+
+def test_bridge_acquisition_loan_is_acquisition_financing():
+    from pipeline.deal_labels import transaction_type
+    d = {"source_type": "rss", "deal_type": "financing",
+         "summary": "Dwight closed an $11.4M bridge acquisition loan for a 351-bed assisted living portfolio."}
+    assert transaction_type(d) == "acquisition_financing"
+    d["summary"] = "MONTICELLOAM announced $180M in financing to fund the acquisition of a 12-facility portfolio."
+    assert transaction_type(d) == "acquisition_financing"
+
+
+def test_separate_loan_sentence_is_not_this_loans_purpose():
+    from pipeline.deal_labels import transaction_type
+    d = {"source_type": "rss", "deal_type": "financing",
+         "summary": "SixCap closed a $2 million revolving line of credit to provide working capital. "
+                    "It was completed alongside a separate real estate acquisition financing from an unnamed lending partner."}
+    assert transaction_type(d) == "financing"
+
+
+def test_arranger_is_not_lender_but_hud_lender_is():
+    from pipeline.deal_labels import is_arranger
+    assert is_arranger("Cambridge Realty Capital", "Cambridge Realty Capital arranged $21.5 million in bridge-to-HUD "
+                       "acquisition financing. A regional commercial bank provided the first mortgage loan.")
+    assert is_arranger("BWE", "BWE arranged financing on behalf of Lloyd Jones for AVIVA River Bend.")
+    assert not is_arranger("Berkadia", "Berkadia arranged $39M in HUD loans for four senior living communities.")
+    assert not is_arranger("Dwight Capital", "Dwight Capital closed a $20M HUD loan it arranged.")
+
+
+def test_one_sided_home_names_still_merge_when_shape_matches():
+    from pipeline.dedup import _same_shape
+    a = {"facility_names": ["Delta Post Acute"], "states": ["CO"], "facility_count": 7, "extraction_model": "claude-sonnet-4-5"}
+    b = {"facility_names": None, "states": ["CO"], "facility_count": 7, "extraction_model": "claude-sonnet-5-5"}
+    assert _same_shape(a, b)
+    assert not _same_shape(a, {**b, "facility_count": 6})
+    assert not _same_shape(a, {**b, "states": ["CO", "UT"]})
+    assert not _same_shape(a, {**b, "extraction_model": "chow_direct"})   # CHOW/notice pairs stay separate
