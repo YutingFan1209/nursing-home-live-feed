@@ -9,10 +9,14 @@ gold-set format (evals/gold/labels.jsonl).
   gold     Check the judge against the 150 hand labels. Run once, and again
            after any change to the prompt or model; its agreement is what
            says how far a pre-label can be trusted.
-           venv/bin/python3 -m evals.judge gold <export.json> [--yes] [--limit N]
+           venv/bin/python3 -m evals.judge gold <export.json> [--yes] [--limit N] [--only IDS] [--batch]
+           While tuning, --only the cards a change can affect; one full run at the end.
 
   sample   Pre-label a fresh sample for review (never the gold cards).
-           venv/bin/python3 -m evals.judge sample <export.json> --seed 20261221 [--yes]
+           venv/bin/python3 -m evals.judge sample <export.json> --seed 20261221 [--yes] [--batch]
+
+--batch sends the requests through the Message Batches API at half price;
+results usually take under an hour. Not for the deploy-time check.
 
 Both print a cost estimate and stop unless --yes is given. Output goes to
 data/evals/ (gitignored: cards and summaries can name people).
@@ -36,6 +40,16 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "evals"
 MODEL = "claude-opus-5-5"
 PRICE_IN, PRICE_OUT = 4.00, 20.00          # $ per million tokens, Opus 5.5
+PRICE_CACHE_READ, PRICE_CACHE_WRITE = 0.20, 5.00   # batch: half of all four
+# The estimate, calibrated on the five full gold runs of 2026-11-16/17
+# (4.90M input / 0.52M output tokens over 749 cards): input is ~3.6x the old
+# chars/3.5 guess (evidence is JSON, plus the schema), output ~700 tokens a
+# card, not 2,500. The old estimate said ~290k input for runs that used ~1.1M.
+# Fitted to those runs: the ~2.1k-token instructions count like prose (4
+# chars a token); the per-card evidence, mostly JSON and ids, ~0.78 tokens a char.
+SYSTEM_TOKENS_PER_CHAR = 1 / 4
+CARD_TOKENS_PER_CHAR = 0.78
+OUT_PER_CARD = 700
 SOURCE_CHARS = 15000
 
 SHOWN = ["deal_type", "buyer", "seller", "facility_names", "ccns", "states", "facility_count",
@@ -121,7 +135,22 @@ def neighbours(card: dict, deals: list[dict], k: int = 8) -> list[dict]:
     """Other cards that may be the same deal: a shared home, the same buyer
     or seller, or the same state and home count within 90 days."""
     ccns, b, s = set(card.get("ccns") or []), _norm(card.get("buyer")), _norm(card.get("seller"))
-    st, d0 = set(card.get("states") or []), str(card.get("acquisition_date") or card.get("published_at") or "")[:10]
+    st = set(card.get("states") or [])
+    lender = _norm(card.get("lender"))
+
+    def when(x):
+        return str(x.get("acquisition_date") or x.get("published_at") or x.get("created_at") or "")[:10]
+    d0 = when(card)
+
+    def money(x):
+        return x.get("deal_value_m") or x.get("financing_amount_m")
+
+    def close(a, b):
+        try:
+            a, b = float(a), float(b)
+        except (TypeError, ValueError):
+            return False
+        return abs(a - b) <= 0.05 * max(a, b)
 
     def days(x):
         try:
@@ -140,8 +169,14 @@ def neighbours(card: dict, deals: list[dict], k: int = 8) -> list[dict]:
         score = 3 * bool(ccns & set(d.get("ccns") or []))
         score += 2 * bool(b and _norm(d.get("buyer")) == b) + 2 * bool(s and _norm(d.get("seller")) == s)
         shared = st & set(d.get("states") or [])
-        gap = days(d.get("acquisition_date") or d.get("published_at"))
-        score += bool(shared and d.get("facility_count") == card.get("facility_count") and gap <= 90)
+        gap = days(when(d))
+        # a missing closing date is unknown, not far apart (Ensign's undated CO copy)
+        undated = not (card.get("acquisition_date") and d.get("acquisition_date"))
+        score += bool(shared and d.get("facility_count") is not None
+                      and d.get("facility_count") == card.get("facility_count") and (gap <= 90 or undated))
+        # the same lender in the same state: buyerless loan stories (MONTICELLOAM's $195.7M twice)
+        score += 2 * bool(lender and shared and _norm(d.get("lender")) == lender)
+        score += bool(close(money(card), money(d)))
         # same state, same closing date: a seller-side card and a buyer-side one (Saber OH)
         score += bool(shared and card.get("acquisition_date") and gap == 0)
         if score >= 2:
@@ -198,16 +233,24 @@ def call(client, text: str) -> tuple[dict, object]:
     return json.loads(next(b.text for b in r.content if b.type == "text")), r.usage
 
 
-def run(cards: list[dict], deals: list[dict], out_path: Path, yes: bool, group_of) -> list[dict]:
+def run(cards: list[dict], deals: list[dict], out_path: Path, yes: bool, group_of,
+        batch: bool = False) -> list[dict]:
+    """batch: through the Message Batches API at half price (up to ~1 h; never
+    for the deploy-time check, which someone is waiting on)."""
     import psycopg2
     from dotenv import load_dotenv
     load_dotenv(ROOT / ".env")
     db = psycopg2.connect(os.environ["DATABASE_URL"])
     cur = db.cursor()
     texts = [(c, prompt(c, evidence(c, deals, cur))) for c in cards]
-    tok_in = sum(len(t) for _, t in texts) / 3.5 + len(SYSTEM) / 3.5
-    est = tok_in / 1e6 * PRICE_IN + len(texts) * 2500 / 1e6 * PRICE_OUT   # output incl. thinking
-    print(f"{len(texts)} cards, ~{tok_in / 1e3:.0f}k input tokens, estimated ${est:.2f} ({MODEL}, effort high)")
+    sys_tok = len(SYSTEM) * SYSTEM_TOKENS_PER_CHAR
+    tok_in = sum(len(t) for _, t in texts) * CARD_TOKENS_PER_CHAR     # per-card part, never cached
+    est = (tok_in * PRICE_IN + len(texts) * sys_tok * PRICE_CACHE_READ + sys_tok * PRICE_CACHE_WRITE
+           + len(texts) * OUT_PER_CARD * PRICE_OUT) / 1e6
+    if batch:
+        est /= 2
+    print(f"{len(texts)} cards, ~{(tok_in + len(texts) * sys_tok) / 1e3:.0f}k input tokens, estimated ${est:.2f}"
+          f"{' at batch price' if batch else ''} ({MODEL}, effort high)")
     if not yes:
         print("Not run. Add --yes to spend it.")
         return []
@@ -217,7 +260,19 @@ def run(cards: list[dict], deals: list[dict], out_path: Path, yes: bool, group_o
     done = {}
     if out_path.exists():                      # resume an interrupted run
         done = {json.loads(l)["id"]: json.loads(l) for l in open(out_path) if l.strip()}
-    lock, spent = threading.Lock(), [0, 0]
+    lock, spent = threading.Lock(), {"input": 0, "cache_read": 0, "cache_write": 0, "output": 0}
+
+    def add(u):
+        spent["input"] += u.input_tokens or 0
+        spent["cache_read"] += getattr(u, "cache_read_input_tokens", 0) or 0
+        spent["cache_write"] += getattr(u, "cache_creation_input_tokens", 0) or 0
+        spent["output"] += u.output_tokens or 0
+
+    def save(c, lab):
+        rec = {"id": c["id"], "group": group_of(c), "source_type": c.get("source_type"), **lab}
+        with open(out_path, "a") as f:
+            f.write(json.dumps(rec, default=str) + "\n")
+        return rec
 
     def one(item):
         c, t = item
@@ -228,20 +283,44 @@ def run(cards: list[dict], deals: list[dict], out_path: Path, yes: bool, group_o
         except Exception as e:                 # keep going; the card stays unlabelled
             print(f"  {c['id'][:8]} failed: {e}", file=sys.stderr)
             return None
-        rec = {"id": c["id"], "group": group_of(c), "source_type": c.get("source_type"), **lab}
         with lock:
-            spent[0] += u.input_tokens + (u.cache_read_input_tokens or 0) + (u.cache_creation_input_tokens or 0)
-            spent[1] += u.output_tokens
-            with open(out_path, "a") as f:
-                f.write(json.dumps(rec, default=str) + "\n")
+            add(u)
+            rec = save(c, lab)
         print(f"  {c['id'][:8]} {lab['verdict']}", file=sys.stderr)
         return rec
 
-    with ThreadPoolExecutor(max_workers=6) as ex:
-        res = [r for r in ex.map(one, texts) if r]
-    cost = spent[0] / 1e6 * PRICE_IN + spent[1] / 1e6 * PRICE_OUT
-    print(f"labelled {len(res)}/{len(texts)}; this run used {spent[0] / 1e3:.0f}k in / {spent[1] / 1e3:.0f}k out"
-          f" tokens, about ${cost:.2f} (cache reads priced as full input: an upper bound)")
+    if batch:
+        res = _run_batch(client, texts, done, out_path, add, save)
+    else:
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            res = [r for r in ex.map(one, texts) if r]
+    cost = (spent["input"] * PRICE_IN + spent["cache_read"] * PRICE_CACHE_READ
+            + spent["cache_write"] * PRICE_CACHE_WRITE + spent["output"] * PRICE_OUT) / 1e6 / (2 if batch else 1)
+    print(f"labelled {len(res)}/{len(texts)}; this run used {spent['input'] / 1e3:.0f}k input, "
+          f"{spent['cache_read'] / 1e3:.0f}k cache-read, {spent['cache_write'] / 1e3:.0f}k cache-write, "
+          f"{spent['output'] / 1e3:.0f}k output tokens = ${cost:.2f} (measured{', batch price' if batch else ''})")
+    return res
+
+
+def request(text: str) -> dict:
+    """call()'s request for a Message Batches request (batches take no fallbacks)."""
+    return dict(model=MODEL, max_tokens=16000,
+                system=[{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
+                output_config={"effort": "high", "format": {"type": "json_schema", "schema": SCHEMA}},
+                messages=[{"role": "user", "content": text}])
+
+
+def _run_batch(client, texts, done, out_path, add, save) -> list[dict]:
+    from evals.runs import run_batch
+    todo = {c["id"]: (c, t) for c, t in texts if c["id"] not in done}
+    msgs = run_batch(client, {cid: request(t) for cid, (_, t) in todo.items()}, out_path.with_suffix(".batch"))
+    res = [done[c["id"]] for c, _ in texts if c["id"] in done]
+    for cid, m in msgs.items():
+        add(m.usage)
+        if m.stop_reason == "refusal":
+            print(f"  {cid[:8]} refused", file=sys.stderr)
+            continue
+        res.append(save(todo[cid][0], json.loads(next(b.text for b in m.content if b.type == "text"))))
     return res
 
 
@@ -303,9 +382,18 @@ def cmd_gold(a) -> None:
     groups = {g["id"]: g["group"] for g in gold}
     if a.limit:
         cards = cards[:a.limit]
+    if a.only:
+        from evals.runs import pick, read_ids
+        cards = pick(cards, read_ids(a.only))
     OUT.mkdir(parents=True, exist_ok=True)
-    out = OUT / f"judge_gold_{date.today()}.jsonl"
-    res = run(cards, deals, out, a.yes, lambda c: groups[c["id"]])
+    # The prompt's fingerprint in the name: a run resumes from its file, and a
+    # same-day run after a prompt change must not reuse the old answers
+    from evals import fingerprint
+    part = "_only" if (a.only or a.limit) else ""
+    out = OUT / f"judge_gold_{date.today()}_{fingerprint('judge')[:8]}{part}.jsonl"
+    if part and out.exists() and not a.yes:
+        print(f"(a partial run for this prompt already exists: {out.name}; its cards are reused)")
+    res = run(cards, deals, out, a.yes, lambda c: groups[c["id"]], batch=a.batch)
     if not res:
         return
     ag = agreement(gold, {r["id"]: r for r in res}, by_id)
@@ -320,7 +408,7 @@ def cmd_gold(a) -> None:
     print(f"  false alarms           {c[(True, False)]}/{c[(True, True)] + c[(True, False)]} right cards flagged")
     print(f"  wrong-field recall     {ag['field_recall']:.0%}   precision {ag['field_precision']:.0%}")
     print(f"  correct-value agree    {ag['gold_value_agree']:.0%} of fields")
-    if not a.limit and len(res) == len(cards):           # a full run measures this prompt
+    if not a.limit and not a.only and len(res) == len(cards):   # a full run measures this prompt
         from evals import record_measurement
         record_measurement("judge", f"caught {k}/{n}, false alarms {c[(True, False)]}/"
                            f"{c[(True, True)] + c[(True, False)]}", out.name)
@@ -337,7 +425,8 @@ def cmd_sample(a) -> None:
     cards = [c for c in draw([d for d in deals if d["id"] not in gold_ids], a.seed)]
     OUT.mkdir(parents=True, exist_ok=True)
     out = OUT / f"judge_sample_{a.seed}.jsonl"
-    res = run(cards, deals, out, a.yes, lambda c: c.get("group") or GROUP.get(c.get("source_type")))
+    res = run(cards, deals, out, a.yes, lambda c: c.get("group") or GROUP.get(c.get("source_type")),
+              batch=a.batch)
     if res:
         print(f"\nPre-labels in {out}. Next: publish them to the review page.")
 
@@ -349,10 +438,14 @@ def main() -> None:
     g.add_argument("export")
     g.add_argument("--yes", action="store_true")
     g.add_argument("--limit", type=int)
+    g.add_argument("--only", help="file of card ids (or 8-char prefixes): judge just these while tuning; "
+                                  "a full run at the end records the measurement")
+    g.add_argument("--batch", action="store_true", help="Message Batches API: half price, up to ~1 h")
     s = sub.add_parser("sample")
     s.add_argument("export")
     s.add_argument("--seed", type=int, required=True)
     s.add_argument("--yes", action="store_true")
+    s.add_argument("--batch", action="store_true", help="Message Batches API: half price, up to ~1 h")
     a = ap.parse_args()
     {"gold": cmd_gold, "sample": cmd_sample}[a.cmd](a)
 

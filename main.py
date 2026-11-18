@@ -347,6 +347,9 @@ def run(dry_run=False, max_articles=None, no_alerts=False, skip_ucc=False, gmail
 
         log_source_health(conn)
         log_watch(conn)
+        from pipeline import extractor as _ex
+        if _ex.USAGE["calls"]:
+            logger.info(f"API USAGE: {_ex.usage_line()}")
         logger.info("=== Pipeline complete ===")
 
     except Exception as e:
@@ -979,7 +982,15 @@ async def _batch_fetch_extract(
         async with sem:
             return await asyncio.to_thread(_fetch_and_extract, article)
 
-    return await asyncio.gather(*[_one(a) for a in articles])
+    # Articles one at a time until one has reached Claude: that call writes
+    # the cached instructions, and the rest, run together, read them. All at
+    # once, every call wrote its own copy (2026-11-18 Gmail run: 5 writes,
+    # 0 reads, $0.07 where uncached would have been $0.06)
+    from pipeline import extractor as _ex
+    first, calls = [], _ex.USAGE["calls"]
+    while len(first) < len(articles) and _ex.USAGE["calls"] == calls:
+        first.append(await _one(articles[len(first)]))
+    return first + list(await asyncio.gather(*[_one(a) for a in articles[len(first):]]))
 
 
 def _default_con_dates(article: dict, deals: list[dict]) -> list[dict]:
@@ -1820,9 +1831,10 @@ def _store_deal(deal: dict, article_id, conn) -> str:
                 article_id, acquiring_entity, seller_entity, operator_names,
                 facility_names, states, facility_count, deal_value_m,
                 acquisition_date, financing_amount_m, lender,
-                dedup_hash, extraction_model, summary
+                dedup_hash, extraction_model, summary,
+                field_quotes, second_read, ungrounded
             ) VALUES (
-                %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
             ) RETURNING id
         """, (
             article_id,
@@ -1840,6 +1852,13 @@ def _store_deal(deal: dict, article_id, conn) -> str:
             deal.get("extraction_model"),
             # Claude's per-deal rationale, or a state filing's own summary
             deal.get("summary") or deal.get("rationale"),
+            # News: the sentence each field came from, the second read's
+            # disagreements, what grounding removed (shown when approving)
+            # "_unquoted": fields filled without a quote, flagged for approval
+            json.dumps({**deal["quotes"], **({"_unquoted": deal["unquoted"]} if deal.get("unquoted") else {})})
+            if deal.get("quotes") is not None else None,
+            json.dumps(deal["second_read"]) if deal.get("second_read") is not None else None,
+            deal.get("ungrounded"),
         ))
         deal_id = cur.fetchone()[0]
     return find_and_resolve_fuzzy_duplicate(

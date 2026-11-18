@@ -61,6 +61,9 @@ def run_loop(record: dict, user_prompt: str, toolbox, client, model: str, effort
         resp = client.messages.create(
             model=model, max_tokens=max_tokens, output_config={"effort": effort},
             system=system_prompt, tools=tools, messages=messages,
+            # each step re-sends the whole conversation: the automatic marker
+            # caches it up to the newest turn, so a step bills only what it added
+            cache_control={"type": "ephemeral"},
         )
         trace.add_usage(resp.usage)
         if resp.stop_reason == "refusal":

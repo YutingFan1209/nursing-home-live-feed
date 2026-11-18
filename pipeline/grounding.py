@@ -152,4 +152,134 @@ def ground(deal: dict, text: str, published=None) -> dict | None:
     if named and not (deal.get("acquiring_entity") or deal.get("seller_entity") or deal["facility_names"]):
         logger.info("Grounding: dropped a deal with no buyer, seller or facility in its source")
         return None
+    # After the drop above: a quote check only blanks fields, never loses a
+    # deal (LTC's 8-K says "we acquired", 2026-11-17: 3 deals vanished)
+    return ground_quotes(deal, text, published)
+
+
+# --- Quote per field (user's goal 2026-11-17: news as close to 100% as possible) ---
+# The extractor gives, for each field it fills, the sentence it read it from.
+# A field stays only when that sentence is in the article word for word and
+# itself holds the value; a value with no quote, a quote the article doesn't
+# have, or a quote that doesn't say it is blanked. That ties a number to the
+# sentence about this deal: a portfolio total ("nine communities in South
+# Florida to date") has to be quoted as such to be used.
+
+QUOTED_FIELDS = ("acquiring_entity", "seller_entity", "lender", "facility_count", "deal_value_m",
+                 "financing_amount_m", "acquisition_date", "states")
+_NUM_WORDS = ("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen "
+              "fifteen sixteen seventeen eighteen nineteen twenty").split()
+_STATE_NAMES = {
+    "AL": "alabama", "AK": "alaska", "AZ": "arizona", "AR": "arkansas", "CA": "california", "CO": "colorado",
+    "CT": "connecticut", "DE": "delaware", "DC": "district of columbia", "FL": "florida", "GA": "georgia",
+    "HI": "hawaii", "ID": "idaho", "IL": "illinois", "IN": "indiana", "IA": "iowa", "KS": "kansas",
+    "KY": "kentucky", "LA": "louisiana", "ME": "maine", "MD": "maryland", "MA": "massachusetts",
+    "MI": "michigan", "MN": "minnesota", "MS": "mississippi", "MO": "missouri", "MT": "montana",
+    "NE": "nebraska", "NV": "nevada", "NH": "new hampshire", "NJ": "new jersey", "NM": "new mexico",
+    "NY": "new york", "NC": "north carolina", "ND": "north dakota", "OH": "ohio", "OK": "oklahoma",
+    "OR": "oregon", "PA": "pennsylvania", "RI": "rhode island", "SC": "south carolina", "SD": "south dakota",
+    "TN": "tennessee", "TX": "texas", "UT": "utah", "VT": "vermont", "VA": "virginia", "WA": "washington",
+    "WV": "west virginia", "WI": "wisconsin", "WY": "wyoming"}
+
+
+def _squash(s: str) -> str:
+    """Lower case, curly quotes and dashes made plain, whitespace collapsed:
+    quotes and text are compared after this."""
+    s = (s or "").lower().translate(str.maketrans("‘’“”–— ", "''\"\"-- "))
+    # stored article text can have a space before punctuation ("Clearview Land LLC , which")
+    return re.sub(r" ([,.;:!?)])", r"\1", " ".join(s.split()))
+
+
+def quote_in_text(quote: str, text_squashed: str) -> bool:
+    """The quote is in the article. An ellipsis joins pieces that must each be there."""
+    parts = [p.strip(" .") for p in re.split(r"\.\.\.|…", _squash(quote))]
+    parts = [p for p in parts if len(p) >= 8]
+    return bool(parts) and all(p in text_squashed for p in parts)
+
+
+def _counts(q: str) -> list[int]:
+    """Small whole numbers in a sentence, as digits or words (not money, years, beds or percentages)."""
+    nums = [int(m) for m in re.findall(r"(?<![\d.,$])(\d{1,3})(?![\d,%]|\.\d|-(?:bed|unit))", q)]
+    nums += [i for i, w in enumerate(_NUM_WORDS) if re.search(rf"\b{w}\b", q)]
+    return nums
+
+
+def count_in_quote(n: int, quote: str) -> bool:
+    """The count is in the sentence, or is the sum of two or three of its counts
+    ("32 skilled nursing facilities and three independent living" = 35)."""
+    q = _squash(quote)
+    nums = _counts(q)
+    if n in nums:
+        return True
+    pairs = [a + b for i, a in enumerate(nums) for b in nums[i + 1:]]
+    triples = [a + b + c for i, a in enumerate(nums) for j, b in enumerate(nums[i + 1:], i + 1) for c in nums[j + 1:]]
+    if n in pairs or n in triples:
+        return True
+    # one home is often "a 120-bed skilled nursing facility"
+    return n == 1 and bool(re.search(r"\b(a|an|the|one)\b", q))
+
+
+def state_in_quote(st: str, quote: str) -> bool:
+    q = _squash(quote)
+    return bool(re.search(rf"\b{_STATE_NAMES.get(st, '#')}\b", q) or re.search(rf"(?<![a-z]){st.lower()}\b", q))
+
+
+# A sentence about the deal often names a party briefly ("VIUM" for VIUM
+# Capital) or refers back to it ("The bank also closed..."); ground() has
+# already found the full name in the article.
+_BACK_REF = re.compile(r"\b(it|its|they|we|our|us|the (company|bank|firm|lender|buyer|seller|reit|operator|"
+                       r"partnership|trust|fund|group|joint venture|provider|purchaser|acquirer|companies))\b")
+
+
+def name_in_quote(name: str, quote: str) -> bool:
+    qw = set(_words(quote))
+    words = [w for w in _words(name) if len(w) >= 3]
+    words = [w for w in words if w not in _HOME_WORDS] or words
+    return any(w in qw for w in words) or bool(_BACK_REF.search(_squash(quote)))
+
+
+MISSING_QUOTE = "flag"    # user 2026-11-17: keep a value given without a quote, flag it ("unquoted") for approval; "blank" was 22/64 vs 35/64
+
+
+def ground_quotes(deal: dict, text: str, published=None, missing: str | None = None) -> dict:
+    """Blank every field whose quote is not in the text or doesn't hold the
+    value; a field with no quote at all is blanked or flagged (MISSING_QUOTE).
+    Only for deals that carry quotes (news extraction)."""
+    missing = missing or MISSING_QUOTE
+    quotes = deal.get("quotes")
+    if not isinstance(quotes, dict):
+        return deal   # extracted before quotes were asked for (or not news)
+    t = _squash(text)
+    removed = []
+    for field in QUOTED_FIELDS:
+        v = deal.get(field)
+        if v in (None, "", []):
+            continue
+        q = quotes.get(field)
+        if not isinstance(q, str) and missing == "flag":
+            deal.setdefault("unquoted", []).append(field)
+            continue
+        if not isinstance(q, str) or not quote_in_text(q, t):
+            ok = False
+        elif field in ("acquiring_entity", "seller_entity", "lender"):
+            ok = name_in_quote(v, q)
+        elif field in ("deal_value_m", "financing_amount_m"):
+            ok = value_in_text(float(v), q)
+        elif field == "facility_count":
+            ok = count_in_quote(int(v), q)
+        elif field == "acquisition_date":
+            d = _as_date(v)
+            ok = bool(d) and date_in_text(d, q, published)
+        else:  # states: keep the ones the quote names; all of them if it names none
+            kept = [s for s in v if state_in_quote(s, q)]
+            if kept and len(kept) < len(v):
+                removed.append(f"states {sorted(set(v) - set(kept))} (not in quote)")
+                deal["states"] = kept
+            continue
+        if not ok:
+            removed.append(f"{field} {v!r} (quote {'missing' if not q else 'does not support it'})")
+            deal[field] = None
+    if removed:
+        deal["ungrounded"] = (deal.get("ungrounded") or []) + removed
+        logger.info(f"Quote check: removed {'; '.join(removed)}")
     return deal

@@ -10,7 +10,7 @@ Two modes:
            record's stored article text with the current prompt + model,
            and scores the fresh output. Prints a cost estimate and stops
            unless --yes is given.
-           venv/bin/python3 -m evals.score extract [--yes] [--limit N]
+           venv/bin/python3 -m evals.score extract [--yes] [--limit N] [--ids FILE] [--batch]
            Saves the raw extractions; `rescore <file>` re-scores them free.
 
 Gold record = one card as labelled on 2026-11-16 against its source:
@@ -176,8 +176,12 @@ def cmd_stored(args) -> None:
 
 # ---- extract mode (paid) ---------------------------------------------------
 
-# Sonnet-class pricing, $ per million tokens; only used for the estimate.
-PRICE_IN, PRICE_OUT = 3.00, 15.00
+# Sonnet 5.5, $ per million tokens (was $3/$15, Sonnet 4.5's prices, until
+# 2026-11-18: every estimate was 50% high). Batch is half of all of these.
+PRICE_IN, PRICE_OUT = 2.00, 10.00
+PRICE_CACHE_READ, PRICE_CACHE_WRITE = 0.10, 2.50
+PROMPT_TOKENS = 2700          # the cached extraction instructions
+OUT_PER_ARTICLE = 1500        # thinking + JSON; not yet measured (usage now logged)
 
 
 def _best_match(extracted: list[dict], want: dict) -> dict | None:
@@ -241,6 +245,9 @@ def cmd_extract(args) -> None:
 
     load_dotenv(Path(__file__).resolve().parent.parent / ".env")
     gold = _news_gold(args.limit)
+    if args.ids:
+        from evals.runs import pick, read_ids
+        gold = pick(gold, read_ids(args.ids))
     db = psycopg2.connect(os.environ["DATABASE_URL"])
     cur = db.cursor()
     texts = {}
@@ -251,17 +258,27 @@ def cmd_extract(args) -> None:
         if row and row[0]:
             texts[g["id"]] = row
     from config import get_config
-    max_chars = get_config().article_max_chars
-    in_tok = sum(min(len(t[0]), max_chars) for t in texts.values()) / 4 + 3000 * len(texts)
-    est = in_tok / 1e6 * PRICE_IN + 800 * len(texts) / 1e6 * PRICE_OUT
-    print(f"{len(texts)} articles, ~{in_tok / 1e3:.0f}k input tokens, estimated ${est:.2f}"
-          f" (model {get_config().claude_model})")
+    cfg = get_config()
+    reads = 2 if cfg.second_read else 1
+    # Estimate: article ~4 chars/token, ~200 tokens of per-article framing,
+    # the ~2.7k-token instructions read from cache after the first call, and
+    # OUT_PER_ARTICLE output (thinking + JSON). Calibrate both from the
+    # measured line this command prints after a run.
+    art = sum(min(len(t[0]), cfg.article_max_chars) / 4 + 200 for t in texts.values())
+    n = len(texts) * reads
+    est = (art * reads * PRICE_IN + n * PROMPT_TOKENS * PRICE_CACHE_READ + PROMPT_TOKENS * PRICE_CACHE_WRITE
+           + n * OUT_PER_ARTICLE * PRICE_OUT) / 1e6
+    if args.batch:
+        est /= 2
+    print(f"{len(texts)} articles x {reads} read(s), ~{(art * reads + n * PROMPT_TOKENS) / 1e3:.0f}k input tokens "
+          f"(most of the instructions from cache), estimated ${est:.2f}{' at batch price' if args.batch else ''}"
+          f" (model {cfg.claude_model})")
     if not args.yes:
         print("Not run. Add --yes to spend it.")
         return
 
     import logging
-    from pipeline.extractor import extract_deals
+    from pipeline import extractor as X
 
     class _Failures(logging.Handler):           # extract_deals logs API errors and returns []
         def __init__(self):
@@ -273,34 +290,82 @@ def cmd_extract(args) -> None:
 
     fails = _Failures()
     logging.getLogger("pipeline.extractor").addHandler(fails)
-    raw_path = RAW_DIR / f"extract_raw_{date.today()}.jsonl"   # gitignored: names people
+    tag = "_only" if (args.ids or args.limit) else ""
+    raw_path = RAW_DIR / f"extract_raw_{date.today()}{tag}.jsonl"   # gitignored: names people
+    k = 2
+    while raw_path.exists():          # a second run the same day overwrote the first (2026-11-17)
+        raw_path = RAW_DIR / f"extract_raw_{date.today()}{tag}_{k}.jsonl"
+        k += 1
     raw, failed = {}, 0
-    with open(raw_path, "w") as f:
-        for i, g in enumerate(gold, 1):
-            if g["id"] not in texts:
-                continue
-            text, url, pub, title = texts[g["id"]]
-            fails.msgs.clear()
-            out = extract_deals(text, url, pub, title=title)
-            if fails.msgs:
-                failed += 1
-                print(f"  [{i}/{len(gold)}] {g['id'][:8]} API error: {fails.msgs[0][-160:]}", file=sys.stderr)
-                if "credit balance" in fails.msgs[0]:
-                    print("Stopped: the API account is out of credit.", file=sys.stderr)
-                    break
-                continue
-            raw[g["id"]] = out
-            f.write(json.dumps({"id": g["id"], "deals": out}, default=str) + "\n")
-            print(f"  [{i}/{len(gold)}] {g['id'][:8]} {len(out)} deal(s)", file=sys.stderr)
+    if args.batch:
+        raw, failed = _extract_batch(X, gold, texts, reads, raw_path)
+    else:
+        with open(raw_path, "w") as f:
+            for i, g in enumerate(gold, 1):
+                if g["id"] not in texts:
+                    continue
+                text, url, pub, title = texts[g["id"]]
+                fails.msgs.clear()
+                out = X.extract_deals(text, url, pub, title=title)
+                if fails.msgs:
+                    failed += 1
+                    print(f"  [{i}/{len(gold)}] {g['id'][:8]} API error: {fails.msgs[0][-160:]}", file=sys.stderr)
+                    if "credit balance" in fails.msgs[0]:
+                        print("Stopped: the API account is out of credit.", file=sys.stderr)
+                        break
+                    continue
+                raw[g["id"]] = out
+                f.write(json.dumps({"id": g["id"], "deals": out}, default=str) + "\n")
+                print(f"  [{i}/{len(gold)}] {g['id'][:8]} {len(out)} deal(s)", file=sys.stderr)
     if len(raw) < len(texts):
         print(f"\nScored {len(raw)} of {len(texts)} articles ({failed} API errors left out).")
     print(f"Raw extractions saved to {raw_path} (rescore free: python -m evals.score rescore <file>)")
+    print(f"Spent: {X.usage_line()}")
     res = _score_raw([g for g in gold if g["id"] in raw], raw)
     report(res, "Fresh-extraction score vs gold (news/SEC)")
-    if not args.limit and len(raw) == len(texts):        # a full run measures this prompt
+    if not args.limit and not args.ids and len(raw) == len(texts):   # a full run measures this prompt
         from evals import record_measurement
         ok = summary(res).get("news", [0, 0])
         record_measurement("extract", f"{ok[0]}/{ok[1]} news cards fully right", raw_path.name)
+
+
+def _extract_batch(X, gold, texts, reads, raw_path) -> tuple[dict, int]:
+    """The same extraction through the Message Batches API (half price)."""
+    import anthropic
+    from evals.runs import run_batch
+    prepared, reqs = {}, {}
+    for g in gold:
+        if g["id"] not in texts:
+            continue
+        text, url, pub, title = texts[g["id"]]
+        prep = X.prepare(text, url, title)
+        if prep is None:
+            continue
+        prepared[g["id"]] = (prep, url, pub)
+        date_str = str(pub)[:10] if pub else "unknown"
+        reqs[f"{g['id']}_r1"] = X.request_params(prep[0], date_str)
+        if reads == 2:
+            reqs[f"{g['id']}_r2"] = X.request_params(prep[0], date_str, prefix=X.SECOND_READ)
+    msgs = run_batch(anthropic.Anthropic(), reqs, raw_path.with_suffix(".batch"))
+    raw, failed = {}, 0
+    with open(raw_path, "w") as f:
+        for gid, ((text, truncated), url, pub) in prepared.items():
+            m1 = msgs.get(f"{gid}_r1")
+            if m1 is None:
+                failed += 1
+                continue
+            try:
+                first = X.parse_response(m1, url, batch=True)
+                second = None
+                if reads == 2:
+                    m2 = msgs.get(f"{gid}_r2")
+                    second = X.parse_response(m2, url, batch=True) if m2 is not None else False
+            except json.JSONDecodeError:
+                failed += 1
+                continue
+            raw[gid] = X.finish(first, text, pub, url, truncated, second)
+            f.write(json.dumps({"id": gid, "deals": raw[gid]}, default=str) + "\n")
+    return raw, failed
 
 
 def main() -> None:
@@ -311,6 +376,9 @@ def main() -> None:
     e = sub.add_parser("extract")
     e.add_argument("--yes", action="store_true", help="actually call the API")
     e.add_argument("--limit", type=int)
+    e.add_argument("--ids", help="file of gold ids (or 8-char prefixes): extract only these articles; "
+                                 "not recorded as a measurement")
+    e.add_argument("--batch", action="store_true", help="Message Batches API: half price, up to ~1 h")
     r = sub.add_parser("rescore")
     r.add_argument("raw")
     a = ap.parse_args()

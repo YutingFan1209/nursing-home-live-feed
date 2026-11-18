@@ -23,6 +23,11 @@ class Config:
     # tokens for the same text than Sonnet 4.5 did
     claude_effort: str = "medium"
     claude_max_tokens: int = 8000         # roundup articles can return 10+ deals
+    # Read each article twice, the second time as a fact-checker; fields the
+    # two reads disagree on are flagged for the person approving the card.
+    # Off by default (user 2026-11-17): right 6/6 times it disagreed but caught
+    # only 6 of ~50 wrong fields, at double the cost. SECOND_READ=1 turns it on.
+    second_read: bool = field(default_factory=lambda: os.environ.get("SECOND_READ", "0") == "1")
     # Article text kept for extraction. Was 10,000 at fetch and 8,000 at
     # extraction -- long dealbook roundups lost their later deals entirely.
     article_max_chars: int = 30000

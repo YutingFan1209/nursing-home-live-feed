@@ -7,6 +7,11 @@ gold set). A card the judge calls right or minor ships; wrong, duplicate,
 noise or uncertain -- or one the judge couldn't check -- is held: left out
 of the export until a person looks at it.
 
+News and SEC cards are always held, even when the judge passes them
+(user's goal 2026-11-17: news as close to 100% as possible): they wait as
+"awaiting_approval" until the person approves them on the Feed Audit Review
+page; evals/approval.py seeds the page and applies the decisions.
+
     venv/bin/python3 -m evals.holds                 # list held cards with the judge's note
     venv/bin/python3 -m evals.holds release <id>    # ship it as is (after a fix, or judge was wrong)
 
@@ -29,7 +34,8 @@ JUDGED = OUT / "judged_new.jsonl"
 HOLDS = OUT / "holds.json"
 RELEASED = OUT / "released.jsonl"
 SHIP = {"right", "minor"}
-COST_PER_CARD = 0.035          # measured: $5.15 for 150 cards, Opus 5.5 effort high
+APPROVE_SOURCES = {"rss", "edgar"}   # a person approves every one of these
+COST_PER_CARD = 0.040          # measured: 5 gold runs 11-16/17, $24-30 for 749 cards (Opus 5.5, effort high); upper end, it is a cap
 
 
 def _jsonl(path: Path) -> dict[str, dict]:
@@ -80,8 +86,10 @@ def check(cards: list[dict], deals: list[dict], max_cost: float, spend: bool) ->
         j = judged.get(c["id"])
         if not j:
             holds[c["id"]] = {"verdict": "unchecked", "headline": c.get("headline")}
-        elif j["verdict"] not in SHIP:
-            holds[c["id"]] = {"verdict": j["verdict"], "headline": c.get("headline"),
+        elif j["verdict"] not in SHIP or c.get("source_type") in APPROVE_SOURCES:
+            holds[c["id"]] = {"verdict": j["verdict"] if j["verdict"] not in SHIP else "awaiting_approval",
+                              "judge_verdict": j["verdict"], "headline": c.get("headline"),
+                              "source_type": c.get("source_type"),
                               "wrong_fields": j.get("wrong_fields"), "note": j.get("note"),
                               "duplicate_of": j.get("duplicate_of")}
     return holds

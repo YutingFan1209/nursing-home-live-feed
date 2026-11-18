@@ -1,9 +1,9 @@
 {
   "extract": {
-    "fingerprint": "734168ec42fbb807",
+    "fingerprint": "76f553fa2ca30bfa",
     "date": "2026-11-17",
-    "score": "40/64 news cards fully right (41/64 rescored after the unstated-purpose export fix)",
-    "note": "extract_raw_2026-11-17.jsonl (role definitions run)"
+    "score": "37/64 news cards fully right",
+    "note": "extract_raw_2026-11-17_2.jsonl"
   },
   "judge": {
     "fingerprint": "8afd433ccef253c2",

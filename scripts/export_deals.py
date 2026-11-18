@@ -723,7 +723,10 @@ def main():
         # New cards the judge flagged wait for a person (evals/holds.py)
         from evals.holds import held_ids
         held = held_ids()
-        if held:
+        if held and "--include-held" in sys.argv:
+            # For evals/approval.py seed only: never deploy this export
+            print(f"Kept {len(held)} held card(s) (--include-held): not for deploy")
+        elif held:
             deals = [d for d in deals if d["id"] not in held]
             print(f"Held back {len(held)} new card(s) for review (python -m evals.holds)")
 
@@ -800,7 +803,8 @@ def main():
     if nj_form:
         ucc_search_forms["NJ"] = nj_form
 
-    out_path = sys.argv[1] if len(sys.argv) > 1 else "/tmp/deals.json"
+    args = [x for x in sys.argv[1:] if not x.startswith("--")]
+    out_path = args[0] if args else "/tmp/deals.json"
     with open(out_path, "w") as f:
         json.dump({"deals": deals, "total": len(deals), "ucc_search_forms": ucc_search_forms, "freshness": freshness,
                    "corrections": corrections, "facilities": facilities}, f, default=str)

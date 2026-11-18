@@ -153,6 +153,12 @@ Deploy is a **separate, manual step from the pipeline run** — `run_pipeline.sh
 
 **One command:** `venv/bin/python3 scripts/deploy.py` runs steps 1–4 below: export, predeploy check (stops on any failure; no `--force`), the gold-set score next to the last deploy's (`evals/`, history in `data/evals/score_history.jsonl`), then asks before pushing and always returns to `main`. `--dry-run` stops before git; `--yes` skips the question; `-m "what changed"` goes in the commit message. Data only — the frontend steps are below.
 
+**Paid measurements** (`evals/`; each prints an estimate and stops without `--yes`; costs are logged as measured tokens after the run):
+- `venv/bin/python3 -m evals.judge gold <deals.json>` checks the checker against the 150 hand labels; `venv/bin/python3 -m evals.score extract` re-extracts the 64 gold news articles.
+- While tuning a prompt, run only the cards a change can affect with `--only <ids file>` (judge) or `--ids <ids file>` (extract), one id or 8-character prefix per line. Partial runs aren't recorded as a measurement; do one full run at the end.
+- `--batch` sends the same requests through the Message Batches API at half price. Results usually take under an hour, so use it for measurements, never the deploy-time check. An interrupted wait resumes the same batch.
+- Each pipeline run ends with an `API USAGE:` log line (extraction tokens incl. cache reads/writes, and their cost).
+
 `gh-pages` holds only the website (`index.html`, `assets/`, `classic/`, `deals.json`, `feed.xml`, `.nojekyll`); its `.gitignore` is an allowlist, so nothing else can be committed there. While it's checked out, the pipeline source isn't in the working copy, so don't run any Python until you're back on `main`.
 
 ```bash
@@ -245,6 +251,7 @@ psql "$DATABASE_URL" -f db/migration_add_legal_names.sql
 psql "$DATABASE_URL" -f db/migration_add_provider_address.sql
 psql "$DATABASE_URL" -f db/migration_add_licence_list_snapshot.sql
 psql "$DATABASE_URL" -f db/migration_add_ucc_collateral_text.sql
+psql "$DATABASE_URL" -f db/migration_add_field_evidence.sql
 
 # Python env (3.11+; runs on 3.14 — Google's API libraries dropped 3.10)
 python3 -m venv venv && source venv/bin/activate
