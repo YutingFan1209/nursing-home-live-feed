@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-18T15:51:20.110547+00:00</updated>
+  <updated>2026-11-20T14:29:29.239433+00:00</updated>
   <entry>
     <id>urn:uuid:1c096432-3cfa-41c0-a128-a7c740392680</id>
     <title>Welltower acquires a facility in FL (FL)</title>
@@ -63,10 +63,10 @@
   </entry>
   <entry>
     <id>urn:uuid:2d0fd26c-3099-4083-a584-7348ce8e809f</id>
-    <title>Advinia Care to acquire 3 facilities in RI (RI)</title>
+    <title>Advinia Care to acquire Greenville Skilled Nursing and Rehabilitation and 2 more from Mayflower Healthcare (RI)</title>
     <link href="https://upriseri.com/article/three-ri-nursing-homes-sale-advances-over-neronhas-objections/#:~:text=Advinia%20Care"/>
     <updated>2026-11-16T18:16:53.981035+00:00</updated>
-    <summary>Source: Google Alerts (Gmail)</summary>
+    <summary>Facilities: Greenville Skilled Nursing and Rehabilitation, Respiratory and Rehabilitation Center of Rhode Island, Warren Center; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:79da1265-d2af-4888-be19-95b5c8af4551</id>
@@ -90,20 +90,6 @@
     <summary>Effective 2026-12-17; Facilities: Saints Joachim &amp; Anne Nursing and Rehabilitation Center, Boardwalk Nursing and Rehabilitation Center; $42.50M; $35.02M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
   <entry>
-    <id>urn:uuid:0b84e3db-7ab7-4dac-a462-4069ef15a3eb</id>
-    <title>Vantage Point Capital to acquire 15 facilities in ME from North Country Associates (ME)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Vantage%20Point%20Capital"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f00f51ef-f53a-4c8e-bce0-c771351a7d39</id>
-    <title>Welltower acquires Unity Health and Rehabilitation Center (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Unity%20Health%20and%20Rehabilitation%20Center"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Facilities: Unity Health and Rehabilitation Center; $74.30M; Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:71b16e51-e98e-4280-afa0-a74aa0897b1f</id>
     <title>Welltower acquires 2 facilities in FL (FL)</title>
     <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
@@ -123,6 +109,20 @@
     <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=TL%20Management"/>
     <updated>2026-11-16T18:16:53.686403+00:00</updated>
     <summary>$160.00M; Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0b84e3db-7ab7-4dac-a462-4069ef15a3eb</id>
+    <title>Vantage Point Capital to acquire 15 facilities in ME from North Country Associates (ME)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Vantage%20Point%20Capital"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f00f51ef-f53a-4c8e-bce0-c771351a7d39</id>
+    <title>Welltower acquires Unity Health and Rehabilitation Center (FL)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Unity%20Health%20and%20Rehabilitation%20Center"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>Facilities: Unity Health and Rehabilitation Center; $74.30M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
     <id>urn:uuid:952c3054-3f87-4000-bfb9-ced30e048952</id>
