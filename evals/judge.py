@@ -89,7 +89,23 @@ acquiring_entity is the card's buyer, seller_entity its seller, rationale its su
 
 Site conventions (applied when the site is built; these are right, not errors):
 """ + SITE_RULES + """
-- The home's own operating company is not a lender. Check ccns against the CMS FACILITY rows given.
+- The home's own operating company is not a lender, and neither is its landlord or property owner (a \
+real-estate company, or a company in the CMS OWNER rows): a card showing one as lender is wrong.
+- Check ccns against the CMS FACILITY rows given: a CCN for a home the source doesn't name is wrong \
+(a skilled nursing CCN on an independent or assisted living community), and so is a card naming more \
+homes than its ccns cover when the source names them. A UCC card's ccns need the debtor to be that \
+home's operator or owner in the CMS rows; when nothing given links the debtor to the home, uncertain.
+- Check facility_type against the source: a community it calls independent living, assisted living, \
+memory care or behavioral health shown as skilled_nursing is wrong.
+- Party fields follow the field rules above for every deal type: a tenant or incoming operator that \
+leases or runs the homes is not the buyer, and a landlord that keeps the buildings is not the seller, \
+so a lease or operations-transfer card naming them as buyer or seller is wrong.
+- A sale shown as reported, or assumed closed, while the evidence or a card under OTHER CARDS says it \
+is still pending after that date, has the wrong status.
+- Two UCC cards for the same home and the same secured party filed within a few weeks are one loan: \
+the one being judged is a duplicate of the other.
+- Your verdict must agree with your note: if the note says a shown field is contradicted by, or \
+absent from, the evidence, the card is wrong (minor for a formatting problem), not right.
 
 In gold, give the correct value of every field (the shown value when it is right; null where the \
 source gives nothing). wrong_fields lists the fields shown wrong (for minor, the field with the \
@@ -131,12 +147,34 @@ def _norm(v) -> str:
     return " ".join(re.sub(r"[^a-z0-9]+", " ", s).split())
 
 
+_FAC_WORDS = re.compile(r"\b(and|of|the|at|post acute|rehabilitation|rehab|nursing|center|centre|"
+                        r"healthcare|health|care|skilled|snf|dba|operations|llc|inc)\b")
+
+
+def _fac(name) -> str:
+    """A home's name without the words every home shares, and without the
+    "X Operations LLC DBA" prefix a licence list puts before it."""
+    s = _norm(name)
+    s = s.split(" dba ", 1)[-1]
+    s = " ".join(_FAC_WORDS.sub(" ", s).split())
+    return s if len(s) >= 5 else ""
+
+
+def _brand(buyer) -> str:
+    """The buyer name squeezed together, for prefix matching ("advinia care" ->
+    "adviniacare"); empty when too short to mean anything."""
+    s = _norm(buyer).replace(" ", "")
+    return s if len(s) >= 6 else ""
+
+
 def neighbours(card: dict, deals: list[dict], k: int = 8) -> list[dict]:
     """Other cards that may be the same deal: a shared home, the same buyer
     or seller, or the same state and home count within 90 days."""
     ccns, b, s = set(card.get("ccns") or []), _norm(card.get("buyer")), _norm(card.get("seller"))
     st = set(card.get("states") or [])
     lender = _norm(card.get("lender"))
+    fac = {_fac(n) for n in card.get("facility_names") or []} - {""}
+    brand = _brand(card.get("buyer"))
 
     def when(x):
         return str(x.get("acquisition_date") or x.get("published_at") or x.get("created_at") or "")[:10]
@@ -179,13 +217,36 @@ def neighbours(card: dict, deals: list[dict], k: int = 8) -> list[dict]:
         score += bool(close(money(card), money(d)))
         # same state, same closing date: a seller-side card and a buyer-side one (Saber OH)
         score += bool(shared and card.get("acquisition_date") and gap == 0)
+        # a home this card names is on the other card: a licence-list row inside a
+        # news portfolio card (Bay Park in Ensign's 8 Florida homes, holdout 2026-11-19)
+        score += 3 * bool(shared and fac & {_fac(n) for n in d.get("facility_names") or []} - {""})
+        # the same brand buying in the same state: "AdviniaCare Respiratory at
+        # Coventry, LLC" on a state filing vs "Advinia Care" in the news
+        ob = _brand(d.get("buyer"))
+        score += 2 * bool(shared and brand and ob and (brand.startswith(ob) or ob.startswith(brand)))
         if score >= 2:
             out.append((score, len(shared), -gap, d))
     # ties, e.g. a buyer with many cards: more shared states, then closer dates first (LTC)
     out.sort(key=lambda x: x[:3], reverse=True)
     return [{k2: d.get(k2) for k2 in ("id", "source_type", "deal_type", "buyer", "seller", "states",
-                                       "facility_count", "acquisition_date", "deal_value_m", "headline")}
+                                       "facility_count", "facility_names", "acquisition_date", "status",
+                                       "deal_value_m", "headline")}
             for *_, d in out[:k]]
+
+
+_CHOW: dict | None = None
+
+
+def _chow_by_ccn() -> dict:
+    """CHOW file rows by CCN (buyer or seller side), read once."""
+    global _CHOW
+    if _CHOW is None:
+        from scraper.chow import load_chow_rows
+        _CHOW = {}
+        for r in load_chow_rows(download=False):
+            for c in {(r.get("CCN - BUYER") or "").strip(), (r.get("CCN - SELLER") or "").strip()} - {""}:
+                _CHOW.setdefault(c, []).append(r)
+    return _CHOW
 
 
 def evidence(card: dict, deals: list[dict], cur) -> str:
@@ -207,8 +268,14 @@ def evidence(card: dict, deals: list[dict], cur) -> str:
                        from cms_ownership_records where ccn = %s
                        order by ownership_start_date desc nulls last limit 20""", (ccn,))
         parts += [f"  CMS OWNER {r[0]} | {r[1]} | {r[2]}% | since {r[3]}" for r in cur.fetchall()]
-        cur.execute("select buyer_name, effective_date from chow_seen_records where ccn = %s", (ccn,))
-        parts += [f"  CMS CHOW buyer {r[0]} effective {r[1]}" for r in cur.fetchall()]
+        # buyer and seller from the CHOW file itself: chow_seen_records keeps no
+        # seller, so CHOW-filled sellers looked unsupported (adjudication 2026-11-19)
+        rows = _chow_by_ccn().get(ccn, [])
+        parts += [f"  CMS CHOW effective {r['EFFECTIVE DATE']}: buyer {r['ORGANIZATION NAME - BUYER']}"
+                  f" | seller {r['ORGANIZATION NAME - SELLER']}" for r in rows]
+        if not rows:
+            cur.execute("select buyer_name, effective_date from chow_seen_records where ccn = %s", (ccn,))
+            parts += [f"  CMS CHOW buyer {r[0]} effective {r[1]}" for r in cur.fetchall()]
     nb = neighbours(card, deals)
     parts.append("OTHER CARDS on the site that may be the same deal:\n"
                  + ("\n".join(json.dumps(n, default=str) for n in nb) if nb else "(none)"))

@@ -713,6 +713,18 @@ def main():
         homes = {}
         for deal_id, ccn, provider, kind in cur.fetchall():
             homes.setdefault(deal_id, []).append((ccn, provider))
+        # A record about one specific home (UCC, CHOW, state filing) that gives
+        # no count: it's 1 (person's rule 2026-11-20, after blank counts were
+        # labelled wrong). Only one linked home: a UCC borrower's name can match
+        # several homes the loan may not cover. Not news: a story's links can
+        # be part of a larger portfolio it doesn't count
+        filled = 0
+        for deal in deals:
+            if (deal.get("facility_count") is None and len(set(deal.get("ccns") or [])) == 1
+                    and deal["source_type"] in ("ucc", "chow", "con")):
+                deal["facility_count"] = 1
+                filled += 1
+        print(f"Filled {filled} blank home counts on cards linked to one CMS home")
         for deal in deals:
             _add_labels(deal, cms, homes)
         # Nursing homes and assisted living / memory care only: independent

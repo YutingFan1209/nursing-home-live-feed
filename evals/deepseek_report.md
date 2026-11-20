@@ -134,3 +134,29 @@ the card:
 
 Some of these may be places where `SITE_RULES` and the person's standard differ (for example,
 whether an incoming operator is the "buyer" of an operations transfer), not only judge errors.
+
+## Judge fix, 2026-11-20
+
+The changes:
+- **Evidence:** the CHOW buyer and seller are read from the CMS file. Neighbours now match on
+  facility name and buyer brand, and show status.
+- **Judge rules:** landlord as lender; checks on CCN and facility type; incoming operator as buyer;
+  pending status; same-loan UCC duplicates; a note that contradicts its verdict.
+- **Shared field rules:** joint-venture buyers name every partner, and one card per state.
+- **Export:** a blank count is filled with 1 on UCC, CMS and state cards linked to one home.
+
+Holdout labels were corrected per the person: ea24c91c and 7d3e373f are right, and so is
+a2e0e059 now that its count is filled. That leaves 17 bad cards. Results from 1 batch run, with
+the old judge rescored against the same corrected labels:
+
+| (measured) | Old judge | Fixed judge |
+|---|---|---|
+| Bad cards shipped | 9/17 (31–74%) | **3/17 = 18% (6–41%)** |
+| Good cards held | 10/103 | 19/103 |
+
+**Caveat: the holdout is no longer blind for this judge.** The fixes were written from its
+misses, so 3/17 is optimistic. Confirming it, and testing the 10% bound, needs a fresh holdout.
+
+On the gold set the fixed judge matched the old one on the 92 cards unchanged since 11-16 (6/14
+shipped, 13/78 held). The other cards had been corrected on the site since they were labelled.
+Extraction re-measure: 35/64 news cards fully right (was 37/64, within the ±5 noise).

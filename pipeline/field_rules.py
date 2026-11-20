@@ -23,7 +23,8 @@ FIELD_RULES = """- acquiring_entity, seller_entity and lender hold a party's NAM
   operating company. A REIT buying only the buildings is the buyer. Not the buyer: a manager or
   operator hired to run the homes, an operator that only leases them, a broker. When the article
   names both a known company and the LLC it bought through (Prestige Healthcare; Dominion SNF Holdco
-  I LLC), the buyer is the company and the LLC goes in the rationale
+  I LLC), the buyer is the company and the LLC goes in the rationale. A joint venture names every
+  partner the article says bought ("12 Oaks and Silver Creek Capital"); one partner alone is wrong
 - seller_entity: the party that gave up ownership (a REIT selling buildings is the seller; a tenant
   operator leaving a lease is not)
 - An existing owner raising its stake past 50% ("from 40% to 80%") is a purchase: that owner is the
@@ -78,4 +79,9 @@ SITE_RULES = """- A New Jersey UCC card's lender reads "Not available ..." (NJ's
 - deal_value_m, financing_amount_m: US dollars, millions. A foreign-currency figure converted to
   dollars, or a price the source says was not disclosed, is wrong.
 - facility_type: skilled_nursing or assisted_living (memory care counts as assisted living).
-- ccns: the CMS IDs of the homes."""
+- One announcement covering several states is one card per state, each with its own homes and count;
+  separately described loans or sales in the same announcement are separate cards. Several loans or
+  sales in different states shown as one card are wrong.
+- ccns: the CMS IDs of the homes.
+- A UCC, CMS or state-filing card whose source gives no home count and that is
+  linked to exactly one home shows 1; that is right, not an invented count."""
