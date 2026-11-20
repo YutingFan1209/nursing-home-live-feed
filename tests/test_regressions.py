@@ -1974,3 +1974,53 @@ def test_one_sided_home_names_still_merge_when_shape_matches():
     assert not _same_shape(a, {**b, "facility_count": 6})
     assert not _same_shape(a, {**b, "states": ["CO", "UT"]})
     assert not _same_shape(a, {**b, "extraction_model": "chow_direct"})   # CHOW/notice pairs stay separate
+
+
+def test_duplicate_rules_2026_11_20():
+    """Duplicates a scan of the live site found uncaught (person chose all four fixes)."""
+    from pipeline.deal_groups import group, same_deal
+    own = {"deal_type": "ownership_change"}
+    # 1. a portfolio loan's holding-company filing + one home's, days apart
+    hold = {**own, "id": "h", "source_type": "ucc", "deal_type": "acquisition_financing", "ccns": ["1", "2", "3"],
+            "lender": "CAPITAL FINANCE, LLC, AS AGENT", "acquisition_date": "2022-12-13", "ucc_debtor": "MD4 HOLDCO, LLC"}
+    home = {**hold, "id": "p", "ccns": ["2"], "acquisition_date": "2022-12-20", "ucc_debtor": "PINES NURSING AND REHAB, LLC"}
+    far = {**home, "id": "f", "acquisition_date": "2023-03-01"}
+    deals = [hold, home, far]
+    group(deals, {})
+    assert home["grouped_into"] == "h" and hold["group_ccns"] == ["1", "2", "3"] and "grouped_into" not in far
+    # 2. state filing names the parent, CMS the operating LLC
+    con = {**own, "source_type": "con", "ccns": ["055191"], "buyer": "Kopion Healthcare Holdings, LLC", "acquisition_date": "2025-11-04"}
+    chow = {**own, "source_type": "chow", "ccns": ["055191"], "buyer": "MADERA POST ACUTE LLC", "acquisition_date": "2025-11-04"}
+    assert same_deal(con, chow)
+    # ... but not the next sale of the home (seller of one = buyer of the other)
+    nov = {**own, "source_type": "chow", "ccns": ["015201"], "buyer": "SouthCare Health and Rehab of Red Bay, LLC",
+           "seller": "Generations of Red Bay", "acquisition_date": "2026-01-01"}
+    jan = {**own, "source_type": "con", "ccns": ["015201"], "buyer": "Arabella Health & Wellness of Red Bay",
+           "seller": "SouthCare Health and Rehab of Red Bay, LLC", "acquisition_date": "2026-01-20"}
+    assert same_deal(nov, jan) is None
+    # 3. a story about several homes and a licensee filing for one, cut-off name
+    story = {**own, "source_type": "rss", "states": ["RI"], "facility_count": 3, "buyer": "Advinia Care",
+             "facility_names": ["Warren Center", "Greenville Skilled Nursing and Rehabilitation"], "created_at": "2026-11-16"}
+    filing = {**own, "source_type": "con", "states": ["RI"], "facility_count": 1, "ccns": ["415087"],
+              "buyer": "AdviniaCare at Greenville, LLC", "facility_names": ["Greenville Skille"], "created_at": "2026-10-27"}
+    assert same_deal(story, filing)
+    assert same_deal({**story, "buyer": "Ensign", "facility_names": ["Bayside"]}, filing) is None
+    # 4. near-equal numbers between two stories
+    g1 = {**own, "source_type": "rss", "states": [], "seller": "Genesis Healthcare", "deal_value_m": "1000", "acquisition_date": "2026-10-14"}
+    g2 = {**g1, "seller": "Genesis HealthCare", "deal_value_m": "996", "facility_count": 175}
+    assert same_deal(g1, g2)
+    assert same_deal(g1, {**g2, "deal_value_m": "900"}) is None
+    o1 = {**own, "source_type": "rss", "states": ["OH"], "facility_count": 1, "deal_value_m": "10.50", "created_at": "2026-10-07"}
+    o2 = {**o1, "buyer": "Green Palms of Shelby Propco LLC", "seller": "CWood Asset Ownership", "created_at": "2026-11-04"}
+    assert same_deal(o1, o2) and same_deal({**o1, "buyer": "Someone Else"}, o2) is None
+
+
+def test_related_cards_linked_not_grouped():
+    """Buildings to one company, operations to another: two cards, linked (person 2026-11-20)."""
+    from pipeline.deal_groups import group
+    base = {"deal_type": "ownership_change", "source_type": "con", "ccns": ["015133"], "states": ["AL"]}
+    prop = {**base, "id": "a", "buyer": "Northgate Property", "acquisition_date": "2026-03-31"}
+    op = {**base, "id": "b", "buyer": "420 Dean Lane Opco", "acquisition_date": "2026-06-30"}
+    group([prop, op], {})
+    assert "grouped_into" not in prop and "grouped_into" not in op
+    assert [r["id"] for r in prop["related"]] == ["b"] and [r["id"] for r in op["related"]] == ["a"]

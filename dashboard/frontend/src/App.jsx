@@ -823,6 +823,17 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
             <Row label="How collected">{howCollected(deal)}</Row>
             <Row label="Sources">{deal.sources?.length || 1}</Row>
             {(deal.sources?.length > 1 || deal.cms_event) && <Timeline deal={deal} />}
+            {deal.related?.length > 0 && (
+              <Row label="Related deals">
+                {deal.related.map(r => (
+                  <div key={r.id}>
+                    <a href={`?id=${r.id}`} style={{ ...lnk, fontSize: 14 }}>{r.headline || r.id.slice(0, 8)}</a>
+                    {r.date && <span style={{ fontSize: 13, color: "#5F636A" }}> · {r.date}</span>}
+                  </div>
+                ))}
+                <div style={{ fontSize: 13, color: "#5F636A", marginTop: 2 }}>Same home, separate transaction (e.g. the buildings and the operations, or the next sale).</div>
+              </Row>
+            )}
             <Row label="Record ID"><code style={{ fontSize: 12 }}>{deal.id}</code></Row>
             <Row label="Cite this record"><CopyLink id={deal.id} /></Row>
             <Row label="Something wrong?">

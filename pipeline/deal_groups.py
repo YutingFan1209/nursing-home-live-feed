@@ -10,9 +10,11 @@ every record keeps its own permalink.
 
 UCC filings: one loan is often filed twice on the same day, against the home's
 property company and its operating company (2026-11-16 judge audit: ~370
-pairs, a tenth of UCC cards). Two UCC records are grouped when they cover
-exactly the same CMS facilities, name the same lender (boilerplate such as
-"as agent" ignored) and were filed within UCC_SAME_LOAN_DAYS of each other.
+pairs, a tenth of UCC cards). Two UCC records are grouped when one's CMS
+facilities include the other's (a portfolio loan is filed against the holding
+company or master tenant for every home, and against each home: 2026-11-20
+scan, ~31 such pairs), they name the same lender (boilerplate such as "as
+agent" ignored) and were filed within UCC_SAME_LOAN_DAYS of each other.
 Amendments and vendor liens are left alone. The card is the filing with the
 most specific type (acquisition financing, then refinancing, then plain
 financing; the propco side often lacks the CMS link that tells them apart)
@@ -26,7 +28,20 @@ Records of the same deal type are grouped when one of these holds, within
   - both name the buyer, list the same states, and give the same price.
 Names agree only when identical once case, punctuation, legal suffixes
 and "Group"/"Holdings"/"Company" are ignored. Two different named buyers stay apart: an opco and a propco bought
-separately are two transactions.
+separately are two transactions -- shown as linked cards (`related`), not one
+(person's decision 2026-11-20).
+
+Added 2026-11-20 after a scan of the live site found ~55 uncaught duplicate
+pairs (person chose all four fixes):
+  - a state filing and the CMS record of the same home within 90 days, or two
+    state records of one home within a week, whatever buyer each names (the
+    state names the parent, CMS the operating LLC: Golden Madera, Mayflower);
+  - a news story and a state filing in the same state naming the same home
+    within 120 days, or with the same buyer brand ("Advinia Care" /
+    "AdviniaCare at Warren, LLC"), states and home count within 45 days;
+  - two stories of one deal with near-equal numbers: the same seller and a
+    price within 1%; the same buyer, states and date with home counts one
+    apart; or the same seller and home count with a buyer named by one at most.
 
 The group's card is its most advanced record (Confirmed, then Reported, then
 Expected; ties go to the most complete). It lists every record's source, plus
@@ -49,8 +64,10 @@ _GENERIC = re.compile(r"\b(GROUP|COMPANY|CO|HOLDINGS?|THE)\b")
 STATUS_RANK = {"confirmed": 4, "on_file": 4, "reported": 3, "likely_closed": 2.5, "expected": 2, "unconfirmed": 1}
 GROUPED_TYPES = ("ownership_change", "lease", "control_change")
 UCC_LOAN_TYPES = {"acquisition_financing": 3, "refinancing": 2, "financing": 1}
-UCC_SAME_LOAN_DAYS = 3
+UCC_SAME_LOAN_DAYS = 30
+RELATED_DAYS = 183   # = WINDOW_DAYS: propco and opco filings can be months apart (4401 Haverford, PA)
 LICENSEE_NEWS_DAYS = 90
+STATE_CMS_DAYS = 90
 SAME_STORY_DAYS = 45
 
 
@@ -64,14 +81,63 @@ def lender_key(lender: str | None) -> str:
     return name_key(s)
 
 
+# A home's name without the words every home shares, and without the
+# "X Operations LLC DBA" prefix a licence list puts before it (as evals/judge.py)
+_HOME_WORDS = re.compile(r"\b(and|of|the|at|post acute|rehabilitation|rehab|nursing|center|centre|"
+                         r"healthcare|health|care|skilled|snf|dba|operations|llc|inc)\b")
+
+
+def _norm(v) -> str:
+    s = re.sub(r"\b(llc|inc|corp|co|lp|ltd|the|company|holdings?)\b", " ", str(v or "").lower())
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", s).split())
+
+
+def home_key(name) -> str:
+    s = _norm(name).split(" dba ", 1)[-1]
+    s = " ".join(_HOME_WORDS.sub(" ", s).split())
+    return s if len(s) >= 5 else ""
+
+
+def brand(buyer) -> str:
+    """The name squeezed together ("Advinia Care" -> "adviniacare")."""
+    s = _norm(buyer).replace(" ", "")
+    return s if len(s) >= 6 else ""
+
+
+def brands_agree(a, b) -> bool:
+    """One name starts with the other ("adviniacare" / "adviniacareatwarren")."""
+    x, y = brand(a), brand(b)
+    return bool(x and y and (x.startswith(y) or y.startswith(x)))
+
+
+def _homes(d) -> set:
+    return {home_key(n) for n in d.get("facility_names") or []} - {""}
+
+
+def _homes_meet(a: dict, b: dict) -> bool:
+    """The cards name a home in common; stored names can be cut short
+    ("greenville skille"), so one name starting with the other counts."""
+    for x in _homes(a):
+        for y in _homes(b):
+            if x == y or (min(len(x), len(y)) >= 8 and (x.startswith(y) or y.startswith(x))):
+                return True
+    return False
+
+
 def ucc_same_loan(a: dict, b: dict) -> bool:
-    """Two UCC filings that are one loan (property + operating company)."""
+    """Two UCC filings that are one loan (property + operating company, or a
+    portfolio loan's holding-company filing + one home's)."""
     if a.get("source_type") != "ucc" or b.get("source_type") != "ucc":
         return False
     if a.get("deal_type") not in UCC_LOAN_TYPES or b.get("deal_type") not in UCC_LOAN_TYPES:
         return False
-    ca, cb = sorted(a.get("ccns") or []), sorted(b.get("ccns") or [])
-    if not ca or ca != cb:
+    ca, cb = set(a.get("ccns") or []), set(b.get("ccns") or [])
+    if not ca or not cb or not (ca <= cb or cb <= ca):
+        return False
+    # a filing against a person lists the homes it might be on: only an
+    # identical list (and the old 3-day window) means one loan
+    if (a.get("individual_filing") or b.get("individual_filing")) and (
+            ca != cb or abs(((_day(a) or date.min) - (_day(b) or date.min)).days) > 3):
         return False
     la = lender_key(a.get("lender"))
     if not la or la != lender_key(b.get("lender")):
@@ -83,38 +149,49 @@ def ucc_same_loan(a: dict, b: dict) -> bool:
 def _group_ucc(deals: list[dict], merged: dict) -> int:
     """Group same-loan UCC filings (see module doc). Returns groups made."""
     rows = [d for d in deals if d.get("source_type") == "ucc" and d.get("deal_type") in UCC_LOAN_TYPES
-            and d.get("ccns") and not d.get("grouped_into")]
-    buckets = {}
+            and d.get("ccns") and not d.get("grouped_into") and lender_key(d.get("lender"))]
+    parent = {d["id"]: d["id"] for d in rows}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    by_lender = {}
     for d in rows:
-        buckets.setdefault((tuple(sorted(d["ccns"])), lender_key(d.get("lender"))), []).append(d)
-    n = 0
-    for (_, lk), members in buckets.items():
-        if not lk or len(members) < 2:
-            continue
+        by_lender.setdefault(lender_key(d.get("lender")), []).append(d)
+    for members in by_lender.values():
         members.sort(key=lambda d: _day(d) or date.max)
-        # chain filings that are each within the window of the previous one
-        runs, cur = [], [members[0]]
-        for d in members[1:]:
-            if ucc_same_loan(cur[-1], d):
-                cur.append(d)
-            else:
-                runs.append(cur)
-                cur = [d]
-        runs.append(cur)
-        for run in runs:
-            if len(run) < 2:
-                continue
-            lead = max(run, key=lambda d: (UCC_LOAN_TYPES[d["deal_type"]], _completeness_score(d),
-                                           d.get("created_at") or ""))
-            sources = [_source_entry(d) for d in run]
-            for d in run:
-                sources += [{**m, "merged": True} for m in merged.get(d["id"], [])]
-                if d is not lead:
-                    d["grouped_into"] = lead["id"]
-            debtors = list(dict.fromkeys(d["ucc_debtor"] for d in [lead] + run if d.get("ucc_debtor")))
-            lead.update({"sources": sources, "group_size": len(run), "group_ccns": sorted(lead["ccns"]),
-                         "ucc_debtor": "; ".join(debtors) or lead.get("ucc_debtor")})
-            n += 1
+        for i, a in enumerate(members):
+            for b in members[i + 1:]:
+                da, db = _day(a), _day(b)
+                if not da or not db or (db - da).days > UCC_SAME_LOAN_DAYS:
+                    break
+                if ucc_same_loan(a, b):
+                    parent[find(a["id"])] = find(b["id"])
+    runs = {}
+    for d in rows:
+        runs.setdefault(find(d["id"]), []).append(d)
+    n = 0
+    for run in runs.values():
+        if len(run) < 2:
+            continue
+        # the filing covering the most homes leads (a portfolio loan's
+        # holding company), then the most specific loan type
+        lead = max(run, key=lambda d: (len(set(d["ccns"])), UCC_LOAN_TYPES[d["deal_type"]],
+                                       _completeness_score(d), d.get("created_at") or ""))
+        run.sort(key=lambda d: (d is not lead, _day(d) or date.max))
+        sources = [_source_entry(d) for d in run]
+        for d in run:
+            sources += [{**m, "merged": True} for m in merged.get(d["id"], [])]
+            if d is not lead:
+                d["grouped_into"] = lead["id"]
+        debtors = list(dict.fromkeys(d["ucc_debtor"] for d in run if d.get("ucc_debtor")))
+        lead.update({"sources": sources, "group_size": len(run),
+                     "group_ccns": sorted({c for d in run for c in d["ccns"]}),
+                     "ucc_debtor": "; ".join(debtors) or lead.get("ucc_debtor")})
+        n += 1
     return n
 
 
@@ -152,8 +229,47 @@ def same_deal(a: dict, b: dict) -> str | None:
     # (Crystal Lake, RI: Pascoag Crystal Lake Rehab Center LLC / Health
     # Concepts, gold set 2026-11-16). One home rarely sells twice in 90 days
     kinds = {a.get("source_type"), b.get("source_type")}
+    gap = abs((da - db).days)
     licensee_parent = bool(shared) and "con" in kinds and bool(kinds & {"rss", "edgar"}) and (
-        abs((da - db).days) <= LICENSEE_NEWS_DAYS)
+        gap <= LICENSEE_NEWS_DAYS)
+    # One card's seller is the other's buyer: the next sale of the home, not
+    # this one (AL: Generations -> SouthCare in Nov, SouthCare -> Arabella in Jan)
+    # (full names only: "Erwin Health Care Associates" sold to "Erwin Healthcare LLC")
+    if any(x.get("seller") and y.get("buyer") and _agree(x["seller"], y["buyer"])
+           for x, y in ((a, b), (b, a))):
+        return None
+    # The state's filing and CMS's record of one home name different
+    # companies (parent / operating LLC); one home rarely sells twice in 90
+    # days (Golden Madera, CA; Mayflower's RI homes; 2026-11-20 scan)
+    state_and_cms = bool(shared) and kinds == {"con", "chow"} and gap <= STATE_CMS_DAYS
+    # One state notice stored as a combined and a per-home record (RI Sunny View)
+    one_notice = bool(shared) and kinds == {"con"} and (
+        gap <= 7 or (a.get("published_at") and a.get("published_at") == b.get("published_at")))
+    if shared and (state_and_cms or one_notice):
+        return "same CMS facility"
+    news_kinds = kinds & {"rss", "edgar"}
+    # A news story and a state filing about the same home: the story names the
+    # parent and often no CMS link (Ensign's 8 FL homes / Bay Park; Advinia's
+    # 3 RI homes / Warren, Greenville, Coventry)
+    if (news_kinds and "con" in kinds and len(kinds) == 2 and not (a.get("ccns") and b.get("ccns"))
+            and set(a.get("states") or []) & set(b.get("states") or [])):
+        ca, cb = a.get("facility_count"), b.get("facility_count")
+        if _homes_meet(a, b) and gap <= LICENSEE_NEWS_DAYS + 30:
+            return "news and state filing name the same home"
+        news, filing = (a, b) if a.get("source_type") in ("rss", "edgar") else (b, a)
+        # a story about several homes and one of their licensee filings
+        # ("Advinia Care", 3 RI homes / "AdviniaCare at Greenville, LLC")
+        if (brands_agree(ba, bb) and (news.get("facility_count") or 0) >= max(filing.get("facility_count") or 1, 2)
+                and set(filing.get("states") or []) <= set(news.get("states") or [])
+                and gap <= LICENSEE_NEWS_DAYS + 30):
+            return "same buyer brand, a home of the story"
+        if (brands_agree(ba, bb) and ca and ca == cb and gap <= SAME_STORY_DAYS
+                and sorted(a.get("states") or []) == sorted(b.get("states") or [])):
+            return "same buyer, states and home count"
+    if kinds <= {"rss", "edgar"} and gap <= SAME_STORY_DAYS:
+        why = _same_story(a, b)
+        if why:
+            return why
     if ba and bb and not _agree(ba, bb) and not ratifies and not licensee_parent:
         return None
     if shared:
@@ -196,12 +312,90 @@ def same_deal(a: dict, b: dict) -> str | None:
     return None
 
 
+def _num(v):
+    try:
+        return float(v) if v not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _same_story(a: dict, b: dict) -> str | None:
+    """Two news stories of one deal whose numbers differ a little (2026-11-20
+    scan): Genesis $1,000M / $996M; Ensign's FL homes 9 / 8 on one date;
+    LTC's 17 homes, one story naming no buyer."""
+    sa, sb = a.get("seller"), b.get("seller")
+    ba, bb = a.get("buyer"), b.get("buyer")
+    sellers = bool(sa and sb and (_agree(sa, sb) or brands_agree(sa, sb)))
+    states = sorted(a.get("states") or []) == sorted(b.get("states") or [])
+    va, vb = _num(a.get("deal_value_m")), _num(b.get("deal_value_m"))
+    priced = va is not None and vb is not None
+    if priced and abs(va - vb) > 0.01 * max(va, vb):
+        return None
+    if sellers and priced and states:
+        return "same seller and price"
+    # "BH Group and Gold Standard of Care" / "... joint venture", $10M, FL
+    if ba and bb and brands_agree(ba, bb) and priced and states and a.get("states"):
+        return "same buyer, states and price"
+    ca, cb = a.get("facility_count"), b.get("facility_count")
+    # a story naming neither party, same state, home count and exact price
+    # ($10.5M Ohio sale / Green Palms of Shelby, 28 days apart; person's label)
+    if (priced and va == vb and va >= 1 and states and a.get("states") and ca and ca == cb
+            and ((not ba and not sa) or (not bb and not sb))):
+        return "same states, home count and price; one story names no parties"
+    if (ba and bb and (_agree(ba, bb) or brands_agree(ba, bb)) and states and a.get("states")
+            and a.get("acquisition_date") and a.get("acquisition_date") == b.get("acquisition_date")
+            and ca and cb and min(ca, cb) >= 5 and abs(ca - cb) <= 1):
+        return "same buyer, states and date, home count one apart"
+    if sellers and states and ca and ca == cb and ca >= 2 and not (ba and bb):
+        return "same seller and home count"
+    return None
+
+
 def _source_entry(d: dict) -> dict:
     return {"id": d["id"], "source_type": d.get("source_type"), "source_name": d.get("source_name"),
             "source_url": d.get("source_url"), "source_title": d.get("source_title"),
             "date": d.get("acquisition_date") or (d.get("created_at") or "")[:10],
             "found_date": (d.get("created_at") or "")[:10], "status": d.get("status"),
             "headline": "".join(t for t, _ in d.get("headline") or [])}
+
+
+def _link_related(deals: list[dict], find) -> None:
+    """Cards on the same home within RELATED_DAYS that aren't one deal: the
+    buildings sold to one company and the operations to another (Standard
+    Bearer + Ensign, 2 TX homes). Each lists the other in `related` (person's
+    decision 2026-11-20: two cards, linked)."""
+    shown = [d for d in deals if d.get("deal_type") in GROUPED_TYPES and not d.get("grouped_into")]
+    homes = {d["id"]: set(_homes(d)) for d in shown}
+    for d in deals:   # a group's card carries the homes of every record behind it
+        if d.get("grouped_into") in homes:
+            homes[d["grouped_into"]] |= _homes(d)
+    keys = {}
+    for d in shown:
+        for c in d.get("group_ccns") or d.get("ccns") or []:
+            keys.setdefault(f"ccn:{c}", []).append(d)
+        for st in d.get("states") or []:
+            for h in homes[d["id"]]:
+                keys.setdefault(f"home:{st}:{h}", []).append(d)
+        # two stories, same states, home count and date, different buyers: the
+        # buildings and the operations (LTC + Vierra, MD/VA; Standard Bearer + Ensign, TX)
+        if d.get("source_type") in ("rss", "edgar") and (d.get("facility_count") or 0) >= 2 and d.get("states") and d.get("buyer"):
+            keys.setdefault(f"story:{sorted(d['states'])}:{d['facility_count']}", []).append(d)
+    for key, rows in keys.items():
+        limit = 3 if key.startswith("story:") else RELATED_DAYS
+        for i, a in enumerate(rows):
+            for b in rows[i + 1:]:
+                if a is b or find(a["id"]) == find(b["id"]):
+                    continue
+                if key.startswith("story:") and (_agree(a["buyer"], b["buyer"]) or brands_agree(a["buyer"], b["buyer"])):
+                    continue   # one buyer's two deals, not buildings + operations
+                da, db = _day(a), _day(b)
+                if not da or not db or abs((da - db).days) > limit:
+                    continue
+                for x, y in ((a, b), (b, a)):
+                    rel = x.setdefault("related", [])
+                    if y["id"] not in {r["id"] for r in rel}:
+                        rel.append({"id": y["id"], "headline": "".join(t for t, _ in y.get("headline") or []),
+                                    "date": y.get("acquisition_date"), "source_type": y.get("source_type")})
 
 
 # Licence batches (several homes moving to new same-pattern LLCs on one day,
@@ -230,6 +424,10 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
         keys = {f"ccn:{c}" for c in d.get("ccns") or []}
         if d.get("buyer"):
             keys.add("buyer:" + name_key(d["buyer"]))
+        if d.get("source_type") in ("rss", "edgar", "con"):
+            keys |= {f"state:{st}" for st in d.get("states") or []}
+        if d.get("source_type") in ("rss", "edgar") and d.get("seller"):
+            keys.add("seller:" + (brand(d["seller"]) or name_key(d["seller"])))
         if d.get("acquisition_date") and d.get("facility_count") and d.get("source_type") in ("rss", "edgar"):
             keys.add(f"close:{sorted(d.get('states') or [])}:{d['acquisition_date']}:{d['facility_count']}")
         for k in keys:
@@ -253,6 +451,11 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
         lead = max(members, key=lambda d: (STATUS_RANK.get(d.get("status"), 0), not after_closing(d),
                                            _completeness_score(d),
                                            d.get("created_at") or ""))
+        # a one-home card doesn't lead a group of several homes when a card
+        # about all of them is there (Advinia's 3 RI homes: the story leads)
+        wider = [d for d in members if (d.get("facility_count") or 0) >= 2]
+        if len(members) > 1 and (lead.get("facility_count") or 1) == 1 and wider:
+            lead = max(wider, key=lambda d: (d.get("facility_count"), STATUS_RANK.get(d.get("status"), 0)))
         sources = [_source_entry(d) for d in sorted(members, key=lambda d: _source_entry(d)["date"] or "")]
         for d in members:
             sources += [{**m, "merged": True} for m in merged.get(d["id"], [])]
@@ -266,6 +469,7 @@ def group(deals: list[dict], merged: dict[str, list[dict]]) -> dict:
                 if d is not lead:
                     d["grouped_into"] = lead["id"]
     n_groups += _group_ucc(deals, merged)
+    _link_related(deals, find)
     for d in deals:
         if "sources" not in d:
             d["sources"] = [_source_entry(d)] + [{**m, "merged": True} for m in merged.get(d["id"], [])]
