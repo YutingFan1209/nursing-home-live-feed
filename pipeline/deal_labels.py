@@ -162,15 +162,19 @@ def is_not_a_deal(d: dict, today: date = None) -> bool:
 _UNSTATED_RE = re.compile(r"(does not|doesn't|did not|do not)\b[^.]{0,60}?\b(say|state|specify)|not (stated|disclosed|specified) whether", re.I)
 # A sentence about a different loan ("completed alongside a separate real
 # estate acquisition financing from an unnamed lender") isn't this loan's purpose
-_OTHER_LOAN_RE = re.compile(r"\bseparate\b|\bdifferent lender\b", re.I)
+# ("following earlier CFG bridge-to-HUD acquisition financing"). Only the part
+# from that point on is dropped: "a HUD refinancing loan ..., separate from a
+# second loan" still says refinancing (CFG release 2026-11-20)
+_OTHER_LOAN_RE = re.compile(r"\bseparate\b|\bdifferent lender\b"
+                            r"|\b(following|after) (an? |the )?(earlier|prior|previous)\b", re.I)
 
 
 def stated_purpose(summary: str | None) -> str:
     """The summary without sentences saying the loan's purpose isn't given
     ("The article does not say whether the loan funds an acquisition or
     refinances debt" is neither an acquisition loan nor a refinancing)."""
-    return " ".join(x for x in re.split(r"(?<=\.)\s", summary or "")
-                    if not _UNSTATED_RE.search(x) and not _OTHER_LOAN_RE.search(x))
+    return " ".join(_OTHER_LOAN_RE.split(x, 1)[0] for x in re.split(r"(?<=\.)\s", summary or "")
+                    if not _UNSTATED_RE.search(x))
 
 
 def is_arranger(lender: str | None, summary: str | None) -> bool:
