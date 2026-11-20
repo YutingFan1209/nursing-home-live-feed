@@ -4,13 +4,27 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-20T18:36:01.190047+00:00</updated>
+  <updated>2026-11-20T18:49:11.030972+00:00</updated>
   <entry>
-    <id>urn:uuid:37f4e4a9-3e6c-4c2e-82b7-700e89c04eb0</id>
-    <title>CFG finances a facility in VT (VT)</title>
-    <link href="https://i95business.com/releases/8312"/>
-    <updated>2026-11-20T15:05:57.626645+00:00</updated>
-    <summary>Effective 2026-10-30; $30.00M financing; Source: Google Alerts (Gmail)</summary>
+    <id>urn:uuid:0f27eefb-84b9-4717-9a57-fa3f009a82c4</id>
+    <title>Pending sale of Windemere Park Health And Rehab Center · Buyer not disclosed (MI)</title>
+    <link href="https://www.michigan.gov/mdhhs/-/media/Project/Websites/mdhhs/Doing-Business-with-MDHHS/Health-Care-Providers/Certificate-of-Need/CON-Eval/Activity-Reports/2026/Oct-2026/October-2026-LOIs.xlsx?rev=7beac8ccbae44f62a03f0fe6323a1a4d&amp;hash=3FE8E2FBBA7519550B6DB2922DBD5472"/>
+    <updated>2026-11-20T18:46:55.526390+00:00</updated>
+    <summary>Effective 2026-10-29; Facilities: Windemere Park Health And Rehab Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:49ff5c76-43b2-44e9-865c-19482d4be048</id>
+    <title>PINELLAS OPCO LLC acquires VIVO HEALTHCARE PINELLAS PARK from PINELLAS PARK FL OPCO, LLC (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Provider/Profile/?LID=28723"/>
+    <updated>2026-11-20T18:46:55.496895+00:00</updated>
+    <summary>Effective 2025-07-01; Facilities: VIVO HEALTHCARE PINELLAS PARK; Source: Florida AHCA FloridaHealthFinder Nursing Home List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:46172bbc-9f03-45ec-80eb-df8dabdd1cbc</id>
+    <title>Shenango Community Living LLC to acquire Shenango on the Green from Shenango Presbyterian SeniorCare (PA)</title>
+    <link href="https://sais.health.pa.gov/CommonPOC/Licensing/IPA-NCF/InitialApplication.aspx?ipaappid=6901082&amp;IPA_PUBLIC=y#:~:text=Shenango%20on%20the%20Green"/>
+    <updated>2026-11-20T18:46:47.865999+00:00</updated>
+    <summary>Effective 2026-11-01; Facilities: Shenango on the Green; Source: Pennsylvania DOH Nursing Home Licence Applications</summary>
   </entry>
   <entry>
     <id>urn:uuid:a7caee1d-1981-4fda-950e-59d7e00e00a5</id>
@@ -18,6 +32,13 @@
     <link href="https://i95business.com/releases/8312"/>
     <updated>2026-11-20T15:05:57.626645+00:00</updated>
     <summary>Effective 2026-10-30; $21.00M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:37f4e4a9-3e6c-4c2e-82b7-700e89c04eb0</id>
+    <title>CFG finances a facility in VT (VT)</title>
+    <link href="https://i95business.com/releases/8312"/>
+    <updated>2026-11-20T15:05:57.626645+00:00</updated>
+    <summary>Effective 2026-10-30; $30.00M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:6efc9367-0316-4c92-b0a0-c1faad52aa14</id>
@@ -62,18 +83,18 @@
     <summary>Effective 2026-10-30; $12.90M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
-    <id>urn:uuid:a436d97d-d50e-4ad7-9330-d4f9d34fd2a0</id>
-    <title>CFG finances acquisition of 2 facilities in VT (VT)</title>
-    <link href="https://i95business.com/releases/8312"/>
-    <updated>2026-11-19T16:54:53.707581+00:00</updated>
-    <summary>Effective 2026-09-01; $16.20M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:5be2a3ad-8bab-40cc-be50-c40bb8e75aeb</id>
     <title>CFG finances acquisition of 3 facilities in NY (NY)</title>
     <link href="https://i95business.com/releases/8312"/>
     <updated>2026-11-19T16:54:53.707581+00:00</updated>
     <summary>Effective 2026-09-01; $16.60M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:a436d97d-d50e-4ad7-9330-d4f9d34fd2a0</id>
+    <title>CFG finances acquisition of 2 facilities in VT (VT)</title>
+    <link href="https://i95business.com/releases/8312"/>
+    <updated>2026-11-19T16:54:53.707581+00:00</updated>
+    <summary>Effective 2026-09-01; $16.20M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:c0e8b091-cb8d-403a-99af-3f5b1953cec6</id>
@@ -174,13 +195,6 @@
     <summary>Source: Skilled Nursing News</summary>
   </entry>
   <entry>
-    <id>urn:uuid:35f74215-5441-4a65-b402-01f026285c1a</id>
-    <title>Welltower acquires Palms Care Center and Rehab (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Palms%20Care%20Center%20and%20Rehab"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Facilities: Palms Care Center and Rehab; $45.00M; Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:71b16e51-e98e-4280-afa0-a74aa0897b1f</id>
     <title>Welltower acquires 2 facilities in FL (FL)</title>
     <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
@@ -200,6 +214,13 @@
     <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=TL%20Management"/>
     <updated>2026-11-16T18:16:53.686403+00:00</updated>
     <summary>$160.00M; Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:35f74215-5441-4a65-b402-01f026285c1a</id>
+    <title>Welltower acquires Palms Care Center and Rehab (FL)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Palms%20Care%20Center%20and%20Rehab"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>Facilities: Palms Care Center and Rehab; $45.00M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
     <id>urn:uuid:952c3054-3f87-4000-bfb9-ced30e048952</id>
@@ -333,26 +354,5 @@
     <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3775177"/>
     <updated>2026-11-11T16:16:32.609148+00:00</updated>
     <summary>Effective 2025-08-05; Facilities: DELMAR CENTER FOR REHABILITATION AND NURSING, GOLDEN HILL NURSING AND REHABILITATION CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8efbfbd2-7e44-446e-bca3-addab3ae2e62</id>
-    <title>CROGHAN PIKE PROPCO LLC — UCC-1 financing (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-11-11T15:15:26.834941+00:00</updated>
-    <summary>Effective 2026-11-06; Facilities: CROGHAN PIKE PROPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3dad4d37-d7c6-4f15-bd41-1194bd84610e</id>
-    <title>PARK AVENUE PROPCO LLC — UCC-1 financing (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-11-11T15:15:25.638587+00:00</updated>
-    <summary>Effective 2026-11-06; Facilities: PARK AVENUE PROPCO LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:171a4f7c-c549-44bc-9b7d-737c8b42b9a1</id>
-    <title>SUSANNA WESLEY HEALTH CENTER — UCC-1 financing (FL)</title>
-    <link href="https://floridaucc.com/search/details?text=202603426360&amp;searchOptionType=DocumentNumber&amp;searchCategory=Standard&amp;uccNumber=202603426360"/>
-    <updated>2026-11-11T15:14:35.470696+00:00</updated>
-    <summary>Effective 2026-11-05; Facilities: SUSANNA WESLEY HEALTH CENTER; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
