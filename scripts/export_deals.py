@@ -32,6 +32,7 @@ import os
 import re
 import sys
 import json
+from urllib.parse import urlparse
 from urllib.parse import quote
 from xml.sax.saxutils import escape
 from datetime import datetime, timezone
@@ -770,6 +771,23 @@ def main():
                     "id": did, "source_type": stype, "source_name": sname, "source_url": url, "source_title": title,
                     "date": str(acq) if acq else created.date().isoformat(), "found_date": created.date().isoformat(),
                     "status": None, "headline": title})
+        # A free copy of a paywalled story the card was also read from
+        # (pipeline/free_copy.py): shown as a second source
+        cur.execute("""
+            SELECT d.id::text, a.free_copy_url, a.free_copy_title, a.published_at, d.created_at
+            FROM deals d JOIN articles a ON a.id = d.article_id
+            WHERE a.free_copy_url IS NOT NULL
+        """)
+        for did, url, title, pub, created in cur.fetchall():
+            seen = set()
+            while did not in live and did in into and did not in seen:   # merged away: its final card
+                seen.add(did)
+                did = into[did]
+            if did in live:
+                merged.setdefault(did, []).append({
+                    "id": f"{did}-free", "source_type": "rss", "source_name": urlparse(url).hostname.removeprefix("www."),
+                    "source_url": url, "source_title": title, "headline": title, "free_copy": True, "status": None,
+                    "date": (pub or created).date().isoformat(), "found_date": created.date().isoformat()})
         # Public corrections log: every correction note, newest first
         cur.execute("""
             SELECT n.created_at, n.deal_id::text, n.note, d.stage, a.title

@@ -162,7 +162,9 @@ def article_input(article_text: str, title: str | None = None) -> str:
     head = []
     if title and title.strip() and not title.startswith("[") and (preview or len(body.split()) < MIN_TEXT_WORDS):
         head.append(f"Headline: {title.strip()}")
-    if preview:
+    if preview and "--- Second source: a free copy" in body:
+        head.append("(Only a preview of this article was available; a free copy of the same story from another site follows it.)")
+    elif preview:
         head.append("(Only a preview of this article was available.)")
     return "\n".join(head + ([""] if head else []) + [body])
 

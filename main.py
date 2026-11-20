@@ -60,6 +60,7 @@ from pipeline.ucc_category import backfill_lender
 from scraper.ucc import fetch_ucc_filings
 from ucc.lender_search import LENDER_TERMS
 from pipeline.extractor import extract_deals
+from pipeline import free_copy
 from pipeline.same_sale import resolve_new_deals
 from pipeline.dedup import deduplicate_batch, is_duplicate, make_dedup_hash, find_and_resolve_fuzzy_duplicate
 from pipeline.excluded_urls import EXCLUDED_URLS, EXCLUDED_DOMAINS, EXCLUDED_PATTERNS
@@ -959,6 +960,7 @@ def _fetch_and_extract(article: dict) -> tuple[dict, str | None, list[dict]]:
             article["title"] = headline
     if not raw_text:
         return article, None, []
+    raw_text = free_copy.augment(article, raw_text)
     health.attempted("Claude extraction")
     try:
         deals = extract_deals(raw_text, article["url"], article.get("published_at"), title=article.get("title"))
@@ -1062,6 +1064,7 @@ def _store_article_result(article: dict, raw_text: str | None, deals: list[dict]
         _mark_extraction_error(article_id, "No article text available", conn)
         return 0
     _update_article_text(article_id, raw_text, conn)
+    free_copy.store(article_id, article, conn)
     if not deals:
         _mark_extraction_done(article_id, conn)
         return 0
@@ -1170,6 +1173,12 @@ def process_article(article: dict, conn) -> int:
     if not raw_text:
         _mark_extraction_error(article_id, "No article text available", conn)
         return 0
+
+    if free_copy.is_preview(raw_text, article["url"]):
+        raw_text = free_copy.augment(article, raw_text)
+        if article.get("free_copy_url"):
+            _update_article_text(article_id, raw_text, conn)
+            free_copy.store(article_id, article, conn)
 
     health.attempted("Claude extraction")
     try:

@@ -31,6 +31,9 @@ class Config:
     # Article text kept for extraction. Was 10,000 at fetch and 8,000 at
     # extraction -- long dealbook roundups lost their later deals entirely.
     article_max_chars: int = 30000
+    # Paywalled preview -> look for a free copy of the same story (one Claude
+    # call with web search, ~$0.03-0.08; pipeline/free_copy.py). FREE_COPY_SEARCH=0 turns it off
+    free_copy_search: bool = field(default_factory=lambda: os.environ.get("FREE_COPY_SEARCH", "1") == "1")
 
     # SendGrid (alerts)
     sendgrid_api_key: Optional[str] = field(

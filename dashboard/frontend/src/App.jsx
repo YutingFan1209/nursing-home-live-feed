@@ -479,7 +479,7 @@ function FacilityPage({ ccn, facilities, allDeals, onBack }) {
 function Timeline({ deal }) {
   const rows = (deal.sources || []).map(s => ({
     date: s.date, key: s.id,
-    what: (SOURCE[s.source_type]?.name || s.source_name || "Source") + (s.merged ? " (merged duplicate)" : ""),
+    what: s.free_copy ? `${s.source_name} (free copy of the story)` : (SOURCE[s.source_type]?.name || s.source_name || "Source") + (s.merged ? " (merged duplicate)" : ""),
     text: s.headline || publication(s), url: s.source_url, record: s.merged || s.id === deal.id ? null : s.id,
     current: s.id === deal.id,
   }));

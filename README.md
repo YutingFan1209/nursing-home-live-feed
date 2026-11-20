@@ -252,6 +252,7 @@ psql "$DATABASE_URL" -f db/migration_add_provider_address.sql
 psql "$DATABASE_URL" -f db/migration_add_licence_list_snapshot.sql
 psql "$DATABASE_URL" -f db/migration_add_ucc_collateral_text.sql
 psql "$DATABASE_URL" -f db/migration_add_field_evidence.sql
+psql "$DATABASE_URL" -f db/migration_add_article_free_copy.sql
 
 # Python env (3.11+; runs on 3.14 — Google's API libraries dropped 3.10)
 python3 -m venv venv && source venv/bin/activate
