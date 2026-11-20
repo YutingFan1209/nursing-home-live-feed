@@ -317,3 +317,15 @@ be ≤ 10%. That needs ≥ 35 bad cards with 0 shipped. With 120 cards the expec
 cards is ~31, which caps the bound at about 11% even with 0 misses. If labelling finds fewer than
 35 bad cards, the extension is drawn with seed 20261220 from the remaining pool, in the same
 group shares, until 35 is reached.
+
+## Amendment 5 (2026-11-20, before any label exists): second blind holdout
+
+- **Scope:** non-news only, because news cards always wait for the person's approval.
+- **Draw:** UCC 50, CON 40, CHOW 30 from export `data/evals/holdout_2026-11-20/export.json`,
+  seed 20261222.
+- **Excluded:** gold, the 11-17 reviews, and the 11-19 holdout.
+- **Labelling:** the person labels blind first.
+- **Scoring:** then the committed judge (8365dc34, fingerprint e2024918) runs ×1 through Batch
+  (~$1.70). It is scored on bad cards shipped with a Wilson 95% interval.
+- **Expected bad cards:** ~13, so this checks the direction of the fix (old judge on non-news:
+  3/7 bad shipped). It can't prove the 10% bound.
