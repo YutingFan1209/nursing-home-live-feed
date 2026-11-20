@@ -15,11 +15,23 @@ def _setup(tmp_path, monkeypatch, judged):
 def test_passing_news_card_is_held_but_passing_ucc_ships(tmp_path, monkeypatch):
     _setup(tmp_path, monkeypatch, [{"id": "n1", "verdict": "right"}, {"id": "u1", "verdict": "right"},
                                    {"id": "n2", "verdict": "wrong", "wrong_fields": ["lender"]}])
-    cards = [{"id": "n1", "source_type": "rss"}, {"id": "u1", "source_type": "ucc"}, {"id": "n2", "source_type": "edgar"}]
+    cards = [{"id": "n1", "source_type": "rss"}, {"id": "u1", "source_type": "ucc", "ccns": ["015019"]},
+             {"id": "n2", "source_type": "edgar"}]
     holds = H.check(cards, cards, max_cost=0, spend=False)
     assert holds["n1"]["verdict"] == "awaiting_approval"
     assert "u1" not in holds
     assert holds["n2"]["verdict"] == "wrong"
+
+
+def test_passing_ucc_card_with_no_linked_home_waits_for_approval(tmp_path, monkeypatch):
+    # person's decision 2026-11-20: a UCC filing linked to no CMS home (a propco
+    # or management company) is approved by a person, like news
+    _setup(tmp_path, monkeypatch, [{"id": "u2", "verdict": "right"}, {"id": "p1", "verdict": "right"}])
+    cards = [{"id": "u2", "source_type": "ucc", "ccns": []},
+             {"id": "p1", "source_type": "ucc", "ccns": [], "individual_filing": True}]
+    holds = H.check(cards, cards, max_cost=0, spend=False)
+    assert holds["u2"]["verdict"] == "awaiting_approval" and holds["u2"]["approval"]
+    assert "p1" not in holds
 
 
 def test_released_news_card_ships(tmp_path, monkeypatch):

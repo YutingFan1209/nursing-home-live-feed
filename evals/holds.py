@@ -35,6 +35,16 @@ HOLDS = OUT / "holds.json"
 RELEASED = OUT / "released.jsonl"
 SHIP = {"right", "minor"}
 APPROVE_SOURCES = {"rss", "edgar"}   # a person approves every one of these
+
+
+def needs_approval(c: dict) -> bool:
+    """News and SEC cards, and (person's decision 2026-11-20) a new UCC card
+    linked to no CMS home: a filing naming only a propco or a management
+    company can't be checked against a home, and the judge passed two such
+    cards the person called uncertain (second holdout). Filings against
+    people list possible homes and keep their own handling."""
+    return (c.get("source_type") in APPROVE_SOURCES
+            or (c.get("source_type") == "ucc" and not c.get("ccns") and not c.get("individual_filing")))
 COST_PER_CARD = 0.040          # measured: 5 gold runs 11-16/17, $24-30 for 749 cards (Opus 5.5, effort high); upper end, it is a cap
 
 
@@ -86,10 +96,10 @@ def check(cards: list[dict], deals: list[dict], max_cost: float, spend: bool) ->
         j = judged.get(c["id"])
         if not j:
             holds[c["id"]] = {"verdict": "unchecked", "headline": c.get("headline")}
-        elif j["verdict"] not in SHIP or c.get("source_type") in APPROVE_SOURCES:
+        elif j["verdict"] not in SHIP or needs_approval(c):
             holds[c["id"]] = {"verdict": j["verdict"] if j["verdict"] not in SHIP else "awaiting_approval",
                               "judge_verdict": j["verdict"], "headline": c.get("headline"),
-                              "source_type": c.get("source_type"),
+                              "source_type": c.get("source_type"), "approval": needs_approval(c),
                               "wrong_fields": j.get("wrong_fields"), "note": j.get("note"),
                               "duplicate_of": j.get("duplicate_of")}
     return holds

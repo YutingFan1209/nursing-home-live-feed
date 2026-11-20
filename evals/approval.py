@@ -85,7 +85,7 @@ def _norm(v):
 def seed(export_path: str, out: str) -> None:
     deals = {d["id"]: d for d in json.loads(Path(export_path).read_text())["deals"]}
     judged = H._jsonl(H.JUDGED)
-    held = {i: h for i, h in H.load().items() if h.get("source_type") in H.APPROVE_SOURCES}
+    held = {i: h for i, h in H.load().items() if h.get("approval") or h.get("source_type") in H.APPROVE_SOURCES}
     out_dir = Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
     batch = f"approve-{datetime.now():%Y-%m-%d}"
@@ -113,7 +113,7 @@ def seed(export_path: str, out: str) -> None:
             notes.append("No quote given for: " + ", ".join(unquoted) + ".")
         if ev.get("ungrounded"):
             notes.append("Blanked, not supported by the article: " + "; ".join(ev["ungrounded"]))
-        doc = {"order": 3000 + n, "batch": batch, "group": "news", "source_type": card.get("source_type"),
+        doc = {"order": 3000 + n, "batch": batch, "group": "ucc" if card.get("source_type") == "ucc" else "news", "source_type": card.get("source_type"),
                "headline": card.get("headline"), "shown": {f: card.get(f) for f in SHOWN},
                "claude": {"verdict": j.get("verdict") or h.get("verdict"), "gold": j.get("gold") or {},
                           "wrong_fields": j.get("wrong_fields") or [], "unsure_fields": sorted(unsure),
@@ -138,7 +138,7 @@ def _final(card: dict, judge: dict, review: dict) -> dict:
 def plan(reviews_dir: str, export_path: str) -> list[dict]:
     deals = {d["id"]: d for d in json.loads(Path(export_path).read_text())["deals"]}
     judged = H._jsonl(H.JUDGED)
-    held = {i: h for i, h in H.load().items() if h.get("source_type") in H.APPROVE_SOURCES}
+    held = {i: h for i, h in H.load().items() if h.get("approval") or h.get("source_type") in H.APPROVE_SOURCES}
     steps = []
     for cid, h in held.items():
         p = Path(reviews_dir) / f"{cid}.json"
