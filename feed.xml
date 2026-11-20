@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-20T15:00:52.002000+00:00</updated>
+  <updated>2026-11-20T15:34:06.686883+00:00</updated>
   <entry>
     <id>urn:uuid:aa5bbbaa-b098-4e89-a08f-25084dc97f44</id>
     <title>CFG finances acquisition of 3 facilities in IL (IL)</title>
@@ -13,18 +13,18 @@
     <summary>Effective 2026-10-30; $12.90M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
-    <id>urn:uuid:5be2a3ad-8bab-40cc-be50-c40bb8e75aeb</id>
-    <title>CFG finances acquisition of 3 facilities in NY (NY)</title>
-    <link href="https://i95business.com/releases/8312"/>
-    <updated>2026-11-19T16:54:53.707581+00:00</updated>
-    <summary>Effective 2026-09-01; $16.60M financing; Source: Google Alerts (Gmail)</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:c0e8b091-cb8d-403a-99af-3f5b1953cec6</id>
     <title>CFG finances acquisition of a facility in UT (UT)</title>
     <link href="https://i95business.com/releases/8312"/>
     <updated>2026-11-19T16:54:53.707581+00:00</updated>
     <summary>Effective 2026-09-01; $8.60M financing; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:5be2a3ad-8bab-40cc-be50-c40bb8e75aeb</id>
+    <title>CFG finances acquisition of 3 facilities in NY (NY)</title>
+    <link href="https://i95business.com/releases/8312"/>
+    <updated>2026-11-19T16:54:53.707581+00:00</updated>
+    <summary>Effective 2026-09-01; $16.60M financing; Source: Google Alerts (Gmail)</summary>
   </entry>
   <entry>
     <id>urn:uuid:a436d97d-d50e-4ad7-9330-d4f9d34fd2a0</id>
@@ -118,11 +118,11 @@
     <summary>Effective 2026-12-17; Facilities: Saints Joachim &amp; Anne Nursing and Rehabilitation Center, Boardwalk Nursing and Rehabilitation Center; $42.50M; $35.02M financing; Source: New York PHHPC Nursing Home Establishment Approvals</summary>
   </entry>
   <entry>
-    <id>urn:uuid:71b16e51-e98e-4280-afa0-a74aa0897b1f</id>
-    <title>Welltower acquires 2 facilities in FL (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
+    <id>urn:uuid:0b84e3db-7ab7-4dac-a462-4069ef15a3eb</id>
+    <title>Vantage Point Capital to acquire 15 facilities in ME from North Country Associates (ME)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Vantage%20Point%20Capital"/>
     <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>$48.20M; Source: Skilled Nursing News</summary>
+    <summary>Source: Skilled Nursing News</summary>
   </entry>
   <entry>
     <id>urn:uuid:35f74215-5441-4a65-b402-01f026285c1a</id>
@@ -132,6 +132,13 @@
     <summary>Facilities: Palms Care Center and Rehab; $45.00M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
+    <id>urn:uuid:f00f51ef-f53a-4c8e-bce0-c771351a7d39</id>
+    <title>Welltower acquires Unity Health and Rehabilitation Center (FL)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Unity%20Health%20and%20Rehabilitation%20Center"/>
+    <updated>2026-11-16T18:16:53.686403+00:00</updated>
+    <summary>Facilities: Unity Health and Rehabilitation Center; $74.30M; Source: Skilled Nursing News</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:4a21b4c5-db74-41f4-a59a-5c1a9b6c7cc1</id>
     <title>Welltower acquires 3 facilities in FL from TL Management (FL)</title>
     <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=TL%20Management"/>
@@ -139,18 +146,11 @@
     <summary>$160.00M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
-    <id>urn:uuid:0b84e3db-7ab7-4dac-a462-4069ef15a3eb</id>
-    <title>Vantage Point Capital to acquire 15 facilities in ME from North Country Associates (ME)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Vantage%20Point%20Capital"/>
+    <id>urn:uuid:71b16e51-e98e-4280-afa0-a74aa0897b1f</id>
+    <title>Welltower acquires 2 facilities in FL (FL)</title>
+    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/"/>
     <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Source: Skilled Nursing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f00f51ef-f53a-4c8e-bce0-c771351a7d39</id>
-    <title>Welltower acquires Unity Health and Rehabilitation Center (FL)</title>
-    <link href="https://skillednursingnews.com/2026/11/skilled-nursing-dealbook-welltower-acquires-9-nursing-homes-for-386m-15-maine-facilities-up-for-sale/#:~:text=Unity%20Health%20and%20Rehabilitation%20Center"/>
-    <updated>2026-11-16T18:16:53.686403+00:00</updated>
-    <summary>Facilities: Unity Health and Rehabilitation Center; $74.30M; Source: Skilled Nursing News</summary>
+    <summary>$48.20M; Source: Skilled Nursing News</summary>
   </entry>
   <entry>
     <id>urn:uuid:952c3054-3f87-4000-bfb9-ced30e048952</id>
