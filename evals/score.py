@@ -180,8 +180,12 @@ def cmd_stored(args) -> None:
 # 2026-11-18: every estimate was 50% high). Batch is half of all of these.
 PRICE_IN, PRICE_OUT = 2.00, 10.00
 PRICE_CACHE_READ, PRICE_CACHE_WRITE = 0.10, 2.50
-PROMPT_TOKENS = 2700          # the cached extraction instructions
-OUT_PER_ARTICLE = 1500        # thinking + JSON; not yet measured (usage now logged)
+# Input measured 2026-11-19 with messages.count_tokens on the 64 gold articles
+# (Sonnet 5.5 tokenizer): 422k tokens where chars/4 + 200 + 2,700 said 304k (1.39x low).
+PROMPT_TOKENS = 3750          # the cached extraction instructions (measured 3,743)
+ARTICLE_TOKENS_PER_CHAR = 0.386   # article + per-article framing, ~2.6 chars a token (measured)
+OUT_PER_ARTICLE = 1500        # thinking + JSON; still NOT measured: calibrate from the
+                              # "Extraction usage" log lines after the next extract run
 
 
 def _best_match(extracted: list[dict], want: dict) -> dict | None:
@@ -260,11 +264,11 @@ def cmd_extract(args) -> None:
     from config import get_config
     cfg = get_config()
     reads = 2 if cfg.second_read else 1
-    # Estimate: article ~4 chars/token, ~200 tokens of per-article framing,
-    # the ~2.7k-token instructions read from cache after the first call, and
-    # OUT_PER_ARTICLE output (thinking + JSON). Calibrate both from the
-    # measured line this command prints after a run.
-    art = sum(min(len(t[0]), cfg.article_max_chars) / 4 + 200 for t in texts.values())
+    # Estimate: article + framing at ARTICLE_TOKENS_PER_CHAR, the ~3.7k-token
+    # instructions read from cache after the first call, and OUT_PER_ARTICLE
+    # output (thinking + JSON). Recalibrate from the measured line this
+    # command prints after a run.
+    art = sum(min(len(t[0]), cfg.article_max_chars) * ARTICLE_TOKENS_PER_CHAR for t in texts.values())
     n = len(texts) * reads
     est = (art * reads * PRICE_IN + n * PROMPT_TOKENS * PRICE_CACHE_READ + PROMPT_TOKENS * PRICE_CACHE_WRITE
            + n * OUT_PER_ARTICLE * PRICE_OUT) / 1e6
