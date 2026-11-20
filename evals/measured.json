@@ -1,9 +1,9 @@
 {
   "extract": {
-    "fingerprint": "22bffd00d52b6e05",
+    "fingerprint": "97ba0ae7a397971a",
     "date": "2026-11-20",
-    "score": "35/64 news cards fully right",
-    "note": "extract_raw_2026-11-20.jsonl"
+    "score": "37/64 news cards fully right",
+    "note": "extract_raw_2026-11-20_2.jsonl"
   },
   "judge": {
     "fingerprint": "e2024918718c0201",

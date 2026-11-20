@@ -22,7 +22,7 @@ class Config:
     # thinking counts toward max_tokens, and its tokenizer counts ~30% more
     # tokens for the same text than Sonnet 4.5 did
     claude_effort: str = "medium"
-    claude_max_tokens: int = 8000         # roundup articles can return 10+ deals
+    claude_max_tokens: int = 16000        # lender releases list 15+ loans, ~500 tokens each
     # Read each article twice, the second time as a fact-checker; fields the
     # two reads disagree on are flagged for the person approving the card.
     # Off by default (user 2026-11-17): right 6/6 times it disagreed but caught

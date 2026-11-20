@@ -26,7 +26,7 @@ client = anthropic.Anthropic(api_key=config.anthropic_api_key)
 MIN_TEXT_WORDS = 100        # articles under this are likely paywalled/truncated
 MIN_TEXT_CHARS = 150        # hard minimum
 
-EXTRACTION_PROMPT = """You are a health policy research assistant extracting nursing home acquisition deals from news articles.
+EXTRACTION_PROMPT = """You are a health policy research assistant extracting nursing home acquisition and financing deals from news articles.
 
 The article's publication date is given just before the article, at the end.
 
@@ -58,7 +58,7 @@ sentence must itself state that value for this deal: a company's running total, 
 figure or another deal's number doesn't count. A value no sentence states is null. Fields the site
 checks this way are blanked when the quote is missing or isn't in the article.
 
-Scope — only extract deals where the acquired asset is one of: a nursing home, skilled nursing
+Scope — only extract deals where the acquired asset (for a loan: the homes the loan is on) is one of: a nursing home, skilled nursing
 facility (SNF), assisted living facility, memory care community, continuing care retirement
 community (CCRC), or a senior/post-acute housing portfolio containing such facilities.
 Do NOT extract a deal whose acquired asset is:
@@ -108,6 +108,9 @@ exclude those deals too.
 
 Rules:
 - Split broker/lender announcements from acquisition deals (they are separate deals)
+- A loan on qualifying homes is a deal even when nothing is bought: a refinancing, recapitalisation,
+  HUD or bridge-to-HUD loan, or a new loan. A lender or broker release listing several closed loans
+  is one deal per loan, refinancings included, each with its own amount, homes and states
 - One announcement covering acquisitions in several states is one deal per state (e.g. "7 facilities in
   Colorado, 9 in Florida and 4 in Washington" is three deals), each with its own facility_count and
   facility_names. A single portfolio sale whose state breakdown the article doesn't give stays one deal
