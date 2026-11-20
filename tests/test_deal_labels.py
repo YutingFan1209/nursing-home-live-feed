@@ -309,22 +309,23 @@ def test_truncated_cms_name_still_matches_exactly():
 # ── Overdue pending records ───────────────────────────────────────────────
 
 def test_pending_deal_past_its_close_date_is_assumed_closed():
-    # user rule 2026-11-12: a passed expected close date means it's done
+    # user rule 2026-11-12: a passed expected close date means it's done;
+    # 2026-11-20: shown as "likely closed", not "reported" (nothing confirms it)
     d = labeled("eger")  # PHHPC approval 2025-12-04, ten months before TODAY
-    assert d["status"] == "reported" and d["assumed_closed"]
-    assert "treated as closed" in d["status_detail"]
+    assert d["status"] == "likely_closed" and d["assumed_closed"]
+    assert "no confirmation" in d["status_detail"]
     il = {"source_type": "con", "source_name": "Illinois HFSRB Change of Ownership Projects",
           "deal_type": "ownership_change", "acquiring_entity": "Freeport Nursing",
           "seller_entity": "Stephenson County", "facility_count": 1, "states": ["IL"],
           "facility_names": ["Stephenson County Nursing Center"], "acquisition_date": "2025-09-01"}
     out = label(il, None, il["facility_names"], today=TODAY)
-    assert out["status"] == "reported" and "a date that has passed" in out["status_detail"]
+    assert out["status"] == "likely_closed" and "a date that has passed" in out["status_detail"]
     # a filing-date-only list counts 90 days from the filing
     ok = {**il, "source_name": "Oklahoma OSDH Certificate of Need Notice",
           "acquisition_date": (TODAY - timedelta(days=30)).isoformat()}
     assert label(ok, None, il["facility_names"], today=TODAY)["status"] == "expected"
     ok["acquisition_date"] = (TODAY - timedelta(days=100)).isoformat()
-    assert label(ok, None, il["facility_names"], today=TODAY)["status"] == "reported"
+    assert label(ok, None, il["facility_names"], today=TODAY)["status"] == "likely_closed"
     recent = labeled("rhinebeck")  # reported pending, found 2026
     assert recent["status"] == "expected"
 
@@ -503,7 +504,7 @@ def test_licence_and_tn_records_are_after_closing_not_pending():
     assert "ratified" in status(tn, None, TODAY)["status_detail"]
     # Montana's notices come before closing; well over 90 days on, assumed closed
     mt = {**d, "source_url": "https://dphhs.mt.gov/x#chow-ivy-20250626", "acquisition_date": "2025-06-26"}
-    assert status(mt, None, TODAY)["status"] == "reported"
+    assert status(mt, None, TODAY)["status"] == "likely_closed"
 
 
 def test_tn_ratification_groups_with_chow_despite_holding_company_name():

@@ -15,10 +15,12 @@ export const SOURCE_COLOR = {
 // Text colors on white, all 4.5:1 or better
 export const STATUS_LABEL = {
   confirmed: "Confirmed", expected: "Expected", reported: "Reported", unconfirmed: "Unconfirmed", on_file: "On file",
+  likely_closed: "Likely closed",
 };
 export const STATUS_COLOR = {
   confirmed: "var(--status-confirmed)", expected: "var(--status-expected)", reported: "var(--status-reported)",
   unconfirmed: "var(--status-unconfirmed)", on_file: "var(--status-on-file)",
+  likely_closed: "var(--status-reported)",
 };
 
 // A UCC-1 is "confirmed" in the export only in the sense that it's on file:
@@ -92,7 +94,7 @@ export function statusMeaning(d) {
       : "Reported as pending. This is not a completed ownership transfer.";
   }
   if (d.assumed_closed) {
-    return "Filed or reported before closing. Its expected close date has passed, so it's treated as closed; CMS records don't show the new owner yet.";
+    return "Filed or reported before closing. Its expected close date (or 90 days after filing) has passed, so it has likely closed, but nothing confirms it; CMS records don't show the new owner yet.";
   }
   if (s === "unconfirmed") {
     return "Filed or reported as pending over 6 months ago, with no record of completion. Don't treat it as completed.";

@@ -621,8 +621,10 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
         if close and close < today:
             why = (f"expected to close {close.isoformat()}, a date that has passed" if stated
                    else f"filed over {FILING_TO_CLOSE.days} days ago (counted as closed from {close.isoformat()})")
-            return {"status": "reported", "assumed_closed": True, "status_detail":
-                    f"Reported: {what.lower()}; {why}, so it's treated as closed; not yet confirmed by CMS"}
+            # "Likely closed", not "reported": nothing says it closed (person's
+            # decision 2026-11-20, holdout: 9 such cards labelled wrong as "reported")
+            return {"status": "likely_closed", "assumed_closed": True, "status_detail":
+                    f"Likely closed (no confirmation): {what.lower()}; {why}; CMS records don't show it yet"}
         # Still pending long after the filing or report: don't keep calling
         # it expected (ArchCare at Eger, filed December 2025)
         # no deal date: measure from the source's publication date, not the

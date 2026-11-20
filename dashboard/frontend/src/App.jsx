@@ -102,6 +102,7 @@ const STATUS = {
   expected:    "Expected",
   unconfirmed: "Unconfirmed",
   on_file:     "On file",
+  likely_closed: "Likely closed",
 };
 
 const FACILITY_TYPE = {
@@ -196,9 +197,10 @@ const CSV_COLUMNS = [
   ["id", d => d.id, "Record ID. Open a record at <site>?id=<id>."],
   ["permalink", d => permalink(d.id), "Link to this record on the site."],
   ["headline", d => headlineText(d), "The record's headline as shown on the site."],
-  ["date", d => d.acquisition_date || d.created_at?.slice(0, 10), "Effective or filing date from the source; the date found if the source gives none."],
+  ["date", d => d.acquisition_date || d.created_at?.slice(0, 10), "Effective or filing date from the source; the date found if the source gives none. See date_basis."],
+  ["date_basis", d => d.date_basis || (d.acquisition_date ? "source" : "found"), "filed: a state filing that gives no closing date, so date is the date it was filed, received or posted (not a closing date). source: the date the source gives. found: no date in the source."],
   ["found_date", d => d.found_date, "Date this tracker first found the record."],
-  ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, or CMS shows a new owner within 6 months), On file (a UCC-1 filing: a record of the loan, not of a sale), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), or Reported (news or a company filing, not yet confirmed)."],
+  ["status", d => STATUS[d.status] || d.status, "Confirmed (CMS record, or CMS shows a new owner within 6 months), On file (a UCC-1 filing: a record of the loan, not of a sale), Expected (filed or reported before closing), Unconfirmed (filed or reported as pending over 6 months ago, still not confirmed), Likely closed (filed or reported before closing, and its expected close date, or 90 days after filing, has passed; nothing confirms it closed), or Reported (news or a company filing, not yet confirmed)."],
   ["status_detail", d => d.status_detail, "What the status rests on."],
   ["deal_type", d => d.deal_type, "ownership_change (a sale), control_change (control moves without a sale), lease, financing, acquisition_financing, refinancing, operations_transfer (UCC-1 to an operator: a sale signal), non_deal_lien, or amendment (UCC-3)."],
   ["facility_type", d => d.facility_type, "skilled_nursing (includes any record with a nursing home in it) or assisted_living (assisted living or memory care)."],
@@ -604,7 +606,7 @@ function cardColumns(d, facilities, cmsThrough) {
   const p = primaryDate(d);
   cols.push({ label: p.role, value: fmtFull(p.date) || "Not reported", missing: !p.date,
     note: closePassed(d) ? passedNote(d, p, cmsThrough)
-      : d.assumed_closed ? `Assumed closed · not yet in CMS records`
+      : d.assumed_closed ? `Likely closed · no confirmation yet`
       : d.found_date ? `Found ${fmtFull(d.found_date)}` : null });
   return cols;
 }

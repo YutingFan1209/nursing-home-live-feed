@@ -53,7 +53,7 @@ OUT_PER_CARD = 700
 SOURCE_CHARS = 15000
 
 SHOWN = ["deal_type", "buyer", "seller", "facility_names", "ccns", "states", "facility_count",
-         "acquisition_date", "deal_value_m", "financing_amount_m", "lender", "status", "assumed_closed", "facility_type",
+         "acquisition_date", "deal_value_m", "financing_amount_m", "lender", "status", "assumed_closed", "date_basis", "facility_type",
          "headline", "summary", "source_type", "source_url", "source_title", "published_at"]
 FIELDS = ["deal_type", "buyer", "seller", "facility_count", "states", "acquisition_date",
           "deal_value_m", "financing_amount_m", "lender", "status", "facility_type", "ccns"]

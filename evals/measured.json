@@ -6,9 +6,9 @@
     "note": "extract_raw_2026-11-20_2.jsonl"
   },
   "judge": {
-    "fingerprint": "e2024918718c0201",
+    "fingerprint": "189c419feed88d6e",
     "date": "2026-11-20",
-    "score": "caught 14/17, false alarms 40/125",
-    "note": "judge_gold_2026-11-20_e2024918.jsonl"
+    "score": "caught 14/16, false alarms 37/126",
+    "note": "judge_gold_2026-11-20_189c419f.jsonl"
   }
 }

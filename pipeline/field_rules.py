@@ -68,12 +68,14 @@ SITE_RULES = """- A New Jersey UCC card's lender reads "Not available ..." (NJ's
   acquisition_financing.
 - status values: reported (news says it happened, or a state agency lists the change of ownership
   on its CON or licensing agenda), expected (announced, pending approval, or a planned sale), confirmed (a CMS record backs it), on_file (a UCC filing: a record of a loan, not of
-  a sale). A planned or pending sale shown as reported is wrong, EXCEPT: once a pending sale's
-  expected close date has passed (or 90 days after a filing, received or notice date when the source
-  gives no expected close), the site assumes it closed and shows reported with assumed_closed: true.
+  a sale), likely_closed (a pending sale whose expected close date has passed, or 90 days after a
+  filing, received or notice date when the source gives no expected close; nothing confirms it
+  closed). A planned or pending sale shown as reported is wrong; shown as likely_closed past that
+  point is right.
 - acquisition_date: the closing date the source gives, or the CMS record's date when CMS confirms
   the card. For a state filing (CON, licence list, PHHPC, CHOW notice) that gives no closing date,
-  the site shows the filing, received, notice or meeting date. A quarter placeholder (2026-10-01 for
+  the site shows the filing, received, notice or meeting date, marked date_basis: "filed" (not a
+  closing date). A quarter placeholder (2026-10-01 for
   "4Q26") is minor. A card dated from a state notice or filing, or from news, whose change CMS records
   up to 60 days later keeps its own date: the gap is minor (CMS lags), over 60 days is wrong.
 - deal_value_m, financing_amount_m: US dollars, millions. A foreign-currency figure converted to

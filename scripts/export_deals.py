@@ -725,6 +725,13 @@ def main():
                 deal["facility_count"] = 1
                 filled += 1
         print(f"Filled {filled} blank home counts on cards linked to one CMS home")
+        # A state filing that gives no closing date is dated by the filing
+        # (main._default_con_dates): say so, so the date isn't read as a
+        # closing date (person's decision 2026-11-20)
+        for deal in deals:
+            if (deal["source_type"] == "con" and deal.get("acquisition_date")
+                    and str(deal.get("published_at") or "")[:10] == str(deal["acquisition_date"])[:10]):
+                deal["date_basis"] = "filed"
         for deal in deals:
             _add_labels(deal, cms, homes)
         # Nursing homes and assisted living / memory care only: independent

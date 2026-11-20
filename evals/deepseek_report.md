@@ -160,3 +160,27 @@ misses, so 3/17 is optimistic. Confirming it, and testing the 10% bound, needs a
 On the gold set the fixed judge matched the old one on the 92 cards unchanged since 11-16 (6/14
 shipped, 13/78 held). The other cards had been corrected on the site since they were labelled.
 Extraction re-measure: 35/64 news cards fully right (was 37/64, within the ±5 noise).
+
+## Second blind holdout (2026-11-20, prereg amendment 5)
+
+The setup:
+- 120 non-news cards (UCC 50, CON 40, CHOW 30), seed 20261222.
+- Labelled by the person before any model output existed: 25 bad.
+- Judge `e2024918` (commit 8365dc34) ran ×1 through Batch, $0.83 at batch price.
+
+| (measured) | Person's labels as written | 17 CON cards following SITE_RULES counted right |
+|---|---|---|
+| Bad cards shipped | 16/25 = 64% (45–80%) | **2/8 = 25% (7–59%)** |
+| Good cards held | 15/95 = 16% | 18/112 = 16% |
+
+**H1 FAILS either way.**
+
+17 of the 25 bad cards are CON cards that follow two written site rules the person disagrees with:
+- a filing with no closing date shows its received date (12 cards);
+- a pending filing is shown as "reported, assumed closed" after its expected date or 90 days
+  (9 cards).
+
+The judge passes 14 of those 17 because it was told the rules are right. So most of the leak is
+in the rules, not the judge. Of the 8 other bad cards, the judge ships 2, both UCC filings with no
+identified home (947b31c6, d85081f7), and holds all 4 landlord-as-lender cards and both noise
+liens.
