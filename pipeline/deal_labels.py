@@ -307,6 +307,7 @@ DEAL_TYPE_OVERRIDES = {
     "488a329e-5bbc-4931-90dc-5fce4703dfa1": "ownership_change",       # Hidden Springs VA sold to Logos/Viva
     "c992ac25-b446-4dd6-984b-2f25c5b6fd71": "ownership_change",       # San Antonio AL/MC sold to a local owner-operator
     "f1c053e5-0994-4dc8-b6b3-e96f1b5d5529": "lease",                  # MI CON: GP SNF 20-year lease of The Rivers
+    "f2ae1b2c-5b15-417d-afe9-00b206aaa00a": "non_deal_lien",          # NY: Woodycrest Propco (the home's landlord) lien on its operator
 }
 # CCNs the exact-name match got wrong: same name, different home
 WRONG_CCNS = {
