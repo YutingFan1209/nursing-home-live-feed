@@ -122,7 +122,7 @@ const FACILITY_TYPE = {
 // Care type: nursing homes (with assisted living) by default; hospice and
 // inpatient rehab hospitals since 2026-11-23 (first version)
 const CARE_TYPES = [
-  { key: "", label: "Nursing homes & AL" },
+  { key: "", label: "Nursing homes & assisted living" },
   { key: "hospice", label: "Hospice" },
   { key: "rehab", label: "Inpatient rehab" },
   { key: "all", label: "All" },
