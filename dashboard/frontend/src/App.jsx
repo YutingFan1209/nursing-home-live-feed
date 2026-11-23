@@ -1241,7 +1241,7 @@ function CompanyPanel({ entity, deals, onEntity, onClose }) {
   );
 }
 
-function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since }) {
+function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since, care }) {
   return allDeals.filter(d => {
     // A record grouped into another deal's card shows there, not on its own
     if (d.grouped_into) return false;
