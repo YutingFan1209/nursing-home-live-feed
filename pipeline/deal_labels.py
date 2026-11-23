@@ -311,6 +311,7 @@ DEAL_TYPE_OVERRIDES = {
 # CCNs the exact-name match got wrong: same name, different home
 WRONG_CCNS = {
     "d5a7a72b-2b2f-4ae8-b715-55e46067b871": {"495213"},  # Bayside in Virginia Beach VA; the article's is in OH
+    "24798d77-9292-4998-8f94-c0b62d50537a": {"225489", "225558"},  # Globe: Vantage's 9 MA homes unnamed; owner-name match only
 }
 STATUS_OVERRIDES = {
     "26f92fe3-de4a-4df0-896f-185b952bf11b": ("expected", "Expected: a 2012 court ruling cleared the purchase; "
