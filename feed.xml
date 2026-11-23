@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-23T16:48:50.673045+00:00</updated>
+  <updated>2026-11-23T16:58:10.224158+00:00</updated>
   <entry>
     <id>urn:uuid:3ec361df-a35b-4d75-8d86-acafed4a1074</id>
     <title>DELMAR SNF OPERATIONS ASSOCIATES, LLC — acquisition financing (NY)</title>
@@ -321,6 +321,20 @@
     <summary>Effective 2025-12-01; Facilities: DEL CORAZON HOSPICE LLC; Source: CMS Hospice Ownership Changes</summary>
   </entry>
   <entry>
+    <id>urn:uuid:7acb1d87-202c-40ec-993b-8ee290b8b903</id>
+    <title>Murray Drive SNF OpCo LLC — UCC-1 financing (NM)</title>
+    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
+    <updated>2026-11-23T15:16:08.607540+00:00</updated>
+    <summary>Effective 2026-11-18; Facilities: Murray Drive SNF OpCo LLC; Source: State UCC-1 Filings</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:24798d77-9292-4998-8f94-c0b62d50537a</id>
+    <title>Heritage Healthcare Consulting to acquire 9 facilities in MA from Vantage Care (MA)</title>
+    <link href="https://www.bostonglobe.com/2026/11/23/metro/massachusetts-nursing-homes-transfer-sell/#:~:text=Heritage%20Healthcare%20Consulting"/>
+    <updated>2026-11-23T14:47:01.223528+00:00</updated>
+    <summary>Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:b6563050-4171-44ea-9608-53a3a5d29d71</id>
     <title>SOUTH PASADENA CARE CENTER — UCC-1 financing (CA)</title>
     <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
@@ -340,19 +354,5 @@
     <link href="https://seniorhousingnews.com/2026/11/18/senior-living-dealbook-chicago-pacific-founders-completes-61-5m-sale-sri-assumes-management-of-64th-community/"/>
     <updated>2026-11-20T18:47:11.421994+00:00</updated>
     <summary>Source: Senior Housing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:488a329e-5bbc-4931-90dc-5fce4703dfa1</id>
-    <title>Logos Living Capital and Viva Senior Living acquires Hidden Springs Senior Living (VA)</title>
-    <link href="https://seniorhousingnews.com/2026/11/18/senior-living-dealbook-chicago-pacific-founders-completes-61-5m-sale-sri-assumes-management-of-64th-community/#:~:text=Hidden%20Springs%20Senior%20Living"/>
-    <updated>2026-11-20T18:47:11.421994+00:00</updated>
-    <summary>Facilities: Hidden Springs Senior Living; Source: Senior Housing News</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0f27eefb-84b9-4717-9a57-fa3f009a82c4</id>
-    <title>Pending sale of Windemere Park Health And Rehab Center · Buyer not disclosed (MI)</title>
-    <link href="https://www.michigan.gov/mdhhs/-/media/Project/Websites/mdhhs/Doing-Business-with-MDHHS/Health-Care-Providers/Certificate-of-Need/CON-Eval/Activity-Reports/2026/Oct-2026/October-2026-LOIs.xlsx?rev=7beac8ccbae44f62a03f0fe6323a1a4d&amp;hash=3FE8E2FBBA7519550B6DB2922DBD5472"/>
-    <updated>2026-11-20T18:46:55.526390+00:00</updated>
-    <summary>Effective 2026-10-29; Facilities: Windemere Park Health And Rehab Center; Source: Michigan MDHHS Certificate of Need Activity Reports</summary>
   </entry>
 </feed>
