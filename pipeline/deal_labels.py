@@ -242,10 +242,19 @@ _SENIOR_RE = re.compile(
     r"independent living|senior living|senior housing|seniors housing"
     r"|\bCCRC\b|continuing care retirement|life plan|retirement communit|\bunits?\b", re.I)
 _HOSPITAL_RE = re.compile(r"\bhospital\b|\bmedical center\b", re.I)
+# Hospice and inpatient rehab hospitals are in scope since 2026-11-23 (first
+# version; outpatient therapy is a question for Tyler, docs/questions-for-t.md)
+_HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
+_REHAB_RE = re.compile(r"inpatient rehab|\bIRFs?\b|rehab(ilitation)? hospital", re.I)
+# CMS owner-file sources that are hospice / rehab by construction
+# (scraper/pac_owner_changes.MODEL_FACILITY_TYPE)
+_MODEL_FACILITY_TYPE = {"cms_hospice_owner_change": "hospice", "cms_rehab_owner_change": "rehab"}
 
-FACILITY_TYPES = ("skilled_nursing", "assisted_living", "senior_living", "hospital", "non_us", "unknown")
+FACILITY_TYPES = ("skilled_nursing", "assisted_living", "hospice", "rehab", "senior_living", "hospital",
+                  "non_us", "unknown")
 # What the site shows; the rest is left out of the export
-SITE_FACILITY_TYPES = ("skilled_nursing", "assisted_living")
+SITE_FACILITY_TYPES = ("skilled_nursing", "assisted_living", "hospice", "rehab")
+PAC_FACILITY_TYPES = ("hospice", "rehab")
 
 # News that says only "senior living" / "seniors housing" about operators or
 # homes that are assisted living / memory care (hand review 2026-11-12, from
@@ -293,6 +302,11 @@ DEAL_TYPE_OVERRIDES = {
     "312a521c-659a-4545-9ebd-9ce69988d1b6": "financing",              # $2M ABL is working capital
     "6de5a0cd-64b0-482f-baa6-859174b60c7d": "financing",              # purpose not stated
     "335c39ed-29f6-4e7d-a407-a9aff831b0a9": "operations_transfer",    # Vierra took over operations, no sale
+    # news approval 2026-11-23, person agreed
+    "99e9a2ef-909c-45d7-905f-64ab0daff2de": "financing",              # Centennial $51.2M construction loan, Terraces of Hialeah
+    "488a329e-5bbc-4931-90dc-5fce4703dfa1": "ownership_change",       # Hidden Springs VA sold to Logos/Viva
+    "c992ac25-b446-4dd6-984b-2f25c5b6fd71": "ownership_change",       # San Antonio AL/MC sold to a local owner-operator
+    "f1c053e5-0994-4dc8-b6b3-e96f1b5d5529": "lease",                  # MI CON: GP SNF 20-year lease of The Rivers
 }
 # CCNs the exact-name match got wrong: same name, different home
 WRONG_CCNS = {
@@ -310,6 +324,8 @@ def facility_type(d: dict) -> str:
     are all nursing-facility sources; news is read from its own words."""
     if d.get("id") in FACILITY_TYPE_OVERRIDES:
         return FACILITY_TYPE_OVERRIDES[d["id"]]
+    if d.get("extraction_model") in _MODEL_FACILITY_TYPE:
+        return _MODEL_FACILITY_TYPE[d["extraction_model"]]
     if d.get("source_type") in ("chow", "ucc", "con"):
         return "skilled_nursing"
     if d.get("ccns"):
@@ -322,6 +338,10 @@ def facility_type(d: dict) -> str:
         return "skilled_nursing"
     if _AL_RE.search(text):
         return "assisted_living"
+    if _HOSPICE_RE.search(text):
+        return "hospice"
+    if _REHAB_RE.search(text):
+        return "rehab"
     if _SENIOR_RE.search(text):
         return "senior_living"
     if _HOSPITAL_RE.search(text):

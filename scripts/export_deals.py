@@ -44,7 +44,7 @@ from config import get_config
 from ucc.lender_classifier import LenderCategory, classify_secured_party
 from pipeline import ucc_context
 from pipeline.ucc_category import categorize, collapse_repeats, complete_through, owner_start_dates
-from pipeline.deal_labels import SITE_FACILITY_TYPES, label, is_individual_filing, WRONG_CCNS, is_arranger
+from pipeline.deal_labels import SITE_FACILITY_TYPES, PAC_FACILITY_TYPES, facility_type, label, is_individual_filing, WRONG_CCNS, is_arranger
 from pipeline import individual_owners
 from scraper.con_ms import CON_MS_INDEX_URL
 from pipeline.cms_confirm import CmsIndex, facility_names_agree, same_facility_name
@@ -436,6 +436,14 @@ def _add_labels(deal: dict, cms, homes: dict) -> None:
         facilities = [n for _, n in matched]
         deal["owner_line"] = individual_owners.owner_line(facilities)
         deal["facility_names"] = facilities or None
+    elif facility_type(deal) in PAC_FACILITY_TYPES:
+        # Hospice / rehab hospital CCNs aren't nursing homes: keep them apart
+        # from the nursing home links, beds and CMS sale checks
+        facilities = _resolved_facilities(deal)
+        deal["provider_ccns"] = deal.pop("ccns", None)
+        deal["ccns"] = None
+        deal["ccn_match"] = None
+        deal["match_type"] = "provider_ccn" if deal["provider_ccns"] else "no_ccn"
     else:
         facilities = _resolved_facilities(deal)
         if cms and deal["source_type"] not in ("chow", "ucc") and deal.get("ccns"):
@@ -527,7 +535,7 @@ def main():
                 d.id, d.acquiring_entity, d.seller_entity, d.states,
                 d.facility_count, d.deal_value_m, d.financing_amount_m, d.acquisition_date,
                 d.operator_names, d.facility_names, d.created_at,
-                d.lender, d.ucc_confirmed, d.stage, d.summary,
+                d.lender, d.ucc_confirmed, d.stage, d.summary, d.extraction_model,
                 s.source_type, s.name AS source_name,
                 a.url AS source_url, a.title AS source_title, a.published_at::date::text AS published_at,
                 uf.detail_url AS ucc_detail_url,
@@ -550,7 +558,7 @@ def main():
                 AND s.source_type = 'ucc'
             WHERE d.stage NOT IN ('dismissed')
             GROUP BY d.id, a.url, a.title, a.published_at, s.source_type, s.name, uf.detail_url, uf.debtor_name, uf.filing_type,
-                     uf.collateral_text, uf.collateral_source
+                     uf.collateral_text, uf.collateral_source, d.extraction_model
             ORDER BY COALESCE(d.acquisition_date, d.created_at::date) DESC, d.created_at DESC
         """)
         cols = [c[0] for c in cur.description]

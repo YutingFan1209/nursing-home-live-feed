@@ -45,6 +45,13 @@ def needs_approval(c: dict) -> bool:
     people list possible homes and keep their own handling."""
     return (c.get("source_type") in APPROVE_SOURCES
             or (c.get("source_type") == "ucc" and not c.get("ccns") and not c.get("individual_filing")))
+def auto_approved(c: dict) -> bool:
+    """CMS records (CHOW file, CMS owner files incl. hospice / rehab) are
+    federal records: approved without the judge (person's rule 2026-11-23).
+    Every other source is checked."""
+    return c.get("source_type") == "chow"
+
+
 COST_PER_CARD = 0.040          # measured: 5 gold runs 11-16/17, $24-30 for 749 cards (Opus 5.5, effort high); upper end, it is a cap
 
 
@@ -79,7 +86,7 @@ def check(cards: list[dict], deals: list[dict], max_cost: float, spend: bool) ->
     from evals.judge import run
     from evals.sample import GROUP
     judged, released = _jsonl(JUDGED), _jsonl(RELEASED)
-    todo = [c for c in cards if c["id"] not in judged and c["id"] not in released]
+    todo = [c for c in cards if c["id"] not in judged and c["id"] not in released and not auto_approved(c)]
     est = len(todo) * COST_PER_CARD
     if todo:
         print(f"  {len(todo)} new card(s) to check, about ${est:.2f}")
@@ -91,7 +98,7 @@ def check(cards: list[dict], deals: list[dict], max_cost: float, spend: bool) ->
             print(f"  Over the --judge-max ${max_cost:.2f} cap: not checked, so held.")
     holds = {}
     for c in cards:
-        if c["id"] in released:
+        if c["id"] in released or auto_approved(c):
             continue
         j = judged.get(c["id"])
         if not j:

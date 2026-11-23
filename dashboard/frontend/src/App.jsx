@@ -108,6 +108,8 @@ const STATUS = {
 const FACILITY_TYPE = {
   skilled_nursing: "Skilled nursing",
   assisted_living: "Assisted living / memory care",
+  hospice:         "Hospice",
+  rehab:           "Inpatient rehab hospital",
   senior_living:   "Other senior living",
   hospital:        "Hospital",
   non_us:          "Outside the US",
@@ -117,6 +119,19 @@ const FACILITY_TYPE = {
 // Ownership changes, plus the two events that move control without a sale.
 // Everything else is a loan or lien of some kind.
 // Short source names for the tab line (full name in each tab's hover text)
+// Care type: nursing homes (with assisted living) by default; hospice and
+// inpatient rehab hospitals since 2026-11-23 (first version)
+const CARE_TYPES = [
+  { key: "", label: "Nursing homes & AL" },
+  { key: "hospice", label: "Hospice" },
+  { key: "rehab", label: "Inpatient rehab" },
+  { key: "all", label: "All" },
+];
+const PAC_TYPES = new Set(["hospice", "rehab"]);
+const inCare = (d, care) => care === "all" ? true : care ? d.facility_type === care : !PAC_TYPES.has(d.facility_type);
+// Care Compare pages for hospice and rehab hospital CCNs
+const PROVIDER_BASE = { hospice: "https://www.medicare.gov/care-compare/details/hospice",
+  rehab: "https://www.medicare.gov/care-compare/details/inpatient-rehabilitation" };
 const SOURCE_TAB = { chow: "CMS", con: "CON", ucc: "UCC-1", edgar: "SEC", rss: "News" };
 const OWNERSHIP_TYPES = new Set(["ownership_change", "control_change", "lease"]);
 const TABS = [
@@ -771,6 +786,17 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
                 {history?.length > 0 && <div style={{ color: "#5F636A", fontSize: 13 }}>{history.length} other record{history.length > 1 ? "s" : ""} in this tracker at {ccns.length > 1 ? "these facilities" : "this facility"}</div>}
               </Row>
             )}
+            {deal.provider_ccns?.length > 0 && (
+              <Row label={deal.facility_type === "hospice" ? "CMS hospice record" + (deal.provider_ccns.length > 1 ? "s" : "") : "CMS hospital record" + (deal.provider_ccns.length > 1 ? "s" : "")}>
+                {deal.provider_ccns.slice(0, 12).map((ccn, i) => (
+                  <div key={ccn} style={{ padding: "4px 0" }}>
+                    <a href={`${PROVIDER_BASE[deal.facility_type]}/${ccn}`} target="_blank" rel="noopener noreferrer" style={lnk}>
+                      {(deal.facility_names || [])[i] || `CCN ${ccn}`}</a> <span style={{ color: "#5F636A" }}>CCN {ccn}</span>
+                  </div>
+                ))}
+                {deal.provider_ccns.length > 12 && <div>+{deal.provider_ccns.length - 12} more</div>}
+              </Row>
+            )}
             <Row label="Location">{deal.states?.length ? deal.states.join(", ") : missingText("Not reported")}</Row>
             {deal.beds && <Row label="Certified beds (CMS)">{deal.beds.toLocaleString()}</Row>}
             {deal.deal_type !== "control_change" && fmtM(deal.deal_value_m) && <Row label="Price">{fmtM(deal.deal_value_m)}</Row>}
@@ -1232,6 +1258,7 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
     if (dateFrom && shownDate && shownDate < dateFrom) return false;
     if (dateTo && shownDate && shownDate > dateTo) return false;
     if (sourceType && d.source_type !== sourceType) return false;
+    if (care !== undefined && !inCare(d, care)) return false;
     if (entity && dealRoles(d, entity).length === 0) return false;
     const hasCcn = (d.ccns || []).filter(Boolean).length > 0;
     if (ccnStatus === "matched" && !hasCcn) return false;
@@ -1243,6 +1270,7 @@ function filterDeals(allDeals, { state, dateFrom, dateTo, search, sourceType, cc
         ...(d.operator_names || []),
         ...(d.facility_names || []),
         ...(d.ccns || []),
+        ...(d.provider_ccns || []),
         d._facilityText,
       ].filter(Boolean).join(" ").toLowerCase();
       if (!haystack.includes(q)) return false;
@@ -1273,7 +1301,7 @@ function readLastVisit() {
 // named views in this browser, each remembering when it was last opened so
 // it can show how many deals are new since then.
 const FILTER_PARAMS = { state: "state", dateFrom: "from", dateTo: "to", search: "q", sourceType: "source", ccnStatus: "ccn",
-  tab: "tab", refi: "refi", liens: "liens", entity: "entity", since: "since" };
+  tab: "tab", refi: "refi", liens: "liens", entity: "entity", since: "since", care: "care" };
 const SAVED_VIEWS_KEY = "nh-saved-views";
 
 // Links and saved views from before the tabs carry a deal type ("type=...")
@@ -1306,6 +1334,7 @@ function viewName(f) {
     f.search && `"${f.search}"`,
     f.state,
     f.sourceType && (SOURCE[f.sourceType]?.label || f.sourceType),
+    f.care && CARE_TYPES.find(c => c.key === f.care)?.label,
     f.tab === "financing" && "Financing",
     f.refi && "With refinancings",
     f.liens && "With non-deal liens",
@@ -1334,6 +1363,7 @@ export default function App() {
   const [refi, setRefi]           = useState(initial.refi);
   const [liens, setLiens]         = useState(initial.liens);
   const [since, setSince]         = useState(initial.since);
+  const [care, setCare]           = useState(CARE_TYPES.some(c => c.key === initial.care) ? initial.care : "");
   const lastVisit = useMemo(readLastVisit, []);
   const [entity, setEntity]       = useState(initial.entity);
   // ?id=<record> opens one record (a permalink); ?view=methodology the methodology page
@@ -1388,8 +1418,8 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since };
-  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since];
+  const currentFilters = { state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since, care };
+  const filterDeps = [state, dateFrom, dateTo, search, sourceType, ccnStatus, tab, refi, liens, entity, since, care];
 
   useEffect(() => {
     if (focusId || view || facilityCcn) return;  // those pages own the URL
@@ -1453,7 +1483,7 @@ export default function App() {
     setState(f.state || ""); setDateFrom(f.dateFrom || ""); setDateTo(f.dateTo || "");
     setSearch(f.search || ""); setSourceType(f.sourceType || ""); setCcnStatus(f.ccnStatus || "");
     setTab(f.tab || ""); setRefi(f.refi || ""); setLiens(f.liens || "");
-    setEntity(f.entity || ""); setOffset(0);
+    setEntity(f.entity || ""); setCare(f.care || ""); setOffset(0);
     updateSavedViews(savedViews.map(v => v.name === view.name ? { ...v, lastSeen: new Date().toISOString() } : v));
   }
 
@@ -1482,6 +1512,10 @@ export default function App() {
     const c = {};
     for (const d of filterDeals(allDeals, { ...currentFilters, sourceType: "" })) c[d.source_type] = (c[d.source_type] || 0) + 1;
     return c;
+  }, [allDeals, ...filterDeps]);
+  const careCounts = useMemo(() => {
+    const rest = filterDeals(allDeals, { ...currentFilters, care: "all" });
+    return Object.fromEntries(CARE_TYPES.map(c => [c.key, rest.filter(d => inCare(d, c.key)).length]));
   }, [allDeals, ...filterDeps]);
   const tabCounts = useMemo(() => Object.fromEntries(TABS.map(t => [t.key, filteredAnyTab.filter(d => inTab(d, t.key)).length])),
     [filteredAnyTab]);
@@ -1541,7 +1575,7 @@ export default function App() {
 
   // Clears filters but stays on the current tab
   function clearAll() {
-    setState(""); setDateFrom(""); setDateTo("");
+    setState(""); setDateFrom(""); setDateTo(""); setCare("");
     setSearch(""); setSourceType(""); setCcnStatus(""); setRefi(""); setLiens(""); setEntity(""); setSince(""); setOffset(0);
   }
 
@@ -1732,6 +1766,20 @@ export default function App() {
               style={{ ...linkBtn, ...lnk, textDecoration: "underline", minHeight: 0, verticalAlign: "baseline" }}>Show them</button>
           </p>
         )}
+
+        <div role="group" aria-label="Care type" style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "0 0 10px" }}>
+          {CARE_TYPES.map(c => {
+            const active = care === c.key;
+            return (
+              <button key={c.key || "nh"} type="button" aria-pressed={active} onClick={() => { setCare(c.key); setOffset(0); }}
+                style={{ font: "inherit", fontSize: 14, minHeight: 36, padding: "0 12px", borderRadius: 18, cursor: "pointer",
+                  border: `1px solid ${active ? "#1F2328" : "#D6D2C8"}`, background: active ? "#1F2328" : "transparent",
+                  color: active ? "#FFFFFF" : "#3F4248", whiteSpace: "nowrap" }}>
+                {c.label} <span style={{ opacity: 0.75 }}>{(careCounts[c.key] || 0).toLocaleString()}</span>
+              </button>
+            );
+          })}
+        </div>
 
         <Tabs.Root value={tabValue(tab)} onValueChange={v => { setTab(TABS.find(t => tabValue(t.key) === v).key); setOffset(0); }}>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0 16px", borderBottom: "1px solid #E3E0D8", marginBottom: 12 }}>

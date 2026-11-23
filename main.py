@@ -32,6 +32,7 @@ from scraper.cms_owner_changes import (
     fetch_cms_owner_change_deals, refresh_ownership_if_stale, refresh_provider_info_if_stale,
     ensure_source as ensure_cms_owner_change_source,
 )
+from scraper.pac_owner_changes import fetch_pac_owner_change_deals
 from scraper.gmail_alerts import fetch_alert_articles
 from scraper.con_al import fetch_con_al_notices, CON_AL_SOURCE_NAME, CON_AL_INDEX_URL
 from scraper.con_ok import fetch_con_ok_deals, CON_OK_SOURCE_NAME, CON_OK_INDEX_URL
@@ -490,6 +491,18 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             conn.rollback()
             logger.warning(f"CMS ownership changes skipped: {e}")
             health.source_failed("CMS ownership changes", e)
+
+        # Hospice and inpatient rehab hospital owner changes from CMS's
+        # hospice / hospital All Owners files (scraper/pac_owner_changes.py)
+        try:
+            for deal in fetch_pac_owner_change_deals(conn):
+                if not _article_exists(deal["url"], conn):
+                    new_articles.append(deal)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            logger.warning(f"CMS hospice/rehab ownership changes skipped: {e}")
+            health.source_failed("CMS hospice/rehab ownership changes", e)
 
         # State CON / ownership-change notices — pre-closing filings. Nursing
         # home notices already carry raw_text, so they take the normal Claude
