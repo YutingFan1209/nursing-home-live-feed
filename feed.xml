@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-24T18:11:58.700639+00:00</updated>
+  <updated>2026-11-24T20:47:45.340733+00:00</updated>
+  <entry>
+    <id>urn:uuid:d5af4a37-8f43-4aef-a89d-81d7d1fd0a4e</id>
+    <title>PAINESVILLE SNF OPCO LLC — UCC-1 financing (OH)</title>
+    <link href="https://ucc.ohiosos.gov/company-profile/search/7285334"/>
+    <updated>2026-11-24T18:40:07.506928+00:00</updated>
+    <summary>Effective 2026-11-23; Facilities: PAINESVILLE SNF OPCO LLC; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:78e7c2f6-be3d-4826-967a-41dbdbe994e2</id>
     <title>ACSK HOSPICE INC acquires ANGELS CARE HOSPICE OF MCCOOK and 1 more from COMMUNITY HOSPITAL ASSOCIATION; HOME NURSING COMPANY, INC (NE, VA)</title>
@@ -347,12 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-kindful-health-llc-2026-02-03"/>
     <updated>2026-11-23T15:17:39.658480+00:00</updated>
     <summary>Effective 2026-02-03; Facilities: KINDFUL HEALTH; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:f0c85516-ed41-47ec-a404-02ea4710e91c</id>
-    <title>ACG NORTH TEXAS, LLC acquires ACG HOSPICE from PATHWAY HOLDINGS LLC (TX)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-acg-north-texas-llc-2026-02-03"/>
-    <updated>2026-11-23T15:17:39.346206+00:00</updated>
-    <summary>Effective 2026-02-03; Facilities: ACG HOSPICE; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
