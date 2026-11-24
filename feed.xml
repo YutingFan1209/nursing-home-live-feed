@@ -4,7 +4,161 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-24T15:48:44.051154+00:00</updated>
+  <updated>2026-11-24T16:48:23.285728+00:00</updated>
+  <entry>
+    <id>urn:uuid:78e7c2f6-be3d-4826-967a-41dbdbe994e2</id>
+    <title>ACSK HOSPICE INC acquires ANGELS CARE HOSPICE OF MCCOOK and 1 more from COMMUNITY HOSPITAL ASSOCIATION; HOME NURSING COMPANY, INC (NE, VA)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-acsk-hospice-inc-2025-11-17"/>
+    <updated>2026-11-24T16:47:40.409017+00:00</updated>
+    <summary>Effective 2025-11-17; Facilities: ANGELS CARE HOSPICE OF MCCOOK, ANGELS CARE HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:faa79333-b9fd-490e-a6d4-a5b437cec098</id>
+    <title>NEW ENGLAND INNOVATIVE HEALTH CARE PLLC acquires PATHWAYS HEALTHCARE from ERWINES HOME HEALTH AND HOSPICE, INC (PA)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-new-england-innovative-health-care-pllc-2026-10-01"/>
+    <updated>2026-11-24T16:47:40.394363+00:00</updated>
+    <summary>Facilities: PATHWAYS HEALTHCARE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0a8f89ff-ab1c-489f-a8e8-5fb99806b42a</id>
+    <title>CENTRIX FUND I LP acquires a facility in OK from GOOD JOURNEY HOSPICE LLC (OK)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-centrix-fund-i-lp-2026-10-01"/>
+    <updated>2026-11-24T16:47:40.381343+00:00</updated>
+    <summary>Facilities: ANTHEM HOSPICE OF OKLAHOMA CITY LLC; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:dabfe404-eba7-4397-a5b3-8242455a5928</id>
+    <title>MEDHOLDINGS CAPITAL, LLC- SERIES 2 acquires a facility in PR from CUIDADO CASERO HOSPICE, INC. (PR)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-medholdings-capital-llc-series-2-2026-10-01"/>
+    <updated>2026-11-24T16:47:40.367713+00:00</updated>
+    <summary>Facilities: NOVA HOSPICE LLC; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:de83033f-2696-42b6-ac06-b35a552775b5</id>
+    <title>CHS OF MICHIGAN LLC acquires CARING HOSPICE OF MICHIGAN from LINKENZ LLC (MI)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-chs-of-michigan-llc-2025-10-01"/>
+    <updated>2026-11-24T16:47:40.353238+00:00</updated>
+    <summary>Effective 2025-10-01; Facilities: CARING HOSPICE OF MICHIGAN; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e8a0afbc-ce21-47d5-b839-f433cd317825</id>
+    <title>RMC ENTERPRISES LLC acquires ROCKY MOUNTAIN HOSPICE - UTAH from VALI DIVISION OF WASATCH, INC (UT)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-rmc-enterprises-llc-2025-10-01"/>
+    <updated>2026-11-24T16:47:40.285168+00:00</updated>
+    <summary>Effective 2025-10-01; Facilities: ROCKY MOUNTAIN HOSPICE - UTAH; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:c085b49a-1d3c-412b-a04d-13c9c1d6f45f</id>
+    <title>PINNACLE HOSPICE LLC acquires PINNACLE HOSPICE from AVERY HOSPICE LLC (TX)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-pinnacle-hospice-llc-2026-07-01"/>
+    <updated>2026-11-24T16:47:40.271526+00:00</updated>
+    <summary>Facilities: PINNACLE HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:06e72027-36d2-4922-8d95-ebd5f30150d4</id>
+    <title>TEXAS HEALTHCARE SOLUTIONS, INC. acquires a facility in TX from BIRCH HOSPICE LLC (TX)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-texas-healthcare-solutions-inc-2026-07-01"/>
+    <updated>2026-11-24T16:47:40.257119+00:00</updated>
+    <summary>Facilities: TEXAS HEALTHCARE SOLUTIONS, INC.; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b5e4fd3e-1905-4f40-8b94-78a9791d738d</id>
+    <title>ARDEN HOME HEALTH AND HOSPICE LLC acquires a facility in TN from UNITY HOSPICE CARE OF TENNESSEE, LLC (TN)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-arden-home-health-and-hospice-llc-2026-07-01"/>
+    <updated>2026-11-24T16:47:40.242955+00:00</updated>
+    <summary>Facilities: ARDEN HOSPICE OF SOUTHERN TENNESSEE, LLC; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:4c28ec86-f539-4ae8-b679-4ef7243819a3</id>
+    <title>MORRIS HEALTH MANAGEMENT LLC acquires LONGWOOD HOSPICE from LONGWOOD HOSPICE LLC (MA)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-morris-health-management-llc-2026-04-01"/>
+    <updated>2026-11-24T16:47:40.229863+00:00</updated>
+    <summary>Facilities: LONGWOOD HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:da47ab47-4f97-4c4c-b9fd-b9143e583c9e</id>
+    <title>STCH MCHS WI ACQUISITIONCO LLC acquires ST CROIX HOSPICE and 1 more from MAYO CLINIC HEALTH SYSTEM-NORTHWEST WISCONSIN REGION INC; MAYO CLINIC HEALTH SYSTEM-SOUTHWEST WISCONSIN REGION, INC. (WI)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-stch-mchs-wi-acquisitionco-llc-2025-09-01"/>
+    <updated>2026-11-24T16:47:40.215707+00:00</updated>
+    <summary>Effective 2025-09-01; Facilities: ST CROIX HOSPICE, ST CROIX HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:b35f72be-a8db-4c8f-8348-e654c74d6259</id>
+    <title>MISSION HEALTH SERVICES acquires TRUE NORTH HOSPICE from ANGELS CROSSING HOME HOSPICE PLLC (UT)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-mission-health-services-2026-04-01"/>
+    <updated>2026-11-24T16:47:40.200876+00:00</updated>
+    <summary>Facilities: TRUE NORTH HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:44e5035f-f34f-4ddd-8a4a-152adc4a7b25</id>
+    <title>MISSION HOME AND COMMUNITY SERVICES LLC acquires MORNINGSIDE MINISTRIES MORNINGSIDE MANOR from TLC HOSPICE OF AUSTIN LLC (TX)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-mission-home-and-community-services-llc-2026-04-01"/>
+    <updated>2026-11-24T16:47:40.185629+00:00</updated>
+    <summary>Facilities: MORNINGSIDE MINISTRIES MORNINGSIDE MANOR; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6d17fb18-ba31-4639-aff7-65fda5c11bab</id>
+    <title>CP TX HOLDINGS LLC acquires COVENANT HEALTH AT HOME WITH COMPASSUS, HOSPICE OF LUBBOCK from HOSPICE OF LUBBOCK INC (TX)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-cp-tx-holdings-llc-2026-04-01"/>
+    <updated>2026-11-24T16:47:40.170012+00:00</updated>
+    <summary>Facilities: COVENANT HEALTH AT HOME WITH COMPASSUS, HOSPICE OF LUBBOCK; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:3afaea2f-63dc-4dc3-9ee2-d75dbabdee26</id>
+    <title>CORNERSTONE HEALTHCARE INC acquires SIGNATURE HEALTHCARE AT HOME and 1 more from SIGNATURE HOSPICE BEND, LLC; SIGNATURE HOSPICE OREGON COAST, LLC (OR)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-cornerstone-healthcare-inc-2026-04-01"/>
+    <updated>2026-11-24T16:47:40.154715+00:00</updated>
+    <summary>Facilities: SIGNATURE HEALTHCARE AT HOME, SIGNATURE HEALTHCARE AT HOME; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:30f97e57-2538-4cea-90be-cd9b26cefc3c</id>
+    <title>ECHO WEST LLC acquires a facility in TX from SCURRY COUNTY HOSPITAL DISTRICT (TX)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-echo-west-llc-2026-01-21"/>
+    <updated>2026-11-24T16:47:40.139002+00:00</updated>
+    <summary>Facilities: WEST TEXAS HOSPICE, LLC; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e9d39d79-a249-4a1b-8187-74f0960c5d03</id>
+    <title>NOVUS LIFECARE HOSPICE OF CLINTON LLC acquires NOVUS LIFECARE from GOLDEN VALLEY MEMORIAL HOSPITAL DISTRICT (MO)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-novus-lifecare-hospice-of-clinton-llc-2026-01-21"/>
+    <updated>2026-11-24T16:47:40.123298+00:00</updated>
+    <summary>Facilities: NOVUS LIFECARE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:2ab55120-c4a4-4cd2-9ec3-afd6944f6167</id>
+    <title>THC INC. acquires a facility in GA from TRANSITIONS HOSPICE CARE OF GEORGIA, INC (GA)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-thc-inc-2025-01-29"/>
+    <updated>2026-11-24T16:47:40.106945+00:00</updated>
+    <summary>Effective 2025-01-29; Facilities: TRANSITIONS HOSPICE INC; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6486ae36-35c9-412d-9cb5-5e1a5183eba6</id>
+    <title>ABODE HEALTHCARE, INC. acquires HAVEN HOSPICE from NORTH CENTRAL FLORIDA HOSPICE, INC. (FL)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-abode-healthcare-inc-2026-01-21"/>
+    <updated>2026-11-24T16:47:40.089302+00:00</updated>
+    <summary>Facilities: HAVEN HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0f8dd991-fc42-4a99-ad2e-eb8e28ee3dd4</id>
+    <title>SEVEN SPECIES LLC acquires BREEZE HOSPICE from BREEZE HOSPICE LLC (IL)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-seven-species-llc-2026-01-21"/>
+    <updated>2026-11-24T16:47:40.069410+00:00</updated>
+    <summary>Facilities: BREEZE HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:70ce0a76-a2cb-432e-865b-3740b8a8ef9f</id>
+    <title>SANFORD acquires GOOD SAMARITAN SOCIETY - HOSPICE from THE MARY LANNING MEMORIAL HOSPITAL ASSOCIATION (NE)</title>
+    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-sanford-2026-01-21"/>
+    <updated>2026-11-24T16:47:36.015981+00:00</updated>
+    <summary>Facilities: GOOD SAMARITAN SOCIETY - HOSPICE; Source: CMS Hospice Ownership Changes</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:56904d7c-e24f-4b2a-b299-9818e41f0093</id>
+    <title>CARING HEART REHABILITATION AND NURSING CENTER, INC. — UCC-1 financing (PA)</title>
+    <link href="https://file.dos.pa.gov/search/ucc"/>
+    <updated>2026-11-24T16:15:24.479064+00:00</updated>
+    <summary>Effective 2026-11-16; Facilities: CARING HEART REHABILITATION AND NURSING CENTER, INC.; Source: State UCC-1 Filings</summary>
+  </entry>
   <entry>
     <id>urn:uuid:e201e6ad-157e-4267-976a-e6295d66b705</id>
     <title>INGLEWOOD POST ACUTE CARE LLC acquires INGLEWOOD HEALTHCARE CENTRE from INGLEWOOD OPERATING COMPANY LP (CA)</title>
@@ -200,159 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-heart-to-heart-hospice-holdings-llc-2026-01-30"/>
     <updated>2026-11-23T15:17:39.279155+00:00</updated>
     <summary>Effective 2026-01-30; Facilities: STAND BY U HOSPICE CARE INC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5e1be26e-77db-42e5-be4f-42fde401eb93</id>
-    <title>CHARISE HEALTHCARE LLC acquires CHARISE HOSPICE CARE LLC (TX)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-charise-healthcare-llc-2026-01-01"/>
-    <updated>2026-11-23T15:17:39.235949+00:00</updated>
-    <summary>Effective 2026-01-01; Facilities: CHARISE HOSPICE CARE LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:45946f12-c6e8-455f-be42-b7d58f232736</id>
-    <title>MERCY HEALTH CORPORATION acquires FHN HOSPICE (IL)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-mercy-health-corporation-2026-01-01"/>
-    <updated>2026-11-23T15:17:39.154391+00:00</updated>
-    <summary>Effective 2026-01-01; Facilities: FHN HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0bb0c88a-b4ef-4e6b-a60e-e16f133fe64a</id>
-    <title>HARTFORD HEALTHCARE AT HOME, INC acquires GREATER MANCHESTER HOMECARE, LLC from PROSPECT HOME HEALTH AND HOSPICE LLC (CT)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-hartford-healthcare-at-home-inc-2026-01-01"/>
-    <updated>2026-11-23T15:17:38.940926+00:00</updated>
-    <summary>Effective 2026-01-01; Facilities: GREATER MANCHESTER HOMECARE, LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:776f3a85-8251-42c1-951b-793a87b342c7</id>
-    <title>ADVENTIST HEALTH SYSTEM SUNBELT HEALTHCARE CORPORATION acquires ADVENTHEALTH HOSPICE (CO)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-adventist-health-system-sunbelt-healthcare-corporation-2026-01-01"/>
-    <updated>2026-11-23T15:17:38.668739+00:00</updated>
-    <summary>Effective 2026-01-01; Facilities: ADVENTHEALTH HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:86e7793d-80d3-40de-9f11-eef907dfaf09</id>
-    <title>CASCADIA HOSPICE OF CALIFORNIA LLC acquires SHORES HOSPICE LLC from ELIS LLC (CA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-cascadia-hospice-of-california-llc-2025-12-31"/>
-    <updated>2026-11-23T15:17:38.608066+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: SHORES HOSPICE LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b8627efe-a918-4b9e-8c9e-4abcb9687e8d</id>
-    <title>KJTM LLC acquires PEAK HOSPICE (UT)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-kjtm-llc-2025-12-31"/>
-    <updated>2026-11-23T15:17:38.565282+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: PEAK HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:21634e02-2d52-4e7c-b57a-147a70d0decc</id>
-    <title>ACTS RETIREMENT-LIFE COMMUNITIES INC acquires ACTS HOSPICE OF PENNSYLVANIA (PA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-acts-retirement-life-communities-inc-2025-12-31"/>
-    <updated>2026-11-23T15:17:38.433434+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: ACTS HOSPICE OF PENNSYLVANIA; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:25b197e1-5dcc-4a2a-a425-0f100ddcf149</id>
-    <title>UNIVERSITY HEALTH SERVICES,INC acquires TRINITY HOSPICE and 1 more from EASTERN GEORGIA PARTNERSHIP LLC (GA, SC)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-university-health-services-inc-2025-12-31"/>
-    <updated>2026-11-23T15:17:38.144857+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: TRINITY HOSPICE, TRINITY HOSPICE OF AIKEN; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:591cb3c8-031a-4444-9666-0cf4de321b03</id>
-    <title>PERA HCA HOLDCO LLC acquires COLORADO PALLIATIVE &amp; HOSPICE CARE OF COLORADO SPRINGS LLC and 2 more from HOSPICE CARE OF AMERICA LLC (CO, KS)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-pera-hca-holdco-llc-2025-12-31"/>
-    <updated>2026-11-23T15:17:38.012473+00:00</updated>
-    <summary>Effective 2025-12-31; Facilities: COLORADO PALLIATIVE &amp; HOSPICE CARE OF COLORADO SPRINGS LLC, COLORADO PALLIATIVE &amp; HOSPICE CARE LLC, KANSAS PALLIATIVE &amp; HOSPICE CARE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:8291ab28-ad1e-4eeb-a823-e90df91ee8bc</id>
-    <title>GOLDEN RULE HOSPICE HOLDCO, LLC acquires GOLDEN RULE HOSPICE, LLC (GA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-golden-rule-hospice-holdco-llc-2025-12-22"/>
-    <updated>2026-11-23T15:17:37.871668+00:00</updated>
-    <summary>Effective 2025-12-22; Facilities: GOLDEN RULE HOSPICE, LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7bcfec56-5d70-4646-8254-3c874e7b11a2</id>
-    <title>ASPEN HEALTHCARE MIDCO HOLDINGS LLC acquires ASPEN HOSPICE and 3 more from LIAHONA INC (AZ, ID, TX, UT)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-aspen-healthcare-midco-holdings-llc-2025-12-15"/>
-    <updated>2026-11-23T15:17:37.675563+00:00</updated>
-    <summary>Effective 2025-12-15; Facilities: ASPEN HOSPICE, ASPEN HOME HEALTH AND HOSPICE, UTAH HOME HEALTH AND HOSPICE LLC, ASPEN HOSPICE AND PALLIATIVE CARE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7d2a03df-5c1b-427f-84a4-67aadd2987e8</id>
-    <title>AMORE HOSPICE INC acquires ANARA HOSPICE (CA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-amore-hospice-inc-2025-12-12"/>
-    <updated>2026-11-23T15:17:37.533258+00:00</updated>
-    <summary>Effective 2025-12-12; Facilities: ANARA HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e963684c-b742-4386-ac9d-af96393e6aea</id>
-    <title>SENKO HOLDING II acquires CURA-HPC EDMOND from CURA-HPC, LLC (OK)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-senko-holding-ii-2025-12-10"/>
-    <updated>2026-11-23T15:17:36.893403+00:00</updated>
-    <summary>Effective 2025-12-10; Facilities: CURA-HPC EDMOND; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bcd139ad-33f9-489e-bab0-42d334d99273</id>
-    <title>VIRGINIA HOLDINGS TOPCO, LLC acquires TRADITIONS HEALTH from TRADITIONS HEALTH, LLC (VA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-virginia-holdings-topco-llc-2025-12-03"/>
-    <updated>2026-11-23T15:17:36.410573+00:00</updated>
-    <summary>Effective 2025-12-03; Facilities: TRADITIONS HEALTH; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c21fdcaa-fbf7-4275-8854-fc643c152ce5</id>
-    <title>VCG NEBRASKA BUYER, LLC acquires ST CROIX HOSPICE from TRADITIONS HEALTH, LLC (NE)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-vcg-nebraska-buyer-llc-2025-12-03"/>
-    <updated>2026-11-23T15:17:36.365962+00:00</updated>
-    <summary>Effective 2025-12-03; Facilities: ST CROIX HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:4f1251ef-053c-4e11-91ae-0b9691a91142</id>
-    <title>LIFECARE HOME HEALTH INTERMEDIATE SUB LLC acquires TRADITIONS HEALTH and 3 more from TRADITIONS HEALTH, LLC (GA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-lifecare-home-health-intermediate-sub-llc-2025-12-03"/>
-    <updated>2026-11-23T15:17:36.331165+00:00</updated>
-    <summary>Effective 2025-12-03; Facilities: TRADITIONS HEALTH, TRADITIONS HEALTH, ETERNAL FAITH HOSPICE AND PALLIATIVE CARE, TRADITIONS HEALTH; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:707035b0-3a05-4a6f-89a0-ecfb1bb259e1</id>
-    <title>BRISTOL HOSPICE, L.L.C. acquires DAYSPRING HOSPICE, LLC from FAMILY HOSPICE GROUP, LLC (AL)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-bristol-hospice-l-l-c-2025-12-03"/>
-    <updated>2026-11-23T15:17:36.293294+00:00</updated>
-    <summary>Effective 2025-12-03; Facilities: DAYSPRING HOSPICE, LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0c938541-0c30-4587-b38a-40c1ff8144b2</id>
-    <title>AT HOME HOLDINGS, INC. acquires VITALCARING GROUP and 22 more from TRADITIONS HEALTH, LLC (AL, AZ, CA, LA, MS, NV, OK, OR, TX)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-at-home-holdings-inc-2025-12-03"/>
-    <updated>2026-11-23T15:17:36.249926+00:00</updated>
-    <summary>Effective 2025-12-03; Facilities: VITALCARING GROUP, VITALCARING GROUP, VITALCARING GROUP, VITALCARING GROUP, TRADITIONS HEALTH; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:64237e79-1c78-44f9-b0b8-278721f26df0</id>
-    <title>CADRE HOSPICE - GEORGIA HOLDINGS LLC acquires INSPIRE HOSPICE AND PALLIATIVE CARE, INC. from ANDERSON HEALTHCARE CONSULTING, LLC (GA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-cadre-hospice-georgia-holdings-llc-2025-12-01"/>
-    <updated>2026-11-23T15:17:36.209985+00:00</updated>
-    <summary>Effective 2025-12-01; Facilities: INSPIRE HOSPICE AND PALLIATIVE CARE, INC.; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5c245f99-9430-4f1d-9a91-fc150314e587</id>
-    <title>ADORATION HOSPICE CARE ACQUISITIONS, LLC acquires ADORATION HOSPICE and 1 more from WEST VIRGINIA HEALTH CARE GROUP, LLC (WV)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-adoration-hospice-care-acquisitions-llc-2025-12-01"/>
-    <updated>2026-11-23T15:17:36.066367+00:00</updated>
-    <summary>Effective 2025-12-01; Facilities: ADORATION HOSPICE, ADORATION HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:21ad2209-d3e2-41d6-be68-5d1eaf92bce9</id>
-    <title>AT TWILIGHT HOSPICE &amp; PALLIATIVE CARE LLC A DELAWARE LLC acquires DEL CORAZON HOSPICE LLC from HAVERLAND CARTER LIFESTYLE GROUP PRORERTY HOLDINGS LLC (NM)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-at-twilight-hospice-palliative-care-llc-a-delaware-llc-2025-12-01"/>
-    <updated>2026-11-23T15:17:35.905268+00:00</updated>
-    <summary>Effective 2025-12-01; Facilities: DEL CORAZON HOSPICE LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7acb1d87-202c-40ec-993b-8ee290b8b903</id>
-    <title>Murray Drive SNF OpCo LLC — UCC-1 financing (NM)</title>
-    <link href="https://enterprise.sos.nm.gov/search/ucc"/>
-    <updated>2026-11-23T15:16:08.607540+00:00</updated>
-    <summary>Effective 2026-11-18; Facilities: Murray Drive SNF OpCo LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
