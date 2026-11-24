@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { open, card, columns, IDS, fixture } from "./helpers.js";
+import { nameOverlap, sameName, uccWhyNow, mergeUccDuplicates, groupUccBatches, statusMeaning } from "../src/derive.js";
 
 // Column roles, in order: who, counterparty, where, when
 const ROLE_LABELS = [
@@ -11,15 +12,26 @@ const ROLE_LABELS = [
 ];
 
 test.describe("cards", () => {
-  test("(a) every card shows four labeled columns in the same order", async ({ page }) => {
+  test("(a) every card shows four labeled columns in the same order; UCC cards show lender and filing date, nothing more", async ({ page }) => {
+    let ucc = 0;
     for (const tab of ["", "financing"]) {
       await open(page, `scope=1${tab ? `&tab=${tab}` : ""}`);
       const cards = page.locator('article[id^="record-"]');
       const n = await cards.count();
       expect(n).toBeGreaterThan(0);
       for (let i = 0; i < n; i++) {
-        const cols = await columns(cards.nth(i));
         const id = await cards.nth(i).getAttribute("id");
+        if (await cards.nth(i).getAttribute("data-source") === "ucc") {
+          ucc++;
+          const text = await cards.nth(i).innerText();
+          expect(text, id).toMatch(/Lender\s*\S/);
+          expect(text, id).toMatch(/Filed [A-Z][a-z]{2} \d{1,2}, \d{4}/);
+          // the face stays short: the filing number and portal link live in Details
+          expect(text, id).not.toMatch(/Filings? #\S+/);
+          expect(text.split("\n").filter(l => l.trim()).length, `${id} face lines`).toBeLessThanOrEqual(5);
+          continue;
+        }
+        const cols = await columns(cards.nth(i));
         expect(cols.map(c => c.label), id).toHaveLength(4);
         cols.forEach((c, j) => {
           expect(c.label, `${id} column ${j + 1}`).toMatch(ROLE_LABELS[j]);
@@ -27,6 +39,7 @@ test.describe("cards", () => {
         });
       }
     }
+    expect(ucc, "fixture has a UCC card").toBeGreaterThan(0);
   });
 
   test("(b) missing values say why, never blank", async ({ page }) => {
@@ -51,10 +64,10 @@ test.describe("cards", () => {
     }
   });
 
-  test("(d) UCC filings show On file", async ({ page }) => {
+  test("(d) UCC filings against a person say so, and never Confirmed", async ({ page }) => {
     await open(page, "tab=financing");
     const c = card(page, IDS.individualUcc);
-    await expect(c).toContainText("On file");
+    await expect(c).toContainText("Filed against an individual");
     expect(await c.innerText()).not.toMatch(/\bConfirmed\b/);
   });
 });
@@ -111,7 +124,7 @@ test.describe("(f) keyboard", () => {
   }
 });
 
-test("(g) Details has four sections and a working permalink", async ({ page }) => {
+test("(g) Details has four sections (UCC: three groups) and a working permalink", async ({ page }) => {
   await open(page);
   const id = IDS.pendingSale;
   await card(page, id).getByRole("button", { name: "Details" }).click();
@@ -122,6 +135,28 @@ test("(g) Details has four sections and a working permalink", async ({ page }) =
   expect(href).toMatch(new RegExp(`\\?id=${id}$`));
   await page.goto(href);
   await expect(page.getByRole("region", { name: "Single record" }).locator(`#record-${id}`)).toBeVisible();
+
+  // UCC-1: the filing / what we matched / about this record (collapsed)
+  await open(page, "tab=financing");
+  const u = IDS.individualUcc;
+  await card(page, u).getByRole("button", { name: "Details" }).click();
+  const ud = page.locator(`#details-${u}`);
+  await expect(ud.locator("h3")).toHaveText(["The filing", "What we matched, and how sure we are", "About this record"]);
+  await expect(ud).toContainText("Recorded with the state; we have not checked whether it has since lapsed or been terminated.");
+  // no collateral text and no inferred guess: no collateral row at all
+  await expect(ud).not.toContainText("Collateral");
+  await expect(ud).toContainText("FiledSep 25, 2026 · found Oct 2");
+  // possible homes are linked rows: "Name · City, ST (CCN …)"
+  await expect(ud.getByRole("link", { name: /\(CCN 335063\)$/ })).toHaveAttribute("href", "?ccn=335063");
+  await expect(ud.getByRole("link", { name: /NY UCC-1 filing #20260925130862-8/ })).toBeVisible();
+  const text = await ud.innerText();
+  for (const gone of [/^Type\b/m, /^Source type/m, /^Sources\b/m, /^Location/m, /^Facility type/m, /Narrative context/, /Linked CMS owner/, /Found by tracker/])
+    expect(text, `${gone} should not be in UCC Details`).not.toMatch(gone);
+  await expect(ud.getByText(u, { exact: true })).toBeHidden();
+  await ud.getByText("About this record").click();
+  await expect(ud.getByText(u, { exact: true })).toBeVisible();
+  const uhref = await ud.getByRole("link", { name: "Permalink to this record" }).getAttribute("href");
+  expect(uhref).toMatch(new RegExp(`\\?id=${u}$`));
 });
 
 test("(h) no horizontal scroll at 375px", async ({ page }) => {
@@ -201,7 +236,7 @@ test("(k2) long collateral starts at three lines and expands", async ({ page }) 
   await expect(details.getByRole("button", { name: "show less" })).toHaveAttribute("aria-expanded", "true");
 });
 
-test("(l) a UCC filing without a summary shows its written-from-record narrative", async ({ page }) => {
+test("(l) UCC Details leave out the written-from-record narrative (the groups above cover it)", async ({ page }) => {
   const d = { ...fixture.deals.find(x => x.id === IDS.individualUcc), summary: null,
     ucc_narrative: "Likely refinancing: the borrower had an earlier loan from a different lender." };
   await page.route(/deals\.json/, route => route.fulfill({
@@ -209,6 +244,37 @@ test("(l) a UCC filing without a summary shows its written-from-record narrative
   await page.goto("./?tab=financing");
   await card(page, d.id).getByRole("button", { name: "Details" }).click();
   const details = page.locator(`#details-${d.id}`);
-  await expect(details).toContainText("Narrative context" + d.ucc_narrative);
-  await expect(details).toContainText("From the filing and CMS records, not from a document.");
+  await expect(details).toBeVisible();
+  await expect(details).not.toContainText(d.ucc_narrative);
+  await expect(details).not.toContainText("Narrative context");
+});
+
+test("(m) UCC card logic: names, why-now lines, duplicates, batches", () => {
+  // names: one repeated name is hidden, a second entity is not
+  expect(sameName("Alpine Manor OpCo LLC", "ALPINE MANOR NURSING CENTER")).toBe(true);
+  expect(sameName("X Realty LLC; Alpine Manor OpCo LLC", "Alpine Manor Nursing Center")).toBe(false);
+  expect(nameOverlap("Sunrise Holdings LLC", "Bayview Care Center")).toBe(0);
+
+  // why now: a CMS fact first, the reading second, nothing invented
+  const sale = { acquisition_date: "2026-04-15", cms_sale: { date: "2026-01-01", buyer: "B", seller: "S" },
+    ucc_context: { label: "Likely purchase financing" }, ccns: ["1"] };
+  expect(uccWhyNow(sale)).toEqual([{ tag: "Per CMS", text: "Filed 3 months after a sale CMS recorded to B (from S), effective 2026-01-01." }]);
+  expect(uccWhyNow({ ...sale, cms_sale: { ...sale.cms_sale, date: "2026-04-25" } })[0].text).toMatch(/^Filed 10 days before/);
+  expect(uccWhyNow({ acquisition_date: "2026-04-15", ucc_context: { owner_since: "2015-07-20", label: "Likely refinancing with a new lender" }, ccns: ["1"] }))
+    .toEqual([{ tag: "Per CMS", text: "CMS lists the home's current owner since 2015-07-20." },
+              { tag: "Inferred", text: "Likely refinancing with a new lender." }]);
+  expect(uccWhyNow({ acquisition_date: "2026-04-15", ucc_context: { owner_since: "2015-07-20" }, ccns: ["1", "2"] })).toEqual([]);
+  expect(uccWhyNow({ acquisition_date: "2026-04-15" })).toEqual([]);
+
+  // duplicates merge on lender + day + first CCN; batches need 3+; unknown (NJ) lenders never group
+  const f = (id, lender, ccn, day = "2026-10-27") => ({ id, source_type: "ucc", lender, published_at: day, ccns: ccn ? [ccn] : [] });
+  const merged = mergeUccDuplicates([f("a", "HUD", "1"), f("b", "HUD", "1"), f("c", "HUD", "2"), f("d", "HUD", null)]);
+  expect(merged.map(d => d.id)).toEqual(["a", "c", "d"]);
+  expect(merged[0].merged.map(d => d.id)).toEqual(["a", "b"]);
+  const nj = "Not available — NJ UCC search doesn't return lender names";
+  const items = groupUccBatches([f("n1", nj, "7"), f("n2", nj, "8"), f("n3", nj, "9"), ...merged, f("x", "Bank", "5")]);
+  expect(items.map(i => i.batch ? i.batch.map(d => d.id).join("+") : i.id)).toEqual(["n1", "n2", "n3", "a+c+d", "x"]);
+
+  // the status note never claims the filing is still active
+  expect(statusMeaning({ source_type: "ucc" })).toBe("Recorded with the state; we have not checked whether it has since lapsed or been terminated.");
 });
