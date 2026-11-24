@@ -104,3 +104,66 @@ def test_cms_cards_skip_the_judge():
     from evals.holds import auto_approved
     assert auto_approved({"source_type": "chow"})
     assert not any(auto_approved({"source_type": t}) for t in ("rss", "ucc", "con", "edgar", "gmail"))
+
+
+# ── re-enrollment: same CCN, new enrollment ID (2026-11-24) ─────────────
+
+def _reenroll(tmp_path, monkeypatch, enroll_new, enroll_old, owners_new, owners_old, pos=None, seen=None):
+    monkeypatch.setattr(p, "_get", lambda url: url)
+    fs = {"enrollment_releases": [("2026-10-01", _write(tmp_path / "en_new.csv", ENROLL_COLS, enroll_new)),
+                                  ("2026-07-01", _write(tmp_path / "en_old.csv", ENROLL_COLS, enroll_old))],
+          "owner_releases": [("2026-10-01", _write(tmp_path / "own_new.csv", OWNER_COLS, owners_new)),
+                             ("2026-07-01", _write(tmp_path / "own_old.csv", OWNER_COLS, owners_old))]}
+    return p.reenrollments("hospice", fs, seen or set(), pos or {}, today=date(2026, 11, 24))
+
+
+def test_new_enrollment_on_same_ccn_is_a_sale(tmp_path, monkeypatch):
+    events, internal = _reenroll(tmp_path, monkeypatch,
+                                 enroll_new=[_enr("E2", "371660", "ANTHEM HOSPICE OF OKLAHOMA CITY LLC")],
+                                 enroll_old=[_enr("E1", "371660", "GOOD JOURNEY HOSPICE LLC")],
+                                 owners_new=[_own("E2", "CENTRIX FUND I LP", "01/01/2020")],  # old date: owner diff misses it
+                                 owners_old=[_own("E1", "JOURNEY HOLDINGS INC", "01/01/2018")],
+                                 pos={"371660": date(2026, 2, 1)})
+    assert internal == 0 and len(events) == 1
+    e = events[0]
+    assert (e["old_legal"], e["new_legal"], e["owners"], e["date"]) == (
+        "GOOD JOURNEY HOSPICE LLC", "ANTHEM HOSPICE OF OKLAHOMA CITY LLC", ["CENTRIX FUND I LP"], date(2026, 2, 1))
+    a = p._reenrollment_articles("hospice", events)[0]
+    assert (a["acquiring_entity"], a["seller_entity"], a["ccns"], a["acquisition_date"]) == (
+        "CENTRIX FUND I LP", "GOOD JOURNEY HOSPICE LLC", ["371660"], "2026-02-01")
+    assert a["extraction_model"] == "cms_hospice_owner_change"
+
+
+def test_shared_owner_or_same_system_is_internal(tmp_path, monkeypatch):
+    events, internal = _reenroll(tmp_path, monkeypatch,
+                                 enroll_new=[_enr("E2", "511523", "AMEDISYS HOSPICE, L.L.C."),
+                                             _enr("E4", "421540", "PRISMA HEALTH-MIDLANDS")],
+                                 enroll_old=[_enr("E1", "511523", "TENDER LOVING CARE OF WV, LLC"),
+                                             _enr("E3", "421540", "PRISMA HEALTH TUOMEY")],
+                                 owners_new=[_own("E2", "AMEDISYS INC", "01/01/2010")],
+                                 owners_old=[_own("E1", "AMEDISYS INC", "01/01/2010")])
+    assert events == [] and internal == 2
+
+
+def test_buyer_keeping_the_name_is_still_a_sale(tmp_path, monkeypatch):
+    events, internal = _reenroll(tmp_path, monkeypatch,
+                                 enroll_new=[_enr("E2", "451600", "HOSPICE OF LUBBOCK LLC")],
+                                 enroll_old=[_enr("E1", "451600", "HOSPICE OF LUBBOCK INC")],
+                                 owners_new=[_own("E2", "CP TX HOLDINGS LLC", "02/01/2026")],
+                                 owners_old=[])
+    # same legal key ("HOSPICE OF LUBBOCK") -> a re-papering, left out
+    assert events == [] and internal == 1
+    events, internal = _reenroll(tmp_path, monkeypatch,
+                                 enroll_new=[_enr("E2", "451600", "LUBBOCK HOSPICE OPCO LLC")],
+                                 enroll_old=[_enr("E1", "451600", "HOSPICE OF LUBBOCK INC")],
+                                 owners_new=[_own("E2", "CP TX HOLDINGS LLC", "02/01/2026")],
+                                 owners_old=[])
+    assert len(events) == 1 and internal == 0
+
+
+def test_already_seen_sale_is_not_repeated(tmp_path, monkeypatch):
+    kw = dict(enroll_new=[_enr("E2", "371660", "ANTHEM HOSPICE LLC")],
+              enroll_old=[_enr("E1", "371660", "GOOD JOURNEY HOSPICE LLC")],
+              owners_new=[], owners_old=[])
+    events, _ = _reenroll(tmp_path, monkeypatch, seen={("371660", "SOMEONE", date(2026, 8, 1))}, **kw)
+    assert events == []  # an owner-diff card for this CCN within 120 days

@@ -37,7 +37,7 @@ from urllib.parse import quote
 from xml.sax.saxutils import escape
 from datetime import datetime, timezone
 
-sys.path.insert(0, "/Users/kitty/Projects/nursing-home-live-feed")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import psycopg2
 import requests
 from config import get_config

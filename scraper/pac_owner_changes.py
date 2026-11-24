@@ -132,7 +132,8 @@ def files(kind: str, catalog: list[dict] | None = None) -> dict:
         # the enrollment file published with it (dates differ by a day or two)
         e = min(enrolls, key=lambda x: abs((date.fromisoformat(x[0]) - date.fromisoformat(o[0])).days))
         return _get(o[1]), _get(e[1])
-    return {"latest": _get(owners[0][1]), "enrollments": _get(enrolls[0][1]), "release": release}
+    return {"latest": _get(owners[0][1]), "enrollments": _get(enrolls[0][1]), "release": release,
+            "owner_releases": owners, "enrollment_releases": enrolls}
 
 
 def _rows(path: Path) -> list[dict]:
@@ -296,6 +297,197 @@ def _article(kind: str, start: date, members: list, sellers: dict) -> dict:
     }
 
 
+# ── re-enrollment: same CCN, new enrollment ID (2026-11-24) ─────────────
+# A provider sold without the buyer taking over the seller's enrollment
+# (for a hospice, any sale within 36 months of enrolling) keeps its CCN but
+# gets a new enrollment ID under the buyer's legal name. The owner diff above
+# misses these when the new enrollment's owners carry old association dates
+# (7/2026 -> 9/2026 hospice files: 10 such CCNs, none in the 43 owner-diff
+# cards). Old and new enrollments sharing a company owner (or the same legal
+# name) are a company moving its own provider, not a sale.
+
+def _enrollment_index(kind: str, path: Path) -> dict[str, dict]:
+    """ccn -> {ids, legal, name, state, city} for providers in scope."""
+    out: dict[str, dict] = {}
+    for r in _rows(path):
+        if kind == "rehab" and r.get("SUBGROUP - REHABILITATION") != "Y":
+            continue
+        c = (r.get("CCN") or "").strip()
+        if not c:
+            continue
+        p = out.setdefault(c, {"ids": set(), "legal": r["ORGANIZATION NAME"].strip(),
+                               "name": (r.get("DOING BUSINESS AS NAME") or r["ORGANIZATION NAME"]).strip(),
+                               "state": r.get("STATE"), "city": r.get("CITY")})
+        p["ids"].add(r["ENROLLMENT ID"])
+    return out
+
+
+def _company_owners(path: Path, ids: set) -> dict[str, list[str]]:
+    """enrollment id -> 5%+ company owners (direct first), passive holders left out."""
+    out: dict[str, list[str]] = defaultdict(list)
+    roles = DIRECT_ROLES + INDIRECT_ROLES
+    for r in sorted(_rows(path), key=lambda r: r["ROLE TEXT - OWNER"] not in DIRECT_ROLES):
+        if (r["ENROLLMENT ID"] in ids and r["TYPE - OWNER"] == "O" and r["ROLE TEXT - OWNER"] in roles
+                and not _passive(r)):
+            name = _owner(r).upper()
+            if name not in out[r["ENROLLMENT ID"]]:
+                out[r["ENROLLMENT ID"]].append(name)
+    return out
+
+
+def _legal_key(name: str) -> str:
+    return " ".join(re.sub(r"\b(INC|LLC|L L C|CORP|CORPORATION|LP|LTD|CO|COMPANY|THE|PLLC|PC)\b|[^A-Z0-9 ]", " ",
+                           name.upper()).split())
+
+
+# Words too common to tie two organizations together
+_GENERIC = set("""HOSPICE HOME HOMES HEALTH HEALTHCARE CARE COMMUNITY COMMUNITIES CENTER CENTERS SERVICES SERVICE
+MEDICAL REGIONAL MEMORIAL HOSPITAL HOSPITALS SYSTEM SYSTEMS ASSOCIATION PARTNERS GROUP HOLDINGS LIFE FAMILY
+PALLIATIVE NURSING REHABILITATION REHAB SAINT COUNTY DISTRICT NORTH SOUTH EAST WEST CENTRAL NORTHWEST NORTHEAST
+SOUTHWEST SOUTHEAST GREATER AMERICA AMERICAN UNITED NATIONAL TEXAS FLORIDA GEORGIA MICHIGAN OHIO CALIFORNIA
+CAROLINA VIRGINIA TENNESSEE WISCONSIN ISLAND VALLEY AGENCY HOLDING CAPITAL FUND SERIES""".split())
+
+
+POS_LAG_DAYS = 270
+
+
+def _related_names(a: str, b: str) -> bool:
+    """Share a distinctive word (PRISMA HEALTH TUOMEY / PRISMA HEALTH-MIDLANDS):
+    a nonprofit system moving its own provider, which lists no company owner
+    to compare. Errs towards leaving a sale out."""
+    def words(s):
+        return {w for w in _legal_key(s).split() if len(w) >= 4 and w not in _GENERIC}
+    return bool(words(a) & words(b))
+
+
+def reenrollments(kind: str, fs: dict, seen: set, pos_dates: dict | None = None,
+                  skip_ccns: set | None = None, today: date | None = None) -> tuple[list[dict], int]:
+    """(events, internal moves) between consecutive enrollment releases of the
+    last RECENCY_DAYS. Each event: ccn, old/new legal names, the new
+    enrollment's company owners, window (old release, new release) and the
+    POS change-of-ownership date when it falls in that window."""
+    since = (today or date.today()) - timedelta(days=RECENCY_DAYS)
+    pos_dates, skip_ccns = pos_dates or {}, skip_ccns or set()
+    enrolls = [(date.fromisoformat(d), u) for d, u in fs["enrollment_releases"]]
+    owners = [(date.fromisoformat(d), u) for d, u in fs["owner_releases"]]
+    seen_ccn_days = defaultdict(list)
+    for c, _, d in seen:
+        seen_ccn_days[c].append(d)
+
+    def owner_file(day):
+        return _get(min(owners, key=lambda o: abs((o[0] - day).days))[1])
+
+    events, internal = [], 0
+    for (new_day, new_url), (old_day, old_url) in zip(enrolls, enrolls[1:]):
+        if new_day < since:
+            break
+        new, old = _enrollment_index(kind, _get(new_url)), _enrollment_index(kind, _get(old_url))
+        moved = [c for c in new if c in old and not (new[c]["ids"] & old[c]["ids"]) and c not in skip_ccns]
+        if not moved:
+            continue
+        new_own = _company_owners(owner_file(new_day), set().union(*(new[c]["ids"] for c in moved)))
+        old_own = _company_owners(owner_file(old_day), set().union(*(old[c]["ids"] for c in moved)))
+        for c in moved:
+            n_owners = [o for i in sorted(new[c]["ids"]) for o in new_own.get(i, [])]
+            o_owners = {o for i in old[c]["ids"] for o in old_own.get(i, [])}
+            # name overlap counts only when no unrelated company owner is
+            # listed: a buyer often keeps the name in a new LLC (Hospice of
+            # Lubbock -> CP TX Holdings)
+            related = (any(_related_names(old[c]["legal"], o) for o in n_owners) if n_owners
+                       else _related_names(old[c]["legal"], new[c]["legal"]))
+            if _legal_key(new[c]["legal"]) == _legal_key(old[c]["legal"]) or (set(n_owners) & o_owners) or related:
+                internal += 1
+                continue
+            # enrollment files lag the sale by up to ~9 months (Linkenz -> CHS
+            # of Michigan: POS 2025-10-01, enrollment change in the 7/2026 file)
+            pos = pos_dates.get(c)
+            when = pos if pos and old_day - timedelta(days=POS_LAG_DAYS) <= pos <= new_day + timedelta(days=30) else None
+            key_day = when or new_day
+            if (c, new[c]["legal"].upper(), key_day) in seen or any(
+                    isinstance(d, date) and abs((d - key_day).days) <= 120 for d in seen_ccn_days[c]):
+                continue
+            events.append({"ccn": c, "old_legal": old[c]["legal"], "new_legal": new[c]["legal"],
+                           "name": new[c]["name"], "state": new[c]["state"], "city": new[c]["city"],
+                           "owners": n_owners, "window": (old_day, new_day), "date": when, "key_day": key_day})
+    return events, internal
+
+
+def _reenrollment_articles(kind: str, events: list[dict]) -> list[dict]:
+    """Same buyer (5%+ company owner if listed, else the new legal name) in
+    the same release window -> one card."""
+    k = KINDS[kind]
+    groups = defaultdict(list)
+    for e in events:
+        buyer = e["owners"][0] if e["owners"] else e["new_legal"].upper()
+        groups[(buyer, e["window"])].append(e)
+    out = []
+    for (buyer, (old_day, new_day)), es in sorted(groups.items(), key=lambda g: g[0][1][1]):
+        es.sort(key=lambda e: e["ccn"])
+        one, many = k["noun"]
+        noun = one if len(es) == 1 else many
+        dates = sorted({e["date"] for e in es if e["date"]})
+        when = dates[0] if dates else None
+        sellers = sorted({e["old_legal"] for e in es})
+        states = sorted({e["state"] for e in es if e["state"]})
+        timing = (f"CMS change-of-ownership date {when.isoformat()} (Provider of Services file)" if when
+                  else f"between CMS's {old_day.isoformat()} and {new_day.isoformat()} enrollment files")
+        lines = [f"CMS {kind} enrollment file: same CCN, new enrollment", "",
+                 f"New enrolled organization: {', '.join(sorted({e['new_legal'] for e in es}))}"
+                 + (f" (5%+ owner: {buyer})" if es[0]["owners"] else ""),
+                 f"Previous enrolled organization: {'; '.join(sellers)}",
+                 f"When: {timing}",
+                 f"{noun.capitalize()} ({len(es)}):",
+                 *[f"  - {e['name']}, {e['city']}, {e['state']} (CCN {e['ccn']})" for e in es]]
+        slug = re.sub(r"[^a-z0-9]+", "-", buyer.lower()).strip("-")
+        day = when or new_day
+        out.append({
+            "url": f"{k['source_url']}#enrollment-{slug}-{day.isoformat()}",
+            "title": f"[CMS {kind.capitalize()} Enrollment] {buyer} took over {len(es)} {noun} ({', '.join(states)})",
+            "published_at": datetime.combine(new_day, datetime.min.time()).replace(tzinfo=timezone.utc),
+            "raw_text": "\n".join(lines), "source_name": k["source_name"], "source_url": k["source_url"],
+            "source_type": "chow", "pre_extracted": True, "extraction_model": k["model"],
+            "acquiring_entity": buyer, "seller_entity": "; ".join(sellers),
+            "operator_names": sorted({e["new_legal"] for e in es}),
+            "facility_names": [e["name"] for e in es], "states": states, "facility_count": len(es),
+            "deal_value_m": None, "acquisition_date": when.isoformat() if when else None,
+            "financing_amount_m": None, "lender": None,
+            "rationale": (f"The same Medicare CCN{'s' if len(es) > 1 else ''} moved from {'; '.join(sellers)} to a new "
+                          f"enrollment under {buyer}, {timing}; a new enrollment on an existing CCN is how CMS "
+                          "records a sale where the buyer doesn't take over the seller's enrollment."),
+            "ccns": [e["ccn"] for e in es], "_ccn_names": {e["ccn"]: (e["name"], e["state"]) for e in es},
+            "_cms_change_id": f"{kind}-enrollment|{buyer}|{day.isoformat()}",
+        })
+    return out
+
+
+# ── POS (iQIES) change-of-ownership dates for hospices ───────────────────
+POS_TITLE = "Provider of Services File - Internet Quality Improvement and Evaluation System"
+POS_HOSPICE_TYPE = "12"
+
+
+def pos_hospice_dates(catalog: list[dict] | None = None) -> dict[str, date]:
+    """ccn -> CHOW_DT of the most recent change of ownership, from the latest
+    quarterly iQIES POS file (~230 MB, cached; release list re-read every
+    REFRESH_MAX_AGE_DAYS)."""
+    state = CACHE / "pos.json"
+    known = json.loads(state.read_text()) if state.exists() else {}
+    if not known or (datetime.now(timezone.utc) - datetime.fromisoformat(known["checked"])).days >= REFRESH_MAX_AGE_DAYS:
+        if catalog is None:
+            catalog = requests.get(DATA_JSON, timeout=120).json()["dataset"]
+        rel = _releases(POS_TITLE, catalog)
+        known = {"checked": datetime.now(timezone.utc).isoformat(), "latest": rel[0][1] if rel else None}
+        CACHE.mkdir(parents=True, exist_ok=True)
+        state.write_text(json.dumps(known))
+    if not known.get("latest"):
+        return {}
+    out = {}
+    with open(_get(known["latest"]), encoding="latin-1", newline="") as f:
+        for r in csv.DictReader(f):
+            if r.get("prvdr_type_id") == POS_HOSPICE_TYPE and _day(r.get("chow_dt") or ""):
+                out[r["prvdr_num"].strip()] = _day(r["chow_dt"])
+    return out
+
+
 def _seen(conn) -> set:
     with conn.cursor() as cur:
         cur.execute("SELECT ccn, owner_name, start_date FROM cms_owner_change_seen")
@@ -324,15 +516,33 @@ def fetch_pac_owner_change_deals(conn, kinds=("hospice", "rehab"), mark_seen: bo
     for kind in kinds:
         try:
             fs = files(kind, catalog)
-            rows, changes, sellers, restructures = candidates(kind, fs, _seen(conn))
+            seen = _seen(conn)
+            rows, changes, sellers, restructures = candidates(kind, fs, seen)
             articles, internal = build(kind, rows, changes, sellers)
+            pos = {}
+            if kind == "hospice":
+                try:
+                    pos = pos_hospice_dates(catalog)
+                except Exception as e:
+                    logger.warning(f"POS hospice CHOW dates skipped: {e}")
+            events, moved_internal = reenrollments(kind, fs, seen, pos, skip_ccns={c for c, _ in changes})
+            articles += _reenrollment_articles(kind, events)
             sid = ensure_source(conn, kind)
             for a in articles:
                 a["source_id"] = sid
             if mark_seen:
-                _mark_seen(conn, rows)
+                _mark_seen(conn, rows + [{"ccn": e["ccn"], "owner_name": e["new_legal"].upper(),
+                                          "ownership_start_date": e["key_day"]} for e in events])
+            if pos:
+                since = date.today() - timedelta(days=RECENCY_DAYS)
+                covered = {c for c, _ in changes} | {e["ccn"] for e in events} | {c for c, _, _ in seen}
+                missed = sorted(c for c, d in pos.items() if d >= since and c not in covered)
+                if missed:
+                    logger.info(f"POS: {len(missed)} hospice CHOWs dated in the last year with no card "
+                                f"(owners and enrollment unchanged in CMS files): {', '.join(missed)}")
             logger.info(f"CMS {kind} ownership: {len(rows)} new owner rows -> {len(changes) + restructures} provider "
-                        f"changes, {restructures + internal} restructures -> {len(articles)} deals")
+                        f"changes, {restructures + internal} restructures; {len(events)} re-enrollments "
+                        f"({moved_internal} internal moves left out) -> {len(articles)} deals")
             health.attempted(f"CMS {kind} ownership changes", len(articles))
             out += articles
         except Exception as e:

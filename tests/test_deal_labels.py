@@ -567,3 +567,16 @@ def test_done_phrasings_beat_pending_words():
     for s in ("Sagora is acquiring Wilshire; the article does not say whether the deal has closed.",
               "101 W. State Street acquired Genesis HealthCare, with final court approval expected October 14, 2026."):
         assert not _DONE_RE.search(s), s
+
+
+def test_state_filing_about_a_hospice_only_is_a_hospice():
+    # CA OHCA keeps hospice / rehab hospital notices since 2026-11-24
+    d = {"source_type": "con", "summary": "VITAS will acquire the hospice operations of Sunrise Hospice Inc.",
+         "source_title": "[CA OHCA] Sunrise Hospice Inc.", "facility_names": ["Sunrise Hospice"]}
+    assert facility_type(d) == "hospice"
+    d = {"source_type": "con", "summary": "Buyer acquires an inpatient rehabilitation hospital in Fresno",
+         "source_title": "[CA OHCA] X", "facility_names": []}
+    assert facility_type(d) == "rehab"
+    d = {"source_type": "con", "summary": "Buyer acquires a skilled nursing facility and its hospice",
+         "source_title": "[CA OHCA] X", "facility_names": []}
+    assert facility_type(d) == "skilled_nursing"

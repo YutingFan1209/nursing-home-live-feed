@@ -18,6 +18,10 @@ its notice PDF's text layer does repeatedly (Covenant Care's row only
 says "facilities"). Hospital and diagnostics notices mention SNFs in
 passing up to ~5 times, real SNF deals 7+ (checked 2026-10-06). Notices
 that fail both are returned as skipped so their PDFs aren't fetched again.
+
+Since 2026-11-24 hospice and inpatient rehab hospital notices are kept too
+(OHCA's rules list hospices among covered facilities), by the same row/PDF
+test with _PAC_RE. None of the 42 notices skipped before then was one.
 """
 
 import io
@@ -49,6 +53,8 @@ _SNF_RE = re.compile(
     r"|convalescent|rehab(?:ilitation)? (?:&|and )?(?:health ?care )?cent",
     re.I,
 )
+# Hospice / inpatient rehab hospital deals (the site's hospice and rehab types)
+_PAC_RE = re.compile(r"\bhospices?\b|inpatient rehab|rehabilitation hospital|\bIRFs?\b", re.I)
 
 
 def _get(url: str, timeout: int = 60):
@@ -83,7 +89,7 @@ def _parse_notices(page_html: str) -> list[dict]:
 def _pdf_snf_hits(content: bytes) -> int:
     reader = PdfReader(io.BytesIO(content))
     text = " ".join((p.extract_text() or "") for p in reader.pages[:_SCREEN_PAGES])
-    return len(_SNF_RE.findall(text))
+    return len(_SNF_RE.findall(text)) + len(_PAC_RE.findall(text))
 
 
 def fetch_con_ca_notices(is_known) -> tuple[list[dict], list[dict]]:
@@ -115,14 +121,15 @@ def fetch_con_ca_notices(is_known) -> tuple[list[dict], list[dict]]:
             "published_at": published,
             "source_type": "con",
         }
-        row_snf = bool(_SNF_RE.search(f"{n['parties']} {n['description']}"))
+        row_snf = bool(_SNF_RE.search(f"{n['parties']} {n['description']}")
+                       or _PAC_RE.search(f"{n['parties']} {n['description']}"))
 
         health.attempted("CA OHCA notice download")
         try:
             content = _get(url, timeout=120).content
             if not row_snf and _pdf_snf_hits(content) < MIN_PDF_SNF_HITS:
                 skipped.append({**base, "raw_text": n["description"],
-                                "skip_reason": "CA OHCA: not a skilled nursing transaction"})
+                                "skip_reason": "CA OHCA: not a skilled nursing, hospice or rehab hospital transaction"})
                 continue
             text, _ = pdf_text(content, MAX_PDF_PAGES, n["parties"][:80])
         except Exception as e:
@@ -138,8 +145,9 @@ def fetch_con_ca_notices(is_known) -> tuple[list[dict], list[dict]]:
                 f"transaction notice, submitted {n['submitted'] or 'date not stated'}. OHCA "
                 f"requires these at least 90 days before closing, so this is a pending "
                 f"transaction, i.e. current news. Report it as ONE deal covering every "
-                f"skilled nursing facility named, with acquisition_date = the expected "
-                f"closing date if stated, else null. Ignore non-nursing facilities.\n\n"
+                f"skilled nursing facility, hospice and inpatient rehabilitation hospital "
+                f"named, with acquisition_date = the expected closing date if stated, else "
+                f"null. Ignore other facilities (acute hospitals, clinics, labs).\n\n"
                 f"Parties: {n['parties']}\nTransaction: {n['description']}\n"
                 f"Cost and market impact review: {n['cmir'] or 'not stated'}"
                 + (f"\nOther notices filed for this transaction:{others}" if others else "")
@@ -147,5 +155,5 @@ def fetch_con_ca_notices(is_known) -> tuple[list[dict], list[dict]]:
             ),
         })
 
-    logger.info(f"CA OHCA: {len(notices)} notices listed, {len(articles)} new SNF, {len(skipped)} skipped")
+    logger.info(f"CA OHCA: {len(notices)} notices listed, {len(articles)} new SNF/hospice/rehab, {len(skipped)} skipped")
     return articles, skipped

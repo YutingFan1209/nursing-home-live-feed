@@ -329,6 +329,14 @@ def facility_type(d: dict) -> str:
         return FACILITY_TYPE_OVERRIDES[d["id"]]
     if d.get("extraction_model") in _MODEL_FACILITY_TYPE:
         return _MODEL_FACILITY_TYPE[d["extraction_model"]]
+    if d.get("source_type") == "con" and not _SNF_RE.search(" ".join([_text(d), *(d.get("facility_names") or [])])) \
+            and not _AL_RE.search(_text(d)):
+        # CA OHCA keeps hospice and rehab hospital notices too (2026-11-24);
+        # every other state filing source is nursing homes / AL by construction
+        if _HOSPICE_RE.search(_text(d)):
+            return "hospice"
+        if _REHAB_RE.search(_text(d)):
+            return "rehab"
     if d.get("source_type") in ("chow", "ucc", "con"):
         return "skilled_nursing"
     if d.get("ccns"):
