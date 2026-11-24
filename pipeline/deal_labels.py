@@ -248,7 +248,8 @@ _HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
 _REHAB_RE = re.compile(r"inpatient rehab|\bIRFs?\b|rehab(ilitation)? hospital", re.I)
 # CMS owner-file sources that are hospice / rehab by construction
 # (scraper/pac_owner_changes.MODEL_FACILITY_TYPE)
-_MODEL_FACILITY_TYPE = {"cms_hospice_owner_change": "hospice", "cms_rehab_owner_change": "rehab"}
+_MODEL_FACILITY_TYPE = {"cms_hospice_owner_change": "hospice", "cms_rehab_owner_change": "rehab",
+                        "con_hospice_licence": "hospice"}
 
 FACILITY_TYPES = ("skilled_nursing", "assisted_living", "hospice", "rehab", "senior_living", "hospital",
                   "non_us", "unknown")

@@ -973,9 +973,7 @@ def fetch_licence_list(state: str) -> list[dict] | None:
         if state == "FL":
             text = _fetch_fl_csv()
         else:
-            resp = cffi_requests.get(cfg["csv_url"], impersonate="chrome", timeout=180)
-            resp.raise_for_status()
-            text = resp.text
+            text = _download_text(cfg["csv_url"])
     except Exception as e:
         logger.error(f"{state} licence list fetch failed: {e}")
         health.source_failed(f"{state} licence list", f"{cfg['csv_url']}: {e}")
@@ -985,6 +983,19 @@ def fetch_licence_list(state: str) -> list[dict] | None:
         health.source_failed(f"{state} licence list", f"only {len(rows)} nursing home rows (layout change?)")
         return None
     return rows
+
+
+_TEXT_CACHE: dict[str, str] = {}
+
+
+def _download_text(url: str) -> str:
+    """One download per run: CA's list feeds both the nursing home and the
+    hospice diff."""
+    if url not in _TEXT_CACHE:
+        resp = cffi_requests.get(url, impersonate="chrome", timeout=180)
+        resp.raise_for_status()
+        _TEXT_CACHE[url] = resp.text
+    return _TEXT_CACHE[url]
 
 
 def _wa_fill_buyers(changes: list[dict], previous: dict, chow_buyers: dict, snapshot: list[dict],
@@ -1084,3 +1095,98 @@ def licence_list_deals(state: str, conn, is_known, rows: list[dict] | None = Non
     logger.info(f"{state} licence list: {len(rows)} nursing homes, "
                 f"{'first run, ' if not previous else ''}{len(changes)} new licensees")
     return [to_deal(state, row) for row in changes]
+
+
+# ── CA hospices (2026-11-24) ─────────────────────────────────────────────
+# The same CDPH list carries every licensed hospice (FAC_TYPE_CODE HOSPICE,
+# HOFA = inpatient hospice facility). Like CA's nursing homes there's no
+# usable change date (INITIAL_LICENSE_DATE moves only on re-licensing, e.g.
+# Kaiser's three in 2026), so the first read is a baseline and later reads
+# report a changed licensee. Only hospices with a Medicare CCN (1,320 of
+# 1,947 active on 2026-11-23): the rest are state-only licences with
+# nothing federal to check against (person's choice 2026-11-24).
+CA_HOSPICE_KEY = "CA_HOSPICE"  # licence_list_snapshot.state
+CA_HOSPICE_SOURCE_NAME = "California CDPH Licensed Hospice List"
+CA_HOSPICE_LABEL = "California's licence list (CDPH, data.chhs.ca.gov)"
+
+
+def parse_ca_hospice_rows(csv_text: str) -> list[dict]:
+    rows = {}
+    for r in csv.DictReader(io.StringIO(csv_text)):
+        if (r.get("FAC_TYPE_CODE") not in ("HOSPICE", "HOFA") or not (r.get("CCN") or "").strip()
+                or (r.get("LICENSE_STATUS_DESCRIPTION") or "").upper() != "ACTIVE"
+                or not (r.get("BUSINESS_NAME") or "").strip()):
+            continue
+        ccn = r["CCN"].strip().zfill(6)
+        # a hospice's branch offices share its CCN: keep the parent's row
+        if ccn in rows and (r.get("ISFACMAIN") or "").upper() != "Y":
+            continue
+        rows[ccn] = {"ccn": ccn, "licensee": r["BUSINESS_NAME"].strip(), "licence_date": None,
+                     "facility": r["FACNAME"].strip(), "city": r["CITY"].strip()}
+    return list(rows.values())
+
+
+def ca_hospice_record_url(row: dict) -> str:
+    key = re.sub(r"[^a-z0-9]+", "-", _norm(row["licensee"]).lower()).strip("-")[:60]
+    return f"{LISTS['CA']['page_url']}#hospice-licensee-{row['ccn']}-{key}"
+
+
+def detect_ca_hospice_changes(rows: list[dict], previous: dict, is_known) -> tuple[list[dict], list[dict]]:
+    """-> (changed rows with "seller", snapshot rows). No previous = baseline."""
+    changes, snapshot = [], []
+    for row in rows:
+        prev = previous.get(row["ccn"])
+        if prev is not None and not same_entity(row["licensee"], prev) \
+                and not is_known(ca_hospice_record_url(row)):
+            changes.append({**row, "seller": prev})
+            continue  # snapshot moves on once the record is stored
+        snapshot.append(row)
+    return changes, snapshot
+
+
+def ca_hospice_to_deal(row: dict) -> dict:
+    summary = (f"{CA_HOSPICE_LABEL} shows the hospice {row['facility']} ({row['city'].title()}, "
+               f"CCN {row['ccn']}) licensed to {row['licensee']}; the previous licensee was {row['seller']}. "
+               "A new licensee usually means a sale or a new operator; the list names the operating "
+               "company, not its parent, and gives no price or date.")
+    url = ca_hospice_record_url(row)
+    return {
+        "url": url,
+        "title": f"[CA hospice licence] {row['facility']}: new licensee {row['licensee']}",
+        "published_at": datetime.now(timezone.utc),
+        "raw_text": f"{summary}\n\nSource: {LISTS['CA']['page_url']}",
+        "source_type": "con", "pre_extracted": True, "extraction_model": "con_hospice_licence",
+        "_con_id": url.rsplit("#", 1)[1],
+        "acquiring_entity": row["licensee"], "seller_entity": row["seller"],
+        "operator_names": [row["licensee"]], "facility_names": [row["facility"]],
+        "ccns": [row["ccn"]], "states": ["CA"], "facility_count": 1, "deal_value_m": None,
+        "acquisition_date": None, "financing_amount_m": None, "lender": None, "rationale": summary,
+    }
+
+
+def ca_hospice_deals(conn, is_known, csv_text: str | None = None) -> list[dict]:
+    try:
+        text = csv_text if csv_text is not None else _download_text(LISTS["CA"]["csv_url"])
+    except Exception as e:
+        logger.error(f"CA hospice licence list fetch failed: {e}")
+        health.source_failed("CA hospice licence list", str(e))
+        return []
+    rows = parse_ca_hospice_rows(text)
+    if len(rows) < 800:  # 1,320 hospices with a CCN on 2026-11-23
+        health.source_failed("CA hospice licence list", f"only {len(rows)} hospices (layout change?)")
+        return []
+    with conn.cursor() as cur:
+        cur.execute("SELECT ccn, licensee FROM licence_list_snapshot WHERE state = %s", (CA_HOSPICE_KEY,))
+        previous = dict(cur.fetchall())
+    changes, snapshot = detect_ca_hospice_changes(rows, previous, is_known)
+    with conn.cursor() as cur:
+        for row in snapshot:
+            cur.execute("""INSERT INTO licence_list_snapshot (state, ccn, licensee, licence_date, seen_at)
+                           VALUES (%s, %s, %s, NULL, now())
+                           ON CONFLICT (state, ccn) DO UPDATE
+                           SET licensee = EXCLUDED.licensee, seen_at = now()""",
+                        (CA_HOSPICE_KEY, row["ccn"], row["licensee"]))
+    conn.commit()
+    logger.info(f"CA hospice licence list: {len(rows)} hospices, "
+                f"{'first run (baseline), ' if not previous else ''}{len(changes)} new licensees")
+    return [ca_hospice_to_deal(row) for row in changes]
