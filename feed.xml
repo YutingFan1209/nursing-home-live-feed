@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-23T16:58:10.224158+00:00</updated>
+  <updated>2026-11-24T15:48:44.051154+00:00</updated>
+  <entry>
+    <id>urn:uuid:e201e6ad-157e-4267-976a-e6295d66b705</id>
+    <title>INGLEWOOD POST ACUTE CARE LLC acquires INGLEWOOD HEALTHCARE CENTRE from INGLEWOOD OPERATING COMPANY LP (CA)</title>
+    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-055526-inglewood-post-acute-care"/>
+    <updated>2026-11-24T15:41:01.193610+00:00</updated>
+    <summary>Facilities: INGLEWOOD HEALTHCARE CENTRE; Source: California CDPH Licensed Facility List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:7b9b6ff1-9bfb-46fd-aaa8-b3400272f478</id>
+    <title>IMPERIAL VALLEY HEALTHCARE DISTRICT acquires EL CENTRO POST-ACUTE CARE from CITY OF EL CENTRO (CA)</title>
+    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-555158-imperial-valley-healthcare-district"/>
+    <updated>2026-11-24T15:41:01.128586+00:00</updated>
+    <summary>Facilities: EL CENTRO POST-ACUTE CARE; Source: California CDPH Licensed Facility List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6a1a4d39-af8c-4908-a653-868afc4635d9</id>
+    <title>RUBYSTAR HOLDINGS, LLC acquires FALLBROOK POST-ACUTE from FALLBROOK HEALTHCARE CENTER OPERATING COMPANY, LLC (CA)</title>
+    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-055298-rubystar-holdings"/>
+    <updated>2026-11-24T15:41:01.108809+00:00</updated>
+    <summary>Facilities: FALLBROOK POST-ACUTE; Source: California CDPH Licensed Facility List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:6911d417-5825-49bc-8e8b-9303c615d0f3</id>
+    <title>MISSION PEAK HOLDINGS, LLC acquires MOUNTAIN MANOR SENIOR RESIDENCE from GRANDCARE, INC. (CA)</title>
+    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-555889-mission-peak-holdings"/>
+    <updated>2026-11-24T15:40:59.696755+00:00</updated>
+    <summary>Facilities: MOUNTAIN MANOR SENIOR RESIDENCE; Source: California CDPH Licensed Facility List</summary>
+  </entry>
   <entry>
     <id>urn:uuid:3ec361df-a35b-4d75-8d86-acafed4a1074</id>
     <title>DELMAR SNF OPERATIONS ASSOCIATES, LLC — acquisition financing (NY)</title>
@@ -326,33 +354,5 @@
     <link href="https://enterprise.sos.nm.gov/search/ucc"/>
     <updated>2026-11-23T15:16:08.607540+00:00</updated>
     <summary>Effective 2026-11-18; Facilities: Murray Drive SNF OpCo LLC; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:24798d77-9292-4998-8f94-c0b62d50537a</id>
-    <title>Heritage Healthcare Consulting to acquire 9 facilities in MA from Vantage Care (MA)</title>
-    <link href="https://www.bostonglobe.com/2026/11/23/metro/massachusetts-nursing-homes-transfer-sell/#:~:text=Heritage%20Healthcare%20Consulting"/>
-    <updated>2026-11-23T14:47:01.223528+00:00</updated>
-    <summary>Source: Google Alerts — Nursing Home Acquisition</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:b6563050-4171-44ea-9608-53a3a5d29d71</id>
-    <title>SOUTH PASADENA CARE CENTER — UCC-1 financing (CA)</title>
-    <link href="https://bizfileonline.sos.ca.gov/search/ucc"/>
-    <updated>2026-11-23T14:46:55.746462+00:00</updated>
-    <summary>Effective 2026-11-20; Facilities: SOUTH PASADENA CARE CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:99e9a2ef-909c-45d7-905f-64ab0daff2de</id>
-    <title>Centennial Bank finances Terraces of Hialeah (FL)</title>
-    <link href="https://commercialobserver.com/2026/11/abraham-shaulson-millennium-management-manuel-scharf-terraces-of-hialeah-centennial-bank/#:~:text=Terraces%20of%20Hialeah"/>
-    <updated>2026-11-20T18:47:11.533346+00:00</updated>
-    <summary>Facilities: Terraces of Hialeah; $51.20M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c992ac25-b446-4dd6-984b-2f25c5b6fd71</id>
-    <title>Sale of a facility in TX (TX)</title>
-    <link href="https://seniorhousingnews.com/2026/11/18/senior-living-dealbook-chicago-pacific-founders-completes-61-5m-sale-sri-assumes-management-of-64th-community/"/>
-    <updated>2026-11-20T18:47:11.421994+00:00</updated>
-    <summary>Source: Senior Housing News</summary>
   </entry>
 </feed>
