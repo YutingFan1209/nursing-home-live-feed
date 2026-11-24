@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-24T16:48:23.285728+00:00</updated>
+  <updated>2026-11-24T18:11:58.700639+00:00</updated>
   <entry>
     <id>urn:uuid:78e7c2f6-be3d-4826-967a-41dbdbe994e2</id>
     <title>ACSK HOSPICE INC acquires ANGELS CARE HOSPICE OF MCCOOK and 1 more from COMMUNITY HOSPITAL ASSOCIATION; HOME NURSING COMPANY, INC (NE, VA)</title>
@@ -154,10 +154,10 @@
   </entry>
   <entry>
     <id>urn:uuid:56904d7c-e24f-4b2a-b299-9818e41f0093</id>
-    <title>CARING HEART REHABILITATION AND NURSING CENTER, INC. — UCC-1 financing (PA)</title>
+    <title>CARING HEART REHABILITATION AND NURSING CENTER — UCC-1 financing (PA)</title>
     <link href="https://file.dos.pa.gov/search/ucc"/>
     <updated>2026-11-24T16:15:24.479064+00:00</updated>
-    <summary>Effective 2026-11-16; Facilities: CARING HEART REHABILITATION AND NURSING CENTER, INC.; Source: State UCC-1 Filings</summary>
+    <summary>Effective 2026-11-16; Facilities: CARING HEART REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
   </entry>
   <entry>
     <id>urn:uuid:e201e6ad-157e-4267-976a-e6295d66b705</id>
@@ -179,6 +179,13 @@
     <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-055298-rubystar-holdings"/>
     <updated>2026-11-24T15:41:01.108809+00:00</updated>
     <summary>Facilities: FALLBROOK POST-ACUTE; Source: California CDPH Licensed Facility List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e4dc90bc-012f-4448-838c-4dc05a2955bf</id>
+    <title>GRACE HOME INC acquires GRACE HOME from CHURCH OF GOD IN CHRIST (CA)</title>
+    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-05A110-grace-home"/>
+    <updated>2026-11-24T15:41:01.084575+00:00</updated>
+    <summary>Facilities: GRACE HOME; Source: California CDPH Licensed Facility List</summary>
   </entry>
   <entry>
     <id>urn:uuid:6911d417-5825-49bc-8e8b-9303c615d0f3</id>
@@ -347,12 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-acg-north-texas-llc-2026-02-03"/>
     <updated>2026-11-23T15:17:39.346206+00:00</updated>
     <summary>Effective 2026-02-03; Facilities: ACG HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:af04cb8a-5c77-4639-8837-95d23791304b</id>
-    <title>HEART TO HEART HOSPICE HOLDINGS LLC acquires STAND BY U HOSPICE CARE INC (CA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-heart-to-heart-hospice-holdings-llc-2026-01-30"/>
-    <updated>2026-11-23T15:17:39.279155+00:00</updated>
-    <summary>Effective 2026-01-30; Facilities: STAND BY U HOSPICE CARE INC; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
