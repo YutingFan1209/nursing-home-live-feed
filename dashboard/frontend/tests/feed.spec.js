@@ -12,7 +12,7 @@ const ROLE_LABELS = [
 ];
 
 test.describe("cards", () => {
-  test("(a) every card shows four labeled columns in the same order; UCC cards show lender, filing date and number", async ({ page }) => {
+  test("(a) every card shows four labeled columns in the same order; UCC cards show lender and filing date, nothing more", async ({ page }) => {
     let ucc = 0;
     for (const tab of ["", "financing"]) {
       await open(page, `scope=1${tab ? `&tab=${tab}` : ""}`);
@@ -26,7 +26,9 @@ test.describe("cards", () => {
           const text = await cards.nth(i).innerText();
           expect(text, id).toMatch(/Lender\s*\S/);
           expect(text, id).toMatch(/Filed [A-Z][a-z]{2} \d{1,2}, \d{4}/);
-          expect(text, id).toMatch(/Filings? #\S+/);
+          // the face stays short: the filing number and portal link live in Details
+          expect(text, id).not.toMatch(/Filings? #\S+/);
+          expect(text.split("\n").filter(l => l.trim()).length, `${id} face lines`).toBeLessThanOrEqual(5);
           continue;
         }
         const cols = await columns(cards.nth(i));
@@ -141,7 +143,8 @@ test("(g) Details has four sections (UCC: three groups) and a working permalink"
   const ud = page.locator(`#details-${u}`);
   await expect(ud.locator("h3")).toHaveText(["The filing", "What we matched, and how sure we are", "About this record"]);
   await expect(ud).toContainText("Recorded with the state; we have not checked whether it has since lapsed or been terminated.");
-  await expect(ud).toContainText("Collateral (as filed)Not stated in the index");
+  // no collateral text and no inferred guess: no collateral row at all
+  await expect(ud).not.toContainText("Collateral");
   await expect(ud).toContainText("FiledSep 25, 2026 · found Oct 2");
   // possible homes are linked rows: "Name · City, ST (CCN …)"
   await expect(ud.getByRole("link", { name: /\(CCN 335063\)$/ })).toHaveAttribute("href", "?ccn=335063");

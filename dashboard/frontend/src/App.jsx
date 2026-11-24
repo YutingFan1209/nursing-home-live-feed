@@ -4,7 +4,7 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import * as Tabs from "@radix-ui/react-tabs";
 import { toCsv, toXlsx, CSV_TYPE, XLSX_TYPE } from "./export.js";
 import { SOURCE_LABEL, SOURCE_COLOR, STATUS_LABEL, STATUS_COLOR, displayStatus, primaryDate, otherDate, closePassed,
-  publication, statusMeaning, howCollected, nameOverlap, debtorParts, sameName, lenderIsKnown, uccFacilityCcn,
+  publication, statusMeaning, howCollected, nameOverlap, debtorParts, lenderIsKnown, uccFacilityCcn,
   realFilingNumber, uccWhyNow, mergeUccDuplicates, groupUccBatches } from "./derive.js";
 
 const FACILITY_BASE = import.meta.env.VITE_FACILITY_BASE_URL || "https://www.medicare.gov/care-compare/details/nursing-home";
@@ -329,10 +329,9 @@ function HouseParade({ onDone }) {
 // panel doesn't change the URL, verified 2026-10-15), so a link that only
 // reaches a search page (deals.json `ucc_search_page`) copies the filing
 // number as it opens, ready to paste into the portal's search box.
-function UccSource({ deal, searchForm, linkText, compact }) {
+function UccSource({ deal, searchForm }) {
   const [copied, setCopied] = useState(false);
-  const label = linkText || `${deal.ucc_state} UCC-1 filing #${deal.ucc_filing_number}`;
-  const link = compact ? { ...lnk, fontSize: "var(--font-size-sm)", display: "inline-flex", alignItems: "center", minHeight: "var(--touch-target)" } : lnkBlock;
+  const label = `${deal.ucc_state} UCC-1 filing #${deal.ucc_filing_number}`;
 
   if (searchForm) {
     return (
@@ -340,7 +339,7 @@ function UccSource({ deal, searchForm, linkText, compact }) {
         {Object.entries(searchForm.fields).map(([name, value]) =>
           <input key={name} type="hidden" name={name} value={value} />)}
         <input type="hidden" name={searchForm.filing_number_field} value={deal.ucc_filing_number} />
-        <button type="submit" style={{ ...linkBtn, ...lnk, ...(compact ? { fontSize: "var(--font-size-sm)" } : {}) }}>
+        <button type="submit" style={{ ...linkBtn, ...lnk }}>
           {label} ↗
         </button>
       </form>
@@ -355,17 +354,16 @@ function UccSource({ deal, searchForm, linkText, compact }) {
 
   return (
     <span style={{ display: "inline-flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-      <a href={deal.source_url} target="_blank" rel="noreferrer" style={link}
+      <a href={deal.source_url} target="_blank" rel="noreferrer" style={lnkBlock}
         onClick={deal.ucc_search_page ? copy : undefined}>
-        {linkText ? <>{linkText} ↗</>
-          : deal.ucc_search_text
+        {deal.ucc_search_text
           ? <>{deal.ucc_state} UCC-1 filing against {deal.ucc_search_text} ↗</>
           : <>{deal.ucc_state} UCC-1 filing #{deal.ucc_filing_number} ↗</>}
       </a>
       {deal.ucc_search_page && <>
-      {!compact && <button type="button" onClick={copy} style={{ ...btnGhost, fontSize: 12, padding: "0 12px" }}>
+      <button type="button" onClick={copy} style={{ ...btnGhost, fontSize: 12, padding: "0 12px" }}>
         {copied ? "Copied" : deal.ucc_search_text ? "Copy name" : "Copy filing #"}
-      </button>}
+      </button>
       <span role="status" style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)" }}>
         {copied ? `${deal.ucc_search_text ? "Name" : "Filing #"} copied — paste it into the portal's search box` : ""}
       </span>
@@ -729,26 +727,6 @@ function UccTitle({ deal, facilities }) {
     : <span style={{ ...uccMuted, fontStyle: "italic", fontWeight: 400 }}>{deal.individual_filing ? "Name not shown" : "Borrower not reported"}</span>;
 }
 
-// The line under the title: who/where, never repeating the title
-function uccSubline(deal, facilities) {
-  const ccn = uccFacilityCcn(deal);
-  const states = (deal.states || []).join(", ");
-  if (ccn) {
-    const f = facilities?.[ccn];
-    return joinNote(f?.state || states, bedsNote(f?.beds || deal.beds));
-  }
-  const homes = deal.individual_filing ? (deal.possible_homes || []).length : (deal.ccns || []).filter(Boolean).length;
-  const homesNote = homes > 1 ? `${homes} possible homes in CMS records` : homes === 1 ? "1 possible home in CMS records" : null;
-  if (deal.individual_filing) return joinNote("Filed against an individual", states, homesNote);
-  return joinNote(states, homesNote || "Not matched to a CMS facility");
-}
-
-// The title as plain text, for comparing names
-function uccTitleText(deal, facilities) {
-  const ccn = uccFacilityCcn(deal);
-  return ccn ? (facilities?.[ccn]?.name || deal.facility_names?.[0] || "") : (deal.ucc_debtor || "");
-}
-
 // "Per CMS" (a fact from CMS records) or "Inferred" (our reading)
 function Tag({ tag }) {
   return (
@@ -809,8 +787,9 @@ function UccDetails({ deal, detailsId, searchForms, facilities, chowFreshness, h
             <span style={{ color: "var(--color-text-muted)" }}> · same lender, day and facility</span></div>)}
         </Row>
         {deal.ucc_also_filed?.length > 0 && <Row label="Same loan also filed">{deal.ucc_also_filed.join(", ")}</Row>}
-        <Row label="Collateral (as filed)">
-          {deal.ucc_collateral ? <>
+        {/* shown only when the filing's text is on file; an inferred guess has its own row below */}
+        {deal.ucc_collateral && <Row label="Collateral (as filed)">
+          <>
             <ClampedText text={deal.ucc_collateral} />
             <span style={{ color: "var(--color-text-muted)" }}>
               {deal.ucc_collateral_source === "filing_pdf_excerpt"
@@ -818,14 +797,18 @@ function UccDetails({ deal, detailsId, searchForms, facilities, chowFreshness, h
                 : " · quoted from the state's filing page"}
               {deal.ucc_collateral_from && ` · from filing ${deal.ucc_collateral_from}, filed the same day for the same loan`}
             </span>
-          </> : missingText("Not stated in the index")}
-        </Row>
+          </>
+        </Row>}
         {fmtM(deal.financing_amount_m) && <Row label="Loan amount">{fmtM(deal.financing_amount_m)}</Row>}
       </Section>
 
       <Section title="What we matched, and how sure we are">
         {facilityCcn ? (
-          <Row label="CMS facility"><FacilityRow ccn={facilityCcn} facilities={facilities} type={FACILITY_TYPE[deal.facility_type] || deal.facility_type} />
+          <Row label="CMS facility"><FacilityRow ccn={facilityCcn} facilities={facilities} />
+            <div style={{ color: "var(--color-text-muted)", fontSize: "var(--font-size-sm)" }}>
+              {[FACILITY_TYPE[deal.facility_type] || deal.facility_type, facilities?.[facilityCcn]?.state,
+                facilities?.[facilityCcn]?.beds && `${facilities[facilityCcn].beds.toLocaleString()} certified beds (CMS)`].filter(Boolean).join(" · ")}
+            </div>
             {history?.length > 0 && <div style={{ color: "var(--color-text-muted)", fontSize: 13 }}>{history.length} other record{history.length > 1 ? "s" : ""} in this tracker at this facility</div>}
           </Row>
         ) : homes.length > 0 ? (
@@ -887,20 +870,11 @@ function UccDetails({ deal, detailsId, searchForms, facilities, chowFreshness, h
   );
 }
 
-function UccFace({ deal, facilities, searchForms, inBatch, detailsId, expanded, onToggle }) {
-  const filings = uccFilings(deal);
-  const title = uccTitleText(deal, facilities);
-  // borrowers named on these filings that aren't the title under another spelling
-  const borrowers = [...new Set(filings.map(f => f.ucc_debtor).filter(Boolean))]
-    .filter(b => !deal.individual_filing && !sameName(b, title));
+function UccFace({ deal, facilities, detailsId, expanded, onToggle }) {
   const nj = deal.lender?.startsWith("Not available");
-  const why = uccWhyNow(deal, fmtFull, smartCase);
-  const numbers = [...new Set(filings.map(realFilingNumber).filter(Boolean))];
-  const direct = deal.source_url && !deal.ucc_search_page && !searchForms?.[deal.ucc_state];
-  const linkText = direct ? "View on the state record" : `Search on the ${deal.ucc_state || "state"} portal`;
-  const portfolio = deal.ucc_context?.portfolio;
+  // one line: the CMS fact if there is one, otherwise our reading
+  const why = uccWhyNow(deal, fmtFull, smartCase).slice(0, 1);
   const filed = fmtFull(primaryDate(deal).date);
-  const sub = uccSubline(deal, facilities);
   const label = { ...uccMuted, fontWeight: 400, marginRight: 6 };
 
   return (
@@ -915,18 +889,14 @@ function UccFace({ deal, facilities, searchForms, inBatch, detailsId, expanded, 
           </button>
         </span>
       </div>
-      {sub && <p style={{ margin: "2px 0 0", fontSize: "var(--font-size-sm)", ...uccMuted }}>{sub}</p>}
-      <p style={{ margin: "8px 0 0", fontSize: "var(--font-size-base)", color: "var(--color-text)", display: "flex", flexWrap: "wrap", gap: "2px 20px" }}>
+      <p style={{ margin: "4px 0 0", fontSize: "var(--font-size-base)", color: "var(--color-text)", display: "flex", flexWrap: "wrap", gap: "2px 20px" }}>
         <span style={{ minWidth: 0, overflowWrap: "anywhere" }}><span style={label}>Lender</span>
           {lenderIsKnown(deal) ? <strong style={{ fontWeight: 600 }}>{shoutCase(deal.lender)}</strong>
             : missingText(nj ? "not returned by NJ's search" : "not reported")}</span>
-        {borrowers.length > 0 && (
-          <span style={{ minWidth: 0, overflowWrap: "anywhere" }}><span style={label}>Borrower</span>
-            <strong style={{ fontWeight: 600 }}>{borrowers.map(shoutCase).join("; ")}</strong></span>
-        )}
+        {deal.individual_filing && <span style={uccMuted}>Filed against an individual</span>}
       </p>
       {why.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0" }}>
+        <ul style={{ listStyle: "none", padding: 0, margin: "4px 0 0" }}>
           {why.map(w => (
             <li key={w.tag} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: "var(--font-size-md)", color: "var(--color-text-secondary)", padding: "2px 0" }}>
               <Tag tag={w.tag} />
@@ -935,12 +905,6 @@ function UccFace({ deal, facilities, searchForms, inBatch, detailsId, expanded, 
           ))}
         </ul>
       )}
-      <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0 8px", fontSize: "var(--font-size-sm)", ...uccMuted }}>
-        {numbers.length > 0 && <span style={{ overflowWrap: "anywhere" }}>{numbers.length > 1 ? "Filings" : "Filing"} {numbers.map(n => `#${n}`).join(", ")}</span>}
-        {numbers.length > 0 && <span aria-hidden="true">·</span>}
-        <UccSource deal={deal} searchForm={searchForms?.[deal.ucc_state]} linkText={linkText} compact />
-        {!inBatch && portfolio?.count > 1 && <><span aria-hidden="true">·</span><span>1 of {portfolio.count} filed by this lender that day</span></>}
-      </div>
     </div>
   );
 }
@@ -976,7 +940,7 @@ function BatchCard({ items, renderCard }) {
       {open && (
         <div id={listId} style={{ borderTop: "1px solid var(--color-border)", padding: "10px 10px 0", background: "var(--color-surface-subtle)",
           borderRadius: "0 0 var(--radius-lg) var(--radius-lg)" }}>
-          {items.map(d => renderCard(d, true))}
+          {items.map(d => renderCard(d))}
         </div>
       )}
     </article>
@@ -985,9 +949,8 @@ function BatchCard({ items, renderCard }) {
 
 function UccExplainer() {
   return (
-    <p style={{ fontSize: "var(--font-size-md)", lineHeight: 1.55, color: "var(--color-text-secondary)", margin: "0 0 12px",
-      padding: "10px 14px", background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
-      <strong style={{ fontWeight: 600, color: "var(--color-text)" }}>About UCC-1 filings.</strong> A UCC-1 is a public notice a lender
+    <p style={{ lineHeight: 1.5, margin: "4px 0" }}>
+      <strong style={{ fontWeight: 600, color: "var(--color-text-secondary)" }}>About UCC-1 filings.</strong> A UCC-1 is a public notice a lender
       files with a state to claim collateral, such as a nursing home's equipment or income, for a loan. It shows that a lender and a
       borrower have a lending relationship; it does not show a sale or the amount of the loan. We record when each filing was made but
       do not yet check whether it has since lapsed or been terminated. Lines tagged “Inferred” are our reading of the filing and CMS
@@ -996,7 +959,7 @@ function UccExplainer() {
   );
 }
 
-export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness, cmsThrough, inBatch }) {
+export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, history, facilities, chowFreshness, cmsThrough }) {
   const detailsId = `details-${deal.id}`;
   const individual = deal.individual_filing;
   const ccns = deal.ccns?.filter(Boolean) || [];
@@ -1009,7 +972,7 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
     <article id={`record-${deal.id}`} data-source={deal.source_type} style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)",
       borderRadius: "var(--radius-lg)", marginBottom: 10 }}>
       {deal.source_type === "ucc" ? (
-        <UccFace deal={deal} facilities={facilities} searchForms={searchForms} inBatch={inBatch}
+        <UccFace deal={deal} facilities={facilities}
           detailsId={detailsId} expanded={expanded} onToggle={onToggle} />
       ) : <>
       <h2 className="nh-sr">{headlineText(deal) || DEAL_TYPE[deal.deal_type]?.label || "Record"}</h2>
@@ -1954,6 +1917,7 @@ export default function App() {
                   {stats.grouped > 0 && <span title="Shown in the Details of the deal they're grouped with"> · {stats.grouped} shown inside another card</span>}
                 </p>
               )}
+              <UccExplainer />
               <div style={{ display: "flex", gap: "0 16px", flexWrap: "wrap" }}>
                 <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}
                   style={{ ...lnkBlock, fontSize: 13 }}>How this works</a>
@@ -2193,10 +2157,9 @@ export default function App() {
           </div>
         ) : (
           <>
-          {tab === "financing" && deals.some(d => d.source_type === "ucc") && <UccExplainer />}
           {items.map(item => {
-            const renderCard = (deal, inBatch) => (
-              <DealCard key={deal.id} deal={deal} inBatch={inBatch}
+            const renderCard = (deal) => (
+              <DealCard key={deal.id} deal={deal}
                 expanded={expanded.has(deal.id)}
                 onToggle={toggleExpand}
                 searchForms={searchForms}
@@ -2204,7 +2167,7 @@ export default function App() {
                 history={expanded.has(deal.id) ? historyFor(deal) : null}
                 facilities={facilities} chowFreshness={chowFreshness} cmsThrough={freshness.cms_ownership_through} />
             );
-            return item.batch ? <BatchCard key={`batch-${item.batch[0].id}`} items={item.batch} renderCard={renderCard} /> : renderCard(item, false);
+            return item.batch ? <BatchCard key={`batch-${item.batch[0].id}`} items={item.batch} renderCard={renderCard} /> : renderCard(item);
           })}
           </>
         )}
