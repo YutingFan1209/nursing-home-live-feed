@@ -313,6 +313,7 @@ DEAL_TYPE_OVERRIDES = {
     # AL SHPDA notices re-read 2026-11-25, checker's verdicts confirmed by hand
     "df5ed740-3e0e-40d9-b906-d8056d5f0381": "operations_transfer",    # Autumn Cove MC: new operator, $0, owner keeps the property
     "f611d281-d348-42a7-b0f3-ec86c324cf60": "control_change",         # Legacy Hospice of the East: merger at the indirect parent
+    "93c0f41a-86eb-40ea-bd31-e461dccb324c": "control_change",         # WA: Heart'n Soul's LLC membership interest to Heart to Heart Hospice
 }
 # CCNs the exact-name match got wrong: same name, different home
 WRONG_CCNS = {
