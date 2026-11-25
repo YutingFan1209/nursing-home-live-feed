@@ -41,3 +41,22 @@ export async function columns(cardLocator) {
   }
   return out;
 }
+
+// Public Sans comes from Google Fonts. document.fonts.ready can resolve before
+// the font request has even started, so screenshots sometimes caught the
+// fallback font (visual.spec.js failed ~3 runs in 4, 2026-11-25). Load every
+// variant the site uses (index.html: 400, 600, 700, italic 400) and fail
+// loudly if one didn't arrive, instead of comparing against the wrong font.
+export async function fontsLoaded(page) {
+  const missing = await page.evaluate(async () => {
+    const want = ["400 15px", "600 15px", "700 15px", "italic 400 15px"];
+    await Promise.all(want.map(w => document.fonts.load(`${w} "Public Sans"`)));
+    await document.fonts.ready;
+    // "loaded" isn't "painted": wait two frames so the screenshot has the font
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const loaded = [...document.fonts].filter(f => f.family.replace(/"/g, "") === "Public Sans" && f.status === "loaded")
+      .map(f => `${f.style === "italic" ? "italic " : ""}${f.weight}`);
+    return ["400", "600", "700", "italic 400"].filter(w => !loaded.includes(w));
+  });
+  if (missing.length) throw new Error(`Public Sans didn't load (${missing.join(", ")}): no network to fonts.googleapis.com?`);
+}

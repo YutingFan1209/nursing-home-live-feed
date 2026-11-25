@@ -1982,7 +1982,9 @@ export default function App() {
               placeholder="Search operator, buyer, borrower, facility or lender"
               style={{ ...ctl, flex: "1 1 220px", minWidth: 0 }} />
             <label htmlFor="nh-state" className="nh-sr">State</label>
-            <select id="nh-state" value={state} onChange={resetPage(setState)} style={ctl}>
+            {/* Fixed width: sized to its text, it came out 1px different depending on
+                whether Public Sans had arrived when it was first drawn (moved the row) */}
+            <select id="nh-state" value={state} onChange={resetPage(setState)} style={{ ...ctl, width: 113, flex: "0 0 auto" }}>
               <option value="">All states</option>
               {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>

@@ -12,6 +12,11 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}/nursing-home-live-feed/`,
     trace: "retain-on-failure",
+    // Same text pixels every run: sub-pixel glyph positioning, hinting and
+    // LCD smoothing varied between runs and failed the pixel test
+    // (tests/visual.spec.js, 2026-11-25)
+    launchOptions: { args: ["--disable-font-subpixel-positioning", "--font-render-hinting=none",
+      "--disable-lcd-text", "--force-color-profile=srgb"] },
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 900 } } },
