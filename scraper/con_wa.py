@@ -95,9 +95,9 @@ def to_deal(row: dict, filed: date) -> dict:
         "acquiring_entity": buyer or None,
         "seller_entity": seller,
         "operator_names": [n for n in dict.fromkeys([buyer, seller]) if n],
-        # The agency being bought is the seller's when the description names
-        # one ("from Heart'n Soul of Seattle to Heart to Heart Hospice")
-        "facility_names": [seller] if seller else [applicant] if applicant else [],
+        # The applicant is the agency (a membership-interest transfer names
+        # the outgoing member as "from ...", not a separate agency)
+        "facility_names": [applicant] if applicant else [],
         "states": ["WA"],
         "facility_count": 1,
         "deal_value_m": None,
