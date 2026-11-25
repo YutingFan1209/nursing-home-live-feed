@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T16:08:39.823102+00:00</updated>
+  <updated>2026-11-25T16:09:47.584870+00:00</updated>
   <entry>
     <id>urn:uuid:b16069b0-8f47-4575-b8e9-55943468ea38</id>
     <title>Pending sale of Oak Grove Retirement Home · Buyer not disclosed (MS)</title>
@@ -25,6 +25,13 @@
     <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#:~:text=5176"/>
     <updated>2026-11-25T16:05:55.056432+00:00</updated>
     <summary>Effective 2026-05-06; Facilities: Charter Senior Living of Charlotte; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8774a31f-987f-4ebf-950d-a7b6bc0e6e4e</id>
+    <title>Control change at Charter Senior Living of Fox Hollow (VOP Pinehurst,LLC) (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#:~:text=5151"/>
+    <updated>2026-11-25T16:05:55.056432+00:00</updated>
+    <summary>Effective 2026-04-29; Facilities: Charter Senior Living of Fox Hollow; Source: North Carolina DHSR CON Exemptions</summary>
   </entry>
   <entry>
     <id>urn:uuid:f3c9f4f3-4e13-466a-b749-77c486c13fc5</id>
@@ -347,12 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-abode-healthcare-inc-2026-01-21"/>
     <updated>2026-11-24T16:47:40.089302+00:00</updated>
     <summary>Facilities: HAVEN HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:0f8dd991-fc42-4a99-ad2e-eb8e28ee3dd4</id>
-    <title>SEVEN SPECIES LLC acquires BREEZE HOSPICE from BREEZE HOSPICE LLC (IL)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-seven-species-llc-2026-01-21"/>
-    <updated>2026-11-24T16:47:40.069410+00:00</updated>
-    <summary>Facilities: BREEZE HOSPICE; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
