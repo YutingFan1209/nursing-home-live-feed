@@ -310,6 +310,9 @@ DEAL_TYPE_OVERRIDES = {
     "c992ac25-b446-4dd6-984b-2f25c5b6fd71": "ownership_change",       # San Antonio AL/MC sold to a local owner-operator
     "f1c053e5-0994-4dc8-b6b3-e96f1b5d5529": "lease",                  # MI CON: GP SNF 20-year lease of The Rivers
     "f2ae1b2c-5b15-417d-afe9-00b206aaa00a": "non_deal_lien",          # NY: Woodycrest Propco (the home's landlord) lien on its operator
+    # AL SHPDA notices re-read 2026-11-25, checker's verdicts confirmed by hand
+    "df5ed740-3e0e-40d9-b906-d8056d5f0381": "operations_transfer",    # Autumn Cove MC: new operator, $0, owner keeps the property
+    "f611d281-d348-42a7-b0f3-ec86c324cf60": "control_change",         # Legacy Hospice of the East: merger at the indirect parent
 }
 # CCNs the exact-name match got wrong: same name, different home
 WRONG_CCNS = {
@@ -319,6 +322,8 @@ WRONG_CCNS = {
 STATUS_OVERRIDES = {
     "26f92fe3-de4a-4df0-896f-185b952bf11b": ("expected", "Expected: a 2012 court ruling cleared the purchase; "
                                              "the article doesn't report it closing"),
+    "f611d281-d348-42a7-b0f3-ec86c324cf60": ("reported", "Reported: the Alabama SHPDA notice says the transaction "
+                                             "closed November 10, 2025; not yet confirmed by CMS"),
 }
 
 
