@@ -118,6 +118,9 @@ def is_nursing_home(row: dict, licensed: list[tuple[str, str]], cms_names: list[
     return bool(_NURSING_WORDS_RE.search(row["facility"])) and not _NOT_NURSING_RE.search(row["facility"])
 
 
+_INDIRECT_RE = re.compile(r"indirect ownership", re.I)
+
+
 def is_hospice_or_irf(row: dict) -> bool:
     return bool(_HOSPICE_IRF_RE.search(row["facility"]))
 
@@ -209,7 +212,9 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
             "pre_extracted": True,
             "extraction_model": "con_direct",
             "_con_id": row["exemption_no"],
-            "acquiring_entity": row["applicant"] or None,
+            # A change in indirect ownership is filed by the home's own
+            # licensee; the new parent-level owner isn't named
+            "acquiring_entity": None if _INDIRECT_RE.search(row["description"]) else row["applicant"] or None,
             "seller_entity": None,
             "operator_names": [row["applicant"]] if row["applicant"] else [],
             "facility_names": list(dict.fromkeys(g["facility"] for g in group)),

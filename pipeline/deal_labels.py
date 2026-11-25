@@ -57,6 +57,8 @@ _SALE_RE = re.compile(r"\b(acquir\w*|purchas\w*|bought|sold|sale of|ACQ)\b", re.
 # of Eger. Not "Acquisition of Control", which is Maine's term for any sale.
 _CONTROL_RE = re.compile(
     r"\bpassive parent\b|\bactive parent\b|\bno purchase price\b|\bmember substitution\b"
+    # NC exemption type, filed by the home's own licensee (2026-11-25)
+    r"|\bchange in (the )?indirect ownership\b"
     r"|\bwithout (a|any) (sale|purchase)\b|\b(internal|corporate) reorganization\b"
     # a new manager isn't a new owner (Trustwell "assumed management of")
     r"|\b(assumed|assumes|assuming|took over|takes over) (the )?management\b"
