@@ -104,6 +104,14 @@ def test_cms_cards_skip_the_judge():
     from evals.holds import auto_approved
     assert auto_approved({"source_type": "chow"})
     assert not any(auto_approved({"source_type": t}) for t in ("rss", "ucc", "con", "edgar", "gmail"))
+    # licence-list cards read straight off the list (2026-11-25); WA/CT/IA infer the buyer
+    for title in ("[FL AL licence] SONATA VIERA: new owner SONATA VIERA TRS, LLC",
+                  "[CA licence] INGLEWOOD HEALTHCARE CENTRE: new licensee INGLEWOOD POST ACUTE CARE LLC",
+                  "[CA hospice licence] X Hospice: new licensee Y LLC"):
+        assert auto_approved({"source_type": "con", "source_title": title})
+    for title in ("[WA licence] Parkside: new licence #1234", "[IA licence] X: new licence 01/02/2026",
+                  "[NC CON] 5066 Acquisition of a Facility: Golden Years Rest Home"):
+        assert not auto_approved({"source_type": "con", "source_title": title})
 
 
 # ── re-enrollment: same CCN, new enrollment ID (2026-11-24) ─────────────

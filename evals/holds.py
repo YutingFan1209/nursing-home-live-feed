@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -45,11 +46,18 @@ def needs_approval(c: dict) -> bool:
     people list possible homes and keep their own handling."""
     return (c.get("source_type") in APPROVE_SOURCES
             or (c.get("source_type") == "ucc" and not c.get("ccns") and not c.get("individual_filing")))
+# State licence-list cards whose buyer is read straight off the list (owner,
+# date, home: the judge would only re-read text we wrote). WA / IA / CT infer
+# the buyer from letters or other records, so they are still checked.
+_LIST_TITLE_RE = re.compile(r"^\[[A-Z]{2}(?: AL| hospice)? licence\] .*: new (?:licensee|owner) ")
+
+
 def auto_approved(c: dict) -> bool:
     """CMS records (CHOW file, CMS owner files incl. hospice / rehab) are
     federal records: approved without the judge (person's rule 2026-11-23).
-    Every other source is checked."""
-    return c.get("source_type") == "chow"
+    So are state licence-list cards read straight off the list (person's
+    choice 2026-11-25). Every other source is checked."""
+    return c.get("source_type") == "chow" or bool(_LIST_TITLE_RE.match(c.get("source_title") or ""))
 
 
 COST_PER_CARD = 0.040          # measured: 5 gold runs 11-16/17, $24-30 for 749 cards (Opus 5.5, effort high); upper end, it is a cap
