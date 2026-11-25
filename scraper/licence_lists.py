@@ -861,18 +861,20 @@ def to_deal(state: str, row: dict) -> dict:
     }
 
 
-def _fetch_fl_csv() -> str:
-    """The locator's own export: search nursing homes, then post the licence
-    IDs on the results page to the CSV handler, as its button does."""
+def _fetch_fl_csv(facility_type: str = "Nursing-Home") -> str:
+    """The locator's own export: search nursing homes (or "ALF"), then post
+    the licence IDs on the results page to the CSV handler, as its button
+    does."""
     def token(page):
         return re.search(r'name="__RequestVerificationToken"[^>]*value="([^"]+)"', page).group(1)
     s = cffi_requests.Session(impersonate="chrome")
     page = s.get(LISTS["FL"]["page_url"], timeout=60).text
     page = s.post(f"{FL_BASE}/Facility-Search/FacilityLocateSearch?handler=AdvancedSearch", timeout=120,
-                  data={"FacilityTypeSelection": "Nursing-Home", "__RequestVerificationToken": token(page)}).text
+                  data={"FacilityTypeSelection": facility_type, "__RequestVerificationToken": token(page)}).text
     ids = re.findall(r'"LicenseID":"(\d+)","LicenseNumber":"[^"]*","LicenseStatus":"[^"]*","LinkId":"(\d+)"', page)
     form = page[page.find('id="exportForm"'):]
-    resp = s.post(LISTS["FL"]["csv_url"], timeout=180, allow_redirects=False,
+    resp = s.post(f"{FL_BASE}/Facility-Provider/{facility_type}?handler=ExportAsCSV", timeout=300,
+                  allow_redirects=False,
                   data={"LicenseID": ",".join(i for i, _ in ids), "LinkID": ",".join(l for _, l in ids),
                         "__RequestVerificationToken": token(form)})
     resp.raise_for_status()
@@ -1204,3 +1206,145 @@ def ca_hospice_deals(conn, is_known, csv_text: str | None = None) -> list[dict]:
     logger.info(f"CA hospice licence list: {len(rows)} hospices, "
                 f"{'first run (baseline), ' if not previous else ''}{len(changes)} new licensees")
     return [ca_hospice_to_deal(row) for row in changes]
+
+
+# ── Assisted living ──────────────────────────────────────────────────────
+# AL / memory care is in scope since 2026-11-12, all sizes (person's choice
+# 2026-11-25: small 4-6 bed homes too). The same state lists carry it:
+#   FL  the locator's ALF export (3,023 homes 11/2026): Owner + Owner Since,
+#       keyed on the AHCA file number. A sale keeps the home's licence
+#       number; a new home gets the next one (all 40 new-numbered homes with
+#       a 2026 owner were openings, mostly 4-7 beds owned by the home's own
+#       company), so the first read seeds the last SEED_DAYS of owner
+#       changes on homes whose licence number predates the window.
+#   MO  the same data.mo.gov CSV as its nursing homes, ALF and RCF rows
+#       (residential care, Missouri's other AL licence), keyed on the
+#       facility number. Its licence date moves on renewal, so the first
+#       read is a baseline and later reads report a changed entity name.
+# There's no CMS record behind these homes, so a seed has no seller; later
+# reads name the previous owner from the snapshot. A key not seen before is
+# a new home, not a sale.
+AL_LISTS = {
+    "FL": {"key": "FL_AL", "source_name": "Florida AHCA FloridaHealthFinder Assisted Living List",
+           "page_url": LISTS["FL"]["page_url"] + "#alf",
+           "label": "Florida's assisted living list (AHCA, FloridaHealthFinder)", "min_rows": 2000},
+    "MO": {"key": "MO_AL", "source_name": "Missouri DHSS Assisted Living / Residential Care Licence List",
+           "page_url": LISTS["MO"]["page_url"] + "#alf",
+           "label": "Missouri's licence list (DHSS, data.mo.gov)", "min_rows": 400},
+}
+
+
+def _int(s) -> int:
+    digits = re.sub(r"\D", "", s or "")
+    return int(digits) if digits else 0
+
+
+def parse_al_rows(state: str, csv_text: str) -> list[dict]:
+    rows = []
+    for r in csv.DictReader(io.StringIO(csv_text)):
+        if state == "FL":
+            if r.get("Facility Type") != "Assisted Living Facility" or r.get("Closed Date") \
+                    or not (r.get("Owner") or "").strip():
+                continue
+            rows.append({"key": r["AHCA Number (File Number)"].strip(), "licensee": r["Owner"].strip(),
+                         "licence_date": _date((r.get("Owner Since") or "").split(" ")[0]),
+                         "licence_no": _int(r.get("License Number")), "facility": r["Name"].strip(),
+                         "city": r["Street City"].strip(), "beds": _int(r.get("Licensed Beds")),
+                         "manager": (r.get("Management Company") or "").strip() or None})
+        elif state == "MO":
+            level = (r.get("level_of_care") or "").rstrip("*")
+            if level not in ("ALF", "RCF") or not (r.get("entity_name") or "").strip():
+                continue
+            rows.append({"key": r["facility_number"].strip(), "licensee": r["entity_name"].strip(),
+                         "licence_date": None, "facility": r["facility_name"].strip(),
+                         "city": r["city"].strip(), "beds": _int(r.get("capacity")),
+                         "level": "residential care facility" if level == "RCF" else "assisted living facility"})
+    return [r for r in rows if r["key"]]
+
+
+def al_record_url(state: str, row: dict) -> str:
+    key = re.sub(r"[^a-z0-9]+", "-", _norm(row["licensee"]).lower()).strip("-")[:60]
+    return f"{AL_LISTS[state]['page_url']}-licensee-{row['key']}-{key}"
+
+
+def detect_al_changes(state: str, rows: list[dict], previous: dict, is_known,
+                      today: date | None = None) -> tuple[list[dict], list[dict]]:
+    """-> (changed rows with "seller", snapshot rows). previous: key -> owner."""
+    today = today or date.today()
+    seed_since = today - timedelta(days=SEED_DAYS)
+    # FL seed: licence numbers issued before the window (sales keep theirs)
+    old_numbers = max((r["licence_no"] for r in rows if r.get("licence_date") and r["licence_date"] < seed_since),
+                      default=0)
+    changes, snapshot = [], []
+    for row in rows:
+        prev = previous.get(row["key"])
+        if previous:
+            changed, seller = prev is not None and not same_entity(row["licensee"], prev), prev
+        else:
+            changed = (state == "FL" and bool(row["licence_date"]) and row["licence_date"] >= seed_since
+                       and 0 < row["licence_no"] <= old_numbers)
+            seller = None
+        if changed and not is_known(al_record_url(state, row)):
+            changes.append({**row, "seller": seller})
+            continue  # snapshot moves on once the record is stored
+        snapshot.append(row)
+    return changes, snapshot
+
+
+def al_to_deal(state: str, row: dict) -> dict:
+    cfg = AL_LISTS[state]
+    kind = row.get("level") or "assisted living facility"
+    when = f" since {row['licence_date']:%m/%d/%Y}" if row.get("licence_date") else ""
+    beds = f", {row['beds']} beds" if row.get("beds") else ""
+    summary = (f"{cfg['label']} shows the {kind} {row['facility']} ({row['city'].title()}{beds}) owned by "
+               f"{row['licensee']}{when}"
+               + (f"; the previous owner was {row['seller']}" if row.get("seller") else "")
+               + (f"; managed by {row['manager']}" if row.get("manager") else "")
+               + ". A new owner on an existing licence usually means a sale or a new operator; the list "
+                 "names the licensed company, not its parent, and gives no price.")
+    url = al_record_url(state, row)
+    published = (datetime.combine(row["licence_date"], datetime.min.time()).replace(tzinfo=timezone.utc)
+                 if row.get("licence_date") else datetime.now(timezone.utc))
+    return {
+        "url": url,
+        "title": f"[{state} AL licence] {row['facility']}: new owner {row['licensee']}",
+        "published_at": published,
+        "raw_text": f"{summary}\n\nSource: {cfg['page_url']}",
+        "source_type": "con", "pre_extracted": True, "extraction_model": "con_al_licence",
+        "_con_id": url.rsplit("#", 1)[1],
+        "acquiring_entity": row["licensee"], "seller_entity": row.get("seller"),
+        "operator_names": [row["licensee"]], "facility_names": [row["facility"]],
+        "states": [state], "facility_count": 1, "deal_value_m": None,
+        "acquisition_date": row["licence_date"].isoformat() if row.get("licence_date") else None,
+        "financing_amount_m": None, "lender": None, "rationale": summary,
+    }
+
+
+def al_licence_deals(state: str, conn, is_known, csv_text: str | None = None) -> list[dict]:
+    cfg = AL_LISTS[state]
+    try:
+        text = csv_text if csv_text is not None else (
+            _fetch_fl_csv("ALF") if state == "FL" else _download_text(LISTS[state]["csv_url"]))
+    except Exception as e:
+        logger.error(f"{state} AL licence list fetch failed: {e}")
+        health.source_failed(f"{state} AL licence list", str(e))
+        return []
+    rows = parse_al_rows(state, text)
+    if len(rows) < cfg["min_rows"]:
+        health.source_failed(f"{state} AL licence list", f"only {len(rows)} homes (layout change?)")
+        return []
+    with conn.cursor() as cur:
+        cur.execute("SELECT ccn, licensee FROM licence_list_snapshot WHERE state = %s", (cfg["key"],))
+        previous = dict(cur.fetchall())
+    changes, snapshot = detect_al_changes(state, rows, previous, is_known)
+    with conn.cursor() as cur:
+        for row in snapshot:
+            cur.execute("""INSERT INTO licence_list_snapshot (state, ccn, licensee, licence_date, seen_at)
+                           VALUES (%s, %s, %s, %s, now())
+                           ON CONFLICT (state, ccn) DO UPDATE
+                           SET licensee = EXCLUDED.licensee, licence_date = EXCLUDED.licence_date, seen_at = now()""",
+                        (cfg["key"], row["key"], row["licensee"], row.get("licence_date")))
+    conn.commit()
+    logger.info(f"{state} AL licence list: {len(rows)} homes, "
+                f"{'first run, ' if not previous else ''}{len(changes)} new owners")
+    return [al_to_deal(state, row) for row in changes]

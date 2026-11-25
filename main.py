@@ -45,7 +45,7 @@ from scraper.con_hi import fetch_con_hi_deals, CON_HI_SOURCE_NAME, CON_HI_INDEX_
 from scraper.con_ri import fetch_con_ri_deals, CON_RI_SOURCE_NAME, CON_RI_INDEX_URL
 from scraper.con_mt import fetch_con_mt_deals, CON_MT_SOURCE_NAME, CON_MT_INDEX_URL
 from scraper.licence_lists import (LISTS as LICENCE_LISTS, licence_list_deals, ca_hospice_deals,
-                                   CA_HOSPICE_SOURCE_NAME)
+                                   CA_HOSPICE_SOURCE_NAME, AL_LISTS, al_licence_deals)
 from scraper.con_tn import fetch_con_tn_deals, CON_TN_SOURCE_NAME, CON_TN_INDEX_URL
 TN_EVERY_DAYS = 14
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
@@ -673,6 +673,17 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         for deal in ca_hospice_deals(conn, lambda url: _article_exists(url, conn)):
             deal["source_id"] = ca_hosp_source_id
             new_articles.append(deal)
+
+        # FL / MO assisted living from the same state lists (MO's CSV is
+        # cached from the nursing home read above)
+        for state, cfg in AL_LISTS.items():
+            al_source_id = _ensure_source(
+                type("S", (), {"name": cfg["source_name"], "url": cfg["page_url"], "source_type": "con"})(),
+                conn
+            )
+            for deal in al_licence_deals(state, conn, lambda url: _article_exists(url, conn)):
+                deal["source_id"] = al_source_id
+                new_articles.append(deal)
 
         # Tennessee HFC: nursing home CHOWs on the monthly agenda (real Chrome:
         # tn.gov answers only a browser). The window is visible, so it opens at
