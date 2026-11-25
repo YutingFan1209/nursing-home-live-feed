@@ -1785,16 +1785,9 @@ export default function App() {
   const tabCounts = useMemo(() => Object.fromEntries(TABS.map(t => [t.key, filteredAnyTab.filter(d => inTab(d, t.key)).length])),
     [filteredAnyTab]);
 
-  // Count line: every record in the data, and what the default view leaves
-  // out (refinancings; records shown inside another deal's card).
-  const stats = useMemo(() => {
-    if (!allDeals.length) return null;
-    const refi = allDeals.filter(d => !d.grouped_into && d.deal_type === "refinancing").length;
-    const grouped = allDeals.filter(d => d.grouped_into).length;
-    return { total: allDeals.length, refi, grouped };
-  }, [allDeals]);
-  const breakdown = stats && `${stats.refi.toLocaleString()} refinancings hidden by default`
-    + (stats.grouped > 0 ? ` · ${stats.grouped} shown inside another card` : "");
+  // Count line: every record in the data (the refinancing / grouped-record
+  // breakdown was removed 2026-11-25, person's call)
+  const stats = useMemo(() => allDeals.length ? { total: allDeals.length } : null, [allDeals]);
 
   const byCcn = useMemo(() => {
     const m = new Map();
@@ -1906,7 +1899,7 @@ export default function App() {
           <Collapsible.Root open={aboutOpen} onOpenChange={setAboutOpen}>
           <div style={{ fontSize: 13, color: "#5F636A", marginTop: 4, display: "flex", gap: "0 16px", flexWrap: "wrap", alignItems: "center" }}>
             {stats && (
-              <span title={breakdown}>
+              <span>
                 {stats.total.toLocaleString()} records
                 {freshness.pipeline_ran_at && <span title={chowFreshness || undefined}> · updated {fmtDay(freshness.pipeline_ran_at)}</span>}
               </span>
@@ -1917,13 +1910,6 @@ export default function App() {
           </div>
           <Collapsible.Content asChild>
             <div ref={aboutPanel} style={{ fontSize: 13, color: "#5F636A", marginTop: 2 }}>
-              {stats && (
-                <p>
-                  {stats.refi.toLocaleString()} refinancings
-                  {" "}hidden by default
-                  {stats.grouped > 0 && <span title="Shown in the Details of the deal they're grouped with"> · {stats.grouped} shown inside another card</span>}
-                </p>
-              )}
               <UccExplainer />
               <div style={{ display: "flex", gap: "0 16px", flexWrap: "wrap" }}>
                 <a href="?view=methodology" onClick={e => { e.preventDefault(); go({ view: "methodology" }); }}

@@ -2027,3 +2027,31 @@ def test_related_cards_linked_not_grouped():
     group([prop, op], {})
     assert "grouped_into" not in prop and "grouped_into" not in op
     assert [r["id"] for r in prop["related"]] == ["b"] and [r["id"] for r in op["related"]] == ["a"]
+
+
+def test_tx_al_licence_list_baseline_then_owner_change():
+    """TX assisted living (2026-11-25): the first read is a baseline only
+    (person's choice: no owner-since date to seed from); later, a changed
+    owner is a card, and a home's Type A and Type B licences moving to one
+    owner are a single card."""
+    from scraper.licence_lists import detect_al_changes, _group_same_home, al_to_deal
+    rows = [
+        {"key": "1", "licensee": "BROOKDALE A LLC", "facility": "OAK HILLS", "city": "SAN ANTONIO",
+         "address": "9505 FREDERICKSBURG RD", "beds": 70, "licence_date": None, "licence_no": 313364,
+         "level": "assisted living facility (Type B)"},
+        {"key": "2", "licensee": "BROOKDALE A LLC", "facility": "OAK HILLS", "city": "SAN ANTONIO",
+         "address": "9505 FREDERICKSBURG ROAD", "beds": 25, "licence_date": None, "licence_no": 313365,
+         "level": "assisted living facility (Type A)"},
+        {"key": "3", "licensee": "OTHER HOME LLC", "facility": "ELM", "city": "DALLAS",
+         "address": "1 ELM ST", "beds": 10, "licence_date": None, "licence_no": 1, "level": None},
+    ]
+    changes, snapshot = detect_al_changes("TX", rows, {}, lambda u: False)
+    assert changes == [] and len(snapshot) == 3
+    sold = [{**r, "licensee": "GEMSTONE OAK HILLS BUSINESS LLC"} if r["key"] in "12" else r for r in rows]
+    changes, _ = detect_al_changes("TX", sold, {"1": "BROOKDALE A LLC", "2": "BROOKDALE A LLC",
+                                                "3": "OTHER HOME LLC"}, lambda u: False)
+    cards = _group_same_home(changes)
+    assert len(cards) == 1 and cards[0]["beds"] == 95 and cards[0]["seller"] == "BROOKDALE A LLC"
+    deal = al_to_deal("TX", cards[0])
+    assert deal["title"].startswith("[TX AL licence] OAK HILLS: new owner GEMSTONE")
+    assert "#alf-licensee-" in deal["url"]

@@ -14,6 +14,10 @@ licence lists (scraper/licence_lists.py).
     # Connecticut (monthly): on https://www.elicense.ct.gov/Lookup/GenerateRoster.aspx
     #   tick "Chronic and Convalescent Nursing Home", Continue, CSV, Download
     venv/bin/python3 scripts/licence_browser.py ingest ~/Downloads/Chronic_and_Convalescent_Nursing_Home.csv
+    # Texas assisted living (monthly): on
+    #   https://www.hhs.texas.gov/providers/long-term-care-providers/assisted-living-facilities-alf
+    #   download "Directory of all ALFs" (al.xlsx); the site refuses scripts
+    venv/bin/python3 scripts/licence_browser.py ingest ~/Downloads/al.xlsx
 
 A state's first ingest compares with CMS's legal names, limited to licences
 dated in the last year (Michigan has the date; Ohio doesn't, so its first
@@ -30,13 +34,16 @@ import psycopg2
 import main
 from config import get_config
 from pipeline.same_sale import resolve_new_deals
-from scraper.licence_lists import LISTS, licence_list_deals, parse_browser_file
+from scraper.licence_lists import (LISTS, AL_LISTS, licence_list_deals, parse_browser_file,
+                                   al_licence_deals, parse_tx_al_xlsx)
 
 # Fewer homes than this: a stopped or changed read, not worth diffing
 MIN_ROWS = {"MI": 350, "OH": 700, "CT": 150}
 
 
 def ingest(conn, path: str, dry_run: bool) -> None:
+    if path.endswith(".xlsx"):
+        return ingest_tx_al(conn, path, dry_run)
     text = Path(path).expanduser().read_text(encoding="latin-1" if path.endswith(".csv") else "utf-8")
     # CT: eLicense's roster CSV as downloaded ("FACILITY NAME,ADDRESS,...,LICENSE NO.,...")
     data = {"state": "CT", "csv": text} if path.endswith(".csv") else json.loads(text)
@@ -71,6 +78,43 @@ def ingest(conn, path: str, dry_run: bool) -> None:
         merged, to_review = resolve_new_deals(conn, [r[0] for r in cur.fetchall()])
     conn.commit()
     print(f"stored {stored} deals; same-sale check: {merged} merged, {to_review} pairs to review")
+
+
+def _store(conn, deals: list[dict], cfg: dict) -> None:
+    source_id = main._ensure_source(
+        type("S", (), {"name": cfg["source_name"], "url": cfg["page_url"], "source_type": "con"})(), conn)
+    with conn.cursor() as cur:
+        cur.execute("SELECT now()")
+        started = cur.fetchone()[0]
+    stored = 0
+    for deal in deals:
+        deal["source_id"] = source_id
+        stored += main.process_article(deal, conn)
+        conn.commit()
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM deals WHERE created_at >= %s", (started,))
+        merged, to_review = resolve_new_deals(conn, [r[0] for r in cur.fetchall()])
+    conn.commit()
+    print(f"stored {stored} deals; same-sale check: {merged} merged, {to_review} pairs to review")
+
+
+def ingest_tx_al(conn, path: str, dry_run: bool) -> None:
+    """Texas HHSC's ALF directory, saved by the person (assisted living)."""
+    cfg = AL_LISTS["TX"]
+    rows = parse_tx_al_xlsx(Path(path).expanduser().read_bytes())
+    if len(rows) < cfg["min_rows"]:
+        sys.exit(f"{path}: only {len(rows)} TX assisted living homes (expected {cfg['min_rows']}+); "
+                 "is this the ALF directory?")
+    deals = al_licence_deals("TX", conn, lambda url: main._article_exists(url, conn), rows=rows,
+                             write_snapshot=not dry_run)
+    print(f"TX assisted living: {len(rows)} homes read, {len(deals)} new owners")
+    for d in deals:
+        print(f"  {d['title']}  (was {d['seller_entity']}, {d['acquisition_date']})")
+    if dry_run:
+        conn.rollback()
+        print("dry run: nothing written")
+        return
+    _store(conn, deals, cfg)
 
 
 if __name__ == "__main__":

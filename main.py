@@ -677,6 +677,8 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
         # FL / MO assisted living from the same state lists (MO's CSV is
         # cached from the nursing home read above)
         for state, cfg in AL_LISTS.items():
+            if cfg.get("file_only"):
+                continue  # TX: ingested from the person's saved file (scripts/licence_browser.py)
             al_source_id = _ensure_source(
                 type("S", (), {"name": cfg["source_name"], "url": cfg["page_url"], "source_type": "con"})(),
                 conn

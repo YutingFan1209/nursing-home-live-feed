@@ -1221,9 +1221,19 @@ def ca_hospice_deals(conn, is_known, csv_text: str | None = None) -> list[dict]:
 #       (residential care, Missouri's other AL licence), keyed on the
 #       facility number. Its licence date moves on renewal, so the first
 #       read is a baseline and later reads report a changed entity name.
+#   TX  HHSC's "Directory of all ALFs" (Excel, ~2,000 homes), keyed on the
+#       Facility ID, which stays with the home. hhs.texas.gov refuses scripted
+#       downloads, so the person saves it monthly and it is ingested from the
+#       file (scripts/licence_browser.py ingest <al.xlsx>). A new owner gets a
+#       new licence number, but there's no owner-since date to check it
+#       against, so the first read (2026-11-25) is a baseline only (person's
+#       choice) and later reads report a changed owner. A home's Type A and
+#       Type B licences (two Facility IDs at one address) sold together are
+#       one card.
 # There's no CMS record behind these homes, so a seed has no seller; later
 # reads name the previous owner from the snapshot. A key not seen before is
 # a new home, not a sale.
+TX_AL_PAGE_URL = "https://www.hhs.texas.gov/providers/long-term-care-providers/assisted-living-facilities-alf"
 AL_LISTS = {
     "FL": {"key": "FL_AL", "source_name": "Florida AHCA FloridaHealthFinder Assisted Living List",
            "page_url": LISTS["FL"]["page_url"] + "#alf",
@@ -1231,7 +1241,57 @@ AL_LISTS = {
     "MO": {"key": "MO_AL", "source_name": "Missouri DHSS Assisted Living / Residential Care Licence List",
            "page_url": LISTS["MO"]["page_url"] + "#alf",
            "label": "Missouri's licence list (DHSS, data.mo.gov)", "min_rows": 400},
+    "TX": {"key": "TX_AL", "source_name": "Texas HHSC Assisted Living Facility Directory",
+           "page_url": TX_AL_PAGE_URL + "#alf", "file_only": True,
+           "label": "Texas's assisted living directory (HHSC)", "min_rows": 1500},
 }
+
+
+def parse_tx_al_xlsx(content: bytes) -> list[dict]:
+    """HHSC's ALF directory: a title row, then the header row."""
+    from openpyxl import load_workbook
+    ws = load_workbook(io.BytesIO(content), read_only=True).worksheets[0]
+    it = ws.iter_rows(values_only=True)
+    header = None
+    for r in it:
+        if r and "Facility ID" in r:
+            header = [str(h or "").strip() for h in r]
+            break
+    if not header:
+        return []
+    rows = []
+    for values in it:
+        r = dict(zip(header, values))
+        owner = str(r.get("Owner_") or "").strip()
+        if not r.get("Facility ID") or not owner:
+            continue
+        eff = r.get("License Effective Date")
+        kind = str(r.get("Service  Type") or r.get("Service Type") or "").strip().title()
+        rows.append({"key": str(r["Facility ID"]).strip(), "licensee": owner,
+                     "licence_date": eff.date() if hasattr(eff, "date") else None,
+                     "licence_no": _int(str(r.get("License No") or "")),
+                     "facility": str(r.get("Facility Name") or "").strip(),
+                     "city": str(r.get("Physical Address CITY") or "").strip(),
+                     "address": str(r.get("Physical Address") or "").strip(),
+                     "beds": _int(str(r.get("Total Licensed Capacity") or "")),
+                     "manager": str(r.get("Management Company_") or "").strip() or None,
+                     "level": f"assisted living facility ({kind})" if kind else "assisted living facility"})
+    return rows
+
+
+def _group_same_home(changes: list[dict]) -> list[dict]:
+    """TX: one card for a home's Type A and Type B licences moving to the same owner."""
+    out, seen = [], {}
+    for row in changes:
+        k = (_street_key(row.get("address") or ""), row["city"].upper(), _norm(row["licensee"]))
+        if k[0] and k in seen:
+            first = seen[k]
+            first["beds"] = (first.get("beds") or 0) + (row.get("beds") or 0)
+            first["level"] = "assisted living facility (Type A and Type B licences)"
+            continue
+        seen[k] = row
+        out.append(row)
+    return out
 
 
 def _int(s) -> int:
@@ -1320,16 +1380,19 @@ def al_to_deal(state: str, row: dict) -> dict:
     }
 
 
-def al_licence_deals(state: str, conn, is_known, csv_text: str | None = None) -> list[dict]:
+def al_licence_deals(state: str, conn, is_known, csv_text: str | None = None,
+                     rows: list[dict] | None = None, write_snapshot: bool = True) -> list[dict]:
+    """rows: already parsed (TX, from the person's saved file)."""
     cfg = AL_LISTS[state]
-    try:
-        text = csv_text if csv_text is not None else (
-            _fetch_fl_csv("ALF") if state == "FL" else _download_text(LISTS[state]["csv_url"]))
-    except Exception as e:
-        logger.error(f"{state} AL licence list fetch failed: {e}")
-        health.source_failed(f"{state} AL licence list", str(e))
-        return []
-    rows = parse_al_rows(state, text)
+    if rows is None:
+        try:
+            text = csv_text if csv_text is not None else (
+                _fetch_fl_csv("ALF") if state == "FL" else _download_text(LISTS[state]["csv_url"]))
+        except Exception as e:
+            logger.error(f"{state} AL licence list fetch failed: {e}")
+            health.source_failed(f"{state} AL licence list", str(e))
+            return []
+        rows = parse_al_rows(state, text)
     if len(rows) < cfg["min_rows"]:
         health.source_failed(f"{state} AL licence list", f"only {len(rows)} homes (layout change?)")
         return []
@@ -1337,6 +1400,10 @@ def al_licence_deals(state: str, conn, is_known, csv_text: str | None = None) ->
         cur.execute("SELECT ccn, licensee FROM licence_list_snapshot WHERE state = %s", (cfg["key"],))
         previous = dict(cur.fetchall())
     changes, snapshot = detect_al_changes(state, rows, previous, is_known)
+    if state == "TX":
+        changes = _group_same_home(changes)
+    if not write_snapshot:
+        return [al_to_deal(state, row) for row in changes]
     with conn.cursor() as cur:
         for row in snapshot:
             cur.execute("""INSERT INTO licence_list_snapshot (state, ccn, licensee, licence_date, seen_at)
