@@ -335,6 +335,20 @@ WRONG_CCNS = {
     "d5a7a72b-2b2f-4ae8-b715-55e46067b871": {"495213"},  # Bayside in Virginia Beach VA; the article's is in OH
     "24798d77-9292-4998-8f94-c0b62d50537a": {"225489", "225558"},  # Globe: Vantage's 9 MA homes unnamed; owner-name match only
 }
+# A likely buyer / seller the source doesn't name, found by a person or by us
+# in another record (person's design 2026-11-25): shown on the card as
+# "possibly <name>" under the missing name and in Details tagged Inferred,
+# with the evidence; never filled into buyer / seller. Only used while the
+# card has no named party on that side.
+POSSIBLE_PARTIES = {
+    "c992ac25-b446-4dd6-984b-2f25c5b6fd71": {"buyer": {
+        "name": "Gemstone Senior Living",
+        "evidence": "San Antonio company; new Texas licence 10/30/2026 at 9505 Fredericksburg Rd "
+                    "(former Brookdale, 95 beds with memory care), three weeks before the report.",
+        "source_label": "Texas HHSC assisted living directory",
+        "source_url": "https://www.hhs.texas.gov/providers/long-term-care-providers/assisted-living-facilities-alf"}},
+}
+
 STATUS_OVERRIDES = {
     "26f92fe3-de4a-4df0-896f-185b952bf11b": ("expected", "Expected: a 2012 court ruling cleared the purchase; "
                                              "the article doesn't report it closing"),
@@ -890,6 +904,9 @@ def label(d: dict, cms, facilities: list[str], today: date | None = None,
         out.update({"buyer": None, "buyer_disclosure": None, "buyer_description": None})
     out.update(seller_fields({**d, **out}, out) if out["deal_type"] in SALE_TYPES
                else {"seller_disclosure": "named" if out.get("seller") else None, "seller_description": None})
+    possible = POSSIBLE_PARTIES.get(d.get("id"), {})
+    out["possible_buyer"] = possible.get("buyer") if not out.get("buyer") else None
+    out["possible_seller"] = possible.get("seller") if not out.get("seller") else None
     out["current_licensee"] = current_licensee({**d, **out}, cms, today or date.today())
     out["cms_confirmed_on"] = out["cms_event"]["date"] if out["cms_event"] else None
     merged = {**d, **out}

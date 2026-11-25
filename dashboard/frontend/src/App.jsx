@@ -228,10 +228,12 @@ const CSV_COLUMNS = [
   ["buyer", d => d.buyer, "Buyer as named in the source, or CMS's when buyer_disclosure is cms."],
   ["buyer_disclosure", d => d.buyer_disclosure, "named; described (unnamed, but the source describes them); undisclosed (the source says so, or a state filing has no buyer field); not_named (the source doesn't say); cms (the source doesn't name them; CMS lists exactly one new owner, or its change-of-ownership file names the buyer)."],
   ["buyer_description", d => d.buyer_description, "How the source describes an unnamed buyer, e.g. 'a national REIT'."],
+  ["possible_buyer", d => d.possible_buyer?.name, "Not in the source: a likely buyer we found in another record (e.g. a state licence list). Unconfirmed; the evidence is in the record's Details."],
   ["seller", d => d.seller, "Seller as named in the source, or CMS's when seller_disclosure is cms."],
   ["seller_disclosure", d => d.seller_disclosure, "named (the source names the seller); cms (the source doesn't, and CMS's change-of-ownership file names the seller of this facility within 6 months of the deal date); described (unnamed, but the source describes them); undisclosed (the source says the seller wasn't named)."],
   ["current_licensee", d => d.current_licensee, "State filings made before closing that name no seller: the facility's licensee in CMS today. Not necessarily the seller (in a share transfer the licensee stays)."],
   ["seller_description", d => d.seller_description, "How the source describes an unnamed seller, e.g. 'an Indiana-based private owner'."],
+  ["possible_seller", d => d.possible_seller?.name, "Not in the source: a likely seller we found in another record. Unconfirmed."],
   ["cms_sale_buyer", d => d.cms_sale?.buyer, "Buyer in CMS's change-of-ownership file for the sale this record is about (for UCC acquisition financing: the sale the loan paid for)."],
   ["cms_sale_seller", d => d.cms_sale?.seller, "Seller in CMS's change-of-ownership file for that sale."],
   ["cms_sale_date", d => d.cms_sale?.date, "Effective date of that sale in CMS's change-of-ownership file."],
@@ -569,7 +571,7 @@ function cardColumns(d, facilities, cmsThrough) {
   } else if (d.buyer) {
     cols.push({ label: "Buyer", value: d.buyer, note: d.buyer_disclosure === "cms" ? "Per CMS, not the source" : null });
   } else {
-    cols.push({ label: "Buyer", value: missingBuyer(d), missing: true });
+    cols.push({ label: "Buyer", value: missingBuyer(d), missing: true, possible: d.possible_buyer });
   }
 
   // 2. Seller / Borrower / Landlord / Prior operator
@@ -593,7 +595,7 @@ function cardColumns(d, facilities, cmsThrough) {
       : d.seller_disclosure === "described" && d.seller_description ? d.seller_description : "Not reported";
     cols.push(seller ? { label, value: seller, note: d.seller_disclosure === "cms" ? "Per CMS, not the source" : null }
       : d.current_licensee ? { label: "Current licensee", value: d.current_licensee, note: "Per CMS; the filing names no seller" }
-      : { label, value: missingSeller, missing: true });
+      : { label, value: missingSeller, missing: true, possible: d.possible_seller });
   }
 
   // 3. Facility / Facilities / Possible homes
@@ -644,6 +646,8 @@ function Column({ col }) {
       <div style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", marginBottom: 2 }}>{col.label}</div>
       <div style={{ fontSize: "var(--font-size-base)", fontWeight: 600, color: "var(--color-text)", lineHeight: 1.35, overflowWrap: "anywhere" }}>{value}</div>
       {col.note && <div style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", marginTop: 2 }}>{col.note}</div>}
+      {col.possible && <div style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", marginTop: 2 }}
+        title="Not in the source: our likely match, not confirmed. See Details.">possibly {col.possible.name}</div>}
     </div>
   );
 }
@@ -1015,6 +1019,15 @@ export function DealCard({ deal, expanded, onToggle, searchForms, onEntity, hist
                 {c.missing ? missingText(c.value)
                   : <EntityLink name={c.value} onPick={entityNames(deal).includes(c.value) ? onEntity : null} />}
                 {c.note && <span style={{ color: "#5F636A" }}> · {c.note}</span>}
+              </Row>
+            ))}
+            {cols.slice(0, 2).filter(c => c.possible).map((c, i) => (
+              <Row key={`p${i}`} label={`Possible ${c.label.toLowerCase()}`}>
+                <Tag tag="Inferred" />{c.possible.name}
+                <div style={{ color: "#5F636A" }}>{c.possible.evidence} Not confirmed.
+                  {c.possible.source_url && <> <a href={c.possible.source_url} target="_blank" rel="noopener noreferrer"
+                    style={{ color: "#23406F" }}>{c.possible.source_label || "Source"} ↗</a></>}
+                </div>
               </Row>
             ))}
 
