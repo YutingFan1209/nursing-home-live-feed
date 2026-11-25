@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T15:21:54.177396+00:00</updated>
+  <updated>2026-11-25T15:32:33.193758+00:00</updated>
+  <entry>
+    <id>urn:uuid:93c0f41a-86eb-40ea-bd31-e461dccb324c</id>
+    <title>Heart to Heart Hospice to acquire Heart to Heart Hospice from Heart'n Soul of Seattle (WA)</title>
+    <link href="https://doh.wa.gov/licenses-permits-and-certificates/facilities-z/certificate-need/project-status#project-DOR27-08"/>
+    <updated>2026-11-25T15:31:47.304370+00:00</updated>
+    <summary>Facilities: Heart to Heart Hospice; Source: Washington DOH Certificate of Need Projects</summary>
+  </entry>
   <entry>
     <id>urn:uuid:80eb17b9-be7e-452a-a1a2-ac0ec41bd564</id>
     <title>LiveWell Partners acquires Michigan Community VNA Home Health and Hospice (MI)</title>
@@ -48,18 +55,18 @@
     <summary>Source: Rhode Island OHSD Change in Effective Control Applications</summary>
   </entry>
   <entry>
-    <id>urn:uuid:89453290-d01c-44bf-91cc-be1803acd52c</id>
-    <title>Infinite Care and Emerald Group acquires Holliswood Center for Rehabilitation and Healthcare from Hollis Real Estate (NY)</title>
-    <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Holliswood%20Center%20for%20Rehabilitation%20and%20Healthcare"/>
-    <updated>2026-11-25T14:27:04.799442+00:00</updated>
-    <summary>Facilities: Holliswood Center for Rehabilitation and Healthcare; $88.50M; $66.40M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:8587d3df-2e09-40d5-aa4e-df195c011b30</id>
     <title>Infinite Care and Emerald Group acquires Beth Abraham Center for Rehabilitation and Nursing from Light Property Holdings Associates (NY)</title>
     <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Beth%20Abraham%20Center%20for%20Rehabilitation%20and%20Nursing"/>
     <updated>2026-11-25T14:27:04.799442+00:00</updated>
     <summary>Facilities: Beth Abraham Center for Rehabilitation and Nursing; $89.00M; $78.70M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:89453290-d01c-44bf-91cc-be1803acd52c</id>
+    <title>Infinite Care and Emerald Group acquires Holliswood Center for Rehabilitation and Healthcare from Hollis Real Estate (NY)</title>
+    <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Holliswood%20Center%20for%20Rehabilitation%20and%20Healthcare"/>
+    <updated>2026-11-25T14:27:04.799442+00:00</updated>
+    <summary>Facilities: Holliswood Center for Rehabilitation and Healthcare; $88.50M; $66.40M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
   </entry>
   <entry>
     <id>urn:uuid:d5af4a37-8f43-4aef-a89d-81d7d1fd0a4e</id>
@@ -347,12 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-elevate-hospice-holdings-llc-2026-03-23"/>
     <updated>2026-11-23T15:17:42.244773+00:00</updated>
     <summary>Effective 2026-03-23; Facilities: ELEVATE HOSPICE, LLC, ELEVATE HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:718acfca-a18e-49b9-b375-66cc776ff44e</id>
-    <title>CARE ALTERNATIVES HOSPICE SERVICES, LLC acquires AUTUMN HOSPICE from VILLAGE HOSPICE LLC (MA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-care-alternatives-hospice-services-llc-2026-03-19"/>
-    <updated>2026-11-23T15:17:41.892371+00:00</updated>
-    <summary>Effective 2026-03-19; Facilities: AUTUMN HOSPICE; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
