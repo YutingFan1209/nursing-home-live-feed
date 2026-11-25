@@ -180,10 +180,17 @@ def _parse_chow_items(text: str) -> list[dict]:
 _HOSPICE_IRF_RE = re.compile(r"hospice|rehabilitation hospital|inpatient rehab", re.I)
 
 
+# MSDH files some certified nursing homes as "Retirement Home" (Oak Grove
+# Retirement Home, Duncan, is CMS 255353), and "Personal Care Home" is
+# Mississippi's assisted living (in scope since 2026-11-12)
+_KEPT_TYPES = ("Nursing Home", "Hospice", "Retirement Home", "Personal Care Home")
+
+
 def _is_nursing_home(item: dict) -> bool:
-    """Kept rows: nursing homes, hospital-run long-term care units, hospices
-    and rehab hospitals (the name says nothing about the others' scope)."""
-    return (item["type"] in ("Nursing Home", "Hospice") or bool(_NURSING_WORDS_RE.search(item["facility"]))
+    """Kept rows: nursing homes (incl. "retirement homes"), personal care
+    homes (AL), hospital-run long-term care units, hospices and rehab
+    hospitals (the name says nothing about the others' scope)."""
+    return (item["type"] in _KEPT_TYPES or bool(_NURSING_WORDS_RE.search(item["facility"]))
             or bool(_HOSPICE_IRF_RE.search(item["facility"])))
 
 
@@ -262,7 +269,8 @@ def fetch_con_ms_deals(is_known, backfill: bool) -> list[dict]:
             )
             deals.append({
                 "url": url_key,
-                "title": f"[MS CON] CHOW ({item['transaction']}): {item['facility']}",
+                "title": f"[MS CON] CHOW ({item['transaction']}): {item['facility']}"
+                         + (" (Personal Care Home)" if item["type"] == "Personal Care Home" else ""),
                 "published_at": datetime.combine(item["received"], datetime.min.time()).replace(tzinfo=timezone.utc),
                 "raw_text": f"{summary}\n\nSource: {url} (week ending {week:%m/%d/%Y})",
                 "source_type": "con",

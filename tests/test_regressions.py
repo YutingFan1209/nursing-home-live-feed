@@ -540,8 +540,11 @@ def test_tn_agenda_chows_and_application_parties():
               "– Lic. No. 389 2. Iris Cove Health & Rehabilitation fka Quince Nursing and\nRehabilitation "
               "Center, LLC, Memphis – Lic. No. 197\n \n3. Applications - Change of Ownership\n")
     rows = parse_nursing_home_chows(agenda)
-    assert [(r["facility"][:20], r["town"], r["number"]) for r in rows] == [
-        ("Good Samaritan Socie", None, "389"), ("Iris Cove Health & R", "Memphis", "197")]
+    # Assisted care living is in scope since 2026-11-12 (kept since 11-25)
+    assert [(r["facility"][:20], r["town"], r["number"], r["al"]) for r in rows] == [
+        ("Canterfield of Oak R", "Oak Ridge", "399", True),
+        ("Good Samaritan Socie", None, "389", False), ("Iris Cove Health & R", "Memphis", "197", False)]
+    rows = rows[1:]
     app = ("Ownership of Building:\nName: Etowah Propco LLC    Phone Number: (646) 000-0000\n"
            "c. Legal Entity checked in 1.a:\nName: Etowah Opco LLC    Phone Number: (423) 000-0000\n"
            "b. If yes, list the name, address, and phone number of the holding company:\n"

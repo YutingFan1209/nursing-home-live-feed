@@ -247,6 +247,16 @@ _HOSPITAL_RE = re.compile(r"\bhospital\b|\bmedical center\b", re.I)
 _HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
 _REHAB_RE = re.compile(r"inpatient rehab|\bIRFs?\b|rehab(ilitation)? hospital", re.I)
 _AL_ONLY_FILING_RE = re.compile(r"assisted living|memory care|\bSCALF\b|\bALF\b|specialty care", re.I)
+# State filing sources that keep AL / memory care beside nursing homes, with
+# the words each state's filings use for it (NC licenses AL as adult care
+# homes, "rest home" the older name; its filter only lets these through
+# when they aren't a licensed nursing home)
+_AL_FILING_SOURCES = {
+    "[AL CON]": _AL_ONLY_FILING_RE,
+    "[NC CON]": re.compile(r"assisted living|memory care|adult care|rest home|senior living", re.I),
+    "[MS CON]": re.compile(r"personal care home|assisted living", re.I),
+    "[TN CHOW]": re.compile(r"assisted care living|assisted living", re.I),
+}
 # CMS owner-file sources that are hospice / rehab by construction
 # (scraper/pac_owner_changes.MODEL_FACILITY_TYPE)
 _MODEL_FACILITY_TYPE = {"cms_hospice_owner_change": "hospice", "cms_rehab_owner_change": "rehab",
@@ -344,14 +354,14 @@ def facility_type(d: dict) -> str:
             return "hospice"
         if _REHAB_RE.search(_text(d)):
             return "rehab"
-    if d.get("source_type") == "con" and (d.get("source_title") or "").startswith("[AL CON]") \
-            and _AL_ONLY_FILING_RE.search(
-            " ".join([d.get("source_title") or "", *(d.get("facility_names") or [])])) \
-            and not _SNF_RE.search(" ".join([d.get("source_title") or "", *(d.get("facility_names") or [])])):
-        # Alabama SHPDA keeps specialty care AL / memory care notices too
+    al_re = next((r for p, r in _AL_FILING_SOURCES.items() if (d.get("source_title") or "").startswith(p)), None)
+    own = " ".join([d.get("source_title") or "", *(d.get("facility_names") or [])])
+    if d.get("source_type") == "con" and al_re and al_re.search(own) and not _SNF_RE.search(own):
+        # Alabama SHPDA and NC exemptions keep AL / memory care filings too
         # (2026-11-25): the filing's own title and facility say AL, not SNF.
-        # Alabama only: other states' filings are nursing homes by construction
-        # (OK's "Fairfax Behavioral Health and Memory Care" is a nursing facility)
+        # Those states only: other states' filings are nursing homes by
+        # construction (OK's "Fairfax Behavioral Health and Memory Care" is
+        # a nursing facility)
         return "assisted_living"
     if d.get("source_type") in ("chow", "ucc", "con"):
         return "skilled_nursing"

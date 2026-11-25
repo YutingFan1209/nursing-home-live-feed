@@ -69,7 +69,7 @@ def meeting_date(agenda_text: str):
 
 
 def parse_nursing_home_chows(agenda_text: str) -> list[dict]:
-    """Nursing home, hospice and rehab hospital entries in the agenda's CHOW
+    """Nursing home, assisted care living, hospice and rehab hospital entries in the agenda's CHOW
     sections (the regular one and "Special Consideration"); other facility
     types are skipped."""
     rows = []
@@ -82,7 +82,10 @@ def parse_nursing_home_chows(agenda_text: str) -> list[dict]:
             # (no agenda read since 11-16), so a hospice heading is kept whole
             # and any other heading (home care, hospitals) only for entries
             # named as a hospice or rehab hospital
-            whole = "nursing home" in heading or "hospice" in heading
+            # Assisted care living facilities (Tennessee's AL) are in scope
+            # since 2026-11-12; their heading is unverified like the hospice one
+            al = "assisted care" in heading or "assisted living" in heading
+            whole = "nursing home" in heading or "hospice" in heading or al
             body = section[h.end(): heads[i + 1].start() if i + 1 < len(heads) else len(section)]
             body = " ".join(re.sub(r"(?m)^\s*\d+\s*$", "", body).split())
             parts = _ENTRY_END_RE.split(body)
@@ -93,7 +96,7 @@ def parse_nursing_home_chows(agenda_text: str) -> list[dict]:
                 if not whole and not _HOSPICE_IRF_RE.search(name):
                     continue
                 rows.append({"facility": name.strip(" ,"), "town": town, "number": num,
-                             "pac": "nursing home" not in heading})
+                             "pac": "nursing home" not in heading, "al": al})
     return rows
 
 
@@ -167,6 +170,7 @@ def to_deal(row: dict, meeting: datetime | None, agenda_url: str, key: str, ccn:
     return {
         "url": key,
         "title": f"[TN CHOW] {row['facility']}" + (f" ({row['town']})" if row["town"] else "")
+                 + (" (Assisted Care Living Facility)" if row.get("al") else "")
                  + (f": {buyer}" if buyer else ""),
         "published_at": meeting or datetime.now(timezone.utc),
         "raw_text": f"{summary}\n\n{sources}",

@@ -57,6 +57,10 @@ _NOT_NURSING_RE = re.compile(
 # health on its own isn't: "Home Health & Hospice" agencies count, a plain
 # home health agency doesn't)
 _HOSPICE_IRF_RE = re.compile(r"hospice|rehabilitation hospital|inpatient rehab", re.I)
+# Assisted living / memory care is in scope since 2026-11-12 (NC licenses it
+# as adult care homes; "rest home" is the older name). Family care and group
+# homes (2-6 beds, mostly disability) stay out
+_AL_RE = re.compile(r"assisted living|memory care|adult care home|rest home|senior living", re.I)
 _NAME_NOISE_RE = re.compile(r"\b(?:llc|inc|the|of|and|center|centre|a)\b|[^a-z0-9 ]")
 
 
@@ -118,6 +122,10 @@ def is_hospice_or_irf(row: dict) -> bool:
     return bool(_HOSPICE_IRF_RE.search(row["facility"]))
 
 
+def is_assisted_living(row: dict) -> bool:
+    return bool(_AL_RE.search(row["facility"])) and not re.search(r"family care|group home", row["facility"], re.I)
+
+
 def record_url(exemption_no: str) -> str:
     return f"{CON_NC_INDEX_URL}#exemption-{exemption_no}"
 
@@ -154,7 +162,7 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
         (r for r in rows
          if r["requested"] >= cutoff and _OWNERSHIP_RE.search(r["description"])
          and not _EQUIPMENT_RE.search(r["description"])
-         and (is_nursing_home(r, licensed, cms_names) or is_hospice_or_irf(r))),
+         and (is_nursing_home(r, licensed, cms_names) or is_hospice_or_irf(r) or is_assisted_living(r))),
         key=lambda r: r["requested"])
 
     # A hospice agency is licensed per county office, so one hospice sale is a
@@ -214,5 +222,5 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
             "rationale": summary,
         })
 
-    logger.info(f"NC CON: {len(rows)} exemptions listed, {len(deals)} new acquisitions (nursing homes, hospices, rehab hospitals)")
+    logger.info(f"NC CON: {len(rows)} exemptions listed, {len(deals)} new acquisitions (nursing homes, AL, hospices, rehab hospitals)")
     return deals
