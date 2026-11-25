@@ -4,7 +4,35 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T14:51:05.319681+00:00</updated>
+  <updated>2026-11-25T15:15:30.157018+00:00</updated>
+  <entry>
+    <id>urn:uuid:4b6a3fa5-8c96-46d8-97f5-0154aec08309</id>
+    <title>Greenville Operations RI, LLC acquires Greenville Operations RI LLC DBA Greenville Skille (RI)</title>
+    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/edit#gid=833901994&amp;range=A192"/>
+    <updated>2026-11-25T15:12:35.440225+00:00</updated>
+    <summary>Facilities: Greenville Operations RI LLC DBA Greenville Skille; Source: Rhode Island OHSD Change in Effective Control Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e8f20982-7b10-4d64-952f-91d4060f8ae0</id>
+    <title>AdviniaCare Kingston Rehab Center, LLC (Kingston Center for Rehabilitation and Health Care) acquires a facility in RI from Shady Acres Operations Associates LLC (RI)</title>
+    <link href="https://docs.google.com/spreadsheets/d/1fdRP2rh34eluTT13k8EIqjJUSnGTH2U5yGD-KwRFi-M/edit#gid=1595076143&amp;range=A204"/>
+    <updated>2026-11-25T15:12:29.389795+00:00</updated>
+    <summary>Source: Rhode Island OHSD Change in Effective Control Applications</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:89453290-d01c-44bf-91cc-be1803acd52c</id>
+    <title>Infinite Care and Emerald Group acquires Holliswood Center for Rehabilitation and Healthcare from Hollis Real Estate (NY)</title>
+    <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Holliswood%20Center%20for%20Rehabilitation%20and%20Healthcare"/>
+    <updated>2026-11-25T14:27:04.799442+00:00</updated>
+    <summary>Facilities: Holliswood Center for Rehabilitation and Healthcare; $88.50M; $66.40M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8587d3df-2e09-40d5-aa4e-df195c011b30</id>
+    <title>Infinite Care and Emerald Group acquires Beth Abraham Center for Rehabilitation and Nursing from Light Property Holdings Associates (NY)</title>
+    <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Beth%20Abraham%20Center%20for%20Rehabilitation%20and%20Nursing"/>
+    <updated>2026-11-25T14:27:04.799442+00:00</updated>
+    <summary>Facilities: Beth Abraham Center for Rehabilitation and Nursing; $89.00M; $78.70M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
   <entry>
     <id>urn:uuid:d5af4a37-8f43-4aef-a89d-81d7d1fd0a4e</id>
     <title>PAINESVILLE SNF OPCO LLC — UCC-1 financing (OH)</title>
@@ -326,33 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-hospiceserve-llc-2026-02-27"/>
     <updated>2026-11-23T15:17:41.449115+00:00</updated>
     <summary>Effective 2026-02-27; Facilities: LUMINOS HOSPICE LLC, OKLAHOMA PALLIATIVE &amp; HOSPICE CARE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bc35dfef-2be6-43bf-ad34-3af7663f5622</id>
-    <title>OPTIN HEALTH acquires VALLEY HEART HOSPICE CARE INC. (CA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-optin-health-2026-02-25"/>
-    <updated>2026-11-23T15:17:41.407638+00:00</updated>
-    <summary>Effective 2026-02-25; Facilities: VALLEY HEART HOSPICE CARE INC.; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3c56d5fb-28f0-4c41-8777-d6d393382d8b</id>
-    <title>PAS VENTURES acquires SOUTHERN BELLE HOSPICE LLC from LUNALYTICAL LLC (TX)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-pas-ventures-2026-02-13"/>
-    <updated>2026-11-23T15:17:41.359716+00:00</updated>
-    <summary>Effective 2026-02-13; Facilities: SOUTHERN BELLE HOSPICE LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:bbf5334c-4777-4cd5-abb8-133b9b1d79d3</id>
-    <title>INSPIRED HOSPICE HOLDINGS OF TX, LLC acquires CANYON HOME CARE &amp; HOSPICE (TX)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-inspired-hospice-holdings-of-tx-llc-2026-02-13"/>
-    <updated>2026-11-23T15:17:40.970479+00:00</updated>
-    <summary>Effective 2026-02-13; Facilities: CANYON HOME CARE &amp; HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:d122c5e7-94d5-478a-95dd-161b19760d42</id>
-    <title>KINDFUL HEALTH, LLC acquires KINDFUL HEALTH (TX)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-kindful-health-llc-2026-02-03"/>
-    <updated>2026-11-23T15:17:39.658480+00:00</updated>
-    <summary>Effective 2026-02-03; Facilities: KINDFUL HEALTH; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
