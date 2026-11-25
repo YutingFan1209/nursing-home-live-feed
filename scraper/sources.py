@@ -51,6 +51,26 @@ RSS_SOURCES = [
         url="https://seniorhousingnews.com/feed/",
         source_type="rss",
     ),
+    # Brokers' sale releases, syndicated in full (robots.txt allows all;
+    # added 2026-11-25). Real-estate wide: scraper/rss.py keeps only items
+    # that also name a care setting (BROAD_FEEDS)
+    Source(
+        name="Seniors Housing Business",
+        url="https://seniorshousingbusiness.com/feed/",
+        source_type="rss",
+    ),
+    Source(
+        name="REBusinessOnline — Healthcare",
+        url="https://rebusinessonline.com/category/healthcare/feed/",
+        source_type="rss",
+    ),
+    # Hospice scope (2026-11-23); Cloudflare-fronted like McKnight's, read
+    # through the browser-impersonating retry in scraper/rss._http_get
+    Source(
+        name="Hospice News",
+        url="https://hospicenews.com/feed/",
+        source_type="rss",
+    ),
 Source(
     name="Google Alerts — Nursing Home Acquisition",
     url="https://www.google.com/alerts/feeds/13149532980111734650/7438927054963187970",

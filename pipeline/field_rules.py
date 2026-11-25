@@ -80,7 +80,8 @@ SITE_RULES = """- A New Jersey UCC card's lender reads "Not available ..." (NJ's
   up to 60 days later keeps its own date: the gap is minor (CMS lags), over 60 days is wrong.
 - deal_value_m, financing_amount_m: US dollars, millions. A foreign-currency figure converted to
   dollars, or a price the source says was not disclosed, is wrong.
-- facility_type: skilled_nursing or assisted_living (memory care counts as assisted living).
+- facility_type: skilled_nursing, assisted_living (memory care counts as assisted living), hospice,
+  or rehab (an inpatient rehabilitation hospital or facility).
 - One announcement covering several states is one card per state, each with its own homes and count;
   separately described loans or sales in the same announcement are separate cards. Several loans or
   sales in different states shown as one card are wrong.

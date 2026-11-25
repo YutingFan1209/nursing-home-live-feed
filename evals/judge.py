@@ -59,7 +59,8 @@ FIELDS = ["deal_type", "buyer", "seller", "facility_count", "states", "acquisiti
           "deal_value_m", "financing_amount_m", "lender", "status", "facility_type", "ccns"]
 VERDICTS = ["right", "wrong", "minor", "duplicate", "noise", "uncertain"]
 
-SYSTEM = """You audit cards on a public feed of US nursing home ownership changes. Each card was \
+SYSTEM = """You audit cards on a public feed of US ownership changes at nursing homes, assisted \
+living / memory care communities, hospices and inpatient rehabilitation hospitals. Each card was \
 built by a pipeline from one source: a news article or SEC filing, a state notice or licence list \
 (source_type con), a UCC-1 lien filing (ucc), or a CMS record (chow: CMS change-of-ownership file or \
 CMS owner-file change). You get the card's shown fields and the evidence. Decide whether the card is \
@@ -76,8 +77,10 @@ family operator", "third-party debt"), or lender text has address junk or two na
 - duplicate: the same deal is already on the site as another card listed under OTHER CARDS (same \
 homes, same buyer side, closing within a few weeks), or one whose homes include all of this card's \
 (a portfolio card and a card for part of it). Name that card's id in the note.
-- noise: true, but not a nursing home deal: an equipment vendor's or landlord's lien shown as a loan, \
-a consumer loan, a merchant cash advance, a non-US or non-nursing-home business.
+- noise: true, but not a deal the feed covers: an equipment vendor's or landlord's lien shown as a loan, \
+a consumer loan, a merchant cash advance, a non-US business, or a business outside the feed's care \
+types (home health only, outpatient therapy, a general hospital, a physician group). Hospices and \
+inpatient rehabilitation hospitals are in scope.
 - uncertain: only when the evidence can't tell what kind of deal this is, or whether it happened \
 at all (a nonprofit parent added as an owner, a landlord or REIT as secured party on its tenant's \
 filing, a seller that may be the buyer's own company). Not uncertain: a field the source simply \

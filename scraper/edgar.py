@@ -41,7 +41,8 @@ EFTS_URL = "https://efts.sec.gov/LATEST/search-index"
 # EDGAR filing viewer base URL
 EDGAR_FILING_BASE = "https://www.sec.gov/Archives/edgar"
 
-# Known SNF REITs and large operators to search by name
+# Known SNF REITs and large operators (reference only: not searched by name,
+# see fetch_edgar_filings)
 KNOWN_ENTITIES = [
     "Welltower",
     "Sabra Health Care",
@@ -60,6 +61,13 @@ KNOWN_ENTITIES = [
     "Communicare Health",
     "Trilogy Health",
     "Prestige Healthcare",
+]
+
+# 8-K full-text searches, one per care type in scope
+CARE_SEARCHES = [
+    ("skilled nursing", '"acquisition" "skilled nursing"'),
+    ("hospice", '"acquisition" "hospice"'),
+    ("inpatient rehab", '"acquisition" "inpatient rehabilitation"'),
 ]
 
 # Keywords that indicate acquisition-related 8-K content
@@ -97,28 +105,32 @@ def fetch_edgar_filings() -> list[dict]:
     filings = []
     seen_ids = set()
 
-    # Strategy 1 — search by known entity names
-    for entity in KNOWN_ENTITIES:
+    # Strategy 1 — care-type keyword searches across all filers. This used
+    # to loop over KNOWN_ENTITIES with an "entity" parameter, but EFTS
+    # ignores "entity" (only "entityName" filters; found 2026-11-25), so each
+    # loop ran the same all-company search. That breadth is what found
+    # deals, so it stays, once per care type: hospice and inpatient rehab
+    # added 2026-11-25 for the hospice/rehab scope.
+    for label, q in CARE_SEARCHES:
         health.attempted("EDGAR search")
         try:
             results = _search_efts({
-                "q": f'"acquisition" "skilled nursing"',
+                "q": q,
                 "dateRange": "custom",
                 "startdt": date_from,
                 "enddt": date_to,
                 "forms": "8-K",
-                "entity": entity,
             })
             hits = results.get("hits", {}).get("hits", [])
-            logger.info(f"EDGAR search '{entity}': {len(hits)} hits")
+            logger.info(f"EDGAR search '{label}': {len(hits)} hits")
             for hit in hits:
                 filing = _parse_hit(hit)
                 if filing and filing["url"] not in seen_ids:
                     seen_ids.add(filing["url"])
                     filings.append(filing)
         except Exception as e:
-            logger.warning(f"EDGAR entity search failed for '{entity}': {e}")
-            health.failed("EDGAR search", f"{entity}: {e}")
+            logger.warning(f"EDGAR search failed for '{label}': {e}")
+            health.failed("EDGAR search", f"{label}: {e}")
             continue
 
     # Strategy 2 — broad keyword search for any company

@@ -1,14 +1,14 @@
 {
   "extract": {
-    "fingerprint": "97ba0ae7a397971a",
-    "date": "2026-11-20",
-    "score": "37/64 news cards fully right",
-    "note": "extract_raw_2026-11-20_2.jsonl"
+    "fingerprint": "65e6a2d13f118ba9",
+    "date": "2026-11-25",
+    "score": "39/64 news cards fully right",
+    "note": "extract_raw_2026-11-25.jsonl"
   },
   "judge": {
-    "fingerprint": "189c419feed88d6e",
-    "date": "2026-11-20",
-    "score": "caught 14/16, false alarms 37/126",
-    "note": "judge_gold_2026-11-20_189c419f.jsonl"
+    "fingerprint": "f4bbe3d5b08e7988",
+    "date": "2026-11-25",
+    "score": "caught 15/16, false alarms 36/126",
+    "note": "judge_gold_2026-11-25_f4bbe3d5.jsonl"
   }
 }

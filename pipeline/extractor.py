@@ -60,11 +60,14 @@ checks this way are blanked when the quote is missing or isn't in the article.
 
 Scope — only extract deals where the acquired asset (for a loan: the homes the loan is on) is one of: a nursing home, skilled nursing
 facility (SNF), assisted living facility, memory care community, continuing care retirement
-community (CCRC), or a senior/post-acute housing portfolio containing such facilities.
+community (CCRC), a hospice provider or hospice agency, an inpatient rehabilitation hospital or
+facility (IRF), or a senior/post-acute housing portfolio containing such facilities.
 Do NOT extract a deal whose acquired asset is:
 - healthcare technology/software (EHR, practice management, care-coordination platforms)
-- a hospital, physician practice, or medical group with no SNF/AL/memory-care component
-- a hospice-only or home-health-only provider with no SNF/AL/memory-care facilities involved
+- a hospital (other than an inpatient rehabilitation hospital), physician practice, or medical
+  group with no SNF/AL/memory-care/hospice component
+- a home-health-only or personal-care-only provider (no hospice, SNF, AL or memory care involved)
+- outpatient physical/occupational therapy clinics
 - anything outside healthcare entirely (real estate, retail, fitness, etc. mentioned only in
   passing or by a shared address/developer)
 - a PACE program (Program of All-Inclusive Care for the Elderly) or adult day center
