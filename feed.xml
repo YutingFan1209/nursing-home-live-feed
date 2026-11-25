@@ -4,7 +4,7 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T16:41:56.820832+00:00</updated>
+  <updated>2026-11-25T17:30:40.497328+00:00</updated>
   <entry>
     <id>urn:uuid:ed5f6a4c-bf88-4888-b053-acf2bede41b8</id>
     <title>A LOVELY FAMILY HOME INC. acquires a facility in FL (FL)</title>
@@ -76,11 +76,11 @@
     <summary>Effective 2026-10-05; Facilities: MARTINEZ FAMILY HOME LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
-    <id>urn:uuid:fcae0f63-058c-478d-b170-c089210bf7f9</id>
-    <title>JL ASSISTING LIVING LLC acquires a facility in FL (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968485-jl-assisting-living"/>
+    <id>urn:uuid:1f117268-af3d-4115-b97d-3eed9fe05885</id>
+    <title>Opco (FL) Jacksonville - 3760 Dupont Ave, LLC acquires SAN JOSE GARDENS ALZHEIMER'S SPECIAL CARE CENTER (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968993-opco-fl-jacksonville-3760-dupont-ave"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-10-01; Facilities: JL ASSISTING LIVING LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+    <summary>Effective 2026-10-01; Facilities: SAN JOSE GARDENS ALZHEIMER'S SPECIAL CARE CENTER; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
     <id>urn:uuid:28e5d738-99e4-4fd1-aaaf-4a06ca119f3e</id>
@@ -90,18 +90,18 @@
     <summary>Effective 2026-10-01; Facilities: THE ADDISON OF CLERMONT; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
-    <id>urn:uuid:7ae1e9e6-83bc-4893-8ee4-8121c3fa0a9f</id>
-    <title>Opco (FL) Jacksonville - 5760 Timuquana Rd, LLC acquires ORTEGA GARDENS ALZHEIMER'S SPECIAL CARE CENTER (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968535-opco-fl-jacksonville-5760-timuquana-rd"/>
-    <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-10-01; Facilities: ORTEGA GARDENS ALZHEIMER'S SPECIAL CARE CENTER; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:d1135661-679f-4e39-b573-1ec78fb6a121</id>
     <title>Opco (FL) Palm Valley - 5125 Palm Valley Rd, LLC acquires PONTE VEDRA GARDENS ALZHEIMER'S SPECIAL CARE CENTER (FL)</title>
     <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968820-opco-fl-palm-valley-5125-palm-valley-rd"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
     <summary>Effective 2026-10-01; Facilities: PONTE VEDRA GARDENS ALZHEIMER'S SPECIAL CARE CENTER; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:fcae0f63-058c-478d-b170-c089210bf7f9</id>
+    <title>JL ASSISTING LIVING LLC acquires a facility in FL (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968485-jl-assisting-living"/>
+    <updated>2026-11-25T16:14:38.972062+00:00</updated>
+    <summary>Effective 2026-10-01; Facilities: JL ASSISTING LIVING LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
     <id>urn:uuid:d05e6703-bf3b-4bb7-87bf-d2cb4667da3a</id>
@@ -111,11 +111,11 @@
     <summary>Effective 2026-10-01; Facilities: SUNSHINE LOVE ALF II LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
-    <id>urn:uuid:1f117268-af3d-4115-b97d-3eed9fe05885</id>
-    <title>Opco (FL) Jacksonville - 3760 Dupont Ave, LLC acquires SAN JOSE GARDENS ALZHEIMER'S SPECIAL CARE CENTER (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968993-opco-fl-jacksonville-3760-dupont-ave"/>
+    <id>urn:uuid:7ae1e9e6-83bc-4893-8ee4-8121c3fa0a9f</id>
+    <title>Opco (FL) Jacksonville - 5760 Timuquana Rd, LLC acquires ORTEGA GARDENS ALZHEIMER'S SPECIAL CARE CENTER (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11968535-opco-fl-jacksonville-5760-timuquana-rd"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-10-01; Facilities: SAN JOSE GARDENS ALZHEIMER'S SPECIAL CARE CENTER; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+    <summary>Effective 2026-10-01; Facilities: ORTEGA GARDENS ALZHEIMER'S SPECIAL CARE CENTER; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
     <id>urn:uuid:860031ea-f38c-4696-aeb6-db7e488dcd17</id>
@@ -125,18 +125,18 @@
     <summary>Effective 2026-09-21; Facilities: BECKY GOLDEN HOME LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
-    <id>urn:uuid:92c25be1-86d2-4166-b4e8-e2928372ba89</id>
-    <title>Pine Island Assisted Living LLC acquires PINE ISLAND ASSISTED LIVING LLC (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11910720-pine-island-assisted-living"/>
-    <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-09-13; Facilities: PINE ISLAND ASSISTED LIVING LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:f4cb2e3b-9f07-487f-9be3-8ea51ccd8a7b</id>
     <title>TAMARAC ASSISTED LIVING LLC acquires a facility in FL (FL)</title>
     <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11965625-tamarac-assisted-living"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
     <summary>Effective 2026-09-13; Facilities: TAMARAC ASSISTED LIVING LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:92c25be1-86d2-4166-b4e8-e2928372ba89</id>
+    <title>Pine Island Assisted Living LLC acquires PINE ISLAND ASSISTED LIVING LLC (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11910720-pine-island-assisted-living"/>
+    <updated>2026-11-25T16:14:38.972062+00:00</updated>
+    <summary>Effective 2026-09-13; Facilities: PINE ISLAND ASSISTED LIVING LLC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
     <id>urn:uuid:f6e31662-ed6e-4740-9a1e-ba99fee16c30</id>
@@ -272,6 +272,13 @@
     <summary>Effective 2026-07-08; Facilities: KT'S ASSISTED LIVING INC; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
+    <id>urn:uuid:03a4a6c7-2e64-45e8-ab6a-4cf236067c70</id>
+    <title>OSL NPR OPERATING LLC acquires THE OPAL AT NEW PORT RICHEY (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11953686-osl-npr-operating"/>
+    <updated>2026-11-25T16:14:38.972062+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: THE OPAL AT NEW PORT RICHEY; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+  </entry>
+  <entry>
     <id>urn:uuid:d5880788-57d8-4de8-87cd-1f66e753907d</id>
     <title>Mi Casa ALF 1, LLC acquires MI CASA ALF 1, LLC (FL)</title>
     <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11967701-mi-casa-alf-1"/>
@@ -286,32 +293,18 @@
     <summary>Effective 2026-07-01; Facilities: ASTON GARDENS AT THE COURTYARDS; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
-    <id>urn:uuid:53543b7f-f0be-4c27-98f3-f68e4bd90394</id>
-    <title>VOP ASTG PARKLAND COMMONS, LLC acquires ASTON GARDENS AT PARKLAND COMMONS (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11966071-vop-astg-parkland-commons"/>
-    <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: ASTON GARDENS AT PARKLAND COMMONS; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:03a4a6c7-2e64-45e8-ab6a-4cf236067c70</id>
-    <title>OSL NPR OPERATING LLC acquires THE OPAL AT NEW PORT RICHEY (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11953686-osl-npr-operating"/>
-    <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: THE OPAL AT NEW PORT RICHEY; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:9823f136-bcd5-43d6-9d6d-51b9e9d80249</id>
-    <title>OSL PALM COAST OPERATING LLC acquires THE OPAL AT PALM COAST (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11967189-osl-palm-coast-operating"/>
-    <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: THE OPAL AT PALM COAST; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:c992de41-52ac-4660-b313-039a9b36aba7</id>
     <title>HALLOWSTONE CHARLOTTE OPERATING LLC acquires HALLOWSTONE OF CHARLOTTE (FL)</title>
     <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11964729-hallowstone-charlotte-operating"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
     <summary>Effective 2026-07-01; Facilities: HALLOWSTONE OF CHARLOTTE; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:0eaaf593-15a7-4739-942e-abb8d9c72150</id>
+    <title>VOP ASTG Pelican Pointe, LLC acquires ASTON GARDENS AT PELICAN POINTE (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11966425-vop-astg-pelican-pointe"/>
+    <updated>2026-11-25T16:14:38.972062+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: ASTON GARDENS AT PELICAN POINTE; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
     <id>urn:uuid:d103bda5-1817-4ea8-a2f9-983852e569f3</id>
@@ -328,11 +321,18 @@
     <summary>Effective 2026-07-01; Facilities: THE OPAL AT BOYNTON BEACH; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
-    <id>urn:uuid:0eaaf593-15a7-4739-942e-abb8d9c72150</id>
-    <title>VOP ASTG Pelican Pointe, LLC acquires ASTON GARDENS AT PELICAN POINTE (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11966425-vop-astg-pelican-pointe"/>
+    <id>urn:uuid:9823f136-bcd5-43d6-9d6d-51b9e9d80249</id>
+    <title>OSL PALM COAST OPERATING LLC acquires THE OPAL AT PALM COAST (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11967189-osl-palm-coast-operating"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-07-01; Facilities: ASTON GARDENS AT PELICAN POINTE; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+    <summary>Effective 2026-07-01; Facilities: THE OPAL AT PALM COAST; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:53543b7f-f0be-4c27-98f3-f68e4bd90394</id>
+    <title>VOP ASTG PARKLAND COMMONS, LLC acquires ASTON GARDENS AT PARKLAND COMMONS (FL)</title>
+    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11966071-vop-astg-parkland-commons"/>
+    <updated>2026-11-25T16:14:38.972062+00:00</updated>
+    <summary>Effective 2026-07-01; Facilities: ASTON GARDENS AT PARKLAND COMMONS; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
   <entry>
     <id>urn:uuid:ef46c476-e273-4051-89c9-047320cb1cf5</id>
