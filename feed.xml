@@ -4,7 +4,28 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T15:20:53.188811+00:00</updated>
+  <updated>2026-11-25T15:21:54.177396+00:00</updated>
+  <entry>
+    <id>urn:uuid:80eb17b9-be7e-452a-a1a2-ac0ec41bd564</id>
+    <title>LiveWell Partners acquires Michigan Community VNA Home Health and Hospice (MI)</title>
+    <link href="https://ramaonhealthcare.com/livewell-partners-acquires-michigan-community-vna/#:~:text=Michigan%20Community%20VNA%20Home%20Health%20and%20Hospice"/>
+    <updated>2026-11-25T15:19:41.326772+00:00</updated>
+    <summary>Facilities: Michigan Community VNA Home Health and Hospice; Source: Google Alerts (Gmail)</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:d25d3095-39f8-4e2f-bb38-69a4b47f49a4</id>
+    <title>HCA Healthcare sells to Deaconess Associations</title>
+    <link href="https://www.beckershospitalreview.com/hospital-transactions-and-valuation/hca-completes-sale-of-31-home-health-hospice-agencies/#:~:text=Deaconess%20Associations"/>
+    <updated>2026-11-25T15:19:37.946571+00:00</updated>
+    <summary>Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e4122203-a5e1-4a94-aaae-c15bc93b95b8</id>
+    <title>Liberty Home Care and Hospice acquires Service League of Greenville Hospice House from ECU Health (NC)</title>
+    <link href="https://www.wilmingtonbiz.com/health_care/2026/11/02/liberty_health_acquires_ecu_health%E2%80%99s_home_health_hospice_unit/27980#:~:text=Service%20League%20of%20Greenville%20Hospice%20House"/>
+    <updated>2026-11-25T15:19:34.801535+00:00</updated>
+    <summary>Effective 2026-11-01; Facilities: Service League of Greenville Hospice House; Source: Google Alerts (Gmail)</summary>
+  </entry>
   <entry>
     <id>urn:uuid:34e26f7f-bb5e-4616-8c67-efa3b8ea255a</id>
     <title>Uplift Hospice acquires Elevation Hospice of Utah (UT)</title>
@@ -333,26 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-care-alternatives-hospice-services-llc-2026-03-19"/>
     <updated>2026-11-23T15:17:41.892371+00:00</updated>
     <summary>Effective 2026-03-19; Facilities: AUTUMN HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:affa528a-c3c5-4d0a-b502-c37fa4286cea</id>
-    <title>COMPASS CARE HOLDINGS LLC acquires INTERIM HEALTHCARE OF THE TWIN CITIES, LLC (MN)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-compass-care-holdings-llc-2026-03-16"/>
-    <updated>2026-11-23T15:17:41.597968+00:00</updated>
-    <summary>Effective 2026-03-16; Facilities: INTERIM HEALTHCARE OF THE TWIN CITIES, LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:82a24e4c-2331-4e25-83a1-4226c2b0bf3f</id>
-    <title>CAPSTONE HOSPICE ACQUISTIONS LLC acquires CAPSTONE HOSPICE, LLC from NORTH RIVER CAPSTONE LLC (GA)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-capstone-hospice-acquistions-llc-2026-03-13"/>
-    <updated>2026-11-23T15:17:41.549320+00:00</updated>
-    <summary>Effective 2026-03-13; Facilities: CAPSTONE HOSPICE, LLC; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:5ba11d88-fc1b-43fd-abe6-a0cf4b03640d</id>
-    <title>BRISTOL HOSPICE, L.L.C. acquires BRISTOL HOSPICE - LAS VEGAS (NV)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-bristol-hospice-l-l-c-2026-03-06"/>
-    <updated>2026-11-23T15:17:41.495330+00:00</updated>
-    <summary>Effective 2026-03-06; Facilities: BRISTOL HOSPICE - LAS VEGAS; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
