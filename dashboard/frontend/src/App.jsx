@@ -1158,7 +1158,13 @@ function mapBuckets(counts) {
   return [0.2, 0.4, 0.6, 0.8].map(q => vals[Math.min(vals.length - 1, Math.floor(q * vals.length))]);
 }
 
-function StatesMap({ counts, selected, onPick, what }) {
+// One line under the map where a pale state means "late", not "few sales"
+const MAP_NOTES = {
+  hospice: "Hospice sales come almost entirely from CMS records: every state is covered, usually 3\u20136 months after closing.",
+  rehab: "Inpatient rehab hospitals rarely change hands; these come from CMS records, all states.",
+};
+
+function StatesMap({ counts, selected, onPick, what, note }) {
   const [hover, setHover] = useState(null);
   const cuts = mapBuckets(counts);
   const shade = (n) => MAP_SHADES[cuts.filter(c => n > c).length];
@@ -1201,6 +1207,7 @@ function StatesMap({ counts, selected, onPick, what }) {
           <span style={{ width: 10, height: 10, borderRadius: 2, background: "#F0EEE8", border: "1px solid #E3E0D8" }} /> None
         </span>
       </div>
+      {note && <p style={{ fontSize: 12, color: "#5F636A", margin: "8px 0 0" }}>{note}</p>}
     </div>
   );
 }
@@ -1930,7 +1937,9 @@ export default function App() {
               {stats && !view && !focusId && !facilityCcn && panel && (
                 <div id={`nh-panel-${panel}`} style={{ background: "#fff", border: "1px solid #E3E0D8", borderRadius: 10, padding: "14px 16px", marginTop: 4 }}>
                   {panel === "map"
-                    ? <StatesMap counts={stateCounts} selected={state} what={tab === "financing" ? "Financing records" : "Ownership changes"}
+                    ? <StatesMap counts={stateCounts} selected={state} note={MAP_NOTES[care]}
+                        what={`${care === "hospice" ? "Hospice" : care === "rehab" ? "Inpatient rehab" : care === "all" ? "All"
+                          : "Nursing home & assisted living"} ${tab === "financing" ? "financing records" : "ownership changes"}`}
                         onPick={(s) => { setState(s); setOffset(0); }} />
                     : <SourceSchedule freshness={freshness} />}
                 </div>
