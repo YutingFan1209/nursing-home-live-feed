@@ -83,9 +83,11 @@ test("(e) tabs switch and their counts match the cards shown", async ({ page }) 
     const count = Number((await tabs.nth(i).locator("span").innerText()).replace(/,/g, ""));
     await expect(page.locator('article[id^="record-"]')).toHaveCount(count);
   }
-  // fixture: 6 skilled-nursing ownership-type records, 1 skilled-nursing financing
+  // fixture: 6 ownership-type records, 2 financing (the UCC loan and the news
+  // acquisition financing). Since 2026-11-12 the export decides scope, so the
+  // default view hides only hospice/rehab (care filter), not senior living
   await expect(tabs.nth(0)).toContainText("6");
-  await expect(tabs.nth(1)).toContainText("1");
+  await expect(tabs.nth(1)).toContainText("2");
 });
 
 test("(e2) arrow keys move between tabs and the panel follows", async ({ page }) => {

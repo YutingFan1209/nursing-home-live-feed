@@ -5,7 +5,8 @@ import { join } from "node:path";
 // UCC filer's name replaced): a CMS-confirmed sale, a pending news sale, an
 // old state CON filing with no seller, an undisclosed buyer, a lease with no
 // named parties, a control change, a news acquisition financing with no
-// borrower (senior living, so hidden unless scope=1), and an individual
+// borrower (senior living; shown by default since the 2026-11-12 scope change
+// moved scope to the export, so the old scope=1 param is a no-op), and an individual
 // UCC-1 matched to several homes.
 export const fixture = JSON.parse(readFileSync(join(__dirname, "fixtures", "deals.json"), "utf8"));
 export const byId = (prefix) => fixture.deals.find(d => d.id.startsWith(prefix));
