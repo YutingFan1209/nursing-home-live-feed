@@ -246,6 +246,7 @@ _HOSPITAL_RE = re.compile(r"\bhospital\b|\bmedical center\b", re.I)
 # version; outpatient therapy is a question for Tyler, docs/questions-for-t.md)
 _HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
 _REHAB_RE = re.compile(r"inpatient rehab|\bIRFs?\b|rehab(ilitation)? hospital", re.I)
+_AL_ONLY_FILING_RE = re.compile(r"assisted living|memory care|\bSCALF\b|\bALF\b|specialty care", re.I)
 # CMS owner-file sources that are hospice / rehab by construction
 # (scraper/pac_owner_changes.MODEL_FACILITY_TYPE)
 _MODEL_FACILITY_TYPE = {"cms_hospice_owner_change": "hospice", "cms_rehab_owner_change": "rehab",
@@ -337,6 +338,15 @@ def facility_type(d: dict) -> str:
             return "hospice"
         if _REHAB_RE.search(_text(d)):
             return "rehab"
+    if d.get("source_type") == "con" and (d.get("source_title") or "").startswith("[AL CON]") \
+            and _AL_ONLY_FILING_RE.search(
+            " ".join([d.get("source_title") or "", *(d.get("facility_names") or [])])) \
+            and not _SNF_RE.search(" ".join([d.get("source_title") or "", *(d.get("facility_names") or [])])):
+        # Alabama SHPDA keeps specialty care AL / memory care notices too
+        # (2026-11-25): the filing's own title and facility say AL, not SNF.
+        # Alabama only: other states' filings are nursing homes by construction
+        # (OK's "Fairfax Behavioral Health and Memory Care" is a nursing facility)
+        return "assisted_living"
     if d.get("source_type") in ("chow", "ucc", "con"):
         return "skilled_nursing"
     if d.get("ccns"):

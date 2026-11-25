@@ -59,6 +59,11 @@ _ROW_RE = re.compile(
 # digits sometimes get split by PDF text extraction ("017-N 0003").
 _FACILITY_ID_RE = re.compile(r"\b(\d{3})\s*-\s*([A-Z])\s*(\d{4})\b")
 _NURSING_HOME_TYPE = "N"
+# Kept beside nursing homes: P = hospice (in scope since 2026-11-25),
+# S = specialty care assisted living / memory care (AL in scope since
+# 2026-11-12). H home health, U surgery, D dialysis stay out.
+_KEPT_TYPES = {"N", "P", "S"}
+_KEPT_WORDS = re.compile(r"hospice|assisted living|memory care|\bSCALF\b|rehabilitation hospital", re.I)
 # Fallback when the ID can't be found (scanned pages, ID left off the form)
 _NURSING_HOME_WORDS = re.compile(r"skilled nursing|nursing home|nursing facility|\bSNF\b", re.I)
 
@@ -154,14 +159,15 @@ def fetch_con_al_notices(is_known) -> tuple[list[dict], list[dict]]:
         }
 
         is_nursing_home = (
-            type_letter == _NURSING_HOME_TYPE
-            if type_letter else bool(_NURSING_HOME_WORDS.search(text + " " + n["facility"]))
+            type_letter in _KEPT_TYPES
+            if type_letter else bool(_NURSING_HOME_WORDS.search(text + " " + n["facility"])
+                                     or _KEPT_WORDS.search(n["facility"]))
         )
         if is_nursing_home:
             nursing_homes.append(article)
         else:
-            article["skip_reason"] = f"AL CON: not a nursing home (SHPDA ID {facility_id or 'not found'})"
+            article["skip_reason"] = f"AL CON: not a nursing home, hospice or AL (SHPDA ID {facility_id or 'not found'})"
             skipped.append(article)
 
-    logger.info(f"AL CON: {len(nursing_homes)} nursing home notices, {len(skipped)} other facility types")
+    logger.info(f"AL CON: {len(nursing_homes)} nursing home / hospice / AL notices, {len(skipped)} other facility types")
     return nursing_homes, skipped

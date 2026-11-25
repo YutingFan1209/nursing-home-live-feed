@@ -175,8 +175,16 @@ def _parse_chow_items(text: str) -> list[dict]:
     return items
 
 
+# Hospices and inpatient rehab hospitals are in scope since 2026-11-25 (none
+# in the 12 months before; Allegiance Specialty Hospital is an LTACH, not one)
+_HOSPICE_IRF_RE = re.compile(r"hospice|rehabilitation hospital|inpatient rehab", re.I)
+
+
 def _is_nursing_home(item: dict) -> bool:
-    return item["type"] == "Nursing Home" or bool(_NURSING_WORDS_RE.search(item["facility"]))
+    """Kept rows: nursing homes, hospital-run long-term care units, hospices
+    and rehab hospitals (the name says nothing about the others' scope)."""
+    return (item["type"] in ("Nursing Home", "Hospice") or bool(_NURSING_WORDS_RE.search(item["facility"]))
+            or bool(_HOSPICE_IRF_RE.search(item["facility"])))
 
 
 def record_url(item: dict) -> str:
