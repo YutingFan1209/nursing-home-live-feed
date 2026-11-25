@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T17:30:40.497328+00:00</updated>
+  <updated>2026-11-25T17:31:16.946972+00:00</updated>
+  <entry>
+    <id>urn:uuid:b8b744cd-52eb-48bb-93d6-f5dc0ab87c39</id>
+    <title>American Eagle LifeCare Corporation sells Timberdale Trace (MN)</title>
+    <link href="https://seniorhousingnews.com/2026/11/18/senior-living-dealbook-chicago-pacific-founders-completes-61-5m-sale-sri-assumes-management-of-64th-community/#:~:text=Timberdale%20Trace"/>
+    <updated>2026-11-25T17:27:06.092740+00:00</updated>
+    <summary>Facilities: Timberdale Trace; Source: Senior Housing News</summary>
+  </entry>
   <entry>
     <id>urn:uuid:ed5f6a4c-bf88-4888-b053-acf2bede41b8</id>
     <title>A LOVELY FAMILY HOME INC. acquires a facility in FL (FL)</title>
@@ -347,12 +354,5 @@
     <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11932659-ksl-ltc-operating"/>
     <updated>2026-11-25T16:14:38.972062+00:00</updated>
     <summary>Effective 2026-06-23; Facilities: WOODMONT SENIOR LIVING; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:eb466868-db1e-4395-a25d-181f203b96ae</id>
-    <title>AFF 18 STUART OPCO LLC acquires THE GOLDTON OF STUART (FL)</title>
-    <link href="https://quality.healthfinder.fl.gov/Facility-Search/FacilityLocateSearch#alf-licensee-11969790-aff-18-stuart-opco"/>
-    <updated>2026-11-25T16:14:38.972062+00:00</updated>
-    <summary>Effective 2026-06-09; Facilities: THE GOLDTON OF STUART; Source: Florida AHCA FloridaHealthFinder Assisted Living List</summary>
   </entry>
 </feed>
