@@ -4,7 +4,42 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T15:44:38.783406+00:00</updated>
+  <updated>2026-11-25T16:08:39.823102+00:00</updated>
+  <entry>
+    <id>urn:uuid:b16069b0-8f47-4575-b8e9-55943468ea38</id>
+    <title>Pending sale of Oak Grove Retirement Home · Buyer not disclosed (MS)</title>
+    <link href="https://msdh.ms.gov/resources/media/CON%20Weekly%20Report%20for%2023%20Oct%202026.pdf#page=10"/>
+    <updated>2026-11-25T16:05:55.056432+00:00</updated>
+    <summary>Effective 2026-08-27; Facilities: Oak Grove Retirement Home; Source: Mississippi MSDH CON Weekly Reports</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8aa63724-61de-4763-af38-dfa486ff59b3</id>
+    <title>ARK Management acquires Yadkin Valley Senior Living (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#:~:text=5235"/>
+    <updated>2026-11-25T16:05:55.056432+00:00</updated>
+    <summary>Effective 2026-06-03; Facilities: Yadkin Valley Senior Living; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:e4100dd4-45fd-46a1-bbb1-a6611c41ee3b</id>
+    <title>AH Cotswold Real Estate, LLC acquires Charter Senior Living of Charlotte (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#:~:text=5176"/>
+    <updated>2026-11-25T16:05:55.056432+00:00</updated>
+    <summary>Effective 2026-05-06; Facilities: Charter Senior Living of Charlotte; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f3c9f4f3-4e13-466a-b749-77c486c13fc5</id>
+    <title>AWSL OPCO - Magnolia Creek, LLC acquires Magnolia Creek Assisted Living (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/index.html#:~:text=5112"/>
+    <updated>2026-11-25T16:05:55.056432+00:00</updated>
+    <summary>Effective 2026-03-19; Facilities: Magnolia Creek Assisted Living; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:87690884-d488-4610-9824-f9891939b991</id>
+    <title>CCJ Adult Care V LLC acquires Golden Years Rest Home (NC)</title>
+    <link href="https://info.ncdhhs.gov/dhsr/coneed/reviews/2026/jan/5066%20Cleveland%20Golden%20Years%20Rest%20Home%20920442%20Exemption.pdf#page=1"/>
+    <updated>2026-11-25T16:05:55.056432+00:00</updated>
+    <summary>Effective 2026-01-15; Facilities: Golden Years Rest Home; Source: North Carolina DHSR CON Exemptions</summary>
+  </entry>
   <entry>
     <id>urn:uuid:05768782-a3da-43a5-abbd-429a06262114</id>
     <title>AHR Hoover AL SH TRS Sub, LLC acquires Crossings at Riverchase Memory Care from Hoover Operations, LLC (AL)</title>
@@ -160,18 +195,18 @@
     <summary>Source: Rhode Island OHSD Change in Effective Control Applications</summary>
   </entry>
   <entry>
-    <id>urn:uuid:8587d3df-2e09-40d5-aa4e-df195c011b30</id>
-    <title>Infinite Care and Emerald Group acquires Beth Abraham Center for Rehabilitation and Nursing from Light Property Holdings Associates (NY)</title>
-    <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Beth%20Abraham%20Center%20for%20Rehabilitation%20and%20Nursing"/>
-    <updated>2026-11-25T14:27:04.799442+00:00</updated>
-    <summary>Facilities: Beth Abraham Center for Rehabilitation and Nursing; $89.00M; $78.70M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
-  </entry>
-  <entry>
     <id>urn:uuid:89453290-d01c-44bf-91cc-be1803acd52c</id>
     <title>Infinite Care and Emerald Group acquires Holliswood Center for Rehabilitation and Healthcare from Hollis Real Estate (NY)</title>
     <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Holliswood%20Center%20for%20Rehabilitation%20and%20Healthcare"/>
     <updated>2026-11-25T14:27:04.799442+00:00</updated>
     <summary>Facilities: Holliswood Center for Rehabilitation and Healthcare; $88.50M; $66.40M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:8587d3df-2e09-40d5-aa4e-df195c011b30</id>
+    <title>Infinite Care and Emerald Group acquires Beth Abraham Center for Rehabilitation and Nursing from Light Property Holdings Associates (NY)</title>
+    <link href="https://commercialobserver.com/2026/11/nursing-homes-sale-infinite-care-emerald-group/#:~:text=Beth%20Abraham%20Center%20for%20Rehabilitation%20and%20Nursing"/>
+    <updated>2026-11-25T14:27:04.799442+00:00</updated>
+    <summary>Facilities: Beth Abraham Center for Rehabilitation and Nursing; $89.00M; $78.70M financing; Source: Google Alerts — Nursing Home Acquisition</summary>
   </entry>
   <entry>
     <id>urn:uuid:d5af4a37-8f43-4aef-a89d-81d7d1fd0a4e</id>
@@ -319,40 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-seven-species-llc-2026-01-21"/>
     <updated>2026-11-24T16:47:40.069410+00:00</updated>
     <summary>Facilities: BREEZE HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:70ce0a76-a2cb-432e-865b-3740b8a8ef9f</id>
-    <title>SANFORD acquires GOOD SAMARITAN SOCIETY - HOSPICE from THE MARY LANNING MEMORIAL HOSPITAL ASSOCIATION (NE)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#enrollment-sanford-2026-01-21"/>
-    <updated>2026-11-24T16:47:36.015981+00:00</updated>
-    <summary>Facilities: GOOD SAMARITAN SOCIETY - HOSPICE; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:56904d7c-e24f-4b2a-b299-9818e41f0093</id>
-    <title>CARING HEART REHABILITATION AND NURSING CENTER — UCC-1 financing (PA)</title>
-    <link href="https://file.dos.pa.gov/search/ucc"/>
-    <updated>2026-11-24T16:15:24.479064+00:00</updated>
-    <summary>Effective 2026-11-16; Facilities: CARING HEART REHABILITATION AND NURSING CENTER; Source: State UCC-1 Filings</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e201e6ad-157e-4267-976a-e6295d66b705</id>
-    <title>INGLEWOOD POST ACUTE CARE LLC acquires INGLEWOOD HEALTHCARE CENTRE from INGLEWOOD OPERATING COMPANY LP (CA)</title>
-    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-055526-inglewood-post-acute-care"/>
-    <updated>2026-11-24T15:41:01.193610+00:00</updated>
-    <summary>Facilities: INGLEWOOD HEALTHCARE CENTRE; Source: California CDPH Licensed Facility List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:7b9b6ff1-9bfb-46fd-aaa8-b3400272f478</id>
-    <title>IMPERIAL VALLEY HEALTHCARE DISTRICT acquires EL CENTRO POST-ACUTE CARE from CITY OF EL CENTRO (CA)</title>
-    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-555158-imperial-valley-healthcare-district"/>
-    <updated>2026-11-24T15:41:01.128586+00:00</updated>
-    <summary>Facilities: EL CENTRO POST-ACUTE CARE; Source: California CDPH Licensed Facility List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6a1a4d39-af8c-4908-a653-868afc4635d9</id>
-    <title>RUBYSTAR HOLDINGS, LLC acquires FALLBROOK POST-ACUTE from FALLBROOK HEALTHCARE CENTER OPERATING COMPANY, LLC (CA)</title>
-    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-055298-rubystar-holdings"/>
-    <updated>2026-11-24T15:41:01.108809+00:00</updated>
-    <summary>Facilities: FALLBROOK POST-ACUTE; Source: California CDPH Licensed Facility List</summary>
   </entry>
 </feed>
