@@ -609,7 +609,9 @@ def after_closing(d: dict) -> str | None:
     """What a state record made after the sale took effect shows, or None:
     a licence list's new licensee, Tennessee's HFC ratifying a CHOW."""
     url = d.get("source_url") or ""
-    if "#licensee-" in url:
+    if "#alf-licensee-" in url:  # FL / MO assisted living (scraper/licence_lists.AL_LISTS)
+        return "State licence list shows a new owner"
+    if re.search(r"#(?:hospice-)?licensee-", url):
         return "State licence list shows a new licensee"
     if "tn.gov/hfc/" in url and "#chow-" in url:
         return "State commission ratified the change of ownership"
@@ -671,7 +673,10 @@ def status(d: dict, event: dict | None, today: date | None = None) -> dict:
     # to doubt it closed (Capitol River, MO, licensed November 2025)
     shown = after_closing(d) if src == "con" else None
     if shown:
-        return {"status": "reported", "status_detail": f"Reported: {shown}; not yet confirmed by CMS"}
+        # assisted living has no CMS record to confirm it against
+        tail = ("assisted living isn't in CMS's records" if facility_type(d) == "assisted_living"
+                else "not yet confirmed by CMS")
+        return {"status": "reported", "status_detail": f"Reported: {shown}; {tail}"}
     future = when and when > today
     pending_words = _PENDING_RE.search(d.get("summary") or "") and not _DONE_RE.search(d.get("summary") or "")
     if src == "con" or future or pending_words:
