@@ -53,6 +53,10 @@ _NURSING_WORDS_RE = re.compile(r"nursing|rehab|health ?care center|post[- ]acute
 _NOT_NURSING_RE = re.compile(
     r"assisted living|senior living|memory care|home health|hospice|hospital|surgery|surgical|endoscopy|imaging"
     r"|rest home|group home|residential|retirement|adult care|family care|medical (?:center|clinic|group)", re.I)
+# Hospice and inpatient rehab hospitals are in scope since 2026-11-25 (home
+# health on its own isn't: "Home Health & Hospice" agencies count, a plain
+# home health agency doesn't)
+_HOSPICE_IRF_RE = re.compile(r"hospice|rehabilitation hospital|inpatient rehab", re.I)
 _NAME_NOISE_RE = re.compile(r"\b(?:llc|inc|the|of|and|center|centre|a)\b|[^a-z0-9 ]")
 
 
@@ -110,6 +114,10 @@ def is_nursing_home(row: dict, licensed: list[tuple[str, str]], cms_names: list[
     return bool(_NURSING_WORDS_RE.search(row["facility"])) and not _NOT_NURSING_RE.search(row["facility"])
 
 
+def is_hospice_or_irf(row: dict) -> bool:
+    return bool(_HOSPICE_IRF_RE.search(row["facility"]))
+
+
 def record_url(exemption_no: str) -> str:
     return f"{CON_NC_INDEX_URL}#exemption-{exemption_no}"
 
@@ -145,11 +153,26 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
     candidates = sorted(
         (r for r in rows
          if r["requested"] >= cutoff and _OWNERSHIP_RE.search(r["description"])
-         and not _EQUIPMENT_RE.search(r["description"]) and is_nursing_home(r, licensed, cms_names)),
+         and not _EQUIPMENT_RE.search(r["description"])
+         and (is_nursing_home(r, licensed, cms_names) or is_hospice_or_irf(r))),
         key=lambda r: r["requested"])
+
+    # A hospice agency is licensed per county office, so one hospice sale is a
+    # row per county (Liberty / ECU Health: 6 rows, 5/11/2026): one record per
+    # buyer and request date, listing every row
+    hospice_groups: dict[tuple, list[dict]] = {}
+    for row in candidates:
+        if is_hospice_or_irf(row):
+            hospice_groups.setdefault((_norm(row["applicant"]), row["requested"]), []).append(row)
+    for group in hospice_groups.values():
+        group[0]["_group"] = group
+        for extra in group[1:]:
+            extra["_skip"] = True
 
     deals, last_filed = [], {}
     for row in candidates:
+        if row.get("_skip"):
+            continue
         key = (_norm(row["facility"]), row["county"].lower())
         prior = last_filed.get(key)
         if prior and (row["requested"] - prior).days <= REFILING_WINDOW_DAYS:
@@ -165,6 +188,10 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
             + (f", decided {row['decided']}" if row["decided"] else "")
             + f". Project: {row['description']}."
         )
+        group = row.get("_group") or [row]
+        if len(group) > 1:
+            summary += " Filed together with " + "; ".join(
+                f"{g['exemption_no']} ({g['facility']}, {g['county']} County: {g['description']})" for g in group[1:]) + "."
         deals.append({
             "url": record_url(row["exemption_no"]),
             "title": f"[NC CON] {row['exemption_no']} {row['description']}: {row['facility']}",
@@ -177,9 +204,9 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
             "acquiring_entity": row["applicant"] or None,
             "seller_entity": None,
             "operator_names": [row["applicant"]] if row["applicant"] else [],
-            "facility_names": [row["facility"]],
+            "facility_names": list(dict.fromkeys(g["facility"] for g in group)),
             "states": ["NC"],
-            "facility_count": 1,
+            "facility_count": len({(g["facility"], g["county"]) for g in group}),
             "deal_value_m": None,
             "acquisition_date": row["requested"].isoformat(),
             "financing_amount_m": None,
@@ -187,5 +214,5 @@ def fetch_con_nc_deals(is_known, cms_names: list[str]) -> list[dict]:
             "rationale": summary,
         })
 
-    logger.info(f"NC CON: {len(rows)} exemptions listed, {len(deals)} new nursing home acquisitions")
+    logger.info(f"NC CON: {len(rows)} exemptions listed, {len(deals)} new acquisitions (nursing homes, hospices, rehab hospitals)")
     return deals

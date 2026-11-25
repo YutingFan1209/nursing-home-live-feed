@@ -51,6 +51,7 @@ TN_EVERY_DAYS = 14
 from scraper.con_mi import fetch_con_mi_deals, CON_MI_SOURCE_NAME, CON_MI_INDEX_URL
 from scraper.con_ms import fetch_con_ms_deals, CON_MS_SOURCE_NAME, CON_MS_INDEX_URL
 from scraper.con_nc import fetch_con_nc_deals, CON_NC_SOURCE_NAME, CON_NC_INDEX_URL
+from scraper.con_wa import fetch_con_wa_deals, CON_WA_SOURCE_NAME, CON_WA_INDEX_URL
 from scraper.con_md import fetch_con_md_cases, CON_MD_SOURCE_NAME, CON_MD_INDEX_URL
 from scraper.con_nj import fetch_con_nj, CON_NJ_SOURCE_NAME, CON_NJ_OPERATOR_URL
 from scraper.con_ny import fetch_con_ny_projects, project_number as _con_ny_project, CON_NY_SOURCE_NAME, CON_NY_INDEX_URL
@@ -746,6 +747,18 @@ def discover_articles(conn, skip_ucc: bool = False, gmail_days_back: int = None,
             nc_cms_names = [row[0] for row in cur.fetchall() if row[0]]
         for deal in fetch_con_nc_deals(lambda url: _article_exists(url, conn), nc_cms_names):
             deal["source_id"] = con_nc_source_id
+            new_articles.append(deal)
+
+        # WA hospice / rehab hospital sales (CN exemption requests); WA nursing
+        # homes come from the licence-number diff
+        con_wa_source_id = _ensure_source(
+            type("S", (), {"name": CON_WA_SOURCE_NAME,
+                           "url": CON_WA_INDEX_URL,
+                           "source_type": "con"})(),
+            conn
+        )
+        for deal in fetch_con_wa_deals(lambda url: _article_exists(url, conn)):
+            deal["source_id"] = con_wa_source_id
             new_articles.append(deal)
 
         con_md_source_id = _ensure_source(

@@ -49,6 +49,7 @@ _SUBHEAD_RE = re.compile(r"(?m)^\s*[a-zA-Z]\.\s+(.+?)\s*$")
 # 2025's list is numbered ("1. ... - Lic. No. 389 2. ...")
 _ENTRY_END_RE = re.compile(r"\s*[-–]+\s*(?:File|License|Lic\.?)\s*(?:#|No\.?)\s*(\d+)\s*")
 _TOWN_RE = re.compile(r"^(?P<name>.+),\s*(?P<town>[A-Z][A-Za-z .']{2,30})$")
+_HOSPICE_IRF_RE = re.compile(r"hospice|rehabilitation hospital|inpatient rehab", re.I)
 _AKA_RE = re.compile(r"\s+(?:fka|f/k/a|dba|d/b/a|aka)\s+", re.I)
 
 
@@ -68,14 +69,20 @@ def meeting_date(agenda_text: str):
 
 
 def parse_nursing_home_chows(agenda_text: str) -> list[dict]:
-    """Nursing home entries in the agenda's CHOW sections (the regular one
-    and "Special Consideration"); other facility types are skipped."""
+    """Nursing home, hospice and rehab hospital entries in the agenda's CHOW
+    sections (the regular one and "Special Consideration"); other facility
+    types are skipped."""
     rows = []
     for section in _CHOW_SECTION_RE.findall(agenda_text):
         heads = list(_SUBHEAD_RE.finditer(section))
         for i, h in enumerate(heads):
-            if "nursing home" not in h.group(1).lower():
-                continue
+            heading = h.group(1).lower()
+            # Hospices and inpatient rehab hospitals are in scope since
+            # 2026-11-25. Their headings weren't seen when this was written
+            # (no agenda read since 11-16), so a hospice heading is kept whole
+            # and any other heading (home care, hospitals) only for entries
+            # named as a hospice or rehab hospital
+            whole = "nursing home" in heading or "hospice" in heading
             body = section[h.end(): heads[i + 1].start() if i + 1 < len(heads) else len(section)]
             body = " ".join(re.sub(r"(?m)^\s*\d+\s*$", "", body).split())
             parts = _ENTRY_END_RE.split(body)
@@ -83,7 +90,10 @@ def parse_nursing_home_chows(agenda_text: str) -> list[dict]:
                 head = re.sub(r"^\d+\.\s+", "", head.strip())
                 m = _TOWN_RE.match(head)
                 name, town = (m.group("name"), m.group("town").strip()) if m else (head, None)
-                rows.append({"facility": name.strip(" ,"), "town": town, "number": num})
+                if not whole and not _HOSPICE_IRF_RE.search(name):
+                    continue
+                rows.append({"facility": name.strip(" ,"), "town": town, "number": num,
+                             "pac": "nursing home" not in heading})
     return rows
 
 
@@ -259,7 +269,9 @@ def fetch_con_tn_deals(is_known, cms_homes: list[tuple[str, str, str]], today: d
                             except Exception as e:
                                 logger.warning(f"TN CHOW application {letter_url}: {e}")
                                 health.failed("TN CHOW applications", f"{letter_url}: {e}")
-                    deals.append(to_deal(row, meeting, agenda_url, key, match_ccn(row, cms_homes),
+                    # cms_homes are nursing homes only
+                    ccn = None if row.get("pac") else match_ccn(row, cms_homes)
+                    deals.append(to_deal(row, meeting, agenda_url, key, ccn,
                                          parties, letter_url))
             if not read:
                 health.source_failed("TN CON agendas", "no agenda PDFs could be read")
@@ -268,5 +280,5 @@ def fetch_con_tn_deals(is_known, cms_homes: list[tuple[str, str, str]], today: d
                 page.close()
             except Exception:
                 pass
-    logger.info(f"TN CON: {len(deals)} new nursing home CHOWs")
+    logger.info(f"TN CON: {len(deals)} new CHOWs ({sum(1 for d in deals if not d.get('ccns'))} without a CMS home match)")
     return deals
