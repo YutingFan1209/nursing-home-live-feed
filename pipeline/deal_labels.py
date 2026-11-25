@@ -208,7 +208,10 @@ def transaction_type(d: dict) -> str:
         return "non_deal_lien" if is_personal_loan(d) or is_not_a_deal(d) else dt
     text = _text(d)
     if dt == "ownership_change":
-        if _CONTROL_RE.search(text) and not d.get("deal_value_m"):
+        # News: the card's own summary only. A roundup's headline covers other
+        # deals ("Dealbook: ... SRI Assumes Management", 2026-11-25 Timberdale)
+        ctl = (d.get("summary") or "") if d.get("source_type") in ("rss", "edgar") else text
+        if _CONTROL_RE.search(ctl) and not d.get("deal_value_m"):
             return "control_change"
         if _LEASE_RE.search(text) and not (d.get("source_type") in ("rss", "edgar") and _SALE_RE.search(d.get("summary") or "")):
             return "lease"
