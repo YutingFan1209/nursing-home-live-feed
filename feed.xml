@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T15:15:30.157018+00:00</updated>
+  <updated>2026-11-25T15:15:57.442926+00:00</updated>
+  <entry>
+    <id>urn:uuid:34e26f7f-bb5e-4616-8c67-efa3b8ea255a</id>
+    <title>Uplift Hospice acquires Elevation Hospice of Utah (UT)</title>
+    <link href="https://hospicenews.com/2026/11/19/uplift-hospice-acquires-elevation-hospice-of-utah/#:~:text=Elevation%20Hospice%20of%20Utah"/>
+    <updated>2026-11-25T15:14:43.891225+00:00</updated>
+    <summary>Facilities: Elevation Hospice of Utah; Source: Hospice News</summary>
+  </entry>
   <entry>
     <id>urn:uuid:4b6a3fa5-8c96-46d8-97f5-0154aec08309</id>
     <title>Greenville Operations RI, LLC acquires Greenville Operations RI LLC DBA Greenville Skille (RI)</title>
@@ -347,12 +354,5 @@
     <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-bristol-hospice-l-l-c-2026-03-06"/>
     <updated>2026-11-23T15:17:41.495330+00:00</updated>
     <summary>Effective 2026-03-06; Facilities: BRISTOL HOSPICE - LAS VEGAS; Source: CMS Hospice Ownership Changes</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:c3956b27-ae39-4448-94cd-64424cbe7a58</id>
-    <title>HOSPICESERVE LLC acquires LUMINOS HOSPICE LLC and 1 more from PERA HCA HOLDCO LLC (MO, OK)</title>
-    <link href="https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospice-all-owners#owner-hospiceserve-llc-2026-02-27"/>
-    <updated>2026-11-23T15:17:41.449115+00:00</updated>
-    <summary>Effective 2026-02-27; Facilities: LUMINOS HOSPICE LLC, OKLAHOMA PALLIATIVE &amp; HOSPICE CARE; Source: CMS Hospice Ownership Changes</summary>
   </entry>
 </feed>
