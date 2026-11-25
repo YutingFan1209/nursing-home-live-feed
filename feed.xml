@@ -4,7 +4,14 @@
   <link href="https://yutingfan1209.github.io/nursing-home-live-feed/"/>
   <link rel="self" href="https://yutingfan1209.github.io/nursing-home-live-feed/feed.xml"/>
   <id>https://yutingfan1209.github.io/nursing-home-live-feed/</id>
-  <updated>2026-11-25T15:41:46.407127+00:00</updated>
+  <updated>2026-11-25T15:42:50.928606+00:00</updated>
+  <entry>
+    <id>urn:uuid:05768782-a3da-43a5-abbd-429a06262114</id>
+    <title>AHR Hoover AL SH TRS Sub, LLC acquires Crossings at Riverchase Memory Care from Hoover Operations, LLC (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2027/CO2027-004%20Crossings%20at%20Riverchase%20Memory%20Care%20117-S5928%20-%20CHOW%20App%2011.10.2026.pdf#page=1"/>
+    <updated>2026-11-25T15:38:44.122622+00:00</updated>
+    <summary>Effective 2026-11-17; Facilities: Crossings at Riverchase Memory Care; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
   <entry>
     <id>urn:uuid:56ae3f94-1a6d-41d4-a07b-c8bbadd1e349</id>
     <title>Owens Cross Roads Holdco 2940 acquires Residences at Wellpoint Memory Care (AL)</title>
@@ -25,6 +32,13 @@
     <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-035%20Complete%201.29.2026.pdf"/>
     <updated>2026-11-25T15:38:27.654791+00:00</updated>
     <summary>Effective 2026-01-01; Facilities: Murray House Assisted Living; $0.55M; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:df5ed740-3e0e-40d9-b906-d8056d5f0381</id>
+    <title>The Haven at Autumn Cove Memory Care takes over operations of Autumn Cove Memory Care (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-025%20Complete%2012.1.2025.pdf#page=4"/>
+    <updated>2026-11-25T15:38:23.515344+00:00</updated>
+    <summary>Effective 2025-12-01; Facilities: Autumn Cove Memory Care; Source: Alabama SHPDA Change of Ownership Notices</summary>
   </entry>
   <entry>
     <id>urn:uuid:e2921cf3-3796-431a-9264-7b462498a4c0</id>
@@ -81,6 +95,13 @@
     <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-028%20Complete%2012.5.2025.pdf#page=1"/>
     <updated>2026-11-25T15:37:48.584836+00:00</updated>
     <summary>Effective 2025-12-05; Facilities: Kauhale Port City Specialty Care Assisted Living; Source: Alabama SHPDA Change of Ownership Notices</summary>
+  </entry>
+  <entry>
+    <id>urn:uuid:f611d281-d348-42a7-b0f3-ec86c324cf60</id>
+    <title>Control change at Legacy Hospice of the East, LLC (Legacy Hospice of the East) (AL)</title>
+    <link href="http://shpda.alabama.gov/Announcements/certificateofneed/chow/FY2026/CO2026-024%20Complete%2012.11.2025.pdf#page=1"/>
+    <updated>2026-11-25T15:37:42.390709+00:00</updated>
+    <summary>Effective 2025-11-10; Facilities: Legacy Hospice of the East, LLC; Source: Alabama SHPDA Change of Ownership Notices</summary>
   </entry>
   <entry>
     <id>urn:uuid:f46d1124-e706-4451-9e22-e185bdef8305</id>
@@ -333,26 +354,5 @@
     <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-055298-rubystar-holdings"/>
     <updated>2026-11-24T15:41:01.108809+00:00</updated>
     <summary>Facilities: FALLBROOK POST-ACUTE; Source: California CDPH Licensed Facility List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:e4dc90bc-012f-4448-838c-4dc05a2955bf</id>
-    <title>GRACE HOME INC acquires GRACE HOME from CHURCH OF GOD IN CHRIST (CA)</title>
-    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-05A110-grace-home"/>
-    <updated>2026-11-24T15:41:01.084575+00:00</updated>
-    <summary>Facilities: GRACE HOME; Source: California CDPH Licensed Facility List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:6911d417-5825-49bc-8e8b-9303c615d0f3</id>
-    <title>MISSION PEAK HOLDINGS, LLC acquires MOUNTAIN MANOR SENIOR RESIDENCE from GRANDCARE, INC. (CA)</title>
-    <link href="https://data.chhs.ca.gov/dataset/licensed-and-certified-healthcare-facility-listing#licensee-555889-mission-peak-holdings"/>
-    <updated>2026-11-24T15:40:59.696755+00:00</updated>
-    <summary>Facilities: MOUNTAIN MANOR SENIOR RESIDENCE; Source: California CDPH Licensed Facility List</summary>
-  </entry>
-  <entry>
-    <id>urn:uuid:3ec361df-a35b-4d75-8d86-acafed4a1074</id>
-    <title>DELMAR SNF OPERATIONS ASSOCIATES, LLC — acquisition financing (NY)</title>
-    <link href="https://ucc-efiling.dos.ny.gov/OnlineUCCSearch/OnlineLienInformation?lienId=3835082"/>
-    <updated>2026-11-23T16:46:50.284092+00:00</updated>
-    <summary>Effective 2025-08-05; Facilities: DELMAR SNF OPERATIONS ASSOCIATES, LLC; Source: State UCC-1 Filings</summary>
   </entry>
 </feed>
