@@ -125,7 +125,7 @@ LISTS = {
     "MO": {
         "source_name": "Missouri DHSS Long-Term Care Licence List",
         "page_url": "https://data.mo.gov/Health/LTC-Directory/fenu-sipv",
-        "csv_url": "https://data.mo.gov/api/views/fenu-sipv/rows.csv?accessType=DOWNLOAD",
+        "csv_url": "https://data.mo.gov/resource/fenu-sipv.csv?$limit=50000",
         "label": "Missouri's licence list (DHSS, data.mo.gov)",
     },
     "CA": {
@@ -144,7 +144,7 @@ LISTS = {
     "NY": {
         "source_name": "New York DOH Health Facility List (HFIS)",
         "page_url": "https://health.data.ny.gov/Health/Health-Facility-General-Information/vn5v-hh5r",
-        "csv_url": "https://health.data.ny.gov/api/views/vn5v-hh5r/rows.csv?accessType=DOWNLOAD",
+        "csv_url": "https://health.data.ny.gov/resource/vn5v-hh5r.csv?$limit=50000",
         "label": "New York's facility list (DOH HFIS, health.data.ny.gov)",
     },
     "NC": {
@@ -257,9 +257,23 @@ def _date(s: str):
     return None
 
 
+# data.mo.gov / health.data.ny.gov retired the /api/views/.../rows.csv export
+# (HTTP 410, 2026-11-25); the /resource/ API serves the same rows with
+# snake_case field names, mapped back to the export's headers here
+_SODA_HEADERS = {
+    "MO": {"level_of_care": "Level of Care", "certification": "Certification", "entity_name": "Entity Name",
+           "fcilicenseeffdate": "LicenseEffDate", "facility_name": "Facility Name", "city": "City"},
+    "NY": {"fac_desc_short": "Short Description", "operator_name": "Operator Name",
+           "facility_name": "Facility Name", "city": "Facility City", "address1": "Facility Address 1"},
+}
+
+
 def parse_rows(state: str, csv_text: str) -> list[dict]:
     rows = []
+    rename = _SODA_HEADERS.get(state, {})
     for r in csv.DictReader(io.StringIO(csv_text)):
+        if rename:
+            r = {rename.get(k, k): v for k, v in r.items()}
         if state == "MO":
             if r.get("Level of Care") != "SNF" or not (r.get("Certification") or "").strip().isdigit():
                 continue

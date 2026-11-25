@@ -103,6 +103,10 @@ def fetch_feed(url: str) -> list[dict]:
             is_google_alert = 'google.com/alerts' in url
             if not is_google_alert and not _is_acquisition_related(title + " " + summary):
                 continue
+            # Broad real-estate feeds (mostly offices, retail, new builds):
+            # keep only items that also name a care setting in scope
+            if any(d in url for d in BROAD_FEEDS) and not CARE_WORDS.search(title + " " + summary):
+                continue
             articles.append({
                 "url": article_url,
                 "title": title,
@@ -229,6 +233,12 @@ ACQUISITION_KEYWORDS = [
     "portfolio", "operator", "ownership", "financ", "invest",
     "buys", "buyer", "seller", "closes", "closing",
 ]
+
+# France Media trade sites carrying brokers' sale releases (added 2026-11-25);
+# their feeds cover all real estate, so they also need a care word
+BROAD_FEEDS = ("seniorshousingbusiness.com", "rebusinessonline.com")
+CARE_WORDS = re.compile(r"nursing|skilled|\bsnf|assisted living|memory care|post-acute|post acute|"
+                        r"hospice|rehab|care center|long-term care|ccrc|life plan", re.I)
 
 def _is_acquisition_related(text: str) -> bool:
     """Heuristic filter — only process articles about acquisitions."""
